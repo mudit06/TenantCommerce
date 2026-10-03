@@ -10,6 +10,7 @@
  */
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import config from '@payload-config'
 import { createLocalReq, getPayload, type PayloadRequest } from 'payload'
@@ -21,7 +22,8 @@ import type { Media, Page } from '@/payload-types'
 
 import { ABOUT_US, ATTRIBUTE_SETS, CATEGORIES, PRODUCTS, type ProductSeed } from './catalogue'
 
-const here = path.dirname(new URL(import.meta.url).pathname)
+// fileURLToPath, not URL.pathname: on Windows the pathname is /C:/... and breaks every path
+const here = path.dirname(fileURLToPath(import.meta.url))
 const businessFile = existsSync(path.join(here, 'business.json'))
   ? 'business.json'
   : 'business.example.json'
