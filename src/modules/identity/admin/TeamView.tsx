@@ -67,9 +67,9 @@ export async function TeamView({ initPageResult, params, searchParams }: AdminVi
               <Card title="Security">
                 <Rows>
                   <Row
-                    aside={<span className="te-text--warning">Pending decision</span>}
+                    aside={<span className="te-text--warning">Not yet</span>}
                     primary="Two-step verification"
-                    secondary="Required for every platform account. Waiting on the Sprint 1 two-step login spike (docs/open-items)."
+                    secondary="Deferred for now (mudit, 3 October 2026). Planned before real vendor data goes live."
                   />
                   <Row aside={`${SESSION_SECONDS / 3600} hours`} primary="Session length" />
                   <Row

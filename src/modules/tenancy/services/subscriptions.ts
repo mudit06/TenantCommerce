@@ -8,7 +8,13 @@ import { recordAudit } from '@/modules/audit'
 import type { Plan, Subscription } from '@/payload-types'
 
 import type { BillingCycle, PaymentMethod } from '../constants'
-import { coverageFor, effectiveStatus, lastCoveredDay, periodEnd } from './billing'
+import {
+  coverageFor,
+  effectiveStatus,
+  lastCoveredDay,
+  nextPaymentTerms,
+  periodEnd,
+} from './billing'
 
 type HistoryRow = NonNullable<Subscription['history']>[number]
 
@@ -103,7 +109,8 @@ export async function recordSubscriptionPayment(
   }
   const sub = await loadSubscription(req, input.subscriptionId)
   const now = new Date()
-  const cover = coverageFor(sub, now)
+  const terms = nextPaymentTerms(sub, planOf(sub))
+  const cover = coverageFor(sub, now, terms.months)
   const label = `${formatDate(cover.start)} to ${formatDate(lastCoveredDay(cover.end))}`
   const updated = await req.payload.update({
     collection: 'subscriptions',
@@ -126,7 +133,7 @@ export async function recordSubscriptionPayment(
       history: [
         ...(sub.history ?? []),
         historyRow(req, {
-          event: `Payment recorded, covers ${label}`,
+          event: `Payment recorded${terms.isIntro ? ' (introductory offer)' : ''}, covers ${label}`,
           amountMinor: input.amountMinor,
           reference: [input.method.toUpperCase(), input.reference].filter(Boolean).join(' · '),
         }),

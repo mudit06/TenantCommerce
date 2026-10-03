@@ -8,6 +8,8 @@ import type { BillingCycle, SubscriptionStatus } from '../constants'
 type PlanPrices = {
   priceMonthly: { amountMinor?: number | null }
   priceYearly?: { amountMinor?: number | null } | null
+  /** Optional starting offer: the first payment covers `months` at `price` (before GST). */
+  introOffer?: { price?: { amountMinor?: number | null } | null; months?: number | null } | null
 }
 
 export type SubscriptionLike = {
@@ -16,6 +18,7 @@ export type SubscriptionLike = {
   currentPeriodStart?: string | Date | null
   currentPeriodEnd?: string | Date | null
   trialEndsAt?: string | Date | null
+  payments?: readonly unknown[] | null
 }
 
 const toDate = (value: string | Date | null | undefined) => (value ? new Date(value) : null)
@@ -68,9 +71,49 @@ export function nextCoverageStart(sub: SubscriptionLike, now: Date): Date {
   return toDate(sub.currentPeriodEnd) ?? toDate(sub.trialEndsAt) ?? now
 }
 
-export function coverageFor(sub: SubscriptionLike, now: Date, timeZone = DEFAULT_TIMEZONE) {
+export type PaymentTerms = {
+  /** True when this payment takes the plan's introductory offer. */
+  isIntro: boolean
+  months: number
+  /** Before GST */
+  priceMinor: number
+  /** Plus 18% GST: what the vendor pays */
+  dueMinor: number
+}
+
+/**
+ * What the next payment costs and how long it covers. A subscription's first payment takes the
+ * plan's introductory offer when it has one (for example ₹9,999 for 3 months); after that each
+ * payment covers one billing period at the plan price.
+ */
+export function nextPaymentTerms(sub: SubscriptionLike, plan: PlanPrices): PaymentTerms {
+  const introPrice = plan.introOffer?.price?.amountMinor
+  const introMonths = plan.introOffer?.months
+  if ((sub.payments?.length ?? 0) === 0 && introPrice && introMonths) {
+    return {
+      isIntro: true,
+      months: introMonths,
+      priceMinor: introPrice,
+      dueMinor: withGst(introPrice),
+    }
+  }
+  const cycle = sub.billingCycle ?? 'monthly'
+  return {
+    isIntro: false,
+    months: cycle === 'yearly' ? 12 : 1,
+    priceMinor: planPriceMinor(plan, cycle),
+    dueMinor: amountDueMinor(plan, cycle),
+  }
+}
+
+export function coverageFor(
+  sub: SubscriptionLike,
+  now: Date,
+  months = sub.billingCycle === 'yearly' ? 12 : 1,
+  timeZone = DEFAULT_TIMEZONE,
+) {
   const start = nextCoverageStart(sub, now)
-  return { start, end: periodEnd(start, sub.billingCycle ?? 'monthly', timeZone) }
+  return { start, end: addMonths(start, months, timeZone) }
 }
 
 /** The last day a period covers, for "1 Oct to 31 Oct 2026" (period ends are exclusive). */
@@ -115,7 +158,7 @@ export function summarizeBilling(subs: readonly SubscriptionWithPlan[], now: Dat
     }
     if (status === 'past_due') {
       summary.pastDueCount += 1
-      summary.pastDueOutstandingMinor += amountDueMinor(sub.plan, cycle)
+      summary.pastDueOutstandingMinor += nextPaymentTerms(sub, sub.plan).dueMinor
     }
     if (status === 'trialing') {
       summary.trialCount += 1
@@ -126,7 +169,7 @@ export function summarizeBilling(subs: readonly SubscriptionWithPlan[], now: Dat
       const end = toDate(sub.currentPeriodEnd)
       if (end && end <= soon) {
         summary.renewingSoonCount += 1
-        summary.renewingSoonMinor += amountDueMinor(sub.plan, cycle)
+        summary.renewingSoonMinor += nextPaymentTerms(sub, sub.plan).dueMinor
       }
     }
   }

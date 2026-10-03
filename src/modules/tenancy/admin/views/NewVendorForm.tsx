@@ -21,6 +21,7 @@ export type PlanOption = {
   maxProducts: number
   maxStaffUsers: number
   allowedModules: string[]
+  intro: { priceMinor: number; months: number } | null
 }
 
 const slugFrom = (value: string) =>
@@ -344,6 +345,11 @@ export function NewVendorForm({
                 />
                 <span className="te-strong">{option.name}</span>
                 <span>{formatINR(option.priceMonthlyMinor)} / month</span>
+                {option.intro ? (
+                  <span className="te-small te-text--info">
+                    Starts at {formatINR(option.intro.priceMinor)} for {option.intro.months} months
+                  </span>
+                ) : null}
                 <span className="te-muted te-small">
                   {option.maxProducts.toLocaleString('en-IN')} products · {option.maxStaffUsers}{' '}
                   staff

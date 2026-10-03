@@ -38,7 +38,7 @@ export const Plans: CollectionConfig = {
           type: 'text',
           required: true,
           unique: true,
-          admin: { description: 'Short permanent key, for example growth' },
+          admin: { description: 'Short permanent key, for example starter' },
           validate: (value: string | null | undefined) =>
             !value || /^[a-z0-9-]+$/.test(value) ? true : 'Lowercase letters, numbers, hyphens',
         },
@@ -52,6 +52,37 @@ export const Plans: CollectionConfig = {
       ],
     },
     {
+      name: 'introOffer',
+      label: 'Introductory offer',
+      type: 'group',
+      admin: {
+        description:
+          'Optional. A new subscription’s first payment covers these months at this price (before GST); then the monthly price applies. Example: ₹9,999 for 3 months.',
+      },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            moneyField({ name: 'price', label: 'Offer price (before GST)' }),
+            {
+              name: 'months',
+              label: 'Months covered',
+              type: 'number',
+              min: 1,
+              max: 24,
+              validate: (
+                value: number | null | undefined,
+                { siblingData }: { siblingData: { price?: { amountMinor?: number | null } } },
+              ) =>
+                Boolean(siblingData?.price?.amountMinor) === Boolean(value)
+                  ? true
+                  : 'Set both the offer price and the months, or neither',
+            },
+          ],
+        },
+      ],
+    },
+    {
       name: 'limits',
       type: 'group',
       admin: { description: 'Checked on the server. Stores are warned at 90% of a limit.' },
@@ -59,11 +90,24 @@ export const Plans: CollectionConfig = {
         {
           type: 'row',
           fields: [
-            { name: 'maxProducts', type: 'number', required: true, min: 0 },
-            { name: 'maxStaffUsers', type: 'number', required: true, min: 1 },
-            { name: 'maxStorageGB', type: 'number', required: true, min: 0 },
+            { name: 'maxProducts', label: 'Max products', type: 'number', required: true, min: 0 },
+            {
+              name: 'maxStaffUsers',
+              label: 'Max staff users',
+              type: 'number',
+              required: true,
+              min: 1,
+            },
+            {
+              name: 'maxStorageGB',
+              label: 'Max storage (GB)',
+              type: 'number',
+              required: true,
+              min: 0,
+            },
             {
               name: 'maxOrdersPerMonth',
+              label: 'Max orders per month',
               type: 'number',
               min: 0,
               admin: { description: 'Empty means no limit' },

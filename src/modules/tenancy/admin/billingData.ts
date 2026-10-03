@@ -3,11 +3,14 @@ import type { Payload } from 'payload'
 import { formatDate, formatDateWithWeekday } from '@/lib/dates'
 import type { Subscription } from '@/payload-types'
 
+import { formatINR } from '@/lib/money'
+
 import {
   amountDueMinor,
   coverageFor,
   effectiveStatus,
   lastCoveredDay,
+  nextPaymentTerms,
   planPriceMinor,
 } from '../services/billing'
 
@@ -18,9 +21,17 @@ export type BillingPanelData = {
     planId: string
     planName: string
     billingCycle: 'monthly' | 'yearly'
+    /** The plan's starting offer, while the subscription has not used it yet */
+    introLabel: string | null
+    /** Next payment: plus GST, and whether it is the starting offer */
+    nextIsIntro: boolean
     billingMode: string
+    /** Plan price for one billing period, before GST */
     priceMinor: number
-    dueMinor: number
+    /** Plan price plus GST */
+    planDueMinor: number
+    /** What the next payment should be, plus GST (the starting offer while it applies) */
+    nextDueMinor: number
     periodLabel: string | null
     nextRenewalLabel: string | null
     trialEndsLabel: string | null
@@ -45,7 +56,8 @@ export async function loadBillingPanel(
   if (!plan) return null
   const now = new Date()
   const cycle = sub.billingCycle ?? 'monthly'
-  const cover = coverageFor(sub, now)
+  const terms = nextPaymentTerms(sub, plan)
+  const cover = coverageFor(sub, now, terms.months)
   const [{ docs: plans }, users] = await Promise.all([
     payload.find({
       collection: 'plans',
@@ -80,7 +92,12 @@ export async function loadBillingPanel(
       billingCycle: cycle,
       billingMode: sub.billingMode,
       priceMinor: planPriceMinor(plan, cycle),
-      dueMinor: amountDueMinor(plan, cycle),
+      planDueMinor: amountDueMinor(plan, cycle),
+      nextDueMinor: terms.dueMinor,
+      nextIsIntro: terms.isIntro,
+      introLabel: terms.isIntro
+        ? `${formatINR(terms.priceMinor)} + GST = ${formatINR(terms.dueMinor, { decimals: 'always' })} for the first ${terms.months} months, then the plan price`
+        : null,
       periodLabel:
         sub.currentPeriodStart && sub.currentPeriodEnd && sub.status !== 'trialing'
           ? `${formatDate(sub.currentPeriodStart)} to ${formatDate(lastCoveredDay(new Date(sub.currentPeriodEnd)))}`

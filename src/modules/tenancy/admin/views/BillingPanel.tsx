@@ -19,7 +19,7 @@ const todayIso = () => new Date().toISOString().slice(0, 10)
 export function BillingPanel({ data, canEdit }: { data: BillingPanelData; canEdit: boolean }) {
   const router = useRouter()
   const { subscription: sub } = data
-  const [amount, setAmount] = useState(toRupeesString(sub.dueMinor))
+  const [amount, setAmount] = useState(toRupeesString(sub.nextDueMinor))
   const [paidOn, setPaidOn] = useState(todayIso())
   const [method, setMethod] = useState<string>('neft')
   const [reference, setReference] = useState('')
@@ -95,8 +95,14 @@ export function BillingPanel({ data, canEdit }: { data: BillingPanelData; canEdi
             <dt>With GST</dt>
             <dd>
               {formatINR(sub.priceMinor)} + {GST_ON_SUBSCRIPTION_PERCENT}% ={' '}
-              <strong>{formatINR(sub.dueMinor, { decimals: 'always' })}</strong>
+              <strong>{formatINR(sub.planDueMinor, { decimals: 'always' })}</strong>
             </dd>
+            {sub.introLabel ? (
+              <>
+                <dt>Starting offer</dt>
+                <dd>{sub.introLabel}</dd>
+              </>
+            ) : null}
             <dt>Billing</dt>
             <dd>
               {labelOf(sub.billingMode)} <Pill>Razorpay in P2</Pill>
@@ -156,7 +162,8 @@ export function BillingPanel({ data, canEdit }: { data: BillingPanelData; canEdi
         <div className="te-stack">
           <Card title="Record payment">
             <p className="te-muted te-small">
-              Covers {sub.nextCoverLabel}. Bank transfers and UPI are recorded by hand in the MVP.
+              {sub.nextIsIntro ? 'Starting offer: covers ' : 'Covers '}
+              {sub.nextCoverLabel}. Bank transfers and UPI are recorded by hand in the MVP.
             </p>
             <div className="te-form">
               <label className="te-label" htmlFor="pay-amount">

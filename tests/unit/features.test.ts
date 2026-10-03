@@ -51,8 +51,8 @@ describe('feature registry (docs/08)', () => {
 })
 
 describe('starting features for a new store', () => {
-  it('hardware on Growth: defaults plus the preset, 16 on (super admin New vendor screen)', () => {
-    const switches = startingFeatures(['hardware'], plan('growth'))
+  it('hardware on Enterprise: defaults plus the preset, 16 on (super admin New vendor screen)', () => {
+    const switches = startingFeatures(['hardware'], plan('enterprise'))
     expect(switches.affiliate).toBe(true)
     expect(switches['enquire-only-products']).toBe(true)
     expect(switches['dealer-locator']).toBe(true)
@@ -65,14 +65,14 @@ describe('starting features for a new store', () => {
   })
 
   it('clothing switches enquiries and product videos off', () => {
-    const switches = startingFeatures(['clothing'], plan('growth'))
+    const switches = startingFeatures(['clothing'], plan('enterprise'))
     expect(switches.enquiries).toBe(false)
     expect(switches['product-videos']).toBe(false)
     expect(switches['size-guide']).toBe(true)
   })
 
   it('a default-on feature stays on unless every chosen industry turns it off', () => {
-    expect(startingFeatures(['clothing', 'decor'], plan('growth')).enquiries).toBe(true)
+    expect(startingFeatures(['clothing', 'decor'], plan('enterprise')).enquiries).toBe(true)
   })
 
   it('never starts Phase 2 modules, even when plan and preset include them', () => {
@@ -82,7 +82,7 @@ describe('starting features for a new store', () => {
   })
 
   it('drops a feature whose dependency is not in the plan', () => {
-    const withoutOffers = plan('growth').filter((key) => key !== 'offer-messages')
+    const withoutOffers = plan('enterprise').filter((key) => key !== 'offer-messages')
     expect(startingFeatures(['decor'], withoutOffers)['abandoned-cart']).toBe(false)
   })
 })

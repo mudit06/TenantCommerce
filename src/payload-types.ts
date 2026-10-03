@@ -305,11 +305,18 @@ export interface Plan {
   id: string;
   name: string;
   /**
-   * Short permanent key, for example growth
+   * Short permanent key, for example starter
    */
   code: string;
   priceMonthly: Money;
   priceYearly: Money;
+  /**
+   * Optional. A new subscription’s first payment covers these months at this price (before GST); then the monthly price applies. Example: ₹9,999 for 3 months.
+   */
+  introOffer: {
+    price: Money;
+    months?: number | null;
+  };
   /**
    * Checked on the server. Stores are warned at 90% of a limit.
    */
@@ -868,6 +875,12 @@ export interface PlansSelect<T extends boolean = true> {
   code?: T;
   priceMonthly?: T | MoneySelect<T>;
   priceYearly?: T | MoneySelect<T>;
+  introOffer?:
+    | T
+    | {
+        price?: T | MoneySelect<T>;
+        months?: T;
+      };
   limits?:
     | T
     | {

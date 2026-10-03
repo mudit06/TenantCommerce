@@ -22,7 +22,8 @@ export function moneyField({
 }: MoneyFieldOptions): GroupField {
   return {
     name,
-    label,
+    // The amount field carries the label; a group heading would repeat it
+    label: false,
     type: 'group',
     interfaceName: 'Money',
     admin: { description, hideGutter: true },

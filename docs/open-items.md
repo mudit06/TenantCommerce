@@ -42,7 +42,7 @@ The super admin panel is built (README status). These came up while building it:
 
 | Item | What was done for now | Needs |
 |---|---|---|
-| Two-step login for platform admins (spike 4 above) | Not enforced yet; the Team screen says so. Password policy, lockout and 8-hour sessions are in | Pick `payload-totp` or our own TOTP; required before any real vendor data |
+| Two-step login for platform admins (spike 4 above) | Deferred by mudit on 3 October 2026; the Team screen says so. Password policy, lockout and 8-hour sessions are in | Pick `payload-totp` or our own TOTP before real vendor data goes live |
 | Per-vendor "Allowed" connector switch (super admin Connectors tab) | The tab shows what the plan allows. docs/06 has no field for a per-vendor allow switch under the plan | Decide: the plan is the only ceiling (simplest), or add `tenants.allowedConnectors` |
 | Invite links | Reuse Payload's reset-password token (72 h, single use). Payload stores it unhashed, docs/05 says hashed | Accept, or write our own invite token (small job) |
 | Admin fonts | Plus Jakarta Sans and IBM Plex Mono load from Google Fonts in the admin | Self-host them (no third-party request, simpler CSP) when the storefront kit adds fonts |
@@ -52,7 +52,8 @@ The super admin panel is built (README status). These came up while building it:
 
 ## 3. Before launch (not blocking development)
 
-- Plan names, prices and limits (placeholders today), and what happens at the monthly order limit
+- Final plan prices and the staff, storage and order limits (interim prices set on 3 October 2026,
+  docs/00), and what happens at the monthly order limit
 - The platform domain, which must not contain "sr", "kr" or "shiprocket", or Shiprocket rejects the
   tracking webhook
 - A CA to confirm the GST rules now written into docs/11: delivery charge and COD fee at the goods'

@@ -1,8 +1,12 @@
+import type { RequiredDataFromCollectionSlug } from 'payload'
+
 import type { FeatureKey } from '@/modules/features'
 import type { OnboardingInput } from '@/modules/tenancy'
 
-// Placeholder plans (docs/screens/super-admin.md Plans: names, prices and limits are
-// placeholders until mudit sets them). Prices are paise, before GST.
+// Interim plans (mudit, 3 October 2026; to be revised): Starter ₹3,499 a month for up to 500
+// products, Enterprise ₹6,999 a month for up to 10,000. New Starter vendors pay ₹9,999 for their
+// first 3 months, then monthly. Prices are paise, before GST. Staff, storage and order limits are
+// still placeholders.
 const MVP_CORE: FeatureKey[] = [
   'guest-checkout',
   'cod',
@@ -22,7 +26,7 @@ const MVP_CORE: FeatureKey[] = [
   'whatsapp-offers',
   'abandoned-cart',
 ]
-const GROWTH_EXTRA: FeatureKey[] = [
+const ENTERPRISE_EXTRA: FeatureKey[] = [
   'affiliate',
   'warranty',
   'service-requests',
@@ -31,39 +35,36 @@ const GROWTH_EXTRA: FeatureKey[] = [
   'compare',
   'loyalty',
   'multilingual',
+  'b2b',
+  'trade-schemes',
 ]
-const ENTERPRISE_EXTRA: FeatureKey[] = ['b2b', 'trade-schemes']
 const ALL_CONNECTORS = ['razorpay', 'manual', 'shiprocket', 'meta-whatsapp', 'msg91'] as const
+const inr = (amountMinor: number) => ({ amountMinor, currency: 'INR' as const })
+const noOffer = { price: { currency: 'INR' as const }, months: null }
+// No yearly price yet: a yearly subscription is 12 x the monthly price until one is set
+const noYearlyPrice = { currency: 'INR' as const }
 
-export const PLANS = [
+export const PLANS: RequiredDataFromCollectionSlug<'plans'>[] = [
   {
     code: 'starter',
     name: 'Starter',
     sortOrder: 10,
-    priceMonthly: { amountMinor: 4_999_00, currency: 'INR' as const },
-    priceYearly: { amountMinor: 49_990_00, currency: 'INR' as const },
+    priceMonthly: inr(3_499_00),
+    priceYearly: noYearlyPrice,
+    introOffer: { price: inr(9_999_00), months: 3 },
     limits: { maxProducts: 500, maxStaffUsers: 3, maxStorageGB: 5, maxOrdersPerMonth: 1_000 },
     allowedModules: MVP_CORE,
     allowedConnectors: [...ALL_CONNECTORS],
   },
   {
-    code: 'growth',
-    name: 'Growth',
-    sortOrder: 20,
-    priceMonthly: { amountMinor: 9_999_00, currency: 'INR' as const },
-    priceYearly: { amountMinor: 99_990_00, currency: 'INR' as const },
-    limits: { maxProducts: 2_000, maxStaffUsers: 10, maxStorageGB: 20, maxOrdersPerMonth: 5_000 },
-    allowedModules: [...MVP_CORE, ...GROWTH_EXTRA],
-    allowedConnectors: [...ALL_CONNECTORS],
-  },
-  {
     code: 'enterprise',
     name: 'Enterprise',
-    sortOrder: 30,
-    priceMonthly: { amountMinor: 24_999_00, currency: 'INR' as const },
-    priceYearly: { amountMinor: 2_49_990_00, currency: 'INR' as const },
+    sortOrder: 20,
+    priceMonthly: inr(6_999_00),
+    priceYearly: noYearlyPrice,
+    introOffer: noOffer,
     limits: { maxProducts: 10_000, maxStaffUsers: 30, maxStorageGB: 100, maxOrdersPerMonth: null },
-    allowedModules: [...MVP_CORE, ...GROWTH_EXTRA, ...ENTERPRISE_EXTRA],
+    allowedModules: [...MVP_CORE, ...ENTERPRISE_EXTRA],
     allowedConnectors: [...ALL_CONNECTORS],
   },
 ]
@@ -74,7 +75,7 @@ export const DEMO_TENANTS: (Omit<OnboardingInput, 'plan'> & {
   trialDays: number
 })[] = [
   {
-    planCode: 'growth',
+    planCode: 'enterprise',
     trialDays: 0,
     business: {
       name: 'Demo Sanitary',

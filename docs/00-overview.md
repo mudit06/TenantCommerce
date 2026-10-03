@@ -23,6 +23,8 @@ installable (PWA) online store and CMS, run by our team on one shared codebase.
 | Onboarding | Platform team creates tenants and vendor logins. No self sign-up in MVP |
 | Market | India first (INR, GST). Code ready for multi-currency later |
 | Revenue | Monthly SaaS subscription per vendor. Billed manually in MVP, Razorpay Subscriptions in Phase 2 |
+| Plans (interim) | Starter ₹3,499 a month for up to 500 products; Enterprise ₹6,999 a month for up to 10,000 products. New Starter vendors start with ₹9,999 for the first 3 months, then pay monthly. Prices plus GST; staff, storage and order limits still placeholders. Editable in the admin (Billing, Plans), to be revised (mudit, 3 October 2026) |
+| Two-step login | Deferred for now; staff sign in with email and password, lockout and 8-hour sessions (mudit, 3 October 2026). Needed before real vendor data goes live |
 | Payments | Per-vendor connectors using the vendor's own gateway keys. Razorpay first. COD supported |
 | Shipping | Shiprocket connector in MVP (moved from Phase 2), on the vendor's own Shiprocket account: pincode serviceability, courier booking, labels, pickups, tracking, failed deliveries, RTO, return pickups. Manual shipping (zones, rates, tracking no.) stays for vendors without it. Shopper delivery charges come from the vendor's own rates |
 | Shopper messages | Order updates (confirmed, packed, shipped, out for delivery, delivered...) on WhatsApp, SMS and email in MVP, sent from each vendor's own WhatsApp number and SMS sender on the vendor's own accounts (ADR 0005, docs/18) |

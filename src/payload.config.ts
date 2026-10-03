@@ -31,6 +31,17 @@ const dirname = path.dirname(filename)
 export default buildConfig({
   serverURL: env.ADMIN_URL,
   secret: env.PAYLOAD_SECRET,
+  // Cookie sessions are accepted only from these origins (CSRF, docs/05). Locally the admin may be
+  // opened at any of the usual loopback names; production allows the admin URL only.
+  csrf:
+    env.NODE_ENV === 'production'
+      ? [env.ADMIN_URL]
+      : [
+          env.ADMIN_URL,
+          'http://localhost:3000',
+          'http://127.0.0.1:3000',
+          'http://admin.localhost:3000',
+        ],
   db: mongooseAdapter({
     url: env.DATABASE_URI,
     // Wait for index builds before the first writes (avoids lock timeouts on a fresh database).

@@ -50,7 +50,7 @@ What else to know:
 | `Invalid environment variables` on start | Run `pnpm setup:local`; it lists what is still empty in `.env` |
 | `MongoServerSelectionError` / `ECONNREFUSED 27017` | Start Docker Desktop, then `docker compose -f docker/docker-compose.yml up -d mongo` and wait about 10 seconds |
 | Port 3000 or 27017 already in use | Stop the other app, or change the port mapping in `docker/docker-compose.yml` and `DATABASE_URI` |
-| Signed in but the page loops back to login | Open the admin at the same address as `ADMIN_URL` in `.env` (default `http://localhost:3000`) |
+| Signed in, but saving fails or the page loops back to login | Open the admin at `ADMIN_URL` from `.env` (default `http://localhost:3000`). Locally `localhost`, `127.0.0.1` and `admin.localhost` on port 3000 all work; any other address must be set as `ADMIN_URL` |
 
 ## Commands
 
@@ -65,10 +65,16 @@ What else to know:
 
 ## Plans
 
-The seeded plans (Starter ₹4,999, Growth ₹9,999, Enterprise ₹24,999 a month; 500, 2,000 and
-10,000 products) are placeholders copied from the wireframes. The real names, prices and limits
-are a business decision; change them any time in the admin under Billing, Plans, or in
-`scripts/seedData.ts` for new setups. They don't block development.
+Interim plans (3 October 2026, to be revised; prices plus 18% GST):
+
+| Plan | Price | Products | Starting offer |
+|---|---|---|---|
+| Starter | ₹3,499 a month | up to 500 | ₹9,999 for the first 3 months, then monthly |
+| Enterprise | ₹6,999 a month | up to 10,000 | none |
+
+Change them any time in the admin under Billing, Plans (the starting offer is the "Introductory
+offer" field), or in `scripts/seedData.ts` for new setups. A database seeded before this change
+keeps its old plans: edit them in the admin, or reset the database (see above) and seed again.
 
 ## Code map
 

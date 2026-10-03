@@ -21,11 +21,25 @@ list are built ahead of the vendor CMS. Sprints 2 to 12 have not started.
 Legend: **Done** = built and tested to the screen spec for MVP. **Partial** = usable, with the
 listed gaps. **Not started** = nothing built yet.
 
+## Path to vendor 1's storefront
+
+The storefront shows what the vendor CMS holds, so the CMS is built in three stages and the
+vendor 1 storefront starts after stage A, in parallel with stage B.
+
+| Stage | Vendor CMS screens | Storefront it unlocks | Needs before it starts |
+|---|---|---|---|
+| A. Catalog and store setup | Store settings, Categories, Attribute sets, Products, Product editor, Media, CSV import, Pages, Page builder, Menus, Dealers, Enquiries, Staff and roles screen, basic dashboard | Home, category listing and filters, search, product page, CMS and policy pages, dealer locator, downloads, contact and quote forms | Shop plugin test build and its ADR (docs/open-items section 2); page builder core or per vendor; vendor 1's industry, category tree and a sample product sheet |
+| B. Selling | Payments (Razorpay, COD), Shipping zones, Orders, Order detail, Customers, Order updates, WhatsApp and SMS, basic Reports | Cart, checkout, account, order tracking, invoices | Shopper login test build; WhatsApp and SMS in MVP or not; delivery fee from rate card or live Shiprocket; vendor 1's Razorpay test keys and shipping method |
+| C. Growth | Schemes, Coupons, Offer messages, Abandoned carts, Reviews, Affiliates, full Reports | Offers pages, coupon box, reviews, wishlist, affiliate pages | Which of these vendor 1 wants at launch |
+
+If vendor 1 launches as a catalogue with enquiries (no online payment), stage A alone is enough
+for its first storefront.
+
 ## Super admin (docs/screens/super-admin.md)
 
 | Screen | Status | Built | Left, and why |
 |---|---|---|---|
-| `sa-login` Sign in | Partial | Sign-in, lockout after 5 tries for 15 min, 8-hour session, same message for unknown and disabled accounts, 10-character passwords | Two-step login: waits on the decision in docs/open-items 2b |
+| `sa-login` Sign in | Partial | Sign-in, lockout after 5 tries for 15 min, 8-hour session, same message for unknown and disabled accounts, 10-character passwords | Two-step login: deferred by mudit (3 October 2026) |
 | `sa-dashboard` Platform dashboard | Partial | Live stores (paying, on trial), MRR, past due with amount, trials, Needs attention (past due, trials ending, plan limits at 90%, draft stores, owners who haven't accepted), Recently onboarded | Orders today, GMV, sales chart, top stores (need orders and daily-stats, sprints 4 and 5); failing connectors, WhatsApp templates, SSL rows (need connectors) |
 | `sa-vendors` All vendors | Done | List, search by name, slug, legal name or GSTIN, status tabs with counts, filters and columns | Export CSV; subscription and products-used columns |
 | `sa-vendor-new` New vendor | Done | All five steps, GSTIN check and PAN/state fill, industry preset capped by plan, trial, owner invite, same service as `pnpm create-tenant` | Store settings, counters, tax rates and menus are created by those modules when they are built (they listen to `tenant.created`) |
@@ -33,11 +47,11 @@ listed gaps. **Not started** = nothing built yet.
 | `sa-vendor-features` Features | Done | Switches within the plan, dependency prompt, Phase 2 rows locked, settings with platform caps, re-apply preset | — |
 | `sa-vendor-connectors` Connectors | Partial | What the vendor's plan allows | Keys ("Saved · hidden"), health, last webhook, SMS daily limit: arrive with each connector (sprints 4 to 7) |
 | `sa-vendor-domains` Domains | Done (MVP) | Subdomain, primary, redirect flag | Custom domains with SSL are Phase 2 |
-| `sa-vendor-billing` Billing | Done | Plan and price with GST, record payment (moves the period), change plan, pause, resume, cancel, history | Invoices to the vendor are Phase 2 |
+| `sa-vendor-billing` Billing | Done | Plan and price with GST, starting offer (first payment covers the offer's months), record payment (moves the period), change plan, pause, resume, cancel, history | Invoices to the vendor are Phase 2 |
 | `sa-vendor-staff` Staff | Partial | Staff list, invite, resend invite, plan staff limit | Change roles or remove from this tab (possible today from the user's own edit page); reset two-step (needs two-step) |
-| `sa-plans` Plans | Done | Create and edit plans: prices, limits, features and connectors allowed | Plans are placeholders until real ones are set (README "Plans"); the card layout of the wireframe |
+| `sa-plans` Plans | Done | Create and edit plans: prices, starting offer, limits, features and connectors allowed. Seeded with the interim Starter and Enterprise plans (docs/00) | Final prices and limits; the card layout of the wireframe |
 | `sa-subscriptions` Subscriptions | Done | MRR, on trial, past due, renewing in 7 days, list and filters | Export CSV |
-| `sa-team` Team and access | Partial | Team list, invite teammate (super admin or support), security summary | Two-step login |
+| `sa-team` Team and access | Partial | Team list, invite teammate (super admin or support), security summary | Two-step login (deferred) |
 
 ## Vendor CMS (docs/screens/vendor-cms.md)
 
@@ -73,7 +87,7 @@ domain, GST details and product data.
 | Project setup: TypeScript strict, ESLint, Prettier, Vitest, Docker image, `pnpm verify` | Done |
 | Tenant isolation: plugin + role access + integration tests | Done for every collection that exists; each new collection adds its test |
 | Staff accounts, roles, invites, lockout, password policy | Done |
-| Two-step login (TOTP) | Not started: decision pending |
+| Two-step login (TOTP) | Deferred by mudit (3 October 2026); needed before real vendor data goes live |
 | Manage store / View as support (audited platform access) | Not started: next platform task |
 | Shopper accounts | Not started: Sprint 1 spike |
 | Feature switches, plan ceilings, industry presets | Done |

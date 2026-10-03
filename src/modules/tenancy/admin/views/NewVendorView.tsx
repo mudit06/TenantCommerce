@@ -33,6 +33,10 @@ export async function NewVendorView({
         maxProducts: plan.limits.maxProducts,
         maxStaffUsers: plan.limits.maxStaffUsers,
         allowedModules: (plan.allowedModules ?? []) as string[],
+        intro:
+          plan.introOffer?.price?.amountMinor && plan.introOffer.months
+            ? { priceMinor: plan.introOffer.price.amountMinor, months: plan.introOffer.months }
+            : null,
       }))
     : []
   return (

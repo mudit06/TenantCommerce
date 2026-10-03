@@ -102,6 +102,18 @@ AffiliateDashboard. Phase 2: CompareToggle and CompareTable, TradePriceBlock, Lo
 6. Lighthouse mobile >= 90 on home, listing, product; run e2e smoke for that tenant.
 7. Point DNS / subdomain; go live checklist in docs/15.
 
+## What to collect from a new vendor
+
+Ask for these when the contract is signed; stage letters match docs/progress.md.
+
+| When | What |
+|---|---|
+| Onboarding | Legal name, GSTIN, registered address, support email and phone, WhatsApp number, grievance officer (name, designation, email, phone), owner's name and email |
+| Stage A (catalog) | Category tree; the attributes customers filter by per category (finish, size, material...); product sheet (Excel or CSV) with name, model number, SKU, variants, MRP, selling price, HSN, GST rate, weight, dimensions, stock, country of origin, maker or importer details; product images; spec sheets, manuals and catalogues (PDF); dealer and showroom list; policy texts (shipping, returns, privacy, terms, warranty) |
+| Storefront design | Logo (SVG or large PNG), brand colours and fonts, any existing website or Figma design, the domain they want |
+| Stage B (selling) | Razorpay account (test keys first), COD yes or no and its limits, Shiprocket account or their own couriers with a delivery rate card, order and invoice number prefixes, signature image for invoices; for WhatsApp and SMS updates, Meta Business and DLT paperwork (takes days, start early) |
+| Stage C (growth) | Which offers they run (festival schemes, coupons), affiliate program terms, review policy |
+
 ## Storefront page inventory
 
 Home, category listing (filters, sort), search results, product detail, compare (Phase 2), cart,

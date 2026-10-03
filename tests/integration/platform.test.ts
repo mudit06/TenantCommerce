@@ -46,7 +46,7 @@ beforeAll(async () => {
     await withTransaction(req, () =>
       createTenant(
         req,
-        onboardingInput('store-a', { planId: plans.growth!.id, ownerEmail: 'owner@a.test' }),
+        onboardingInput('store-a', { planId: plans.enterprise!.id, ownerEmail: 'owner@a.test' }),
       ),
     )
   ).tenant
@@ -89,7 +89,7 @@ describe('onboarding (createTenant)', () => {
     expect(ownerA.status).toBe('invited')
     expect(ownerA.tenants?.[0]?.roles).toEqual(['owner'])
     const { enabled } = await getTenantFeatures(payload, String(storeA.id))
-    expect(enabled.has('affiliate')).toBe(true) // hardware preset on Growth
+    expect(enabled.has('affiliate')).toBe(true) // hardware preset on Enterprise
     const b = await getTenantFeatures(payload, String(storeB.id))
     expect(b.enabled.has('affiliate')).toBe(false) // not in Starter
     expect(b.enabled.has('enquiries')).toBe(false) // clothing preset
@@ -102,7 +102,10 @@ describe('onboarding (createTenant)', () => {
       withTransaction(req, () =>
         createTenant(
           req,
-          onboardingInput('store-a', { planId: plans.growth!.id, ownerEmail: 'someone@x.test' }),
+          onboardingInput('store-a', {
+            planId: plans.enterprise!.id,
+            ownerEmail: 'someone@x.test',
+          }),
         ),
       ),
     ).rejects.toMatchObject({ code: 'CONFLICT' })
@@ -118,17 +121,17 @@ describe('onboarding (createTenant)', () => {
     await expect(
       createTenant(
         req,
-        onboardingInput('admin', { planId: plans.growth!.id, ownerEmail: 'x@x.test' }),
+        onboardingInput('admin', { planId: plans.enterprise!.id, ownerEmail: 'x@x.test' }),
       ),
     ).rejects.toThrow()
-    const bad = onboardingInput('store-z', { planId: plans.growth!.id, ownerEmail: 'z@x.test' })
+    const bad = onboardingInput('store-z', { planId: plans.enterprise!.id, ownerEmail: 'z@x.test' })
     bad.business.gstin = '27AAPFU0939F1ZW'
     await expect(createTenant(req, bad)).rejects.toThrow()
     const supportReq = await reqAs(payload, support)
     await expect(
       createTenant(
         supportReq,
-        onboardingInput('store-y', { planId: plans.growth!.id, ownerEmail: 'y@x.test' }),
+        onboardingInput('store-y', { planId: plans.enterprise!.id, ownerEmail: 'y@x.test' }),
       ),
     ).rejects.toMatchObject({ code: 'FORBIDDEN' })
   })
@@ -349,6 +352,28 @@ describe('billing and lifecycle', () => {
       where: { tenant: { equals: storeB.id } },
     })
     expect(docs[0]!.status).toBe('past_due')
+  })
+
+  it('a Starter vendor’s first payment takes the 3-month starting offer', async () => {
+    const req = await reqAs(payload, admin)
+    const { docs } = await payload.find({
+      collection: 'subscriptions',
+      where: { tenant: { equals: storeB.id } },
+    })
+    const sub = docs[0]!
+    const updated = await recordSubscriptionPayment(req, {
+      subscriptionId: String(sub.id),
+      amountMinor: 1_179_882, // ₹9,999 + 18% GST
+      paidOn: new Date(),
+      method: 'neft',
+    })
+    const start = new Date(updated.currentPeriodStart!)
+    const end = new Date(updated.currentPeriodEnd!)
+    const months =
+      (end.getUTCFullYear() - start.getUTCFullYear()) * 12 + end.getUTCMonth() - start.getUTCMonth()
+    expect(months).toBe(3)
+    expect(updated.status).toBe('active')
+    expect(updated.history?.at(-1)?.event).toMatch(/introductory offer/)
   })
 
   it('changing plan switches off what the new plan does not allow', async () => {

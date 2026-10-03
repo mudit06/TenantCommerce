@@ -39,7 +39,9 @@ enforced by a hook), `verifiedAt`, `sslStatus` (`pending|issuing|active|failed`)
 ### plans
 `name`, `code`, `priceMonthly` (money), `priceYearly`, `limits` group (`maxProducts`,
 `maxStaffUsers`, `maxStorageGB`, `maxOrdersPerMonth`), `allowedModules[]` (feature keys),
-`allowedConnectors[]` (connector keys), `isActive`, `sortOrder`. Never deleted (subscriptions point at
+`allowedConnectors[]` (connector keys), `isActive`, `sortOrder`, `introOffer { price (money), months }`
+(optional starting offer: a subscription's first payment covers `months` at `price`, then the
+plan price applies; Starter has ₹9,999 for 3 months, docs/00). Never deleted (subscriptions point at
 them); removing a feature from `allowedModules` switches it off for that plan's stores.
 
 ### subscriptions
