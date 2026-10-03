@@ -7,6 +7,7 @@ import { recordAudit } from '@/modules/audit'
 import { FEATURES } from '@/modules/features'
 
 import { switchOffFeaturesOutsidePlan } from '../services/features'
+import { syncEnabledFeatures } from '../services/featureSync'
 
 /** Subscription tiers: the ceiling for features, connectors and limits (docs/06, docs/08). */
 export const Plans: CollectionConfig = {
@@ -150,6 +151,18 @@ export const Plans: CollectionConfig = {
           if (removed.length > 0) {
             await switchOffFeaturesOutsidePlan(req, { planId: String(doc.id), keys: removed })
           }
+        }
+        if (operation === 'update') {
+          const { docs: stores } = await req.payload.find({
+            collection: 'tenants',
+            where: { plan: { equals: doc.id } },
+            depth: 0,
+            pagination: false,
+            overrideAccess: true,
+            select: {},
+            req,
+          })
+          for (const store of stores) await syncEnabledFeatures(req, String(store.id))
         }
         await recordAudit(req, {
           action: 'plan_edited',

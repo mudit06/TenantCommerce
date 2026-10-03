@@ -14,6 +14,7 @@ import { emit } from '@/lib/events'
 
 import { assertCanEnable } from '../services/features'
 import { revalidateTenantFeatures } from '../services/cache'
+import { syncEnabledFeatures } from '../services/featureSync'
 
 /**
  * Per-store feature switches (docs/08). Platform admins flip `enabled`, within the plan;
@@ -112,6 +113,7 @@ export const FeatureFlags: CollectionConfig = {
         const tenantId = idOf(doc.tenant)
         if (!tenantId) return
         revalidateTenantFeatures(tenantId)
+        await syncEnabledFeatures(req, tenantId)
         // Onboarding writes one summary entry instead of one per switch
         if (context.skipFeatureAudit) return
         const switched = operation === 'create' ? doc.enabled : doc.enabled !== previousDoc?.enabled

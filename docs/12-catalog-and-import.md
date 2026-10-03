@@ -82,5 +82,36 @@ filter from 1 July 2026 for e-commerce entities selling imported goods). Facet c
 
 ## Media
 
-Images uploaded to object storage; served through CDN with on-the-fly resizing (Cloudinary or
-`next/image` with a custom loader). Require alt text. Strip EXIF. Max 2000px stored.
+**As built (3 October 2026, `src/modules/content/collections/Media.ts`).**
+
+- **Where files live.** Production: S3-compatible object storage (Cloudflare R2 recommended, or
+  AWS S3 Mumbai) through `@payloadcms/storage-s3`, switched on by `S3_BUCKET`; shoppers load files
+  straight from the bucket's CDN domain (`MEDIA_PUBLIC_URL`), so image traffic never passes
+  through our app server or the database. Local development: the `media/` folder (git-ignored).
+  **MongoDB holds only each file's metadata** (name, size, dimensions, alt text, store), about
+  1 KB per file, never the bytes.
+- **What is stored per image.** The upload is re-encoded to WebP at most 2000 px on the long side
+  (this also strips EXIF, including phone GPS), plus `thumb` 200, `card` 600 and `detail` 1200 px
+  WebP versions. The original serves as the zoom image. A 4 MB phone photo becomes roughly
+  300 KB (original), 120 KB (detail), 40 KB (card) and 8 KB (thumb); the storefront loads the
+  smallest size that fits (`card` on listings, `detail` on the product page).
+- **Limits.** 10 MB per image, 50 MB per PDF; JPEG, PNG, WebP, AVIF and PDF only. Every stored
+  byte (original plus sizes) counts against the plan's storage (`tenants.usage.storageBytes`); an
+  upload past the limit is refused. Alt text is required for images.
+- **Uploads on Vercel.** Vercel caps a request at 4.5 MB, so production sets `S3_CLIENT_UPLOADS`
+  and the browser sends the file straight to the bucket with a signed URL.
+- **Access.** Files are public by URL (shoppers must see product photos); listing the library is
+  staff-only, per store. Private files (shoppers' enquiry attachments, invoices) will use a
+  separate private collection with signed, expiring links.
+
+**Does storing MBs of images slow the store? (500 visitors an hour)** 500 visitors an hour who
+each open about 8 pages is about 4,000 page views an hour, roughly one a second. A listing page
+with 24 `card` images at about 40 KB is about 1 MB of images, served by the CDN from the edge
+nearest the shopper (Mumbai, Chennai, Delhi for R2 and CloudFront), not by our server. The
+database answers a small metadata query per page. At this traffic neither the app server nor
+MongoDB notices the images; image traffic is at most about 4 GB an hour (less once browsers and
+the CDN cache repeat views), which R2 serves without download fees. What would make a store slow
+is serving the multi-MB originals or storing files inside MongoDB; neither is done. Storage
+cost: a 2,000-product catalogue with 5 photos each is about 10,000 images, about 5 GB with all
+sizes: inside R2's free 10 GB, then about ₹1.30 per GB a month. Put the bucket on a custom
+domain behind Cloudflare's cache so repeat views don't count as bucket reads.

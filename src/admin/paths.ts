@@ -14,4 +14,7 @@ export const adminUrl = {
   subscription: (id: string | number) => `${ADMIN}/collections/subscriptions/${id}`,
   user: (id: string | number) => `${ADMIN}/collections/users/${id}`,
   team: `${ADMIN}/team`,
+  staff: `${ADMIN}/staff`,
+  collection: (slug: string) => `${ADMIN}/collections/${slug}`,
+  create: (slug: string) => `${ADMIN}/collections/${slug}/create`,
 }

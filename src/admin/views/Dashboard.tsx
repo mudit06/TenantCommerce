@@ -3,6 +3,8 @@ import type { AdminViewServerProps } from 'payload'
 import { isPlatformStaff, isSuperAdmin, tenantIdsWithRoles } from '@/access'
 import { PlatformDashboard, StoreDashboard } from '@/modules/tenancy/admin'
 
+import { StoreSetup } from './StoreSetup'
+
 /** /admin: our team sees the platform dashboard, vendor staff see their store. */
 export async function Dashboard(props: AdminViewServerProps) {
   const { req } = props.initPageResult
@@ -12,6 +14,17 @@ export async function Dashboard(props: AdminViewServerProps) {
     return <PlatformDashboard canEdit={isSuperAdmin(user)} payload={req.payload} userName={name} />
   }
   return (
-    <StoreDashboard payload={req.payload} tenantIds={tenantIdsWithRoles(user)} userName={name} />
+    <StoreDashboard
+      extra={(tenant) => (
+        <StoreSetup
+          enabledFeatures={tenant.enabledFeatures}
+          payload={req.payload}
+          tenantId={tenant.id}
+        />
+      )}
+      payload={req.payload}
+      tenantIds={tenantIdsWithRoles(user)}
+      userName={name}
+    />
   )
 }

@@ -7,6 +7,8 @@ import { slugField } from '@/fields/slug'
 import { DEFAULT_TIMEZONE } from '@/lib/dates'
 import { GST_STATE_OPTIONS, parseGstin } from '@/lib/gst/gstin'
 
+import { FEATURES } from '@/modules/features'
+
 import { INDUSTRIES, RESERVED_SLUGS, TENANT_STATUSES } from '../constants'
 
 const TENANT_VIEWS = '@/modules/tenancy/admin/views'
@@ -247,6 +249,15 @@ export const Tenants: CollectionConfig = {
         { name: 'ordersThisMonth', type: 'number', defaultValue: 0 },
         { name: 'updatedAt', type: 'date' },
       ],
+    },
+    {
+      // Effective features (plan AND switch AND dependencies), kept by syncEnabledFeatures
+      name: 'enabledFeatures',
+      type: 'select',
+      hasMany: true,
+      options: FEATURES.map((feature) => ({ value: feature.key, label: feature.label })),
+      admin: { hidden: true },
+      access: { create: () => false, update: () => false },
     },
     {
       name: 'dbRef',

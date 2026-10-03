@@ -4,7 +4,9 @@ import { fileURLToPath } from 'node:url'
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { resendAdapter } from '@payloadcms/email-resend'
 import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant'
+import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { s3Storage } from '@payloadcms/storage-s3'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
 
@@ -12,7 +14,19 @@ import { fieldSuperAdminOnly, isPlatformStaff, TENANT_ROLE_LABELS, TENANT_ROLES 
 import { devLogEmailAdapter } from '@/lib/email/devLog'
 import { env } from '@/lib/env'
 import { AuditLogs } from '@/modules/audit'
+import { AttributeSets, Brands, Categories, ProductDocuments } from '@/modules/catalog'
+import {
+  Banners,
+  Media,
+  Navigation,
+  Pages,
+  registerContentEvents,
+  SiteSettings,
+} from '@/modules/content'
+import { Dealers } from '@/modules/dealers'
+import { Enquiries } from '@/modules/enquiries'
 import { identityEndpoints, Users } from '@/modules/identity'
+import { Counters } from '@/modules/tax-invoicing'
 import {
   checkSubscriptionsTask,
   FeatureFlags,
@@ -25,6 +39,12 @@ import {
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+
+// Modules seed their per-store data when a store is created (docs/01 events)
+registerContentEvents()
+
+/** Largest upload Payload accepts (PDF catalogues); images are capped lower in media hooks. */
+const MAX_UPLOAD_BYTES = 50 * 1024 * 1024
 
 // Assembles collections, plugins, endpoints and jobs (docs/03). Module code stays in
 // src/modules/*; this file only wires it together.
@@ -63,7 +83,10 @@ export default buildConfig({
         Logo: '@/admin/graphics/Logo#Logo',
         Icon: '@/admin/graphics/Icon#Icon',
       },
-      afterNavLinks: ['@/admin/nav/PlatformNavLinks#PlatformNavLinks'],
+      afterNavLinks: [
+        '@/admin/nav/StoreNavLinks#StoreNavLinks',
+        '@/admin/nav/PlatformNavLinks#PlatformNavLinks',
+      ],
       views: {
         dashboard: { Component: '@/admin/views/Dashboard#Dashboard' },
         newVendor: {
@@ -76,19 +99,53 @@ export default buildConfig({
           path: '/team',
           meta: { title: 'Team and access' },
         },
+        storeStaff: {
+          Component: '@/modules/identity/admin/StoreStaffView#StoreStaffView',
+          path: '/staff',
+          meta: { title: 'Staff and roles' },
+        },
       },
     },
     dateFormat: 'd MMM yyyy, HH:mm',
     // Built-in avatar: Gravatar would send hashed staff emails to a third party (docs/14)
     avatar: 'default',
   },
-  collections: [Tenants, TenantDomains, Plans, Subscriptions, FeatureFlags, Users, AuditLogs],
+  collections: [
+    // Store content and catalog (tenant-scoped, docs/04)
+    SiteSettings,
+    Categories,
+    AttributeSets,
+    Brands,
+    ProductDocuments,
+    Media,
+    Pages,
+    Navigation,
+    Banners,
+    Enquiries,
+    Dealers,
+    Counters,
+    // Platform
+    Tenants,
+    TenantDomains,
+    Plans,
+    Subscriptions,
+    FeatureFlags,
+    Users,
+    AuditLogs,
+  ],
+  upload: { limits: { fileSize: MAX_UPLOAD_BYTES } },
   endpoints: [...tenancyEndpoints, ...identityEndpoints],
   jobs: {
     tasks: [checkSubscriptionsTask],
     // Long-running servers (local, Docker) run the queue themselves; on Vercel a cron hits
     // /api/payload-jobs/run instead (docs/15)
-    autoRun: process.env.VERCEL ? undefined : [{ cron: '0 */5 * * * *', queue: 'scheduled' }],
+    // /api/payload-jobs/run instead (docs/15). `default` runs scheduled page publishing.
+    autoRun: process.env.VERCEL
+      ? undefined
+      : [
+          { cron: '0 */5 * * * *', queue: 'scheduled' },
+          { cron: '0 * * * * *', queue: 'default' },
+        ],
     jobsCollectionOverrides: ({ defaultJobsCollection }) => ({
       ...defaultJobsCollection,
       admin: { ...defaultJobsCollection.admin, group: false },
@@ -102,6 +159,43 @@ export default buildConfig({
       })
     : devLogEmailAdapter({ fromAddress: env.EMAIL_FROM_ADDRESS, fromName: env.EMAIL_FROM_NAME }),
   plugins: [
+    // Category tree: parent and breadcrumbs (/c/<parent>/<child>, docs/13)
+    nestedDocsPlugin({
+      collections: ['categories'],
+      generateLabel: (_, doc) => String(doc.name ?? ''),
+      generateURL: (docs) => `/c/${docs.map((doc) => doc.slug).join('/')}`,
+    }),
+    // Media files go to S3-compatible object storage (Cloudflare R2 or S3) when a bucket is set,
+    // and are served from its CDN domain; without one they stay on local disk (development).
+    // The database only ever holds file metadata (docs/12 "Media").
+    s3Storage({
+      enabled: Boolean(env.S3_BUCKET),
+      bucket: env.S3_BUCKET ?? '',
+      collections: {
+        media: {
+          prefix: 'media',
+          ...(env.MEDIA_PUBLIC_URL
+            ? {
+                disablePayloadAccessControl: true,
+                generateFileURL: ({ filename, prefix }) =>
+                  [env.MEDIA_PUBLIC_URL?.replace(/\/$/, ''), prefix, filename]
+                    .filter(Boolean)
+                    .join('/'),
+              }
+            : {}),
+        },
+      },
+      // Browser uploads straight to the bucket: Vercel caps request bodies at 4.5 MB
+      clientUploads: env.S3_CLIENT_UPLOADS,
+      config: {
+        endpoint: env.S3_ENDPOINT,
+        region: env.S3_REGION,
+        credentials:
+          env.S3_ACCESS_KEY_ID && env.S3_SECRET_ACCESS_KEY
+            ? { accessKeyId: env.S3_ACCESS_KEY_ID, secretAccessKey: env.S3_SECRET_ACCESS_KEY }
+            : undefined,
+      },
+    }),
     multiTenantPlugin({
       tenantsSlug: 'tenants',
       // Tenant-scoped collections that use the plugin's tenant field (docs/04). Platform
@@ -109,6 +203,19 @@ export default buildConfig({
       // relationship and their own access rules.
       collections: {
         'feature-flags': {},
+        // One per store: the menu opens the store's document directly
+        'site-settings': { isGlobal: true },
+        navigation: { isGlobal: true },
+        categories: {},
+        'attribute-sets': {},
+        brands: {},
+        'product-documents': {},
+        media: {},
+        pages: {},
+        banners: {},
+        enquiries: {},
+        dealers: {},
+        counters: {},
       },
       // Our team works across stores; support is read-only through access functions
       userHasAccessToAllTenants: (user) => isPlatformStaff(user),

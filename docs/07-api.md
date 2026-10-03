@@ -205,6 +205,8 @@ Guests keep the wishlist on the device; the kit stores product ids only and call
 | POST | `/connectors/:provider/test` | Test credentials |
 | POST | `/staff/invites` | Owner or platform admin: `{ email, name?, roles[] }` creates an `invited` user and emails the set-password link (plan staff limit checked) |
 | POST | `/staff/invites/:userId/resend` | New link, old one revoked |
+| PATCH | `/staff/:userId/roles` | Owner or super admin: `{ tenantId, roles[] }` changes that person's roles in the store; a store always keeps one owner |
+| POST | `/staff/:userId/remove` | Owner or super admin: `{ tenantId }` takes the person out of that store (their account stays for other stores); never the last owner |
 | POST | `/staff/invites/accept` | Public: `{ token, password }` (+ two-step setup for platform roles) |
 | POST | `/privacy-requests/:id/export` | Build the shopper's data export (job) and attach an expiring link to the request |
 | POST | `/privacy-requests/:id/complete-deletion` | Anonymize the customer, keep tax records (docs/14) |

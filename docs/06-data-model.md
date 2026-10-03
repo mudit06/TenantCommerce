@@ -109,14 +109,19 @@ reference one. Seeded per tenant from the industry preset; rates are data, never
 
 ### counters (T)
 `tenant`, `key` (`order`, `enquiry`, `invoice:2026-27`, `credit-note:2026-27`, `payout:2026-27`), `value`.
-Incremented atomically with `$inc` + `findOneAndUpdate` (upsert) for gapless numbering.
+Incremented atomically with `$inc` + `findOneAndUpdate` (upsert). As built (`nextNumber` in the
+`tax-invoicing` module): enquiry and order numbers are taken outside the save's transaction, so
+two at the same moment never clash; a failed save leaves a gap. Invoice numbers must be
+consecutive (GST rule 46) and will be taken inside the transaction with a retry.
 
 ## Catalog (T)
 
 ### categories
 `name` (L), `slug`, `parent` (nested-docs), `breadcrumbs`, `description` (L, rich text), `image`,
 `banner`, `attributeSet` -> attribute-sets, `sizeChart` -> media or rich text (clothing),
-`sortOrder`, `isVisible`, `seo` group.
+`sortOrder`, `isVisible`, `seo` group. As built: `slug` is unique per store and filled from the
+name; `attributeSet` may be left empty to use the parent's; at most 3 levels; a category with
+subcategories can't be deleted; `description` is plain text for now.
 
 ### attribute-sets
 `name`, `attributes[]`: `{ code, label (L), type: 'text'|'number'|'select'|'multiselect'|'boolean'|'color',
@@ -187,8 +192,9 @@ versions + drafts + scheduled publish), `seo` group, `template` (`default|landin
 
 ### media
 Payload upload collection, tenant-scoped. `alt` (L, required for images), `focalPoint`,
-image sizes: thumb 200, card 600, detail 1200, zoom 2000 (WebP/AVIF via CDN). Max upload 10 MB
-images, 50 MB PDFs. Storage adapter to S3/R2.
+image sizes: thumb 200, card 600, detail 1200 WebP, the original re-encoded to WebP at most
+2000 px serves as zoom. Max upload 10 MB images, 50 MB PDFs. Files in S3/R2 behind a CDN in
+production (local disk in development); the database stores metadata only (docs/12 "Media").
 
 ### redirects, forms, form-submissions
 From the official plugins, tenant-scoped.
@@ -298,12 +304,16 @@ pickup parcel), `refund`.
 `qty`, `name`, `email`, `phone`, `city`, `pincode`, `company`, `message`, `attachments[]`, `status`
 (`new|contacted|quoted|won|lost`; the inbox tabs group them as New, In progress = contacted or
 quoted, Closed = won or lost), `assignedTo`, `internalNotes[] { by, at, text }` (staff only),
-`source` (page URL, UTM), `consent`.
+`source` (page URL, UTM), `consent`. As built (stage A): `product`/`variant` are the text fields
+`productTitle` and `modelNumber` until products exist; `consent` is `consentToContact`;
+`attachments` wait for a private upload collection (docs/open-items 2b). Staff can log phone and
+walk-in enquiries; a phone or an email is required.
 
 ### dealers (MVP)
 `name`, `type` (`dealer|distributor|showroom|service-centre|experience-centre`), `address`,
 `city`, `state`, `pincode`, `location` (GeoJSON Point, `2dsphere` index), `phone`, `email`,
-`hours`, `categories[]` (what they stock), `isActive`.
+`hours`, `categories[]` (what they stock), `isActive`. As built: `location` is a Payload `point`
+field ([longitude, latitude], 2dsphere index) typed by staff until the pincode lookup exists.
 
 ### warranty-registrations (Phase 2)
 `customer` or contact, `product`, `serialNumber`, `purchaseDate`, `invoiceFile`, `purchasedFrom`

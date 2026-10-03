@@ -8,4 +8,5 @@ export {
   type InviteInput,
   type InviteResult,
 } from './services/invites'
+export { changeStaffRoles, removeFromStore } from './services/membership'
 export { INVITE_VALID_HOURS, MIN_PASSWORD_LENGTH } from './constants'

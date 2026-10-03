@@ -3,8 +3,10 @@
 Multi-tenant e-commerce SaaS for Indian manufacturers: each vendor gets its own branded PWA store
 and CMS on one shared codebase (Next.js 16 + Payload CMS 3 + MongoDB).
 
-**Status:** the super admin (platform panel) is about 80% built; the vendor CMS and the storefront
-are next. Screen-by-screen status: **`docs/progress.md`**. Open questions: `docs/open-items.md`.
+**Status:** the super admin (platform panel) is about 80% built. The vendor CMS has its stage A
+structure for entering a store's data by hand (settings, categories, attribute sets, media,
+pages, menus, dealers, enquiries, staff); products wait for ADR 0006. The storefront is next.
+Screen-by-screen status: **`docs/progress.md`**. Open questions: `docs/open-items.md`.
 Nothing is deployed yet.
 
 ## Start here
@@ -42,6 +44,12 @@ What else to know:
 - Running `pnpm seed` again is safe: it skips what already exists.
 - To start from an empty database: `docker compose -f docker/docker-compose.yml down -v`, then
   `up -d mongo` and `pnpm seed` again.
+- Uploaded images and PDFs go to the `media/` folder locally (git-ignored). Production stores them
+  in S3 or Cloudflare R2 behind a CDN when `S3_BUCKET` is set; the database only holds their
+  details (docs/12 "Media"). Nothing to set up for local use.
+- To sign in as a store, open its owner's set-password link that `pnpm seed` printed (or invite
+  staff from the vendor's Staff tab). The store dashboard shows a setup checklist; the order to
+  enter data by hand is in docs/progress.md.
 
 ### Troubleshooting
 
@@ -78,8 +86,9 @@ keeps its old plans: edit them in the admin, or reset the database (see above) a
 
 ## Code map
 
-- `src/modules/<module>/`: domain modules (tenancy, identity, audit so far), each with a public
-  `index.ts` (docs/01, docs/03)
+- `src/modules/<module>/`: domain modules (tenancy, identity, audit, content, catalog, dealers,
+  enquiries, tax-invoicing so far), each with a public `index.ts` (docs/01, docs/03)
+- `src/blocks/`: page builder block schemas; `src/fields/`: shared fields (money, slug, SEO, link)
 - `src/admin/`: shared admin shell (logo, nav, dashboard switch, UI primitives)
 - `src/access/`, `src/fields/`, `src/lib/`: access rules, reusable fields, cross-cutting helpers
 - `scripts/`: seed, create-tenant, local setup

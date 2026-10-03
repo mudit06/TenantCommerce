@@ -31,6 +31,17 @@ There are two separate auth collections with different security needs.
   same "email or password is incorrect" message as a wrong password.
 - Session: Payload JWT in an HTTP-only, Secure, SameSite=Lax cookie on the admin domain. 8 h expiry.
 
+**Owners manage their staff (as built, 3 October 2026).** The Staff and roles screen
+(`/admin/staff`) lets a store owner invite, change roles and remove colleagues; the same
+service backs the super admin's vendor Staff tab. Membership rows are never edited through the
+users collection by store staff (the plugin's array field is super-admin only); the endpoints in
+docs/07 check the owner role in that store and refuse to leave a store without an owner.
+
+**Writes check the target store.** On create and update Payload accepts any query result from an
+access function, so `tenantRoleOrPlatform` and `featureGatedAccess` also compare the incoming
+`tenant` with the stores where the user holds the role. A catalog editor in store A who is a
+content editor in store B can't create a category in B.
+
 ### Staff permission matrix
 
 | Capability | super-admin | support | owner | manager | catalog-editor | order-manager | content-editor | support (tenant) |

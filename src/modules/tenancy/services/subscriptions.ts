@@ -8,6 +8,7 @@ import { recordAudit } from '@/modules/audit'
 import type { Plan, Subscription } from '@/payload-types'
 
 import type { BillingCycle, PaymentMethod } from '../constants'
+import { syncEnabledFeatures } from './featureSync'
 import {
   coverageFor,
   effectiveStatus,
@@ -220,6 +221,7 @@ export async function changeSubscriptionPlan(
       })
     }
   }
+  await syncEnabledFeatures(req, tenantId)
   await recordAudit(req, {
     action: 'plan_changed',
     tenant: tenantId,

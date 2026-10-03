@@ -25,6 +25,9 @@ export const Users: CollectionConfig = {
   slug: 'users',
   labels: { singular: 'Staff user', plural: 'Staff users' },
   auth: {
+    // Loads each membership's store, so menus can hide features a store has switched off
+    // (tenancy userHasFeature)
+    depth: 1,
     tokenExpiration: SESSION_SECONDS,
     maxLoginAttempts: MAX_LOGIN_ATTEMPTS,
     lockTime: LOCK_MINUTES * 60 * 1000,
@@ -40,6 +43,8 @@ export const Users: CollectionConfig = {
     defaultColumns: ['name', 'email', 'platformRole', 'status', 'lastLoginAt'],
     group: 'Platform',
     description: 'Everyone who signs in to the admin: our team and every store’s staff.',
+    // Store owners manage their colleagues on Staff and roles (/admin/staff)
+    hidden: ({ user }) => !isPlatformStaff(user),
   },
   access: {
     // Signed-in staff who are not disabled may open the admin; vendor staff need a store role

@@ -4,6 +4,7 @@ import { Empty, Pill } from '@/admin/ui'
 import { formatDate } from '@/lib/dates'
 import type { User } from '@/payload-types'
 
+import { MemberActions } from './MemberActions'
 import { ResendInviteButton } from './ResendInviteButton'
 
 const STATUS_TONE = { invited: 'warning', active: 'success', disabled: 'neutral' } as const
@@ -33,10 +34,11 @@ export function StaffTable({
       </thead>
       <tbody>
         {users.map((user) => {
-          const roles = tenantId
+          const storeRoles = tenantId
             ? ((user.tenants ?? []).find((row) => idOf(row.tenant) === tenantId)?.roles ?? [])
-                .map((role) => TENANT_ROLE_LABELS[role as TenantRole])
-                .join(', ')
+            : []
+          const roles = tenantId
+            ? storeRoles.map((role) => TENANT_ROLE_LABELS[role as TenantRole]).join(', ')
             : user.platformRole
               ? PLATFORM_ROLE_LABELS[user.platformRole]
               : '—'
@@ -62,6 +64,14 @@ export function StaffTable({
               <td>
                 {canManage && user.status === 'invited' ? (
                   <ResendInviteButton userId={String(user.id)} />
+                ) : null}
+                {canManage && tenantId && !user.platformRole ? (
+                  <MemberActions
+                    name={user.name}
+                    roles={storeRoles}
+                    tenantId={tenantId}
+                    userId={String(user.id)}
+                  />
                 ) : null}
               </td>
             </tr>

@@ -67,6 +67,18 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    'site-settings': SiteSetting;
+    categories: Category;
+    'attribute-sets': AttributeSet;
+    brands: Brand;
+    'product-documents': ProductDocument;
+    media: Media;
+    pages: Page;
+    navigation: Navigation;
+    banners: Banner;
+    enquiries: Enquiry;
+    dealers: Dealer;
+    counters: Counter;
     tenants: Tenant;
     'tenant-domains': TenantDomain;
     plans: Plan;
@@ -82,6 +94,18 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    'attribute-sets': AttributeSetsSelect<false> | AttributeSetsSelect<true>;
+    brands: BrandsSelect<false> | BrandsSelect<true>;
+    'product-documents': ProductDocumentsSelect<false> | ProductDocumentsSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
+    navigation: NavigationSelect<false> | NavigationSelect<true>;
+    banners: BannersSelect<false> | BannersSelect<true>;
+    enquiries: EnquiriesSelect<false> | EnquiriesSelect<true>;
+    dealers: DealersSelect<false> | DealersSelect<true>;
+    counters: CountersSelect<false> | CountersSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     'tenant-domains': TenantDomainsSelect<false> | TenantDomainsSelect<true>;
     plans: PlansSelect<false> | PlansSelect<true>;
@@ -113,6 +137,7 @@ export interface Config {
   jobs: {
     tasks: {
       'tenancy-check-subscriptions': TaskTenancyCheckSubscriptions;
+      schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
         output: unknown;
@@ -138,6 +163,105 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  storeName: string;
+  /**
+   * Used for the phone app bar
+   */
+  themeColor?: string | null;
+  logo?: (string | null) | Media;
+  logoDark?: (string | null) | Media;
+  favicon?: (string | null) | Media;
+  /**
+   * Shown when shoppers install the store on their phone
+   */
+  pwaIcon?: (string | null) | Media;
+  contact?: {
+    email?: string | null;
+    phone?: string | null;
+    /**
+     * Used by the WhatsApp button
+     */
+    whatsapp?: string | null;
+    address?: string | null;
+  };
+  social?: {
+    instagram?: string | null;
+    facebook?: string | null;
+    youtube?: string | null;
+    linkedin?: string | null;
+  };
+  grievanceOfficer?: {
+    name?: string | null;
+    designation?: string | null;
+    email?: string | null;
+    phone?: string | null;
+  };
+  legalDefaults?: {
+    manufacturerName?: string | null;
+    manufacturerAddress?: string | null;
+    consumerCare?: string | null;
+  };
+  /**
+   * Set at onboarding, for example AQV for AQV-10482
+   */
+  orderPrefix: string;
+  invoice?: {
+    /**
+     * Up to 4 capital letters or digits: INV/26-27/00123 stays within GST’s 16 characters
+     */
+    prefix?: string | null;
+    authorisedSignatory?: string | null;
+    signature?: (string | null) | Media;
+    footerNote?: string | null;
+  };
+  /**
+   * Cash on delivery rules are set on the Payments screen (comes with checkout).
+   */
+  checkout: {
+    minOrderValue: Money;
+  };
+  returns?: {
+    windowDays?: number | null;
+    exchangeOnly?: boolean | null;
+  };
+  announcementBar?: {
+    enabled?: boolean | null;
+    text?: string | null;
+    linkUrl?: string | null;
+  };
+  policies?: {
+    shipping?: (string | null) | Page;
+    returns?: (string | null) | Page;
+    privacy?: (string | null) | Page;
+    terms?: (string | null) | Page;
+    warranty?: (string | null) | Page;
+  };
+  seoDefaults?: {
+    /**
+     * %s is replaced by the page name, for example “%s · Aquaverde”
+     */
+    titleTemplate?: string | null;
+    ogImage?: (string | null) | Media;
+  };
+  /**
+   * Loaded only after the shopper accepts analytics cookies.
+   */
+  analytics?: {
+    ga4Id?: string | null;
+    metaPixelId?: string | null;
+    gtmId?: string | null;
+  };
+  maintenanceMode?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -237,6 +361,42 @@ export interface Tenant {
     ordersThisMonth?: number | null;
     updatedAt?: string | null;
   };
+  enabledFeatures?:
+    | (
+        | 'guest-checkout'
+        | 'cod-confirmation'
+        | 'cod'
+        | 'enquiries'
+        | 'appointments'
+        | 'enquire-only-products'
+        | 'downloads'
+        | 'size-guide'
+        | 'product-videos'
+        | 'compare'
+        | 'dealer-locator'
+        | 'whatsapp-button'
+        | 'multilingual'
+        | 'lookbook'
+        | 'blog'
+        | 'pincode-check'
+        | 'schemes'
+        | 'coupons'
+        | 'trade-schemes'
+        | 'wishlist'
+        | 'reviews'
+        | 'offer-messages'
+        | 'whatsapp-offers'
+        | 'push-notifications'
+        | 'abandoned-cart'
+        | 'affiliate'
+        | 'warranty'
+        | 'service-requests'
+        | 'installation-booking'
+        | 'spare-parts'
+        | 'b2b'
+        | 'loyalty'
+      )[]
+    | null;
   dbRef?: string | null;
   createdBy?: (string | null) | User;
   activatedAt?: string | null;
@@ -427,6 +587,647 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * Photos and PDFs. Images are resized for phones and desktops automatically.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  /**
+   * Describe the photo for people using screen readers and for search engines, for example “Aria basin mixer in matt black, side view”.
+   */
+  alt?: string | null;
+  caption?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumb?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    detail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * Versions are kept for every save. Policy pages are linked from the footer and checkout.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  title: string;
+  /**
+   * Filled from the title. Store address: /pages/<slug>. The home page uses “home”.
+   */
+  slug?: string | null;
+  template: 'default' | 'landing' | 'policy';
+  layout?:
+    | (
+        | HeroBlock
+        | BannerBlock
+        | ProductGridBlock
+        | CategoryTilesBlock
+        | RichTextBlock
+        | ImageTextBlock
+        | BenefitsBlock
+        | TestimonialsBlock
+        | FaqBlock
+        | VideoBlock
+        | DownloadsBlock
+        | DealerFinderBlock
+        | EnquiryFormBlock
+        | BrandStoryBlock
+      )[]
+    | null;
+  seo?: Seo;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroBlock".
+ */
+export interface HeroBlock {
+  slides: {
+    image: string | Media;
+    /**
+     * A separate, smaller image keeps the first screen fast on phones
+     */
+    mobileImage?: (string | null) | Media;
+    heading: string;
+    subheading?: string | null;
+    buttonLabel?: string | null;
+    buttonLink?: Link;
+    id?: string | null;
+  }[];
+  autoplay?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'hero';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "Link".
+ */
+export interface Link {
+  type?: ('page' | 'category' | 'url') | null;
+  page?: (string | null) | Page;
+  category?: (string | null) | Category;
+  url?: string | null;
+  newTab?: boolean | null;
+}
+/**
+ * Menus and category tiles follow the sort order (low numbers first).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  name: string;
+  /**
+   * Filled from the name. Store address: /c/<parent>/<slug>
+   */
+  slug?: string | null;
+  /**
+   * Specification fields and filters here. Empty: the parent’s set
+   */
+  attributeSet?: (string | null) | AttributeSet;
+  image?: (string | null) | Media;
+  banner?: (string | null) | Media;
+  description?: string | null;
+  /**
+   * Shown as “Size guide” on products in this category
+   */
+  sizeChart?: (string | null) | Media;
+  isVisible?: boolean | null;
+  sortOrder?: number | null;
+  seo?: Seo;
+  /**
+   * Empty for a top-level category
+   */
+  parent?: (string | null) | Category;
+  breadcrumbs?:
+    | {
+        doc?: (string | null) | Category;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Specification fields per kind of product. “Filter” adds it to the store’s filters; “Variant option” makes each value its own SKU.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "attribute-sets".
+ */
+export interface AttributeSet {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  name: string;
+  attributes?:
+    | {
+        label: string;
+        /**
+         * Filled from the label if empty. Don’t change it later
+         */
+        code?: string | null;
+        type: 'text' | 'number' | 'select' | 'multiselect' | 'boolean' | 'color';
+        unit?: string | null;
+        /**
+         * Section on the product page
+         */
+        group?: string | null;
+        isFilterable?: boolean | null;
+        isVariantAxis?: boolean | null;
+        isComparable?: boolean | null;
+        isRequired?: boolean | null;
+        options?:
+          | {
+              label: string;
+              value?: string | null;
+              swatchHex?: string | null;
+              swatchImage?: (string | null) | Media;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Leave empty to use the name and the store’s defaults.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "Seo".
+ */
+export interface Seo {
+  title?: string | null;
+  description?: string | null;
+  image?: (string | null) | Media;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BannerBlock".
+ */
+export interface BannerBlock {
+  image: string | Media;
+  mobileImage?: (string | null) | Media;
+  heading?: string | null;
+  link?: Link;
+  layout?: ('full' | 'split') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'banner';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductGridBlock".
+ */
+export interface ProductGridBlock {
+  heading?: string | null;
+  source: 'featured' | 'newest' | 'bestsellers' | 'category';
+  category?: (string | null) | Category;
+  limit?: number | null;
+  layout?: ('grid' | 'carousel') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'productGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CategoryTilesBlock".
+ */
+export interface CategoryTilesBlock {
+  heading?: string | null;
+  categories: (string | Category)[];
+  style?: ('tiles' | 'circles') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'categoryTiles';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RichTextBlock".
+ */
+export interface RichTextBlock {
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'richText';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageTextBlock".
+ */
+export interface ImageTextBlock {
+  image: string | Media;
+  heading?: string | null;
+  text?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  imageSide?: ('left' | 'right') | null;
+  buttonLabel?: string | null;
+  buttonLink?: Link;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'imageText';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BenefitsBlock".
+ */
+export interface BenefitsBlock {
+  items?:
+    | {
+        icon?: ('truck' | 'shield' | 'badge' | 'return' | 'phone' | 'check') | null;
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'benefits';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TestimonialsBlock".
+ */
+export interface TestimonialsBlock {
+  heading?: string | null;
+  /**
+   * Real quotes from real customers or partners only (docs/14). Product ratings come from the Reviews block, never typed here.
+   */
+  items?:
+    | {
+        quote: string;
+        name: string;
+        place?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'testimonials';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FaqBlock".
+ */
+export interface FaqBlock {
+  heading?: string | null;
+  items?:
+    | {
+        question: string;
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'faq';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoBlock".
+ */
+export interface VideoBlock {
+  heading?: string | null;
+  youtubeUrl: string;
+  caption?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'video';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DownloadsBlock".
+ */
+export interface DownloadsBlock {
+  heading?: string | null;
+  documentType?: ('catalogue' | 'brochure' | 'price-list' | 'all') | null;
+  limit?: number | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'downloads';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DealerFinderBlock".
+ */
+export interface DealerFinderBlock {
+  heading?: string | null;
+  text?: string | null;
+  buttonLabel?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'dealerFinder';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EnquiryFormBlock".
+ */
+export interface EnquiryFormBlock {
+  heading?: string | null;
+  text?: string | null;
+  enquiryType?: ('general' | 'bulk' | 'project' | 'dealership') | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'enquiryForm';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BrandStoryBlock".
+ */
+export interface BrandStoryBlock {
+  heading?: string | null;
+  text?: string | null;
+  image?: (string | null) | Media;
+  stats?:
+    | {
+        value: string;
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'brandStory';
+}
+/**
+ * Only needed when the store sells under more than one brand name.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "brands".
+ */
+export interface Brand {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  name: string;
+  /**
+   * Filled from the name
+   */
+  slug?: string | null;
+  logo?: (string | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-documents".
+ */
+export interface ProductDocument {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  title: string;
+  type:
+    'spec-sheet' | 'installation-manual' | 'brochure' | 'catalogue' | 'price-list' | 'warranty-card' | 'certificate';
+  file: string | Media;
+  /**
+   * Groups the document on the Downloads page
+   */
+  categories?: (string | Category)[] | null;
+  showOnDownloadsPage?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigation".
+ */
+export interface Navigation {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  title?: string | null;
+  header?:
+    | {
+        label: string;
+        link?: Link;
+        /**
+         * Optional. Up to four columns open under this item on desktop.
+         */
+        columns?:
+          | {
+              heading?: string | null;
+              links?:
+                | {
+                    label: string;
+                    link?: Link;
+                    id?: string | null;
+                  }[]
+                | null;
+              id?: string | null;
+            }[]
+          | null;
+        featuredImage?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  footer?:
+    | {
+        heading: string;
+        links?:
+          | {
+              label: string;
+              link?: Link;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Switch off to set a shorter menu for phones.
+   */
+  mobileSameAsHeader?: boolean | null;
+  mobile?:
+    | {
+        label: string;
+        link?: Link;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "banners".
+ */
+export interface Banner {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  /**
+   * For staff only
+   */
+  title: string;
+  placement: 'home-hero' | 'category-top' | 'announcement' | 'popup';
+  image: string | Media;
+  mobileImage?: (string | null) | Media;
+  link?: Link;
+  startsAt?: string | null;
+  endsAt?: string | null;
+  /**
+   * Higher shows first
+   */
+  priority?: number | null;
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "enquiries".
+ */
+export interface Enquiry {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  /**
+   * Given on save, shown to the shopper
+   */
+  referenceNumber?: string | null;
+  type: 'product' | 'bulk' | 'project' | 'dealership' | 'general';
+  status: 'new' | 'contacted' | 'quoted' | 'won' | 'lost';
+  assignedTo?: (string | null) | User;
+  productTitle?: string | null;
+  modelNumber?: string | null;
+  qty?: number | null;
+  message?: string | null;
+  name: string;
+  company?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  city?: string | null;
+  pincode?: string | null;
+  consentToContact?: boolean | null;
+  /**
+   * Only your team sees these
+   */
+  internalNotes?:
+    | {
+        text: string;
+        by?: (string | null) | User;
+        at?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  source?: {
+    page?: string | null;
+    utmSource?: string | null;
+    utmMedium?: string | null;
+    utmCampaign?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Only dealers marked “Show on store” appear on the dealer locator.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dealers".
+ */
+export interface Dealer {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  name: string;
+  type: 'dealer' | 'distributor' | 'showroom' | 'service-centre' | 'experience-centre';
+  isActive?: boolean | null;
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+  /**
+   * In Google Maps, right-click the shop to copy its latitude and longitude, then enter each in its own box. Dealers without a position are listed but not pinned on the map.
+   *
+   * @minItems 2
+   * @maxItems 2
+   */
+  location?: [number, number] | null;
+  phone: string;
+  email?: string | null;
+  hours?: string | null;
+  categories?: (string | Category)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "counters".
+ */
+export interface Counter {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  key: string;
+  value: number;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -675,7 +1476,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'tenancy-check-subscriptions';
+        taskSlug: 'inline' | 'tenancy-check-subscriptions' | 'schedulePublish';
         taskID: string;
         input?:
           | {
@@ -708,7 +1509,7 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'tenancy-check-subscriptions') | null;
+  taskSlug?: ('inline' | 'tenancy-check-subscriptions' | 'schedulePublish') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -731,6 +1532,54 @@ export interface PayloadJob {
 export interface PayloadLockedDocument {
   id: string;
   document?:
+    | ({
+        relationTo: 'site-settings';
+        value: string | SiteSetting;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: string | Category;
+      } | null)
+    | ({
+        relationTo: 'attribute-sets';
+        value: string | AttributeSet;
+      } | null)
+    | ({
+        relationTo: 'brands';
+        value: string | Brand;
+      } | null)
+    | ({
+        relationTo: 'product-documents';
+        value: string | ProductDocument;
+      } | null)
+    | ({
+        relationTo: 'media';
+        value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'pages';
+        value: string | Page;
+      } | null)
+    | ({
+        relationTo: 'navigation';
+        value: string | Navigation;
+      } | null)
+    | ({
+        relationTo: 'banners';
+        value: string | Banner;
+      } | null)
+    | ({
+        relationTo: 'enquiries';
+        value: string | Enquiry;
+      } | null)
+    | ({
+        relationTo: 'dealers';
+        value: string | Dealer;
+      } | null)
+    | ({
+        relationTo: 'counters';
+        value: string | Counter;
+      } | null)
     | ({
         relationTo: 'tenants';
         value: string | Tenant;
@@ -803,6 +1652,635 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  tenant?: T;
+  storeName?: T;
+  themeColor?: T;
+  logo?: T;
+  logoDark?: T;
+  favicon?: T;
+  pwaIcon?: T;
+  contact?:
+    | T
+    | {
+        email?: T;
+        phone?: T;
+        whatsapp?: T;
+        address?: T;
+      };
+  social?:
+    | T
+    | {
+        instagram?: T;
+        facebook?: T;
+        youtube?: T;
+        linkedin?: T;
+      };
+  grievanceOfficer?:
+    | T
+    | {
+        name?: T;
+        designation?: T;
+        email?: T;
+        phone?: T;
+      };
+  legalDefaults?:
+    | T
+    | {
+        manufacturerName?: T;
+        manufacturerAddress?: T;
+        consumerCare?: T;
+      };
+  orderPrefix?: T;
+  invoice?:
+    | T
+    | {
+        prefix?: T;
+        authorisedSignatory?: T;
+        signature?: T;
+        footerNote?: T;
+      };
+  checkout?:
+    | T
+    | {
+        minOrderValue?: T | MoneySelect<T>;
+      };
+  returns?:
+    | T
+    | {
+        windowDays?: T;
+        exchangeOnly?: T;
+      };
+  announcementBar?:
+    | T
+    | {
+        enabled?: T;
+        text?: T;
+        linkUrl?: T;
+      };
+  policies?:
+    | T
+    | {
+        shipping?: T;
+        returns?: T;
+        privacy?: T;
+        terms?: T;
+        warranty?: T;
+      };
+  seoDefaults?:
+    | T
+    | {
+        titleTemplate?: T;
+        ogImage?: T;
+      };
+  analytics?:
+    | T
+    | {
+        ga4Id?: T;
+        metaPixelId?: T;
+        gtmId?: T;
+      };
+  maintenanceMode?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "Money_select".
+ */
+export interface MoneySelect<T extends boolean = true> {
+  amountMinor?: T;
+  currency?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  slug?: T;
+  attributeSet?: T;
+  image?: T;
+  banner?: T;
+  description?: T;
+  sizeChart?: T;
+  isVisible?: T;
+  sortOrder?: T;
+  seo?: T | SeoSelect<T>;
+  parent?: T;
+  breadcrumbs?:
+    | T
+    | {
+        doc?: T;
+        url?: T;
+        label?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "Seo_select".
+ */
+export interface SeoSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  image?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "attribute-sets_select".
+ */
+export interface AttributeSetsSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  attributes?:
+    | T
+    | {
+        label?: T;
+        code?: T;
+        type?: T;
+        unit?: T;
+        group?: T;
+        isFilterable?: T;
+        isVariantAxis?: T;
+        isComparable?: T;
+        isRequired?: T;
+        options?:
+          | T
+          | {
+              label?: T;
+              value?: T;
+              swatchHex?: T;
+              swatchImage?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "brands_select".
+ */
+export interface BrandsSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  slug?: T;
+  logo?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-documents_select".
+ */
+export interface ProductDocumentsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  type?: T;
+  file?: T;
+  categories?: T;
+  showOnDownloadsPage?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media_select".
+ */
+export interface MediaSelect<T extends boolean = true> {
+  tenant?: T;
+  alt?: T;
+  caption?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumb?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        detail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  slug?: T;
+  template?: T;
+  layout?:
+    | T
+    | {
+        hero?: T | HeroBlockSelect<T>;
+        banner?: T | BannerBlockSelect<T>;
+        productGrid?: T | ProductGridBlockSelect<T>;
+        categoryTiles?: T | CategoryTilesBlockSelect<T>;
+        richText?: T | RichTextBlockSelect<T>;
+        imageText?: T | ImageTextBlockSelect<T>;
+        benefits?: T | BenefitsBlockSelect<T>;
+        testimonials?: T | TestimonialsBlockSelect<T>;
+        faq?: T | FaqBlockSelect<T>;
+        video?: T | VideoBlockSelect<T>;
+        downloads?: T | DownloadsBlockSelect<T>;
+        dealerFinder?: T | DealerFinderBlockSelect<T>;
+        enquiryForm?: T | EnquiryFormBlockSelect<T>;
+        brandStory?: T | BrandStoryBlockSelect<T>;
+      };
+  seo?: T | SeoSelect<T>;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroBlock_select".
+ */
+export interface HeroBlockSelect<T extends boolean = true> {
+  slides?:
+    | T
+    | {
+        image?: T;
+        mobileImage?: T;
+        heading?: T;
+        subheading?: T;
+        buttonLabel?: T;
+        buttonLink?: T | LinkSelect<T>;
+        id?: T;
+      };
+  autoplay?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "Link_select".
+ */
+export interface LinkSelect<T extends boolean = true> {
+  type?: T;
+  page?: T;
+  category?: T;
+  url?: T;
+  newTab?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BannerBlock_select".
+ */
+export interface BannerBlockSelect<T extends boolean = true> {
+  image?: T;
+  mobileImage?: T;
+  heading?: T;
+  link?: T | LinkSelect<T>;
+  layout?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductGridBlock_select".
+ */
+export interface ProductGridBlockSelect<T extends boolean = true> {
+  heading?: T;
+  source?: T;
+  category?: T;
+  limit?: T;
+  layout?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CategoryTilesBlock_select".
+ */
+export interface CategoryTilesBlockSelect<T extends boolean = true> {
+  heading?: T;
+  categories?: T;
+  style?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RichTextBlock_select".
+ */
+export interface RichTextBlockSelect<T extends boolean = true> {
+  content?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageTextBlock_select".
+ */
+export interface ImageTextBlockSelect<T extends boolean = true> {
+  image?: T;
+  heading?: T;
+  text?: T;
+  imageSide?: T;
+  buttonLabel?: T;
+  buttonLink?: T | LinkSelect<T>;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BenefitsBlock_select".
+ */
+export interface BenefitsBlockSelect<T extends boolean = true> {
+  items?:
+    | T
+    | {
+        icon?: T;
+        text?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TestimonialsBlock_select".
+ */
+export interface TestimonialsBlockSelect<T extends boolean = true> {
+  heading?: T;
+  items?:
+    | T
+    | {
+        quote?: T;
+        name?: T;
+        place?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FaqBlock_select".
+ */
+export interface FaqBlockSelect<T extends boolean = true> {
+  heading?: T;
+  items?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoBlock_select".
+ */
+export interface VideoBlockSelect<T extends boolean = true> {
+  heading?: T;
+  youtubeUrl?: T;
+  caption?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DownloadsBlock_select".
+ */
+export interface DownloadsBlockSelect<T extends boolean = true> {
+  heading?: T;
+  documentType?: T;
+  limit?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DealerFinderBlock_select".
+ */
+export interface DealerFinderBlockSelect<T extends boolean = true> {
+  heading?: T;
+  text?: T;
+  buttonLabel?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EnquiryFormBlock_select".
+ */
+export interface EnquiryFormBlockSelect<T extends boolean = true> {
+  heading?: T;
+  text?: T;
+  enquiryType?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BrandStoryBlock_select".
+ */
+export interface BrandStoryBlockSelect<T extends boolean = true> {
+  heading?: T;
+  text?: T;
+  image?: T;
+  stats?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigation_select".
+ */
+export interface NavigationSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  header?:
+    | T
+    | {
+        label?: T;
+        link?: T | LinkSelect<T>;
+        columns?:
+          | T
+          | {
+              heading?: T;
+              links?:
+                | T
+                | {
+                    label?: T;
+                    link?: T | LinkSelect<T>;
+                    id?: T;
+                  };
+              id?: T;
+            };
+        featuredImage?: T;
+        id?: T;
+      };
+  footer?:
+    | T
+    | {
+        heading?: T;
+        links?:
+          | T
+          | {
+              label?: T;
+              link?: T | LinkSelect<T>;
+              id?: T;
+            };
+        id?: T;
+      };
+  mobileSameAsHeader?: T;
+  mobile?:
+    | T
+    | {
+        label?: T;
+        link?: T | LinkSelect<T>;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "banners_select".
+ */
+export interface BannersSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  placement?: T;
+  image?: T;
+  mobileImage?: T;
+  link?: T | LinkSelect<T>;
+  startsAt?: T;
+  endsAt?: T;
+  priority?: T;
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "enquiries_select".
+ */
+export interface EnquiriesSelect<T extends boolean = true> {
+  tenant?: T;
+  referenceNumber?: T;
+  type?: T;
+  status?: T;
+  assignedTo?: T;
+  productTitle?: T;
+  modelNumber?: T;
+  qty?: T;
+  message?: T;
+  name?: T;
+  company?: T;
+  phone?: T;
+  email?: T;
+  city?: T;
+  pincode?: T;
+  consentToContact?: T;
+  internalNotes?:
+    | T
+    | {
+        text?: T;
+        by?: T;
+        at?: T;
+        id?: T;
+      };
+  source?:
+    | T
+    | {
+        page?: T;
+        utmSource?: T;
+        utmMedium?: T;
+        utmCampaign?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dealers_select".
+ */
+export interface DealersSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  type?: T;
+  isActive?: T;
+  address?: T;
+  city?: T;
+  state?: T;
+  pincode?: T;
+  location?: T;
+  phone?: T;
+  email?: T;
+  hours?: T;
+  categories?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "counters_select".
+ */
+export interface CountersSelect<T extends boolean = true> {
+  tenant?: T;
+  key?: T;
+  value?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tenants_select".
  */
 export interface TenantsSelect<T extends boolean = true> {
@@ -833,6 +2311,7 @@ export interface TenantsSelect<T extends boolean = true> {
         ordersThisMonth?: T;
         updatedAt?: T;
       };
+  enabledFeatures?: T;
   dbRef?: T;
   createdBy?: T;
   activatedAt?: T;
@@ -895,14 +2374,6 @@ export interface PlansSelect<T extends boolean = true> {
   sortOrder?: T;
   updatedAt?: T;
   createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "Money_select".
- */
-export interface MoneySelect<T extends boolean = true> {
-  amountMinor?: T;
-  currency?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1141,6 +2612,26 @@ export interface TaskTenancyCheckSubscriptions {
   output: {
     changed: number;
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskSchedulePublish".
+ */
+export interface TaskSchedulePublish {
+  input: {
+    type?: ('publish' | 'unpublish') | null;
+    locale?: string | null;
+    doc?: {
+      relationTo: 'pages';
+      value: string | Page;
+    } | null;
+    global?: string | null;
+    user?: {
+      relationTo: 'users';
+      value: string | User;
+    } | null;
+  };
+  output?: unknown;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

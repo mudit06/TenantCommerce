@@ -1,12 +1,14 @@
 /**
- * pnpm seed: placeholder plans, the first super admin and two demo stores. Safe to run again:
- * existing records (matched by plan code, email or slug) are left alone.
+ * pnpm seed: interim plans, the first super admin and two demo stores, then each store's default
+ * settings, menus and draft pages. Safe to run again: existing records (matched by plan code,
+ * email or slug) are left alone and only missing defaults are added.
  */
 import config from '@payload-config'
 import { createLocalReq, getPayload } from 'payload'
 
 import { withTransaction } from '@/lib/db/transaction'
-import { changeTenantStatus, createTenant } from '@/modules/tenancy'
+import { ensureStoreDefaults } from '@/modules/content'
+import { changeTenantStatus, createTenant, syncEnabledFeatures } from '@/modules/tenancy'
 
 import { DEMO_TENANTS, PLANS } from './seedData'
 
@@ -80,6 +82,20 @@ try {
     )
     console.log(`    owner ${demo.owner.email} sets a password at ${result.ownerInviteUrl}`)
   }
+  // Backfill per-store data added after older stores were created (both steps are idempotent)
+  const { docs: stores } = await payload.find({
+    collection: 'tenants',
+    depth: 0,
+    pagination: false,
+    select: { slug: true },
+  })
+  for (const store of stores) {
+    await withTransaction(req, async () => {
+      await syncEnabledFeatures(req, String(store.id))
+      await ensureStoreDefaults(req, String(store.id))
+    })
+  }
+  console.log(`· store settings, menus and draft pages checked for ${stores.length} stores`)
   console.log('Seed complete.')
   process.exit(0)
 } catch (error) {

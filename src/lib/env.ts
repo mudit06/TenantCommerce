@@ -17,6 +17,17 @@ const envSchema = z.object({
   RESEND_API_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
   EMAIL_FROM_ADDRESS: z.email().default('no-reply@tenantecom.in'),
   EMAIL_FROM_NAME: z.string().default('TenantEcom'),
+  // Media in object storage (S3 or Cloudflare R2). Unset locally: files go to ./media on disk.
+  S3_BUCKET: z.preprocess(emptyToUndefined, z.string().optional()),
+  S3_ENDPOINT: z.preprocess(emptyToUndefined, z.url().optional()),
+  S3_REGION: z.preprocess(emptyToUndefined, z.string().default('auto')),
+  S3_ACCESS_KEY_ID: z.preprocess(emptyToUndefined, z.string().optional()),
+  S3_SECRET_ACCESS_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
+  MEDIA_PUBLIC_URL: z.preprocess(emptyToUndefined, z.url().optional()),
+  S3_CLIENT_UPLOADS: z.preprocess(
+    (value) => value === 'true' || value === '1',
+    z.boolean().default(false),
+  ),
 })
 
 export type Env = z.infer<typeof envSchema>

@@ -2,6 +2,7 @@ import type { Access, FieldAccess, Where } from 'payload'
 
 import type { PlatformRole, TenantRole } from './roles'
 
+export * from './matrix'
 export * from './roles'
 
 // Access functions composed per collection (docs/05). The multi-tenant plugin adds the
@@ -61,6 +62,21 @@ export const hasTenantRole = (user: unknown, tenantId: string, roles?: readonly 
 const inTenants = (field: string, ids: string[]): Where | false =>
   ids.length > 0 ? { [field]: { in: ids } } : false
 
+/**
+ * The store constraint for tenant-scoped access. On create and update Payload passes the
+ * incoming `data` and treats any query result as "allowed", so the target store is checked here:
+ * holding a role in one store must not allow writing into another store the user belongs to.
+ */
+export function scopedToTenants(
+  field: string,
+  ids: string[],
+  data?: Record<string, unknown> | null,
+): Where | false {
+  const target = data ? idOf(data[field]) : null
+  if (target && !ids.includes(target)) return false
+  return inTenants(field, ids)
+}
+
 // ---- Collection access ------------------------------------------------------------------
 
 export const nobody: Access = () => false
@@ -92,11 +108,11 @@ export const tenantRoleOrPlatform =
     supportCanAccess?: boolean
     field?: string
   }): Access =>
-  ({ req }) => {
+  ({ req, data }) => {
     const role = platformRoleOf(req.user)
     if (role === 'super-admin') return true
     if (role === 'support') return supportCanAccess
-    return inTenants(field, tenantIdsWithRoles(req.user, roles))
+    return scopedToTenants(field, tenantIdsWithRoles(req.user, roles), data)
   }
 
 // ---- Field access -----------------------------------------------------------------------

@@ -18,13 +18,15 @@ type Handler<K extends EventName> = (
   context: { req: PayloadRequest },
 ) => Promise<void> | void
 
-const handlers = new Map<EventName, Set<Handler<EventName>>>()
+// Keyed by a stable id per handler, so re-importing a module (dev hot reload) replaces its
+// handler instead of registering it twice
+const handlers = new Map<EventName, Map<string, Handler<EventName>>>()
 
-export function on<K extends EventName>(name: K, handler: Handler<K>): () => void {
-  const set = handlers.get(name) ?? new Set()
-  set.add(handler as Handler<EventName>)
-  handlers.set(name, set)
-  return () => set.delete(handler as Handler<EventName>)
+export function on<K extends EventName>(name: K, id: string, handler: Handler<K>): () => void {
+  const byId = handlers.get(name) ?? new Map<string, Handler<EventName>>()
+  byId.set(id, handler as Handler<EventName>)
+  handlers.set(name, byId)
+  return () => byId.delete(id)
 }
 
 export async function emit<K extends EventName>(
@@ -32,7 +34,7 @@ export async function emit<K extends EventName>(
   event: PlatformEvents[K],
   context: { req: PayloadRequest },
 ): Promise<void> {
-  for (const handler of handlers.get(name) ?? []) {
+  for (const handler of handlers.get(name)?.values() ?? []) {
     await handler(event, context)
   }
 }

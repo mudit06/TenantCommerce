@@ -20,10 +20,13 @@ wireframes. What is left: three product decisions, the Sprint 1 spikes, and chec
 | Live Shiprocket rates as the shopper's delivery fee | Checkout pricing | Same thread; the docs keep the vendor's own rate card |
 | Allow throwaway test code for the spikes below | Sprint 1 | The "no code yet" rule currently stops them |
 | The sheet's "Not Required" tab marks the page builder "Optional". The docs keep it core MVP; say if it should become a feature flag | Pages screens | "Feature sheet gap check" thread |
+| **Products, cart and orders: own collections instead of the Payload ecommerce plugin** (spike 1 done; ADR 0006, proposed). Changes the stack line in CLAUDE.md | Products and variants screens, then cart and checkout | docs/adr/0006-own-commerce-collections.md |
+| Media storage provider for production: Cloudflare R2 (no download fees, recommended) or AWS S3 Mumbai | Going live, not development (local disk works) | docs/12 "Media" |
 
 ## 2. Spikes for Sprint 1 (each ends in an ADR and doc updates)
 
-1. **Payload ecommerce plugin fit.** The plugin's shapes differ from docs/06 and docs/11: prices in
+1. **Payload ecommerce plugin fit.** Done 3 October 2026: proposed answer in ADR 0006 (own the
+   collections), waiting for mudit's approval. The plugin's shapes differ from docs/06 and docs/11: prices in
    per-currency fields such as `priceInINR` (not `{ amountMinor, currency }`), its own
    `variantTypes`/`variantOptions` collections (not attribute-set axes), one `inventory` number
    lowered when an order is placed (not reserve-at-checkout), and cart endpoints under
@@ -48,6 +51,10 @@ The super admin panel is built (README status). These came up while building it:
 | Admin fonts | Plus Jakarta Sans and IBM Plex Mono load from Google Fonts in the admin | Self-host them (no third-party request, simpler CSP) when the storefront kit adds fonts |
 | Manage store and View as support | Not built yet: it needs the vendor CMS collections to be useful | Next platform task, with the reason prompt, 2-hour session, banner and audit (docs/05) |
 | Git hosting | Code now lives on GitHub (`mudit06/tenantcommerce`); docs/00 still says "local only, no remote" | Confirm GitHub is the home, then hosted CI can replace the local `pnpm verify` |
+| Enquiry attachments (BOQs, drawings from shoppers) | Not stored yet: the media library's files are public, which is wrong for shoppers' documents | A private upload collection served through a signed, expiring link, built with the storefront enquiry form |
+| Category slug changes | Changing a slug changes the store address; no redirect is created yet | The `redirects` collection (docs/06), before the storefront goes live |
+| Dealer map position | Staff type latitude and longitude (from Google Maps) | Fill it from the pincode once the platform `pincodes` table is loaded (docs/06) |
+| Enquiry numbers | `ENQ-<n>` per store, taken outside the save's transaction so two enquiries at the same moment don't clash; a save that then fails leaves a gap | Fine for enquiries and orders. GST invoices must stay consecutive: take those inside the transaction with a retry (docs/11) |
 | Dependency audit | `undici` and `dompurify` (inside Payload) pinned to patched versions with pnpm overrides. One left: `braces` in the SCSS compiler's file watcher, no fix released, build-time only | Remove the overrides once Payload ships the patched versions; recheck `pnpm audit` on each upgrade |
 
 ## 3. Before launch (not blocking development)
