@@ -1,0 +1,930 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TenantEcom Feature Research</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: one reading column (max 1120px) around a full-width, filterable feature matrix.
+   Five finish swatches (ceramic, steel, brass, walnut, indigo) stand for the five vendor industries. */
+:root {
+  --bg: #F3F6F6;
+  --surface: #FFFFFF;
+  --surface-2: #E8EDEE;
+  --ink: #15212A;
+  --ink-2: #4A5961;
+  --line: #D2DADC;
+  --accent: #0C6A63;
+  --accent-soft: #D7EDEA;
+  --accent-ink: #FFFFFF;
+  --brass: #7A5410;
+  --brass-soft: #F1E5CB;
+  --later: #55626B;
+  --later-soft: #E2E8EA;
+  --focus: #0C6A63;
+
+  /* material swatches: same in both themes, they depict real finishes */
+  --sw-ceramic: radial-gradient(circle at 35% 30%, #FFFFFF 0%, #EEF1F2 45%, #C9D0D3 100%);
+  --sw-steel: linear-gradient(135deg, #E4E8EB 0%, #9AA4AC 45%, #D3D9DD 70%, #7D8890 100%);
+  --sw-brass: linear-gradient(135deg, #F3DC9A 0%, #C39A3C 45%, #E9C978 70%, #9C7424 100%);
+  --sw-walnut: repeating-linear-gradient(100deg, #6B4529 0 3px, #7D5333 3px 7px, #5E3B22 7px 9px);
+  --sw-indigo: repeating-linear-gradient(45deg, #2C3E73 0 2px, #33478A 2px 4px);
+
+  --font-display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+  --step--1: 0.8125rem;
+  --step-0: 0.9375rem;
+  --step-1: 1.125rem;
+  --step-2: 1.375rem;
+  --step-3: clamp(1.75rem, 1.2rem + 2.4vw, 2.75rem);
+  --r: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1418;
+    --surface: #151D22;
+    --surface-2: #1C262C;
+    --ink: #E4EBEE;
+    --ink-2: #A0AEB5;
+    --line: #2A363D;
+    --accent: #52C2B6;
+    --accent-soft: #12332F;
+    --accent-ink: #0E1418;
+    --brass: #E2B868;
+    --brass-soft: #3A2D15;
+    --later: #A0AEB5;
+    --later-soft: #232E34;
+    --focus: #52C2B6;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1418;
+  --surface: #151D22;
+  --surface-2: #1C262C;
+  --ink: #E4EBEE;
+  --ink-2: #A0AEB5;
+  --line: #2A363D;
+  --accent: #52C2B6;
+  --accent-soft: #12332F;
+  --accent-ink: #0E1418;
+  --brass: #E2B868;
+  --brass-soft: #3A2D15;
+  --later: #A0AEB5;
+  --later-soft: #232E34;
+  --focus: #52C2B6;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding-inline: 20px;
+  padding-block: 40px 72px;
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+}
+a { color: var(--accent); text-underline-offset: 2px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 3px; }
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  line-height: 1.15;
+  margin: 0;
+  text-wrap: balance;
+  letter-spacing: -0.01em;
+}
+h1 { font-size: var(--step-3); font-weight: 760; }
+h2 { font-size: var(--step-2); font-weight: 700; }
+h3 { font-size: var(--step-1); font-weight: 650; font-stretch: 105%; }
+p { margin: 0; }
+.mono { font-family: var(--font-mono); }
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.lede { max-width: 66ch; color: var(--ink-2); font-size: var(--step-1); line-height: 1.5; }
+.section-head { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.section-head p { max-width: 70ch; color: var(--ink-2); }
+
+/* header */
+header.top { display: flex; flex-direction: column; gap: 16px; }
+.meta-line { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--ink-2); font-size: var(--step--1); }
+.meta-line span { font-variant-numeric: tabular-nums; }
+nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+nav.toc a {
+  font-size: var(--step--1);
+  color: var(--ink);
+  text-decoration: none;
+  padding: 5px 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+}
+nav.toc a:hover { border-color: var(--ink-2); }
+
+/* swatches */
+.sw {
+  display: inline-block;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  flex: none;
+  vertical-align: -2px;
+}
+.sw-s { background: var(--sw-ceramic); }
+.sw-l { background: var(--sw-steel); }
+.sw-h { background: var(--sw-brass); }
+.sw-d { background: var(--sw-walnut); }
+.sw-c { background: var(--sw-indigo); }
+.sw.big { width: 28px; height: 28px; }
+
+/* findings */
+.findings {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.finding {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 18px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.finding p { color: var(--ink-2); }
+.finding .seen { font-size: var(--step--1); color: var(--ink-2); margin-top: auto; padding-top: 6px; }
+.finding .seen b { color: var(--ink); font-weight: 600; }
+
+/* matrix toolbar */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px 28px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r) var(--r) 0 0;
+  border-bottom: 0;
+}
+.fgroup { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  font: inherit;
+  font-size: var(--step--1);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+.chip:hover { border-color: var(--ink-2); }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip[aria-pressed="true"] .sw { border-color: var(--bg); }
+select {
+  font: inherit;
+  font-size: var(--step--1);
+  padding: 5px 30px 5px 10px;
+  border-radius: var(--r);
+  border: 1px solid var(--line);
+  background-color: var(--surface);
+  color: var(--ink);
+}
+.count { margin-left: auto; font-size: var(--step--1); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.count b { color: var(--ink); }
+.legend {
+  display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center;
+  font-size: var(--step--1); color: var(--ink-2);
+  padding: 10px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-bottom: 0;
+}
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+/* matrix table */
+.table-box {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 0 0 var(--r) var(--r);
+  overflow-x: auto;
+}
+table { border-collapse: collapse; width: 100%; }
+.matrix th, .matrix td { text-align: left; vertical-align: top; padding: 12px 10px; border-top: 1px solid var(--line); }
+.matrix thead th {
+  border-top: 0;
+  font-weight: 500;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  white-space: nowrap;
+  background: var(--surface);
+}
+.matrix thead th.ind { text-align: center; }
+.matrix thead th.ind .sw { display: block; margin: 0 auto 5px; }
+.matrix th:first-child, .matrix td:first-child { padding-left: 16px; }
+.matrix th:last-child, .matrix td:last-child { padding-right: 16px; }
+.matrix tr.stage th {
+  background: var(--surface-2);
+  font-family: var(--font-display);
+  font-stretch: 108%;
+  font-size: var(--step--1);
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  padding-top: 9px; padding-bottom: 9px;
+}
+.feat { min-width: 260px; max-width: 460px; }
+.feat .name { font-weight: 600; display: block; }
+.feat .why { color: var(--ink-2); display: block; margin-top: 2px; font-size: var(--step--1); line-height: 1.5; }
+.feat .key { display: inline-block; margin-top: 6px; font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-2); background: var(--surface-2); padding: 1px 6px; border-radius: 4px; }
+td.rel { text-align: center; width: 72px; }
+.matrix .sel { background: var(--accent-soft); }
+.dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; vertical-align: middle; }
+.dot.core { background: var(--ink); }
+.dot.use { border: 2px solid var(--ink); background: transparent; }
+.dot.none { width: 10px; height: 2px; border-radius: 1px; background: var(--line); }
+.phase {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.ph-mvp { background: var(--accent-soft); color: var(--accent); }
+.ph-p2 { background: var(--brass-soft); color: var(--brass); }
+.ph-later { background: var(--later-soft); color: var(--later); }
+td.seen { font-size: var(--step--1); color: var(--ink-2); min-width: 150px; max-width: 220px; }
+.empty td { text-align: center; padding: 36px 16px; color: var(--ink-2); }
+.linkbtn { font: inherit; color: var(--accent); background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
+
+/* industries */
+.industries { display: flex; flex-direction: column; gap: 12px; }
+.ind-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.3fr) minmax(0, 1.3fr);
+  gap: 20px 28px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 20px;
+}
+.ind-name { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.ind-name .title { display: flex; align-items: center; gap: 12px; }
+.ind-name p { color: var(--ink-2); font-size: var(--step--1); }
+.ind-col { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.ind-col ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 3px; font-size: var(--step--1); }
+.flags { display: flex; flex-wrap: wrap; gap: 4px; }
+.flags code { font-family: var(--font-mono); font-size: 0.7rem; background: var(--surface-2); color: var(--ink-2); padding: 1px 6px; border-radius: 4px; }
+
+/* brands */
+.brands th, .brands td { text-align: left; vertical-align: top; padding: 12px 10px; border-top: 1px solid var(--line); font-size: var(--step--1); }
+.brands thead th { border-top: 0; font-family: var(--font-mono); font-weight: 500; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-2); }
+.brands th:first-child, .brands td:first-child { padding-left: 16px; }
+.brands th:last-child, .brands td:last-child { padding-right: 16px; }
+.brands td.b { font-weight: 600; white-space: nowrap; }
+.brands td.b .sw { margin-right: 8px; }
+.brands td.how { color: var(--ink-2); min-width: 180px; }
+.brands td.what { min-width: 280px; }
+.brands-box { border-radius: var(--r); }
+
+/* build impact + method */
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; }
+.impact { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.impact li { display: flex; flex-direction: column; gap: 2px; padding-left: 14px; border-left: 2px solid var(--line); }
+.impact li span { color: var(--ink-2); font-size: var(--step--1); }
+.impact code, .method code { font-family: var(--font-mono); font-size: 0.78rem; }
+.method { display: flex; flex-direction: column; gap: 10px; color: var(--ink-2); }
+.method p { max-width: 62ch; }
+.sources { columns: 2; column-gap: 32px; margin: 0; padding-left: 18px; font-size: var(--step--1); }
+.sources li { break-inside: avoid; margin-bottom: 6px; color: var(--ink-2); }
+footer { font-size: var(--step--1); color: var(--ink-2); border-top: 1px solid var(--line); padding-top: 16px; }
+
+@media (max-width: 900px) {
+  .findings { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ind-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .ind-name { grid-column: 1 / -1; }
+  .two { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  .wrap { gap: 44px; padding-block: 28px 56px; padding-inline: 16px; }
+  .findings { grid-template-columns: minmax(0, 1fr); }
+  .ind-row { grid-template-columns: minmax(0, 1fr); padding: 16px; }
+  .count { margin-left: 0; width: 100%; }
+  .sources { columns: 1; }
+
+  .table-box { overflow-x: visible; }
+  .matrix thead { display: none; }
+  .matrix, .matrix tbody { display: block; width: 100%; }
+  .matrix tr.f {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px 4px;
+    padding: 14px 14px 16px;
+    border-top: 1px solid var(--line);
+  }
+  .matrix tr.f td { display: block; padding: 0; border: 0; min-width: 0; max-width: none; width: auto; }
+  .matrix td.feat, .matrix td.ph, .matrix td.seen { grid-column: 1 / -1; }
+  .matrix td.rel { font-size: 0.68rem; color: var(--ink-2); padding: 6px 0; border-radius: 4px; }
+  .matrix td.rel::before { content: attr(data-label); display: block; margin-bottom: 4px; }
+  .matrix td.seen::before { content: "Seen at: "; color: var(--ink); }
+  .matrix tr.stage, .matrix tr.stage th { display: block; }
+  .matrix tr.stage th { padding-left: 14px; }
+  .matrix tr.empty, .matrix tr.empty td { display: block; }
+
+  .brands thead { display: none; }
+  .brands, .brands tbody, .brands tr, .brands td { display: block; width: 100%; }
+  .brands tr { padding: 14px 16px; border-top: 1px solid var(--line); }
+  .brands tbody tr:first-child { border-top: 0; }
+  .brands td { border: 0; padding: 0 !important; min-width: 0; }
+  .brands td + td { margin-top: 4px; }
+  .brands td.b { white-space: normal; font-size: var(--step-0); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .chip, nav.toc a { transition: background-color .15s ease, border-color .15s ease, color .15s ease; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="label">TenantEcom · product research · 2 October 2026, phases updated 3 October 2026</div>
+    <h1>What a manufacturer's storefront needs</h1>
+    <p class="lede">We studied how Indian and global manufacturers in sanitary ware, locks, door and furniture hardware, home decor and clothing run their websites, plus the checkout norms of Indian D2C brands. Every feature found is mapped below to a vendor industry, a build phase and the switch that turns it on for a vendor.</p>
+    <div class="meta-line">
+      <span>15 brands and 2 sets of industry guides</span>
+      <span id="meta-count">55 features</span>
+      <span>5 vendor industries</span>
+    </div>
+    <nav class="toc" aria-label="On this page">
+      <a href="#findings">Key findings</a>
+      <a href="#matrix">Feature matrix</a>
+      <a href="#industries">By industry</a>
+      <a href="#brands">Brands studied</a>
+      <a href="#build">What changes in the build</a>
+      <a href="#sources">Method and sources</a>
+    </nav>
+  </header>
+
+  <section id="findings" aria-labelledby="findings-h">
+    <div class="section-head">
+      <h2 id="findings-h">Key findings</h2>
+      <p>Six patterns showed up across almost every site. They shape the data model more than the page designs do.</p>
+    </div>
+    <div class="findings">
+      <article class="finding">
+        <h3>The website is a catalogue and service desk first</h3>
+        <p>Many manufacturers sell mostly through dealers or marketplaces. Their sites exist to help people choose, find a dealer and get support. Jaquar sends online buyers to its Amazon store; Dorset also sells through Amazon and IndustryBuying.</p>
+        <p class="seen"><b>Seen at</b> Jaquar, Dorset, Hindware, Häfele</p>
+      </article>
+      <article class="finding">
+        <h3>Technical data closes the sale</h3>
+        <p>Buyers of fittings, locks and hardware compare finishes, dimensions in mm, door thickness and model numbers. Spec sheets, installation manuals and videos sit on the product page, and search works on article numbers.</p>
+        <p class="seen"><b>Seen at</b> CERA, Kohler, Häfele, Godrej</p>
+      </article>
+      <article class="finding">
+        <h3>Dealers matter twice</h3>
+        <p>Shoppers use dealer and store locators (Häfele lists 235 locations in India, Fabindia 340+ stores). Trade buyers need their own portal with dealer prices, volume tiers, quick order by SKU and credit limits.</p>
+        <p class="seen"><b>Seen at</b> Häfele, Fabindia, Pepperfry, B2B portal guides</p>
+      </article>
+      <article class="finding">
+        <h3>After-sales is a feature set, not a page</h3>
+        <p>Warranty registration with serial number and invoice, service requests with tracking, and spare-parts finders with exploded diagrams are standard for fittings and locks. GROHE extends warranty for products registered online.</p>
+        <p class="seen"><b>Seen at</b> GROHE, CERA, Kohler, Jaquar, Godrej</p>
+      </article>
+      <article class="finding">
+        <h3>Indian checkout has its own rules</h3>
+        <p>UPI and cash on delivery are expected, pincode serviceability is checked before the cart, invoices carry GSTIN and HSN codes, and WhatsApp is the support channel. COD is costly, so brands charge a COD fee or reward prepaid orders.</p>
+        <p class="seen"><b>Seen at</b> Snitch, Indian D2C guides (Fynd, Shopaccino)</p>
+      </article>
+      <article class="finding">
+        <h3>Clothing runs on size and returns</h3>
+        <p>Size guides, AI size suggestions and self-serve exchanges reduce the return rate, and drops and daily deals drive repeat visits. Return windows range from 7 days (Snitch) to 30 days (The Souled Store).</p>
+        <p class="seen"><b>Seen at</b> Fabindia, Snitch, The Souled Store, Bewakoof</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="matrix" aria-labelledby="matrix-h">
+    <div class="section-head">
+      <h2 id="matrix-h">Feature matrix</h2>
+      <p>Pick a vendor industry to see only what that kind of store needs. Each feature shows the flag key from <span class="mono">docs/08-modules-and-feature-flags.md</span>, or "always on" when it is part of the core.</p>
+    </div>
+
+    <div class="toolbar" role="group" aria-label="Filter features">
+      <div class="fgroup">
+        <span class="label" id="lbl-ind">Vendor industry</span>
+        <div class="chips" id="f-ind" aria-labelledby="lbl-ind"></div>
+      </div>
+      <div class="fgroup">
+        <span class="label" id="lbl-phase">Phase</span>
+        <div class="chips" id="f-phase" aria-labelledby="lbl-phase"></div>
+      </div>
+      <div class="fgroup">
+        <label class="label" for="f-stage">Shopper journey</label>
+        <select id="f-stage"></select>
+      </div>
+      <div class="count" id="count" aria-live="polite"></div>
+    </div>
+    <div class="legend" aria-hidden="true">
+      <span><i class="dot core"></i> Core for that industry</span>
+      <span><i class="dot use"></i> Useful</span>
+      <span><i class="dot none"></i> Not needed</span>
+      <span><b class="phase ph-mvp">MVP</b> <b class="phase ph-p2">Phase 2</b> <b class="phase ph-later">Later</b></span>
+    </div>
+    <div class="table-box">
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th scope="col">Feature</th>
+            <th scope="col" class="ind" data-ind="s"><i class="sw sw-s"></i>Sanitary</th>
+            <th scope="col" class="ind" data-ind="l"><i class="sw sw-l"></i>Locks</th>
+            <th scope="col" class="ind" data-ind="h"><i class="sw sw-h"></i>Hardware</th>
+            <th scope="col" class="ind" data-ind="d"><i class="sw sw-d"></i>Decor</th>
+            <th scope="col" class="ind" data-ind="c"><i class="sw sw-c"></i>Clothing</th>
+            <th scope="col">Phase</th>
+            <th scope="col">Seen at</th>
+          </tr>
+        </thead>
+        <tbody id="matrix-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="industries" aria-labelledby="ind-h">
+    <div class="section-head">
+      <h2 id="ind-h">By industry</h2>
+      <p>What each kind of vendor needs at launch and what to switch on later. The flag list doubles as an industry preset: when the platform team creates a store, these flags are pre-selected (still limited by the vendor's plan).</p>
+    </div>
+    <div class="industries">
+      <article class="ind-row">
+        <div class="ind-name">
+          <div class="title"><i class="sw sw-s big"></i><h3>Sanitary ware and bath fittings</h3></div>
+          <p>Buyers compare finishes and dimensions, check that a fitting suits their plumbing, and often buy through a plumber, dealer or for a whole project.</p>
+        </div>
+        <div class="ind-col">
+          <span class="label">Launch with</span>
+          <ul>
+            <li>Attribute sets: finish, mounting, outlet, flush type, size</li>
+            <li>Finish swatches and spec tables</li>
+            <li>Spec sheets, manuals, catalogue downloads</li>
+            <li>Installation videos</li>
+            <li>Request a quote for project items</li>
+            <li>Dealer and showroom locator, WhatsApp</li>
+            <li>Festival schemes, coupons, reviews and wishlist</li>
+          </ul>
+        </div>
+        <div class="ind-col">
+          <span class="label">Switch on later</span>
+          <ul>
+            <li>Warranty registration and service requests</li>
+            <li>Spare-parts finder with diagrams</li>
+            <li>Comparison, lookbooks, appointments</li>
+            <li>Trade accounts for dealers and interior designers</li>
+          </ul>
+          <div class="flags"><code>downloads</code><code>product-videos</code><code>enquire-only-products</code><code>dealer-locator</code><code>warranty</code><code>service-requests</code><code>spare-parts</code><code>compare</code><code>appointments</code></div>
+        </div>
+      </article>
+      <article class="ind-row">
+        <div class="ind-name">
+          <div class="title"><i class="sw sw-l big"></i><h3>Locks and security</h3></div>
+          <p>Buyers check door thickness, lock type, smart features and warranty years, and most need the lock fitted by someone.</p>
+        </div>
+        <div class="ind-col">
+          <span class="label">Launch with</span>
+          <ul>
+            <li>Attribute sets: lock type, door thickness, key type, finish</li>
+            <li>Warranty shown on cards and product page</li>
+            <li>Installation videos and manuals</li>
+            <li>Keys, batteries and accessories linked to each lock</li>
+            <li>Pincode check, WhatsApp, dealer locator</li>
+            <li>Festival schemes, coupons, reviews and wishlist</li>
+          </ul>
+        </div>
+        <div class="ind-col">
+          <span class="label">Switch on later</span>
+          <ul>
+            <li>Installation booking at checkout</li>
+            <li>Warranty registration and service requests</li>
+            <li>Comparison and buying guides</li>
+          </ul>
+          <div class="flags"><code>downloads</code><code>product-videos</code><code>dealer-locator</code><code>installation-booking</code><code>warranty</code><code>service-requests</code><code>compare</code><code>blog</code></div>
+        </div>
+      </article>
+      <article class="ind-row">
+        <div class="ind-name">
+          <div class="title"><i class="sw sw-h big"></i><h3>Door and furniture hardware</h3></div>
+          <p>Carpenters, contractors and dealers search by article number, buy in quantity and reorder the same items.</p>
+        </div>
+        <div class="ind-col">
+          <span class="label">Launch with</span>
+          <ul>
+            <li>Article and model number search</li>
+            <li>Technical spec tables with units</li>
+            <li>Catalogue downloads</li>
+            <li>Minimum order quantity and pack sizes</li>
+            <li>Bulk enquiry and dealership application</li>
+            <li>Festival schemes, launch offers and an affiliate program for fitters</li>
+          </ul>
+        </div>
+        <div class="ind-col">
+          <span class="label">Switch on later</span>
+          <ul>
+            <li>Trade accounts for dealers, retailers, wholesalers and interior designers: price lists, tiers, quick order, credit</li>
+            <li>Trade schemes and dealer anniversary offers, loyalty points</li>
+            <li>Quotes for projects</li>
+            <li>Barcode scan (Later)</li>
+          </ul>
+          <div class="flags"><code>downloads</code><code>enquiries</code><code>enquire-only-products</code><code>dealer-locator</code><code>schemes</code><code>affiliate</code><code>b2b</code><code>trade-schemes</code><code>loyalty</code><code>compare</code></div>
+        </div>
+      </article>
+      <article class="ind-row">
+        <div class="ind-name">
+          <div class="title"><i class="sw sw-d big"></i><h3>Home decor and furnishing</h3></div>
+          <p>Shopping is visual and inspiration led. Buyers want to see a piece in a room, trust reviews, and often visit a showroom first.</p>
+        </div>
+        <div class="ind-col">
+          <span class="label">Launch with</span>
+          <ul>
+            <li>Large galleries and curated collections</li>
+            <li>Store locator for showrooms</li>
+            <li>COD, easy returns, WhatsApp</li>
+            <li>Bulk enquiry for hotels and offices</li>
+            <li>Reviews with photos, wishlist, festival schemes</li>
+            <li>Affiliate program for designers and creators</li>
+          </ul>
+        </div>
+        <div class="ind-col">
+          <span class="label">Switch on later</span>
+          <ul>
+            <li>Lookbooks</li>
+            <li>Interior designers as trade partners, loyalty points</li>
+            <li>Design consultations, blog</li>
+            <li>COD confirmation on WhatsApp</li>
+            <li>Room visualizer, gift cards (Later)</li>
+          </ul>
+          <div class="flags"><code>dealer-locator</code><code>enquiries</code><code>reviews</code><code>wishlist</code><code>schemes</code><code>affiliate</code><code>lookbook</code><code>appointments</code><code>blog</code><code>cod-confirmation</code><code>b2b</code><code>loyalty</code></div>
+        </div>
+      </article>
+      <article class="ind-row">
+        <div class="ind-name">
+          <div class="title"><i class="sw sw-c big"></i><h3>Clothing</h3></div>
+          <p>Size and fit decide whether an order comes back. Shoppers are price sensitive, use COD heavily and return for new drops.</p>
+        </div>
+        <div class="ind-col">
+          <span class="label">Launch with</span>
+          <ul>
+            <li>Size guide per category</li>
+            <li>Size and colour variants with swatches</li>
+            <li>Self-serve returns and exchanges</li>
+            <li>COD fee and prepaid discount</li>
+            <li>Store locator, order tracking with WhatsApp and SMS updates</li>
+            <li>Reviews, wishlist, coupons, festival schemes</li>
+            <li>Abandoned cart reminders, offer messages, affiliate</li>
+          </ul>
+        </div>
+        <div class="ind-col">
+          <span class="label">Switch on later</span>
+          <ul>
+            <li>COD confirmation on WhatsApp</li>
+            <li>Loyalty points</li>
+            <li>Size advisor, gift cards (Later)</li>
+          </ul>
+          <div class="flags"><code>size-guide</code><code>cod</code><code>dealer-locator</code><code>reviews</code><code>wishlist</code><code>coupons</code><code>schemes</code><code>abandoned-cart</code><code>offer-messages</code><code>affiliate</code><code>cod-confirmation</code><code>loyalty</code></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="brands" aria-labelledby="brands-h">
+    <div class="section-head">
+      <h2 id="brands-h">Brands studied</h2>
+      <p>What each site offered when checked. A blank in a feature list means we did not see it, not that the brand lacks it.</p>
+    </div>
+    <div class="table-box brands-box">
+      <table class="brands">
+        <thead>
+          <tr><th scope="col">Brand</th><th scope="col">Category</th><th scope="col">How they sell online</th><th scope="col">Notable features</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="b"><i class="sw sw-s"></i>Jaquar</td><td>Bath, sanitary, lighting (India)</td><td class="how">Catalogue site; online purchases go through its Amazon store</td><td class="what">Dealer locator, product enquiry form, catalogue downloads, spare-parts section, lighting configurator, SketchUp models and specifier guides for architects, service request portal, WhatsApp support, virtual appointments and showroom tours, inspiration gallery</td></tr>
+          <tr><td class="b"><i class="sw sw-s"></i>CERA</td><td>Sanitary ware, faucets (India)</td><td class="how">Own online shop with customer accounts</td><td class="what">Warranty registration, service requests, product comparison, installation videos, catalogue downloads, dealer and showroom locator, purchase enquiry form</td></tr>
+          <tr><td class="b"><i class="sw sw-s"></i>Hindware</td><td>Sanitary ware (India)</td><td class="how">Catalogue-led site</td><td class="what">Catalogue downloads, dealer locator, 3D bathroom visualizer that mixes fixtures, colours and floors</td></tr>
+          <tr><td class="b"><i class="sw sw-s"></i>Kohler</td><td>Bath and kitchen (global)</td><td class="how">Catalogue plus a separate site for professionals</td><td class="what">Replacement-part finder by model number with exploded diagrams, photo-based model identification (beta), literature and catalogue downloads</td></tr>
+          <tr><td class="b"><i class="sw sw-s"></i>GROHE</td><td>Bath and kitchen fittings (global, India site)</td><td class="how">Catalogue and service portal</td><td class="what">Online product registration with product number, serial number, purchase date and receipt; an extra year of warranty on selected registered products; QR links to warranty registration</td></tr>
+          <tr><td class="b"><i class="sw sw-l"></i>Godrej Security</td><td>Locks and security (India)</td><td class="how">Own online shop</td><td class="what">Price-band filters, free installation on some products, warranty shown on product cards, warranty claim and support pages by product type, buying-guide blog, WhatsApp support</td></tr>
+          <tr><td class="b"><i class="sw sw-l"></i>Dorset</td><td>Digital and mechanical locks (India)</td><td class="how">Own site with a buy-online option, plus Amazon and IndustryBuying</td><td class="what">Catalogue organised by lock type: digital door, push-pull, mortise, rim, glass-door and cabinet locks</td></tr>
+          <tr><td class="b"><i class="sw sw-l"></i>Yale India</td><td>Locks and digital locks</td><td class="how">Separate online store (yaleonline.in)</td><td class="what">Collections organised by use, such as wardrobe locks</td></tr>
+          <tr><td class="b"><i class="sw sw-h"></i>Häfele India</td><td>Door, furniture and kitchen hardware, appliances</td><td class="how">Consumer shop (home.hafeleindia.com) beside a technical catalogue site</td><td class="what">Dealer locator with map across 235 locations, search by product name or article number, find products by scanning a QR or EAN code, catalogue and brochure downloads, apps</td></tr>
+          <tr><td class="b"><i class="sw sw-d"></i>Asian Paints Beautiful Homes</td><td>Home decor and interiors (India)</td><td class="how">Shop plus paid design services</td><td class="what">3D visualizer for planning a home, online consultation booking with a specialist, shop for lighting, furniture and furnishings, large design magazine with real homes and DIY videos</td></tr>
+          <tr><td class="b"><i class="sw sw-d"></i>Pepperfry</td><td>Furniture and home decor (India)</td><td class="how">Online shop with physical studios</td><td class="what">Store locator, order tracking, bulk buying, a separate business (B2B) channel, gift cards</td></tr>
+          <tr><td class="b"><i class="sw sw-c"></i>Fabindia</td><td>Clothing and home (India)</td><td class="how">Online shop and app plus 340+ stores in 125+ cities</td><td class="what">Size guide with measurement charts, store locator, returns and exchanges, order tracking, bulk orders, FAQs</td></tr>
+          <tr><td class="b"><i class="sw sw-c"></i>Snitch</td><td>Men's fashion D2C (India)</td><td class="how">Web shop and app</td><td class="what">AI size suggestions, deal of the day, app-only drops, ₹100 COD fee waived on prepaid orders, 7-day returns and exchanges</td></tr>
+          <tr><td class="b"><i class="sw sw-c"></i>The Souled Store</td><td>Casual fashion D2C (India)</td><td class="how">Web shop and app</td><td class="what">30-day returns, track, exchange and return inside the app, UPI, cards, netbanking and COD</td></tr>
+          <tr><td class="b"><i class="sw sw-c"></i>Bewakoof</td><td>Casual fashion D2C (India)</td><td class="how">Web shop and app</td><td class="what">One-tap tracking, exchange and return</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="build" class="two" aria-labelledby="build-h">
+    <div>
+      <div class="section-head">
+        <h2 id="build-h">What changes in the build</h2>
+        <p>The research is already reflected in the instruction docs in this folder.</p>
+      </div>
+      <ul class="impact">
+        <li><b>Products carry structured data from day one</b><span>Attribute sets per category, model numbers, documents, videos, warranty months and linked spare parts. See <code>docs/06-data-model.md</code>.</span></li>
+        <li><b>Growth features ship in the MVP</b><span>Since 3 October 2026 festival schemes, launch offers, coupons, affiliates, reviews, wishlist, offer messages and abandoned cart reminders are in Phase 1 next to enquiries and dealers. Trade accounts for dealers, retailers, wholesalers and interior designers, trade schemes, loyalty points, comparison, warranty and spare parts follow in Phase 2. See <code>docs/17-roadmap.md</code>.</span></li>
+        <li><b>Every feature is a switch per vendor</b><span>Each row in the matrix maps to a flag key or to the core, and the vendor's plan caps what can be switched on. See <code>docs/08-modules-and-feature-flags.md</code>.</span></li>
+        <li><b>Industry presets speed up onboarding</b><span>Creating a sanitary store pre-selects sanitary flags, a clothing store clothing flags.</span></li>
+        <li><b>India checkout rules are built in</b><span>Pincode serviceability, COD fee and limits, prepaid discount, CGST/SGST or IGST split and GST invoice numbering. See <code>docs/11-orders-payments-gst.md</code>.</span></li>
+        <li><b>Shoppers hear from the vendor, never from us</b><span>Order updates go out on WhatsApp and SMS from each vendor's own number and sender ID, set up during onboarding, at about ₹1 per order on the vendor's own bills. See <code>docs/18-notifications.md</code>.</span></li>
+      </ul>
+    </div>
+    <div id="sources">
+      <div class="section-head">
+        <h2>Method and limits</h2>
+      </div>
+      <div class="method">
+        <p>Jaquar, CERA, Hindware, Kohler, Godrej Security, Pepperfry and Häfele were checked on 1 October 2026. Häfele India, GROHE, Dorset, Yale India, Asian Paints, Fabindia, Snitch, The Souled Store and Bewakoof, plus Indian D2C and B2B dealer-portal guides, were checked through web search on 2 October 2026.</p>
+        <p>The second round relied on official pages and listings surfaced by search, not full walkthroughs of each checkout. Häfele's product pages could not be read in the first round. Treat the brand notes as what we observed, and recheck a brand before quoting it to a vendor.</p>
+        <p>WhatsApp and SMS rules and prices (Meta's developer docs, TRAI's DLT rules, MSG91 and Shiprocket help pages) and Shiprocket's API rules were checked on 2 October 2026. Meta changes its rate cards often, so recheck prices before quoting them.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="src-h">
+    <div class="section-head"><h2 id="src-h">Sources</h2></div>
+    <ul class="sources">
+      <li><a href="https://www.jaquar.com" rel="noopener">Jaquar</a>, <a href="https://www.cera-india.com" rel="noopener">CERA</a>, <a href="https://www.hindware.com" rel="noopener">Hindware</a>, <a href="https://www.kohler.com" rel="noopener">Kohler</a>, <a href="https://www.pepperfry.com" rel="noopener">Pepperfry</a> (checked 1 Oct 2026)</li>
+      <li><a href="https://home.hafeleindia.com/" rel="noopener">Häfele India shop</a>, <a href="https://home.hafeleindia.com/pages/dealers" rel="noopener">dealer finder</a>, <a href="https://home.hafeleindia.com/pages/catalogue" rel="noopener">catalogue</a>, <a href="https://www.hafeleindia.com/en/info/service/407/5298/" rel="noopener">catalogues and apps</a></li>
+      <li><a href="https://www.grohe.com/en-IN/service-support/guarantee/product-registration" rel="noopener">GROHE product registration (India)</a>, <a href="https://www.grohe.com/en-GB/service-support/guarantee" rel="noopener">GROHE guarantee</a></li>
+      <li><a href="https://www.dorsetindia.com/products/digital-solutions" rel="noopener">Dorset digital solutions</a></li>
+      <li><a href="https://yaleonline.in/collections/wardrobe-door-lock-online-india" rel="noopener">Yale Online India</a></li>
+      <li><a href="https://www.beautifulhomes.asianpaints.com/" rel="noopener">Asian Paints Beautiful Homes</a>, <a href="https://www.asianpaints.com/services/beautiful-homes-service-old.amp.html" rel="noopener">Beautiful Homes service</a></li>
+      <li><a href="https://www.fabindia.com/customer-service" rel="noopener">Fabindia customer service</a>, <a href="https://www.fabindia.com/faqs" rel="noopener">Fabindia FAQs</a></li>
+      <li><a href="https://zoutons.com/news/snitch-vs-bewakoof-comparison" rel="noopener">Snitch vs Bewakoof comparison (Zoutons)</a></li>
+      <li><a href="https://play.google.com/store/apps/details?id=com.thesouledstore&amp;hl=en_US" rel="noopener">The Souled Store app listing</a>, <a href="https://apps.apple.com/us/app/-/id1100190514" rel="noopener">Bewakoof app listing</a></li>
+      <li><a href="https://www.fynd.com/blog/how-to-build-a-d2c-brand-in-india-the-complete-e-commerce-storefront-guide-for-2026" rel="noopener">Fynd: D2C storefront guide for India 2026</a></li>
+      <li><a href="https://www.shopaccino.com/blog/best-ecommerce-platform-in-india-for-smes-d2c-brands-2026-comparison-guide" rel="noopener">Shopaccino: ecommerce platforms for Indian D2C 2026</a></li>
+      <li><a href="https://oroinc.com/b2b-ecommerce/b2b-dealer-portal-solution/" rel="noopener">OroCommerce dealer portal</a>, <a href="https://elogic.co/blog/b2b-portal/" rel="noopener">Elogic B2B portal guide</a>, <a href="https://www.orderwerks.com/solutions/dealer-portal" rel="noopener">Orderwerks dealer portal</a></li>
+      <li><a href="https://payloadcms.com/docs/plugins/multi-tenant" rel="noopener">Payload multi-tenant plugin</a>, <a href="https://payloadcms.com/docs/ecommerce/plugin" rel="noopener">ecommerce plugin</a>, <a href="https://payloadcms.com/docs/ecommerce/payments" rel="noopener">payment adapters</a></li>
+      <li><a href="https://www.infoq.com/news/2019/07/shopify-modular-monolith" rel="noopener">Shopify's modular monolith (InfoQ)</a></li>
+      <li>WhatsApp (Meta): <a href="https://developers.facebook.com/docs/whatsapp/pricing" rel="noopener">pricing</a>, <a href="https://developers.facebook.com/docs/whatsapp/overview/getting-opt-in" rel="noopener">opt-in</a>, <a href="https://developers.facebook.com/docs/whatsapp/messaging-limits" rel="noopener">messaging limits</a>, <a href="https://developers.facebook.com/docs/whatsapp/embedded-signup/custom-flows/onboarding-business-app-users" rel="noopener">coexistence with the Business app</a>, <a href="https://developers.facebook.com/docs/whatsapp/solution-providers/get-started-for-tech-providers" rel="noopener">Tech Providers</a></li>
+      <li><a href="https://myoperator.com/blog/whatsapp-business-api-pricing-india-2026" rel="noopener">WhatsApp rates in India 2026 (MyOperator)</a></li>
+      <li>SMS in India: <a href="https://www.tanla.com/blog-posts/trais-whitelisting-directive-explained-everything-you-need-to-know" rel="noopener">TRAI link whitelisting (Tanla)</a>, <a href="https://fyno.io/docs/dlt-sms-templates" rel="noopener">DLT template rules (Fyno)</a>, <a href="https://www.smscountry.com/blog/jio-dlt-registration-guide/" rel="noopener">Jio DLT registration (SMSCountry)</a></li>
+      <li>MSG91: <a href="https://msg91.com/help/dlt-registration-in-india/map-approved-dlt-template-id-with-respective-flow-id-on-msg91-panel" rel="noopener">DLT template IDs</a>, <a href="https://msg91.com/help/webhook-new/how-to-receive-sms-delivery-reports-via-webhook-new" rel="noopener">delivery report webhook</a>, <a href="https://msg91.com/in/pricing/sms" rel="noopener">SMS pricing</a></li>
+      <li>Shiprocket: <a href="https://apidocs.shiprocket.in/" rel="noopener">API docs</a>, <a href="https://support.shiprocket.in/support/solutions/articles/43000337456-shiprocket-api-document-helpsheet" rel="noopener">API helpsheet</a>, <a href="https://support.shiprocket.in/support/solutions/articles/43000664209-what-is-ndr-" rel="noopener">failed deliveries (NDR)</a>, <a href="https://support.shiprocket.in/support/solutions/articles/43000662714-how-to-upload-and-change-eway-bill-for-forward-orders-" rel="noopener">e-way bills</a>, <a href="https://support.shiprocket.in/support/solutions/articles/152000000317-how-can-i-enable-or-disable-whatsapp-communication-" rel="noopener">buyer WhatsApp messages</a>, <a href="https://apps.shopify.com/shiprocket-engage" rel="noopener">Shiprocket Engage (COD confirmation)</a></li>
+      <li><a href="https://www.pib.gov.in/PressReleasePage.aspx?PRID=2190014" rel="noopener">DPDP Rules 2025 notified (PIB)</a></li>
+    </ul>
+  </section>
+
+  <footer>Part of the TenantEcom planning docs. Source file: <span class="mono">research/features.html</span>. Feature keys and phases match <span class="mono">docs/08</span> and <span class="mono">docs/17</span>.</footer>
+</div>
+
+<script>
+(function () {
+  var IND = [
+    { k: "s", short: "Sanitary", name: "Sanitary and bath" },
+    { k: "l", short: "Locks", name: "Locks and security" },
+    { k: "h", short: "Hardware", name: "Door and furniture hardware" },
+    { k: "d", short: "Decor", name: "Home decor" },
+    { k: "c", short: "Clothing", name: "Clothing" }
+  ];
+  var STAGES = [
+    ["cat", "Catalogue and product page"],
+    ["disc", "Discovery and inspiration"],
+    ["buy", "Buying and checkout"],
+    ["after", "Orders and after-sales"],
+    ["trade", "Dealers, trade and professionals"],
+    ["app", "Platform and engagement"]
+  ];
+  var STAGE_NAME = {};
+  STAGES.forEach(function (s) { STAGE_NAME[s[0]] = s[1]; });
+
+  // [stage, name, why, relevance s l h d c (2 core, 1 useful, 0 no), phase, flag (null = always on), seen at]
+  var F = [
+    ["cat", "Attribute sets per category", "Finish, material, size, mounting or fabric become structured data that drive filters, spec tables and comparison.", "22222", "MVP", null, "Godrej, CERA, Häfele"],
+    ["cat", "Finish and colour swatches", "Shoppers pick chrome, matt black or brass the same way they pick a shirt colour.", "22222", "MVP", null, "Jaquar, CERA, fashion D2C sites"],
+    ["cat", "Model and article number on every product", "Plumbers, carpenters and dealers search by the number printed in the catalogue.", "22210", "MVP", null, "Häfele, Kohler"],
+    ["cat", "Grouped spec table with units", "Dimensions in mm, flow rates, door thickness, fabric and wash care, shown in groups.", "22211", "MVP", null, "CERA, Godrej, Häfele"],
+    ["cat", "Spec sheets, manuals and catalogue downloads", "PDF documents on the product page plus a downloads page by category.", "22210", "MVP", "downloads", "Jaquar, CERA, Hindware, Kohler, Häfele"],
+    ["cat", "Installation and demo videos", "Short videos on the product page cut pre-sale calls and wrong installs.", "22210", "MVP", "product-videos", "CERA"],
+    ["cat", "Warranty period on cards and product page", "Buyers of locks and fittings compare warranty years before price.", "22100", "MVP", null, "Godrej"],
+    ["cat", "Accessories and spare parts linked to the product", "Cartridges, keys, batteries and fixing kits offered next to the main item.", "22100", "MVP", null, "Jaquar, Kohler"],
+    ["cat", "Size guide per category", "Measurement charts per garment type reduce size-related returns.", "00002", "MVP", "size-guide", "Fabindia"],
+    ["cat", "Product comparison", "Side-by-side spec comparison of up to four products.", "22100", "Phase 2", "compare", "CERA"],
+    ["cat", "Size advisor", "Suggests a size from height, weight or a past purchase.", "00002", "Later", "size-advisor", "Snitch (AI size suggestions)"],
+
+    ["disc", "Search with autocomplete", "Matches titles, model numbers and SKUs as the shopper types.", "22222", "MVP", null, "Häfele, Godrej, CERA"],
+    ["disc", "Filters with counts and price bands", "Filters come from the category's attribute set, so a lock store gets lock filters.", "22222", "MVP", null, "Godrej"],
+    ["disc", "Curated collections and ranges", "Product ranges, new arrivals and seasonal edits put together by the vendor.", "11122", "MVP", null, "Common practice"],
+    ["disc", "Inspiration gallery and shoppable lookbooks", "Room photos with tagged products lead from an idea to the cart.", "20022", "Phase 2", "lookbook", "Jaquar, Hindware, Asian Paints"],
+    ["disc", "Buying guides and blog", "Explains lock grades, faucet types or fabric care, and brings search traffic.", "12121", "Phase 2", "blog", "Godrej, Asian Paints"],
+    ["disc", "Scan a barcode or QR to find a product", "Dealers and installers scan the box to check specs or reorder.", "11200", "Later", "barcode-scan", "Häfele"],
+    ["disc", "Find a product from a photo", "Identifies an unknown fitting from a picture so the right spare part is sold.", "21000", "Later", "visual-search", "Kohler (beta)"],
+    ["disc", "3D or AR room visualizer", "Shoppers try fixtures, colours and floors in a virtual room.", "20020", "Later", "visualizer", "Hindware, Asian Paints"],
+    ["disc", "Product configurator", "Build a custom light or furniture piece from options.", "00120", "Later", "configurator", "Jaquar (lighting)"],
+
+    ["buy", "Pincode check with delivery date and COD", "Answers whether the store delivers here, by when, and whether cash on delivery is possible, before the cart.", "22222", "MVP", "pincode-check", "Indian D2C guides"],
+    ["buy", "UPI, cards, netbanking and wallets", "Razorpay on the vendor's own account. UPI is how most Indians pay online.", "22222", "MVP", "connector: razorpay", "Indian D2C guides"],
+    ["buy", "Cash on delivery with fee and limits", "Keeps COD available on the vendor's terms (order range, fee, zones). A prepaid discount to nudge shoppers away from COD follows in Phase 2 with promotions.", "22222", "MVP", "cod", "Snitch"],
+    ["buy", "Guest checkout", "No forced sign-up. An account can be created after the order.", "22222", "MVP", "guest-checkout", "Common practice"],
+    ["buy", "GST invoice with buyer GSTIN", "Contractors and businesses need a GST invoice to claim input tax credit.", "22221", "MVP", null, "Indian D2C guides"],
+    ["buy", "Request a quote or enquire-only products", "Project items and large orders go to an enquiry instead of the cart.", "22210", "MVP", "enquire-only-products", "Jaquar, CERA"],
+    ["buy", "Bulk order enquiry", "A short form for quantity orders from builders, hotels or companies.", "22212", "MVP", "enquiries", "Pepperfry, Fabindia"],
+    ["buy", "Installation booking at checkout", "Adds fitting by a technician as a paid or free line item.", "22100", "Phase 2", "installation-booking", "Godrej"],
+    ["buy", "Festival schemes and launch offers", "Diwali, Holi, New Year and Wedding Season offers and special launch prices that start and end on their own dates, with honest countdowns.", "22222", "MVP", "schemes", "Indian D2C guides, your brief"],
+    ["buy", "Coupons", "Codes typed at the cart: percent, flat or free delivery, with limits; public codes listed at the cart.", "11122", "MVP", "coupons", "Snitch, fashion D2C"],
+    ["buy", "Abandoned cart reminders", "An email or WhatsApp nudge with a link back to the cart, only for shoppers who agreed to offers.", "11122", "MVP", "abandoned-cart", "Indian D2C guides"],
+    ["buy", "Loyalty points", "Points on delivered orders, redeemed as a discount on the next one.", "11122", "Phase 2", "loyalty", "Pepperfry, your brief"],
+    ["buy", "Gift cards", "Store credit for gifting.", "00022", "Later", "gift-cards", "Pepperfry"],
+
+    ["after", "Courier booking, labels and live tracking", "Book the courier, print the label and schedule pickup from the order; tracking updates, failed deliveries and return pickups come back on their own.", "22222", "MVP", "connector: shiprocket", "Shiprocket, Indian D2C guides"],
+    ["after", "Order tracking with courier link", "A tracking page behind the short link in every message, showing each step from packed to delivered.", "22222", "MVP", null, "Fabindia, Bewakoof, Pepperfry"],
+    ["after", "Self-serve returns and exchanges", "Request a return or size exchange with photos from the order page.", "11122", "MVP", null, "The Souled Store, Snitch, Fabindia"],
+    ["after", "WhatsApp chat button", "One tap to the vendor's WhatsApp Business number.", "22222", "MVP", "whatsapp-button", "Jaquar, Godrej"],
+    ["after", "Order updates on WhatsApp and SMS", "Confirmed, packed, shipped, out for delivery and delivered messages from the vendor's own WhatsApp number and SMS sender, each with a tracking link.", "22222", "MVP", "connector: whatsapp, sms", "Shiprocket buyer messages, Indian D2C guides"],
+    ["after", "COD confirmation on WhatsApp", "Cash-on-delivery buyers confirm or cancel with one tap before dispatch, so fewer parcels come back unclaimed.", "11122", "Phase 2", "cod-confirmation", "Shiprocket Engage, Indian D2C guides"],
+    ["after", "Warranty registration", "Register serial number and invoice. The store can extend warranty for registered products.", "22100", "Phase 2", "warranty", "GROHE, CERA, Godrej"],
+    ["after", "Service requests with tracking", "Book installation, repair or a complaint and follow the ticket.", "22100", "Phase 2", "service-requests", "CERA, Jaquar, Godrej"],
+    ["after", "Spare-parts finder with exploded diagrams", "Pick the model, click the part on the diagram, add it to the cart.", "21000", "Phase 2", "spare-parts", "Kohler, Jaquar"],
+
+    ["trade", "Dealer and store locator with map", "Find the nearest dealer, showroom or service centre by pincode or city.", "22212", "MVP", "dealer-locator", "Jaquar, CERA, Hindware, Häfele, Pepperfry, Fabindia"],
+    ["trade", "Dealership application", "Prospective dealers apply through a form that lands in the enquiries inbox.", "22210", "MVP", "enquiries", "Recommended"],
+    ["trade", "Trade accounts for dealers, retailers, wholesalers and interior designers", "Each partner type gets its own prices and terms: dealer price lists and credit, retailer prices for resale, wholesale tiers and minimums, designer trade prices with commission on client orders. Quick order by SKU and statements.", "22221", "Phase 2", "b2b", "Pepperfry business channel, B2B portal guides, your brief"],
+    ["trade", "Trade schemes and dealer anniversary offers", "Slab or target schemes for trade partners, and a personal offer on each dealer's anniversary with the brand.", "22210", "Phase 2", "trade-schemes", "Your brief"],
+    ["trade", "Quotes for projects", "A dealer or contractor requests a quote from the cart, staff send a PDF quote, and it converts to an order.", "22210", "Phase 2", "b2b", "B2B portal guides"],
+    ["trade", "Virtual appointment or design consultation", "Book a video call with a product or design expert.", "20020", "Phase 2", "appointments", "Jaquar, Asian Paints"],
+    ["trade", "Affiliate and referral program", "Creators, stylists or electricians earn commission on orders they refer by link or code; the vendor pays them directly.", "11222", "MVP", "affiliate", "Your brief"],
+
+    ["app", "Installable PWA with offline page", "Home-screen install, fast repeat visits, and it copes with patchy mobile data.", "22222", "MVP", null, "Your brief"],
+    ["app", "Reviews and ratings with photos", "Verified-purchase reviews on the product page, approved by the vendor whatever the rating.", "11122", "MVP", "reviews", "Fashion and decor D2C"],
+    ["app", "Wishlist", "Save products to compare or buy later.", "11122", "MVP", "wishlist", "Common practice"],
+    ["app", "Offer messages to opted-in shoppers", "Offer emails to shoppers who asked, with one-tap unsubscribe. WhatsApp offers from the vendor's own number once our team switches them on for that vendor.", "11122", "MVP", "offer-messages, whatsapp-offers", "Your brief, Indian D2C guides"],
+    ["app", "Hindi and regional languages", "Each store chooses its languages. Content is already stored per language.", "22222", "Phase 2", "multilingual", "Your brief"],
+    ["app", "Push notifications", "Order updates and offers to shoppers who installed the PWA.", "11122", "Phase 2", "push-notifications", "Common practice"]
+  ];
+
+  var IDX = { s: 0, l: 1, h: 2, d: 3, c: 4 };
+  var PHASE_CLASS = { "MVP": "ph-mvp", "Phase 2": "ph-p2", "Later": "ph-later" };
+  var REL_TEXT = ["Not needed", "Useful", "Core"];
+  var REL_CLASS = ["none", "use", "core"];
+
+  var state = { ind: "all", phase: "all", stage: "all" };
+  try {
+    var saved = JSON.parse(localStorage.getItem("te-matrix-filters") || "null");
+    if (saved && typeof saved === "object") {
+      if (saved.ind === "all" || IDX.hasOwnProperty(saved.ind)) state.ind = saved.ind;
+      if (saved.phase === "all" || PHASE_CLASS.hasOwnProperty(saved.phase)) state.phase = saved.phase;
+      if (saved.stage === "all" || STAGE_NAME.hasOwnProperty(saved.stage)) state.stage = saved.stage;
+    }
+  } catch (e) {}
+
+  function save() {
+    try { localStorage.setItem("te-matrix-filters", JSON.stringify(state)); } catch (e) {}
+  }
+
+  var indBox = document.getElementById("f-ind");
+  var phaseBox = document.getElementById("f-phase");
+  var stageSel = document.getElementById("f-stage");
+  var body = document.getElementById("matrix-body");
+  var countEl = document.getElementById("count");
+
+  function chip(label, value, group, swatch) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip";
+    b.dataset.value = value;
+    b.dataset.group = group;
+    if (swatch) {
+      var i = document.createElement("i");
+      i.className = "sw sw-" + swatch;
+      b.appendChild(i);
+    }
+    b.appendChild(document.createTextNode(label));
+    b.addEventListener("click", function () {
+      state[group] = value;
+      save();
+      render();
+    });
+    return b;
+  }
+
+  indBox.appendChild(chip("All", "all", "ind"));
+  IND.forEach(function (x) { indBox.appendChild(chip(x.short, x.k, "ind", x.k)); });
+  ["all", "MVP", "Phase 2", "Later"].forEach(function (p) {
+    phaseBox.appendChild(chip(p === "all" ? "All" : p, p, "phase"));
+  });
+
+  var optAll = document.createElement("option");
+  optAll.value = "all";
+  optAll.textContent = "All stages";
+  stageSel.appendChild(optAll);
+  STAGES.forEach(function (s) {
+    var o = document.createElement("option");
+    o.value = s[0];
+    o.textContent = s[1];
+    stageSel.appendChild(o);
+  });
+  stageSel.addEventListener("change", function () {
+    state.stage = stageSel.value;
+    save();
+    render();
+  });
+
+  function syncControls() {
+    Array.prototype.forEach.call(document.querySelectorAll(".chip"), function (b) {
+      b.setAttribute("aria-pressed", String(state[b.dataset.group] === b.dataset.value));
+    });
+    stageSel.value = state.stage;
+    Array.prototype.forEach.call(document.querySelectorAll(".matrix thead th.ind"), function (th) {
+      th.classList.toggle("sel", th.dataset.ind === state.ind);
+    });
+  }
+
+  function flagHtml(flag) {
+    if (!flag) return '<span class="key">always on</span>';
+    if (flag.indexOf("connector:") === 0) return '<span class="key">' + flag + "</span>";
+    return '<span class="key">flag: ' + flag + "</span>";
+  }
+
+  function render() {
+    syncControls();
+    var html = "";
+    var last = "";
+    var shown = 0;
+    var by = { "MVP": 0, "Phase 2": 0, "Later": 0 };
+    F.forEach(function (f) {
+      if (state.ind !== "all" && f[3].charAt(IDX[state.ind]) === "0") return;
+      if (state.phase !== "all" && f[4] !== state.phase) return;
+      if (state.stage !== "all" && f[0] !== state.stage) return;
+      if (f[0] !== last) {
+        html += '<tr class="stage"><th colspan="8" scope="colgroup">' + STAGE_NAME[f[0]] + "</th></tr>";
+        last = f[0];
+      }
+      shown++;
+      by[f[4]]++;
+      var cells = "";
+      IND.forEach(function (x, i) {
+        var r = Number(f[3].charAt(i));
+        cells += '<td class="rel' + (state.ind === x.k ? " sel" : "") + '" data-label="' + x.short + '">' +
+          '<span class="dot ' + REL_CLASS[r] + '" role="img" aria-label="' + REL_TEXT[r] + " for " + x.name + '" title="' + REL_TEXT[r] + '"></span></td>';
+      });
+      html += '<tr class="f"><td class="feat"><span class="name">' + f[1] + '</span><span class="why">' + f[2] + "</span>" + flagHtml(f[5]) + "</td>" +
+        cells +
+        '<td class="ph"><span class="phase ' + PHASE_CLASS[f[4]] + '">' + f[4] + "</span></td>" +
+        '<td class="seen">' + f[6] + "</td></tr>";
+    });
+    if (!shown) {
+      html = '<tr class="empty"><td colspan="8">No features match these filters. <button type="button" class="linkbtn" id="clear-filters">Clear filters</button></td></tr>';
+    }
+    body.innerHTML = html;
+    var clear = document.getElementById("clear-filters");
+    if (clear) clear.addEventListener("click", function () {
+      state = { ind: "all", phase: "all", stage: "all" };
+      save();
+      render();
+    });
+    countEl.innerHTML = "Showing <b>" + shown + "</b> of " + F.length + " · " + by["MVP"] + " MVP, " + by["Phase 2"] + " Phase 2, " + by["Later"] + " Later";
+  }
+
+  document.getElementById("meta-count").textContent = F.length + " features";
+  render();
+})();
+</script>
+</body>
+</html>
