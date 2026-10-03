@@ -43,7 +43,8 @@ Test data: factories in `tests/fixtures/factories.ts` that always take a tenant.
 
 1. Typecheck, lint, unit + integration tests pass.
 2. New collection/endpoint covered by tenant-isolation and access tests.
-3. Docs in `docs/` updated if behaviour, schema or API changed.
+3. Docs in `docs/` updated if behaviour, schema or API changed, and `docs/progress.md` updated for
+   any screen or feature that moved.
 4. No secrets, no `console.log`, no TODO without an issue reference.
 5. Mobile layout checked at 360px width.
 

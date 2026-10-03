@@ -48,6 +48,7 @@ The super admin panel is built (README status). These came up while building it:
 | Admin fonts | Plus Jakarta Sans and IBM Plex Mono load from Google Fonts in the admin | Self-host them (no third-party request, simpler CSP) when the storefront kit adds fonts |
 | Manage store and View as support | Not built yet: it needs the vendor CMS collections to be useful | Next platform task, with the reason prompt, 2-hour session, banner and audit (docs/05) |
 | Git hosting | Code now lives on GitHub (`mudit06/tenantcommerce`); docs/00 still says "local only, no remote" | Confirm GitHub is the home, then hosted CI can replace the local `pnpm verify` |
+| Dependency audit | `undici` and `dompurify` (inside Payload) pinned to patched versions with pnpm overrides. One left: `braces` in the SCSS compiler's file watcher, no fix released, build-time only | Remove the overrides once Payload ships the patched versions; recheck `pnpm audit` on each upgrade |
 
 ## 3. Before launch (not blocking development)
 

@@ -33,6 +33,7 @@ messaging (WhatsApp, SMS, email) providers are connectors behind one interface e
 
 | File | Read when you are... |
 |---|---|
+| docs/progress.md | starting any task: what is built and what is left, per screen (update it with your change) |
 | docs/00-overview.md | new to the project; need decisions, glossary, phases |
 | docs/01-architecture.md | touching structure, request flow, module boundaries, scaling |
 | docs/02-tech-stack.md | adding a dependency or choosing a library |
