@@ -1,4 +1,6 @@
 /* eslint-disable @next/next/no-img-element -- our media already has WebP sizes on a CDN; next/image would resize them again */
+import { preload } from 'react-dom'
+
 import type { Media } from '@/payload-types'
 
 type MediaLike = Media | string | null | undefined
@@ -48,6 +50,15 @@ export function Img({
   ].filter((size): size is { url: string; width: number } => Boolean(size?.url && size.width))
   const srcSet = candidates.map((size) => `${mediaUrl(size.url)} ${size.width}w`).join(', ')
   const fallback = item.sizes?.card?.url ?? item.url
+  // The page's main image (LCP): announce it in <head> so it downloads before scripts and fonts
+  if (priority) {
+    preload(mediaUrl(fallback)!, {
+      as: 'image',
+      imageSrcSet: srcSet || undefined,
+      imageSizes: sizes,
+      fetchPriority: 'high',
+    })
+  }
   return (
     <img
       alt={alt ?? item.alt ?? ''}

@@ -43,7 +43,7 @@ export default async function SearchPage({ params, searchParams }: Props) {
             {results.length} {results.length === 1 ? 'result' : 'results'} for “{q}”
           </p>
           {results.length ? (
-            <ProductGrid products={results} />
+            <ProductGrid headingLevel={2} products={results} />
           ) : (
             <p className="text-ink-soft">
               Try a shorter word or the model number printed in our catalogue.

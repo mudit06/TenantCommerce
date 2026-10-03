@@ -187,7 +187,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
               </div>
             </div>
             {page.items.length ? (
-              <ProductGrid priorityCount={4} products={page.items} />
+              <ProductGrid headingLevel={2} priorityCount={2} products={page.items} />
             ) : (
               <p className="rounded-card border border-dashed border-line p-10 text-center text-ink-soft">
                 No products match these filters.{' '}

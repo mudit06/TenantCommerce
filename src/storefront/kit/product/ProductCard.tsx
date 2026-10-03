@@ -5,14 +5,18 @@ import type { ProductCardData } from '@/lib/data/catalog'
 import { productHref } from '../links'
 import { Img } from '../media'
 
+/** `headingLevel`: 2 where the grid follows the page's h1 (listing, search), 3 under a section heading. */
 export function ProductCard({
   product,
   priority = false,
+  headingLevel = 3,
 }: {
   product: ProductCardData
   priority?: boolean
+  headingLevel?: 2 | 3
 }) {
   const [main] = product.gallery ?? []
+  const Heading = headingLevel === 2 ? 'h2' : 'h3'
   return (
     <Link
       className="group flex flex-col overflow-hidden rounded-card border border-line bg-white transition hover:border-ink/25 hover:shadow-md focus-visible:outline-2 focus-visible:outline-ink"
@@ -30,9 +34,9 @@ export function ProductCard({
         <p className="text-xs font-semibold tracking-wide text-accent uppercase">
           {product.modelNumber}
         </p>
-        <h3 className="line-clamp-2 text-sm font-semibold text-ink sm:text-base">
+        <Heading className="line-clamp-2 text-sm font-semibold text-ink sm:text-base">
           {product.title}
-        </h3>
+        </Heading>
         <p className="mt-auto pt-2 text-xs text-ink-soft">Price on request</p>
       </div>
     </Link>
@@ -42,15 +46,21 @@ export function ProductCard({
 export function ProductGrid({
   products,
   priorityCount = 0,
+  headingLevel = 3,
 }: {
   products: ProductCardData[]
   priorityCount?: number
+  headingLevel?: 2 | 3
 }) {
   return (
     <ul className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 xl:grid-cols-4">
       {products.map((product, index) => (
         <li key={product.id}>
-          <ProductCard priority={index < priorityCount} product={product} />
+          <ProductCard
+            headingLevel={headingLevel}
+            priority={index < priorityCount}
+            product={product}
+          />
         </li>
       ))}
     </ul>

@@ -25,8 +25,10 @@ Vendor data is entered by hand for now (mudit, 3 October 2026), so CSV import is
 110 products in 13 categories with photos cropped from its PDF, specification fields, About us
 and a home page; launches as a catalogue with enquiries (no prices in the catalogue, mudit 3
 October 2026). Its storefront runs at http://home-orbit.localhost:3000 after
-`pnpm seed:home-orbit`. Lighthouse mobile on the production build: performance 91 to 98,
-accessibility 100, best practices 100 (home, category, product). What Home Orbit still has to
+`pnpm seed:home-orbit`. Lighthouse mobile on the production build, with the store temporarily
+live (a draft store shows "coming soon" in production): performance 90 to 99, accessibility 100,
+best practices 100, SEO 100 on home, category and product pages (warm server; the very first
+request after a restart scored 85). What Home Orbit still has to
 send: docs/vendors/home-orbit.md.
 
 Legend: **Done** = built and tested to the screen spec for MVP. **Partial** = usable, with the

@@ -518,7 +518,6 @@ export const PRODUCTS: ProductSeed[] = [
       mounting: 'wall-mounted',
     },
     provisionalModel: true,
-    featured: true,
   },
   ...(
     [
@@ -592,7 +591,6 @@ export const PRODUCTS: ProductSeed[] = [
     box: [50, 145, 803, 372],
     attributes: { material: 'stainless-steel', mounting: 'wall-mounted' },
     provisionalModel: true,
-    featured: true,
   },
   {
     model: 'TR-001-B',

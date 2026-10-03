@@ -313,6 +313,7 @@ try {
             'HOCB-805',
             'HOPH-506',
             'HOGDH-602',
+            'HOKH-701',
           ].includes(product.model),
         status: 'active',
       },

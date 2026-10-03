@@ -45,7 +45,7 @@ export function Hero({ block, first }: BlockRendererProps<'hero'>) {
             className="w-full rounded-card object-contain shadow-2xl"
             media={slide.image}
             priority={first}
-            sizes="(min-width: 768px) 50vw, 100vw"
+            sizes="(min-width: 1280px) 600px, (min-width: 768px) 45vw, calc(100vw - 32px)"
           />
           {second?.image ? (
             <Img
