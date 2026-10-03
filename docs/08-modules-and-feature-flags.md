@@ -80,11 +80,15 @@ default for every industry; a vendor that doesn't want one has it switched off.
 // server only
 import { isFeatureEnabled, requireFeature } from '@/modules/tenancy'
 
-if (await isFeatureEnabled(tenantId, 'b2b')) { ... }   // branch
-await requireFeature(tenantId, 'warranty')               // throws 404 FeatureDisabled in endpoints
+if (await isFeatureEnabled(payload, tenantId, 'b2b')) { ... }   // branch
+await requireFeature(payload, tenantId, 'warranty')               // throws 404 FEATURE_DISABLED in endpoints
 ```
 
-- `isFeatureEnabled` is cached per tenant (tag `t:<id>:features`) and revalidated on flag change.
+- A feature is enabled when the plan allows it, its switch is on, its phase has shipped and every
+  feature it depends on is enabled (`effectiveFeatures`). Phase 2 switches stay locked until their
+  module exists (`AVAILABLE_PHASES` in `src/modules/features.ts`).
+- `isFeatureEnabled` reads the database today; the per-tenant cache (tag `t:<id>:features`) comes
+  with the storefront, and the tag is already revalidated on every flag change.
 - The storefront receives the enabled list from `GET /store` to show/hide UI, but every endpoint
   and server action still checks on the server.
 - Admin: collections of a disabled module are hidden for that tenant
@@ -132,7 +136,9 @@ Dependencies: `abandoned-cart` and `whatsapp-offers` need `offer-messages`; `tra
 
 1. Create `src/modules/<name>/` with the standard layout (03-folder-structure.md).
 2. Write `feature.ts` with key, label, phase, config schema, dependencies.
-3. Register it in `src/modules/registry.ts` (collections, endpoints, jobs, event handlers).
+3. Add its `feature.ts` to the feature registry `src/modules/features.ts` (the one file allowed to
+   import another module's `feature.ts`, which holds data only), and wire its collections,
+   endpoints and jobs in `src/payload.config.ts`.
 4. Guard collections (admin hidden + access) and endpoints with `requireFeature`.
 5. Add default kit components in `src/storefront/kit/components/<feature>/`; render them only when
    the feature is enabled.

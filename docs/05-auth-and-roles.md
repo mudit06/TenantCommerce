@@ -16,11 +16,19 @@ There are two separate auth collections with different security needs.
   **invite**: the user is created with `status: invited` and gets an email with a single-use link
   (token stored hashed, valid 72 h, resend allowed) to set a password; platform roles also set up
   two-step login before the first sign-in completes. Endpoints in docs/07 (`/staff/invites`).
+  **As built (Sprint 1):** `inviteStaff` in `src/modules/identity` creates the user with an unusable
+  random password and reuses Payload's reset-password token as the invite (72 h, single use, a
+  resend replaces it); the link opens Payload's own `/admin/reset/<token>` page, and setting the
+  password flips `status` to `active`. Payload stores that token unhashed, which differs from the
+  line above: see docs/open-items. Inviting an email that already has an account adds the store to
+  that account instead. The plan's staff limit is checked on every invite.
 - Two-step login (TOTP, authenticator app): Payload's built-in auth has none, so the Sprint 1 auth
   spike picks a Payload 3 plugin (for example `payload-totp`) or writes it; secrets encrypted with
   `CONNECTOR_ENC_KEY`'s scheme; platform admins can reset it, which writes an audit log entry.
-- Password policy: min 10 chars, breached-password check (k-anonymity HIBP) optional, lockout after
-  5 failed attempts for 15 minutes (`auth.maxLoginAttempts`, `lockTime`).
+- Password policy: min 10 chars (a `beforeOperation` hook on create, update and reset, since
+  Payload's own minimum is 3), breached-password check (k-anonymity HIBP) optional, lockout after
+  5 failed attempts for 15 minutes (`auth.maxLoginAttempts`, `lockTime`). Disabled accounts get the
+  same "email or password is incorrect" message as a wrong password.
 - Session: Payload JWT in an HTTP-only, Secure, SameSite=Lax cookie on the admin domain. 8 h expiry.
 
 ### Staff permission matrix

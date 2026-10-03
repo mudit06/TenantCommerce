@@ -23,7 +23,10 @@
 - **CI without a remote.** Until the repo has a remote, "CI" in these docs means `pnpm verify`:
   typecheck, lint, unit and integration tests, `next build`, the Docker image build and
   `pnpm audit`. A Husky pre-push hook runs it, and it must pass before merging a branch into
-  `main`. Move the same script into hosted CI when a remote exists.
+  `main`. Move the same script into hosted CI when a remote exists. (As built: `pnpm verify` runs
+  typecheck, lint, all tests and `next build`; the Docker build, `pnpm audit` and the Husky hook are
+  still to add.) Integration tests use the replica set in `MONGODB_TEST_URI` when set, otherwise
+  `mongodb-memory-server-core` downloads one; each test file gets its own database.
 
 ## Testing pyramid
 

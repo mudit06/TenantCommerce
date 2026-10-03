@@ -1,0 +1,27 @@
+{
+  "business": {
+    "name": "Brasskraft Fittings",
+    "legalName": "Brasskraft Industries Pvt Ltd",
+    "gstin": "24AAKCB1234F1Z5",
+    "registeredAddress": {
+      "line1": "Plot 41, GIDC Phase 2, Dared",
+      "city": "Jamnagar",
+      "pincode": "361004"
+    },
+    "industry": ["hardware"],
+    "supportEmail": "care@brasskraft.example",
+    "supportPhone": "1800 000 0000"
+  },
+  "store": { "slug": "brasskraft" },
+  "plan": {
+    "planId": "<plan id from /admin/collections/plans>",
+    "trialDays": 14,
+    "billingCycle": "monthly"
+  },
+  "owner": {
+    "name": "Hitesh Vora",
+    "email": "hitesh@brasskraft.example",
+    "phone": "+91 90000 00000",
+    "sendInvite": true
+  }
+}

@@ -1,0 +1,9 @@
+node_modules
+.next
+pnpm-lock.yaml
+docs
+research
+src/payload-types.ts
+src/app/(payload)/admin/importMap.js
+*.md
+public

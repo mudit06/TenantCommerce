@@ -223,9 +223,17 @@ Guests keep the wishlist on the device; the kit stores product ids only and call
 | GET | `/reports/offers?from=&to=` | Per scheme and coupon: orders, sales, discount given, new customers |
 | GET | `/reports/affiliates?from=&to=` | Per affiliate: clicks, orders, sales, commission by status |
 | GET | `/reports/abandoned-carts?from=&to=` | Carts abandoned, reminded, recovered, recovered sales |
-| POST | `/platform/tenants` | Platform admin: create tenant with defaults |
-| POST | `/platform/tenants/:id/suspend` / `resume` | Platform admin |
-| PATCH | `/platform/tenants/:id/features` | Platform admin: enable/disable modules within plan |
+| POST | `/platform/tenants` | Super admin: onboard a vendor (body = `onboardingSchema` in `src/modules/tenancy/schemas.ts`); returns the store id, never the invite link |
+| POST | `/platform/tenants/:id/activate` / `suspend` / `resume` / `archive` | Super admin: `{ reason? }`, required for suspend and archive; lifecycle in docs/04 |
+| PATCH | `/platform/tenants/:id/features` | Super admin: `{ key, enabled, cascade? }`. Without `cascade` a dependency problem answers 409 `FEATURE_DEPENDENCY` so the screen can ask first; 422 `FEATURE_NOT_IN_PLAN` / `FEATURE_NOT_AVAILABLE` (Phase 2) |
+| POST | `/platform/tenants/:id/features/apply-preset` | Super admin: reset the switches to the industry preset, capped by the plan |
+| POST | `/platform/subscriptions/:id/payments` | Super admin: `{ amountMinor, paidOn, method, reference? }` records a manual payment covering the next period |
+| POST | `/platform/subscriptions/:id/plan` | Super admin: `{ planId, billingCycle? }`; features outside the new plan switch off |
+| POST | `/platform/subscriptions/:id/status` | Super admin: `{ action: 'pause'|'resume'|'cancel', reason? }` |
+
+All `/api/admin/v1/*` endpoints check the `Origin` header against the host (cookie sessions) and
+run their writes in one database transaction (`src/lib/db/transaction.ts`). Commands inside a
+Mongo transaction must run one after another, never in `Promise.all`.
 
 ## Outbound webhooks and public vendor API (Later)
 

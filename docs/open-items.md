@@ -36,6 +36,19 @@ wireframes. What is left: three product decisions, the Sprint 1 spikes, and chec
 4. **Staff two-step login.** Payload has none built in; pick a Payload 3 plugin (for example
    `payload-totp`) or write it (docs/02, docs/05).
 
+## 2b. Found while building the platform panel (3 October 2026)
+
+The super admin panel is built (README status). These came up while building it:
+
+| Item | What was done for now | Needs |
+|---|---|---|
+| Two-step login for platform admins (spike 4 above) | Not enforced yet; the Team screen says so. Password policy, lockout and 8-hour sessions are in | Pick `payload-totp` or our own TOTP; required before any real vendor data |
+| Per-vendor "Allowed" connector switch (super admin Connectors tab) | The tab shows what the plan allows. docs/06 has no field for a per-vendor allow switch under the plan | Decide: the plan is the only ceiling (simplest), or add `tenants.allowedConnectors` |
+| Invite links | Reuse Payload's reset-password token (72 h, single use). Payload stores it unhashed, docs/05 says hashed | Accept, or write our own invite token (small job) |
+| Admin fonts | Plus Jakarta Sans and IBM Plex Mono load from Google Fonts in the admin | Self-host them (no third-party request, simpler CSP) when the storefront kit adds fonts |
+| Manage store and View as support | Not built yet: it needs the vendor CMS collections to be useful | Next platform task, with the reason prompt, 2-hour session, banner and audit (docs/05) |
+| Git hosting | Code now lives on GitHub (`mudit06/tenantcommerce`); docs/00 still says "local only, no remote" | Confirm GitHub is the home, then hosted CI can replace the local `pnpm verify` |
+
 ## 3. Before launch (not blocking development)
 
 - Plan names, prices and limits (placeholders today), and what happens at the monthly order limit

@@ -26,23 +26,33 @@ CGST/SGST vs IGST), `industry` (`sanitary|locks|hardware|decor|clothing|other`, 
 (Asia/Kolkata), `supportEmail`, `supportPhone`, `whatsappNumber`, `dbRef` (default `shared`),
 `notes` (internal), `usage { productsCount, staffCount, storageBytes, ordersThisMonth, updatedAt }`
 (kept current by hooks on products, users and media plus the nightly stats job; drives the plan
-meters and the 90% warnings).
+meters and the 90% warnings; the staff meter counts `users` live), `createdBy` -> users,
+`activatedAt` (first time the store went live), `presetAppliedAt` (industry preset last applied,
+shown on the Features tab). The GSTIN fills `pan`, `stateCode` and the registered address's state.
+`status` moves only through `changeTenantStatus` (lifecycle in docs/04, reason required to suspend
+or archive); stores are created only by onboarding (`createTenant`) and never deleted from the admin.
 
 ### tenant-domains
-`host` (unique, lowercased), `tenant`, `type` (`subdomain|custom`), `isPrimary`, `verifiedAt`,
-`sslStatus`, `redirectToPrimary` (bool).
+`host` (unique, lowercased), `tenant`, `type` (`subdomain|custom`), `isPrimary` (one per store,
+enforced by a hook), `verifiedAt`, `sslStatus` (`pending|issuing|active|failed`), `redirectToPrimary` (bool).
 
 ### plans
 `name`, `code`, `priceMonthly` (money), `priceYearly`, `limits` group (`maxProducts`,
 `maxStaffUsers`, `maxStorageGB`, `maxOrdersPerMonth`), `allowedModules[]` (feature keys),
-`allowedConnectors[]` (connector keys), `isActive`.
+`allowedConnectors[]` (connector keys), `isActive`, `sortOrder`. Never deleted (subscriptions point at
+them); removing a feature from `allowedModules` switches it off for that plan's stores.
 
 ### subscriptions
-`tenant`, `plan`, `status` (`trialing|active|past_due|cancelled|paused`), `currentPeriodStart`,
-`currentPeriodEnd`, `trialEndsAt`, `billingMode` (`manual|razorpay`), `providerSubscriptionId`,
+`tenant` (unique: one subscription per store), `vendorName` (copy of the store name for the list and
+search), `plan`, `status` (`trialing|active|past_due|cancelled|paused`), `billingCycle`
+(`monthly|yearly`), `currentPeriodStart`, `currentPeriodEnd` (exclusive; a trial's period ends at
+`trialEndsAt`), `trialEndsAt`, `billingMode` (`manual|razorpay`), `providerSubscriptionId`,
 `payments[] { amountMinor, paidOn, method (neft|rtgs|upi|cheque|card), reference, coversPeriod { start, end }, recordedBy }`
-(the super admin "Record payment" form in the MVP), `history[] { at, event, by, data }` (trial
-started, plan changed, payment recorded, paused...).
+(the super admin "Record payment" form in the MVP; a payment covers the next period from the end of
+the current one), `history[] { at, event, amountMinor, reference, by, data }` (trial started, plan
+changed, payment recorded, paused...). Every field is read-only in the admin: changes go through
+`recordSubscriptionPayment`, `changeSubscriptionPlan` and `changeSubscriptionStatus`. The daily
+`tenancy-check-subscriptions` job stores `past_due`; screens compute it live as well.
 
 ### pincodes (platform, no tenant)
 `pincode` (6 digits, unique), `city` (district), `state`, `stateCode` (2-digit GST state code),
@@ -59,8 +69,9 @@ and placing dealers on the map (staff can still drag the pin). Owned by the `shi
 module's zod schema), `enabledBy`, `enabledAt`. Unique `(tenant, key)`. Enabling checks the plan.
 
 ### users (platform + staff auth)
-See 05-auth-and-roles.md. `email`, `name`, `platformRole`, `tenants[] { tenant, roles[] }`,
-`status`, `twoFactorSecret` (encrypted), `lastLoginAt`.
+See 05-auth-and-roles.md. `email`, `name`, `phone` (optional), `platformRole`,
+`tenants[] { tenant, roles[] }`, `status` (`invited|active|disabled`), `twoFactorSecret` (encrypted;
+waits on the two-step login spike), `lastLoginAt`, `invitedBy`, `invitedAt`.
 
 ## Store configuration (T)
 
@@ -431,9 +442,12 @@ Daily counters, not one document per click: `affiliate`, `date`, `clicks`, `uniq
   `affiliateSalesMinor`, `recoveredCarts`. Unique `(tenant, date)`. Written by a nightly job
   (and today's row refreshed hourly); both dashboards and the platform GMV read these instead of
   scanning orders.
-- **audit-logs** (writes in MVP, viewer Later): `actor` (user), `actorRole`, `action`
-  (`support_access|feature_changed|connector_changed|plan_changed|staff_changed|two_factor_reset|price_changed|refund|store_suspended|scheme_changed|coupon_changed|commission_changed|affiliate_payout|review_moderated|...`),
-  `collection`, `docId`, `diff`, `reason` (required for platform access: manage or view), `actingAsPlatform` (true for changes a super admin made while managing a store), `ip`, `at`. Append-only,
+- **audit-logs** (writes in MVP, viewer Later): `tenant` (empty for platform-wide entries such as
+  inviting a teammate or editing a plan, so it uses its own relationship rather than the
+  multi-tenant plugin's required field), `actor` (user), `actorRole`, `summary` (one readable line,
+  shown in Recent changes), `action`
+  (`support_access|store_created|store_status_changed|feature_changed|connector_changed|plan_changed|plan_edited|subscription_payment|subscription_status_changed|staff_invited|staff_changed|two_factor_reset|domain_changed|price_changed|refund|scheme_changed|coupon_changed|commission_changed|affiliate_payout|review_moderated|...`; the list lives in `src/modules/audit/constants.ts`),
+  `collectionSlug` (`collection` is a reserved name in Mongoose), `docId`, `diff`, `reason` (required for platform access: manage or view), `actingAsPlatform` (true for changes a super admin made while managing a store), `ip`, `at`. Append-only,
   tenant-scoped, readable by platform admins. The super admin "Recent changes" card reads it.
 
 ## Notifications (T, owned by the `notifications` module, docs/18)

@@ -1,0 +1,11 @@
+// Public API of the identity module (docs/01: other modules import only this file).
+export { Users } from './collections/Users'
+export { identityEndpoints } from './endpoints'
+export {
+  inviteInputSchema,
+  inviteStaff,
+  resendInvite,
+  type InviteInput,
+  type InviteResult,
+} from './services/invites'
+export { INVITE_VALID_HOURS, MIN_PASSWORD_LENGTH } from './constants'

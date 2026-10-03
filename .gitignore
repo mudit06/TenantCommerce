@@ -1,0 +1,30 @@
+# dependencies
+node_modules/
+
+# next / build
+.next/
+out/
+build/
+dist/
+next-env.d.ts
+*.tsbuildinfo
+
+# env (never commit secrets, CLAUDE.md rule 9)
+.env
+.env.local
+.env.*.local
+
+# hosting
+.vercel
+
+# media uploaded during local development
+media/
+
+# test output
+coverage/
+playwright-report/
+test-results/
+
+# os / editors
+.DS_Store
+*.log
