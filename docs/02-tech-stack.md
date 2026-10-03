@@ -20,7 +20,7 @@ Payload 4 is in canary (needs Node 24, Next 16.2.6+, TS 6). Stay on 3.x; plan th
 | Plugin | Use |
 |---|---|
 | `@payloadcms/plugin-multi-tenant` | `tenant` field, tenant-scoped admin, tenant selector, per-tenant users |
-| `@payloadcms/plugin-ecommerce` | Products, variants, carts, orders, transactions, addresses, multi-currency, payment adapter pattern. Ships only a Stripe adapter, so we write a Razorpay adapter (docs/09-connectors.md). Verify current feature set in a spike before building on it |
+| ~~`@payloadcms/plugin-ecommerce`~~ | Not used (ADR 0006): products, variants, carts, orders and transactions are our own collections in the `catalog`, `cart`, `orders` and `payments` modules |
 | `@payloadcms/plugin-seo` | Meta title/description/OG image on products, categories, pages |
 | `@payloadcms/plugin-form-builder` | Contact, enquiry and custom forms built by vendors |
 | `@payloadcms/plugin-redirects` | Old-URL redirects when vendors migrate from a previous site |

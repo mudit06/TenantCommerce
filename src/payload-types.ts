@@ -68,6 +68,8 @@ export interface Config {
   blocks: {};
   collections: {
     'site-settings': SiteSetting;
+    products: Product;
+    variants: Variant;
     categories: Category;
     'attribute-sets': AttributeSet;
     brands: Brand;
@@ -76,8 +78,8 @@ export interface Config {
     pages: Page;
     navigation: Navigation;
     banners: Banner;
-    enquiries: Enquiry;
     dealers: Dealer;
+    enquiries: Enquiry;
     counters: Counter;
     tenants: Tenant;
     'tenant-domains': TenantDomain;
@@ -92,9 +94,15 @@ export interface Config {
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    products: {
+      variants: 'variants';
+    };
+  };
   collectionsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    products: ProductsSelect<false> | ProductsSelect<true>;
+    variants: VariantsSelect<false> | VariantsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     'attribute-sets': AttributeSetsSelect<false> | AttributeSetsSelect<true>;
     brands: BrandsSelect<false> | BrandsSelect<true>;
@@ -103,8 +111,8 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     navigation: NavigationSelect<false> | NavigationSelect<true>;
     banners: BannersSelect<false> | BannersSelect<true>;
-    enquiries: EnquiriesSelect<false> | EnquiriesSelect<true>;
     dealers: DealersSelect<false> | DealersSelect<true>;
+    enquiries: EnquiriesSelect<false> | EnquiriesSelect<true>;
     counters: CountersSelect<false> | CountersSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     'tenant-domains': TenantDomainsSelect<false> | TenantDomainsSelect<true>;
@@ -225,8 +233,8 @@ export interface SiteSetting {
   /**
    * Cash on delivery rules are set on the Payments screen (comes with checkout).
    */
-  checkout: {
-    minOrderValue: Money;
+  checkout?: {
+    minOrderValue?: Money;
   };
   returns?: {
     windowDays?: number | null;
@@ -469,12 +477,12 @@ export interface Plan {
    */
   code: string;
   priceMonthly: Money;
-  priceYearly: Money;
+  priceYearly?: Money;
   /**
    * Optional. A new subscription’s first payment covers these months at this price (before GST); then the monthly price applies. Example: ₹9,999 for 3 months.
    */
-  introOffer: {
-    price: Money;
+  introOffer?: {
+    price?: Money;
     months?: number | null;
   };
   /**
@@ -537,7 +545,7 @@ export interface Plan {
  */
 export interface Money {
   amountMinor?: number | null;
-  currency: 'INR';
+  currency?: 'INR' | null;
 }
 /**
  * Everyone who signs in to the admin: our team and every store’s staff.
@@ -705,9 +713,10 @@ export interface HeroBlock {
  * via the `definition` "Link".
  */
 export interface Link {
-  type?: ('page' | 'category' | 'url') | null;
+  type?: ('page' | 'category' | 'product' | 'url') | null;
   page?: (string | null) | Page;
   category?: (string | null) | Category;
+  product?: (string | null) | Product;
   url?: string | null;
   newTab?: boolean | null;
 }
@@ -806,6 +815,189 @@ export interface Seo {
   title?: string | null;
   description?: string | null;
   image?: (string | null) | Media;
+}
+/**
+ * Products need a main category: it decides the specification fields.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products".
+ */
+export interface Product {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  title: string;
+  modelNumber: string;
+  /**
+   * Decides the specification fields
+   */
+  primaryCategory: string | Category;
+  categories?: (string | Category)[] | null;
+  brand?: (string | null) | Brand;
+  shortDescription?: string | null;
+  highlights?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * The first photo is the main one
+   */
+  gallery?: (string | Media)[] | null;
+  videos?:
+    | {
+        url: string;
+        type?: ('installation' | 'demo' | 'promo') | null;
+        id?: string | null;
+      }[]
+    | null;
+  attributes?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  variants?: {
+    docs?: (string | Variant)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  price?: Money;
+  compareAtPrice?: Money;
+  gstRate?: ('0' | '0.25' | '3' | '5' | '18' | '40') | null;
+  hsnCode?: string | null;
+  weightGrams?: number | null;
+  dimensions?: {
+    lengthMm?: number | null;
+    widthMm?: number | null;
+    heightMm?: number | null;
+  };
+  legal?: {
+    genericName?: string | null;
+    netQuantity?: string | null;
+    countryOfOrigin?: string | null;
+    madeBy?: ('manufacturer' | 'packer' | 'importer') | null;
+    madeByName?: string | null;
+    madeByAddress?: string | null;
+    consumerCare?: string | null;
+  };
+  documents?: (string | ProductDocument)[] | null;
+  relatedProducts?: (string | Product)[] | null;
+  /**
+   * Filled from the title. Store address: /products/<slug>
+   */
+  slug?: string | null;
+  /**
+   * Other words shoppers use, separated by commas
+   */
+  searchKeywords?: string | null;
+  seo?: Seo;
+  status: 'draft' | 'active' | 'archived';
+  /**
+   * Online checkout arrives in stage B; until then every product shows “Request a quote”.
+   */
+  purchaseMode: 'buy' | 'enquire' | 'both';
+  isFeatured?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Only needed when the store sells under more than one brand name.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "brands".
+ */
+export interface Brand {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  name: string;
+  /**
+   * Filled from the name
+   */
+  slug?: string | null;
+  logo?: (string | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Usually created from a product’s “Finishes and sizes” tab.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "variants".
+ */
+export interface Variant {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  product: string | Product;
+  options?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Filled from the model number and options if empty
+   */
+  sku?: string | null;
+  /**
+   * From the options
+   */
+  title?: string | null;
+  barcode?: string | null;
+  price?: Money;
+  compareAtPrice?: Money;
+  /**
+   * Photos of this finish. Empty: the product’s photos
+   */
+  images?: (string | Media)[] | null;
+  stockQty?: number | null;
+  lowStockThreshold?: number | null;
+  weightGrams?: number | null;
+  allowBackorder?: boolean | null;
+  status: 'active' | 'inactive';
+  sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-documents".
+ */
+export interface ProductDocument {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  title: string;
+  type:
+    'spec-sheet' | 'installation-manual' | 'brochure' | 'catalogue' | 'price-list' | 'warranty-card' | 'certificate';
+  file: string | Media;
+  /**
+   * Groups the document on the Downloads page
+   */
+  categories?: (string | Category)[] | null;
+  showOnDownloadsPage?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1022,43 +1214,6 @@ export interface BrandStoryBlock {
   blockType: 'brandStory';
 }
 /**
- * Only needed when the store sells under more than one brand name.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "brands".
- */
-export interface Brand {
-  id: string;
-  tenant?: (string | null) | Tenant;
-  name: string;
-  /**
-   * Filled from the name
-   */
-  slug?: string | null;
-  logo?: (string | null) | Media;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "product-documents".
- */
-export interface ProductDocument {
-  id: string;
-  tenant?: (string | null) | Tenant;
-  title: string;
-  type:
-    'spec-sheet' | 'installation-manual' | 'brochure' | 'catalogue' | 'price-list' | 'warranty-card' | 'certificate';
-  file: string | Media;
-  /**
-   * Groups the document on the Downloads page
-   */
-  categories?: (string | Category)[] | null;
-  showOnDownloadsPage?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigation".
  */
@@ -1143,6 +1298,36 @@ export interface Banner {
   createdAt: string;
 }
 /**
+ * Only dealers marked “Show on store” appear on the dealer locator.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dealers".
+ */
+export interface Dealer {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  name: string;
+  type: 'dealer' | 'distributor' | 'showroom' | 'service-centre' | 'experience-centre';
+  isActive?: boolean | null;
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+  /**
+   * In Google Maps, right-click the shop to copy its latitude and longitude, then enter each in its own box. Dealers without a position are listed but not pinned on the map.
+   *
+   * @minItems 2
+   * @maxItems 2
+   */
+  location?: [number, number] | null;
+  phone: string;
+  email?: string | null;
+  hours?: string | null;
+  categories?: (string | Category)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "enquiries".
  */
@@ -1184,36 +1369,6 @@ export interface Enquiry {
     utmMedium?: string | null;
     utmCampaign?: string | null;
   };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Only dealers marked “Show on store” appear on the dealer locator.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "dealers".
- */
-export interface Dealer {
-  id: string;
-  tenant?: (string | null) | Tenant;
-  name: string;
-  type: 'dealer' | 'distributor' | 'showroom' | 'service-centre' | 'experience-centre';
-  isActive?: boolean | null;
-  address: string;
-  city: string;
-  state: string;
-  pincode: string;
-  /**
-   * In Google Maps, right-click the shop to copy its latitude and longitude, then enter each in its own box. Dealers without a position are listed but not pinned on the map.
-   *
-   * @minItems 2
-   * @maxItems 2
-   */
-  location?: [number, number] | null;
-  phone: string;
-  email?: string | null;
-  hours?: string | null;
-  categories?: (string | Category)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1537,6 +1692,14 @@ export interface PayloadLockedDocument {
         value: string | SiteSetting;
       } | null)
     | ({
+        relationTo: 'products';
+        value: string | Product;
+      } | null)
+    | ({
+        relationTo: 'variants';
+        value: string | Variant;
+      } | null)
+    | ({
         relationTo: 'categories';
         value: string | Category;
       } | null)
@@ -1569,12 +1732,12 @@ export interface PayloadLockedDocument {
         value: string | Banner;
       } | null)
     | ({
-        relationTo: 'enquiries';
-        value: string | Enquiry;
-      } | null)
-    | ({
         relationTo: 'dealers';
         value: string | Dealer;
+      } | null)
+    | ({
+        relationTo: 'enquiries';
+        value: string | Enquiry;
       } | null)
     | ({
         relationTo: 'counters';
@@ -1756,6 +1919,101 @@ export interface MoneySelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products_select".
+ */
+export interface ProductsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  modelNumber?: T;
+  primaryCategory?: T;
+  categories?: T;
+  brand?: T;
+  shortDescription?: T;
+  highlights?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  description?: T;
+  gallery?: T;
+  videos?:
+    | T
+    | {
+        url?: T;
+        type?: T;
+        id?: T;
+      };
+  attributes?: T;
+  variants?: T;
+  price?: T | MoneySelect<T>;
+  compareAtPrice?: T | MoneySelect<T>;
+  gstRate?: T;
+  hsnCode?: T;
+  weightGrams?: T;
+  dimensions?:
+    | T
+    | {
+        lengthMm?: T;
+        widthMm?: T;
+        heightMm?: T;
+      };
+  legal?:
+    | T
+    | {
+        genericName?: T;
+        netQuantity?: T;
+        countryOfOrigin?: T;
+        madeBy?: T;
+        madeByName?: T;
+        madeByAddress?: T;
+        consumerCare?: T;
+      };
+  documents?: T;
+  relatedProducts?: T;
+  slug?: T;
+  searchKeywords?: T;
+  seo?: T | SeoSelect<T>;
+  status?: T;
+  purchaseMode?: T;
+  isFeatured?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "Seo_select".
+ */
+export interface SeoSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  image?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "variants_select".
+ */
+export interface VariantsSelect<T extends boolean = true> {
+  tenant?: T;
+  product?: T;
+  options?: T;
+  sku?: T;
+  title?: T;
+  barcode?: T;
+  price?: T | MoneySelect<T>;
+  compareAtPrice?: T | MoneySelect<T>;
+  images?: T;
+  stockQty?: T;
+  lowStockThreshold?: T;
+  weightGrams?: T;
+  allowBackorder?: T;
+  status?: T;
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "categories_select".
  */
 export interface CategoriesSelect<T extends boolean = true> {
@@ -1781,15 +2039,6 @@ export interface CategoriesSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "Seo_select".
- */
-export interface SeoSelect<T extends boolean = true> {
-  title?: T;
-  description?: T;
-  image?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1964,6 +2213,7 @@ export interface LinkSelect<T extends boolean = true> {
   type?: T;
   page?: T;
   category?: T;
+  product?: T;
   url?: T;
   newTab?: T;
 }
@@ -2209,6 +2459,27 @@ export interface BannersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dealers_select".
+ */
+export interface DealersSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  type?: T;
+  isActive?: T;
+  address?: T;
+  city?: T;
+  state?: T;
+  pincode?: T;
+  location?: T;
+  phone?: T;
+  email?: T;
+  hours?: T;
+  categories?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "enquiries_select".
  */
 export interface EnquiriesSelect<T extends boolean = true> {
@@ -2244,27 +2515,6 @@ export interface EnquiriesSelect<T extends boolean = true> {
         utmMedium?: T;
         utmCampaign?: T;
       };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "dealers_select".
- */
-export interface DealersSelect<T extends boolean = true> {
-  tenant?: T;
-  name?: T;
-  type?: T;
-  isActive?: T;
-  address?: T;
-  city?: T;
-  state?: T;
-  pincode?: T;
-  location?: T;
-  phone?: T;
-  email?: T;
-  hours?: T;
-  categories?: T;
   updatedAt?: T;
   createdAt?: T;
 }

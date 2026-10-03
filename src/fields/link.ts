@@ -4,8 +4,7 @@ const URL_PATTERN = /^(https?:\/\/[^\s]+|\/[^\s]*|mailto:[^\s]+|tel:[+0-9 ]+)$/
 
 /**
  * Where a menu item, button or banner goes: one of the store's pages, a category (follows slug
- * changes because it stores the id), or any web address (docs/screens Menus rule 1). Products
- * join the list when the products collection lands.
+ * changes because it stores the id), a product, or any web address (docs/screens Menus rule 1).
  */
 export function linkField({
   name = 'link',
@@ -31,6 +30,7 @@ export function linkField({
             options: [
               { label: 'A page', value: 'page' },
               { label: 'A category', value: 'category' },
+              { label: 'A product', value: 'product' },
               { label: 'A web address', value: 'url' },
             ],
           },
@@ -45,6 +45,12 @@ export function linkField({
             type: 'relationship',
             relationTo: 'categories',
             admin: { condition: (_, sibling) => sibling?.type === 'category' },
+          },
+          {
+            name: 'product',
+            type: 'relationship',
+            relationTo: 'products',
+            admin: { condition: (_, sibling) => sibling?.type === 'product' },
           },
           {
             name: 'url',

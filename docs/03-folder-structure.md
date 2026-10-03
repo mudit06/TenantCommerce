@@ -51,6 +51,7 @@ Ecom/
    │  │     ├─ compare/          # Product compare (Phase 2)
    │  │     └─ b2b/              # Trade portal for dealers, retailers, wholesalers, designers (Phase 2)
    │  └─ (platform)/             # Our own marketing site / status pages (optional)
+   ├─ hooks/                     # As built: revalidateStorefront (clears a store's cached pages)
    ├─ admin/                     # Shared admin shell: logo, nav links, the /admin dashboard switch,
    │                             # te-* UI primitives, URL helpers, browser API helper
    ├─ collections/               # Thin re-exports: each file imports config from its module
@@ -153,3 +154,16 @@ src/storefront/vendors/<vendor-slug>/
   `camelCase.ts` for other modules.
 - Collection slugs: plural kebab-case (`product-documents`). Field names: camelCase.
 - Vendor slug: lowercase kebab, permanent once created (it names the UI folder).
+
+## As built (3 October 2026)
+
+```
+src/storefront/
+├─ types.ts, registry.ts, context.ts   # VendorUI contract, vendor map, per-request store context
+├─ actions.ts                          # Server action for quote and contact forms
+├─ kit/                                # Shared kit: layout/, product/, listing/, blocks/, media, icons, ui
+└─ vendors/<slug>/index.ts             # Theme tokens and block overrides (default, home-orbit)
+src/lib/data/                          # Tenant-scoped, cached Local API reads for the storefront
+scripts/vendors/<slug>/                # A vendor's catalogue data, photos, brand files and seed script
+docs/vendors/<slug>.md                 # What a vendor sent, what we assumed, what is still needed
+```

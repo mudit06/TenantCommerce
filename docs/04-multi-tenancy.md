@@ -22,7 +22,7 @@ platform-wide: one global would be shared by every store. Their admin route stay
 
 | Surface | How tenant is known |
 |---|---|
-| Storefront page | `proxy.ts`: `host` -> `tenant-domains` lookup -> rewrite to `/[tenant]/...`. Pages read `params.tenant` and call `getTenantBySlug` (cached) |
+| Storefront page | `proxy.ts` rewrites to `/<host>/...`; the `[tenant]` layout calls `getStoreContext(host)`: `getStoreByHost` (cached `tenant-domains` lookup) and checks the `x-te-store-host` header the proxy set. Data helpers in `src/lib/data` take the tenant id first and cache under `t:<tenantId>:store`, cleared by `withStorefrontRevalidation` hooks on every store collection |
 | Storefront API (`/api/store/*`) | Same host lookup inside the endpoint via `resolveTenantFromRequest(req)`. Never trust a `tenantId` sent in the body or query |
 | Admin | Logged-in user's `tenants[]` + the plugin's tenant selector cookie |
 | Webhooks | Tenant id in the URL path (`/api/webhooks/razorpay/:tenantId`), then verified with that tenant's webhook secret or token. Exception (Phase 2): WhatsApp through the platform's Meta app posts to one URL; the tenant comes from the payload's `phone_number_id` (unique in connector-configs) after the signature is checked with the platform app secret. Exception (MVP): Resend email events post to one URL (`/api/webhooks/resend`); the tenant comes from the tags we set on each email when sending, after the Svix signature is checked with `RESEND_WEBHOOK_SECRET` |

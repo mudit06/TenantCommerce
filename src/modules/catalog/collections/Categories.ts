@@ -6,8 +6,7 @@ import { seoFields } from '@/fields/seo'
 import { fillSlugFrom, slugField } from '@/fields/slug'
 import { userHasFeature } from '@/modules/tenancy'
 
-/** Faucets > Basin mixers > Deck-mounted: deeper trees are hard to browse on a phone */
-export const MAX_CATEGORY_DEPTH = 3
+import { MAX_CATEGORY_DEPTH } from '../constants'
 
 /**
  * The category tree shoppers browse (docs/screens Categories). Parents and breadcrumbs come from

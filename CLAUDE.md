@@ -15,7 +15,8 @@ shared marketplace. Vendors pay a monthly SaaS subscription. The platform team o
 - TypeScript (strict) everywhere
 - Next.js 16 App Router with Payload CMS 3 embedded in the same app (one deployable)
 - MongoDB Atlas via `@payloadcms/db-mongodb`
-- `@payloadcms/plugin-multi-tenant`, `@payloadcms/plugin-ecommerce` (custom Razorpay payment adapter)
+- `@payloadcms/plugin-multi-tenant`; products, variants, carts and orders are our own collections
+  (ADR 0006, not `@payloadcms/plugin-ecommerce`); Razorpay is a payment connector (docs/09)
 - Tailwind CSS + shadcn/ui, Serwist for the PWA
 - Vercel + Atlas in production, Docker image kept working
 

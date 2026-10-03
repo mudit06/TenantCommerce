@@ -64,3 +64,20 @@ export async function atomicIncrement(
     .reduce<unknown>((node, key) => (node as Record<string, unknown> | undefined)?.[key], result)
   return typeof value === 'number' ? value : 0
 }
+
+/**
+ * Sets fields on one document directly (no read-modify-write), outside the caller's
+ * transaction. Used for derived totals such as a store's product count, recomputed after a change.
+ */
+export async function atomicSet(
+  req: PayloadRequest,
+  input: {
+    collection: CollectionSlug
+    filter: Record<string, unknown>
+    set: Record<string, unknown>
+  },
+): Promise<void> {
+  await modelFor(req, input.collection)
+    .updateOne(input.filter, { $set: { updatedAt: new Date(), ...input.set } })
+    .exec()
+}

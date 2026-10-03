@@ -28,3 +28,6 @@ test-results/
 # os / editors
 .DS_Store
 *.log
+
+# Vendor details with real business data stay out of git
+scripts/vendors/*/business.json

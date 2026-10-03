@@ -3,9 +3,10 @@
 Multi-tenant e-commerce SaaS for Indian manufacturers: each vendor gets its own branded PWA store
 and CMS on one shared codebase (Next.js 16 + Payload CMS 3 + MongoDB).
 
-**Status:** the super admin (platform panel) is about 80% built. The vendor CMS has its stage A
-structure for entering a store's data by hand (settings, categories, attribute sets, media,
-pages, menus, dealers, enquiries, staff); products wait for ADR 0006. The storefront is next.
+**Status:** the super admin (platform panel) is about 80% built; the vendor CMS about 35% (stage A,
+catalog and content, is done except CSV import); the storefront runs as a catalogue with
+enquiries, and vendor 1 (Home Orbit) is loaded with its 110 products. Selling online (cart,
+checkout, payments, shipping) is next, in stage B.
 Screen-by-screen status: **`docs/progress.md`**. Open questions: `docs/open-items.md`.
 Nothing is deployed yet.
 
@@ -28,8 +29,14 @@ pnpm install
 pnpm setup:local                                          # creates .env, generates the secrets, prints your login
 docker compose -f docker/docker-compose.yml up -d mongo   # MongoDB replica set on port 27017
 pnpm seed                                                 # plans, first super admin, 2 demo stores
+pnpm seed:home-orbit                                      # vendor 1: Home Orbit's store and catalogue
 pnpm dev                                                  # http://localhost:3000/admin
 ```
+
+Home Orbit's store: **http://home-orbit.localhost:3000** (a preview while the store is in draft).
+Every store answers on `<slug>.localhost:3000` locally; Chrome, Edge and Firefox send
+`*.localhost` to your own machine with no setup. On Safari or for `curl`, add
+`127.0.0.1 home-orbit.localhost` to your hosts file.
 
 Sign in at http://localhost:3000/admin with the email and password `pnpm setup:local` printed
 (they are also in `.env` as `SEED_SUPER_ADMIN_EMAIL` and `SEED_SUPER_ADMIN_PASSWORD`).
@@ -68,6 +75,7 @@ What else to know:
 | `pnpm verify` | Local CI (docs/16): typecheck, lint, unit + integration tests, production build |
 | `pnpm test:unit` / `pnpm test:int` | Vitest. Integration tests use `MONGODB_TEST_URI` (any replica set, for example `mongodb://localhost:27017/x?replicaSet=rs0&directConnection=true`) or download an in-memory MongoDB |
 | `pnpm create-tenant tenant.json` | Onboard a vendor from a script, same steps as the New vendor screen (example: `tests/fixtures/new-tenant.example.json`) |
+| `pnpm seed:home-orbit` | Onboard Home Orbit and load its catalogue (business details from `scripts/vendors/home-orbit/business.json`, else placeholders) |
 | `pnpm generate:types` / `pnpm generate:importmap` | After changing collections / admin components |
 | `docker compose -f docker/docker-compose.yml --profile app up --build` | Run the production image locally |
 
@@ -88,6 +96,11 @@ keeps its old plans: edit them in the admin, or reset the database (see above) a
 
 - `src/modules/<module>/`: domain modules (tenancy, identity, audit, content, catalog, dealers,
   enquiries, tax-invoicing so far), each with a public `index.ts` (docs/01, docs/03)
+- `src/proxy.ts`, `src/app/(storefront)/[tenant]/`, `src/storefront/`: the shopper store (domain to
+  store, pages, shared kit, each vendor's look in `vendors/<slug>`); `src/lib/data/`: its
+  tenant-scoped data reads
+- `scripts/vendors/<slug>/`: a vendor's catalogue data, photos and seed; `docs/vendors/<slug>.md`:
+  what the vendor sent and still owes
 - `src/blocks/`: page builder block schemas; `src/fields/`: shared fields (money, slug, SEO, link)
 - `src/admin/`: shared admin shell (logo, nav, dashboard switch, UI primitives)
 - `src/access/`, `src/fields/`, `src/lib/`: access rules, reusable fields, cross-cutting helpers

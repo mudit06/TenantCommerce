@@ -1,7 +1,6 @@
 import { TenantField as TenantField_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import { StoreGstDetails as StoreGstDetails_1ed8798e535dc569ac94ee51f3542c56 } from '@/modules/content/admin/StoreGstDetails'
 import { RupeeInput as RupeeInput_7beaa54742b4112c777f1f3f389cd078 } from '@/fields/money/RupeeInput'
-import { AssignTenantFieldTrigger as AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
@@ -25,6 +24,10 @@ import { StrikethroughFeatureClient as StrikethroughFeatureClient_e70f5e05f09f93
 import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { AttributesField as AttributesField_49c60760dc95f36672370ee43e3a097a } from '@/modules/catalog/admin/AttributesField'
+import { GenerateVariantsButton as GenerateVariantsButton_8c19103f2dee4d36124959419f33dba9 } from '@/modules/catalog/admin/GenerateVariantsButton'
+import { AssignTenantFieldTrigger as AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
+import { VariantOptionsField as VariantOptionsField_9787419ddd28d44a3cefad69de1e4b85 } from '@/modules/catalog/admin/VariantOptionsField'
 import { EnquiryReply as EnquiryReply_8f24c2d5a57c2425b5946afe706c8c83 } from '@/modules/enquiries/admin/EnquiryReply'
 import { EnquiryTabs as EnquiryTabs_9803cf84d1475965cbc1c1d1a58d99de } from '@/modules/enquiries/admin/EnquiryTabs'
 import { VendorHeader as VendorHeader_24bac79af4bee0c0bc3616e096eb62fe } from '@/modules/tenancy/admin/views/VendorHeader'
@@ -58,7 +61,6 @@ export const importMap = {
   "@payloadcms/plugin-multi-tenant/client#TenantField": TenantField_1d0591e3cf4f332c83a86da13a0de59a,
   "@/modules/content/admin/StoreGstDetails#StoreGstDetails": StoreGstDetails_1ed8798e535dc569ac94ee51f3542c56,
   "@/fields/money/RupeeInput#RupeeInput": RupeeInput_7beaa54742b4112c777f1f3f389cd078,
-  "@payloadcms/plugin-multi-tenant/client#AssignTenantFieldTrigger": AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -82,6 +84,10 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#UnderlineFeatureClient": UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "@/modules/catalog/admin/AttributesField#AttributesField": AttributesField_49c60760dc95f36672370ee43e3a097a,
+  "@/modules/catalog/admin/GenerateVariantsButton#GenerateVariantsButton": GenerateVariantsButton_8c19103f2dee4d36124959419f33dba9,
+  "@payloadcms/plugin-multi-tenant/client#AssignTenantFieldTrigger": AssignTenantFieldTrigger_1d0591e3cf4f332c83a86da13a0de59a,
+  "@/modules/catalog/admin/VariantOptionsField#VariantOptionsField": VariantOptionsField_9787419ddd28d44a3cefad69de1e4b85,
   "@/modules/enquiries/admin/EnquiryReply#EnquiryReply": EnquiryReply_8f24c2d5a57c2425b5946afe706c8c83,
   "@/modules/enquiries/admin/EnquiryTabs#EnquiryTabs": EnquiryTabs_9803cf84d1475965cbc1c1d1a58d99de,
   "@/modules/tenancy/admin/views/VendorHeader#VendorHeader": VendorHeader_24bac79af4bee0c0bc3616e096eb62fe,

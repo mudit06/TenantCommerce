@@ -25,6 +25,11 @@ export async function getVendorUI(slug: string): Promise<VendorUI> {
 `VendorUI` contract (in `src/storefront/types.ts`): `Header`, `Footer`, `HomePage`,
 `CategoryPage`, `ProductPage`, `ProductCard`, `SearchPage`, `CartPage`, `CheckoutLayout`,
 `AccountLayout`, `NotFound`, `blocks: Record<BlockType, Component>`, `theme` (CSS file import).
+
+**As built (3 October 2026):** the contract has `theme` (colour, font and radius tokens set as CSS
+variables on `<html>`), `tagline` and `blocks` (own renderers for some block types; Home Orbit
+overrides `hero`). Page-level overrides (Header, ProductPage…) get added when a vendor's design
+needs them. Fonts are self-hosted with `@fontsource-variable/*` (no request to Google).
 Page files under `app/(storefront)/[tenant]/` are thin: load data, get UI, render.
 
 Use static `import()` maps (not string-built paths) so the bundler can code-split per vendor.
@@ -95,7 +100,9 @@ AffiliateDashboard. Phase 2: CompareToggle and CompareTable, TradePriceBlock, Lo
 ## New vendor checklist
 
 1. Create tenant via script/admin (docs/04).
-2. `cp -r src/storefront/vendors/_template src/storefront/vendors/<slug>`; register in `registry.ts`.
+2. Create `src/storefront/vendors/<slug>/index.ts` (copy `home-orbit`); register it in `registry.ts`.
+   Put the vendor's catalogue data, photos and seed in `scripts/vendors/<slug>/` and what they
+   sent and still owe in `docs/vendors/<slug>.md`.
 3. Set theme tokens and fonts; override only what the design needs (start with Header, Footer, Home).
 4. Configure attribute sets for their categories; import products via CSV.
 5. Enable modules per their plan; configure Razorpay; shipping zones; GST details; policies.

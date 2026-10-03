@@ -18,6 +18,13 @@
   their own when the scheme ends. Changing the product's real price is a normal edit (and is
   written to `audit-logs`).
 - Ratings come from published reviews only (`products.ratingSummary`); staff can't type a rating.
+- **As built (3 October 2026):** a variant option (finish, size) is stored on the product as the
+  list of values it is offered in (`attributes.finish = ['antique', 'rose-gold']`); an option with
+  nothing ticked doesn't apply to that product. "Create variants for every combination" makes the
+  missing variants (at most 120) with a title ("8 inch · Antique") and a SKU
+  (`HOPH-504-8-INCH-ANTIQUE`). In catalogue mode the product page's finish and size pickers read
+  the offered values, so variants are only needed once prices and stock are. Category filters and
+  counts are computed in memory from the store's cached product list for that category.
 - Merch collections can be the target of a scheme or a coupon ("10% off the matt black range").
 
 ## CSV import (MVP)

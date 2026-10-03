@@ -1,0 +1,36 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/plus-jakarta-sans';
+@import '@fontsource-variable/saira';
+
+/* Storefront theme (docs/10 "Theme tokens"). Values come from the vendor's theme and the store's
+   settings, set as CSS variables on <html> in layout.tsx. */
+@theme inline {
+  --color-brand: var(--brand);
+  --color-brand-ink: var(--brand-ink);
+  --color-accent: var(--accent);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-line: var(--line);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-dark: var(--dark);
+  --font-heading: var(--font-heading-family);
+  --font-body: var(--font-body-family);
+  --radius-card: var(--radius);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    font-family: var(--font-body-family);
+    color: var(--ink);
+    background: var(--surface);
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+  }
+}

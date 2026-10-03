@@ -35,4 +35,10 @@ export {
 export { featureGatedAccess, hiddenWithoutFeature, userHasFeature } from './services/featureAccess'
 export { syncEnabledFeatures } from './services/featureSync'
 export { changeTenantStatus } from './services/tenantStatus'
-export { adjustStorageUsage, assertStorageAvailable } from './services/usage'
+export {
+  adjustStorageUsage,
+  assertProductCapacity,
+  assertStorageAvailable,
+  planLimitsOf,
+  setProductCount,
+} from './services/usage'

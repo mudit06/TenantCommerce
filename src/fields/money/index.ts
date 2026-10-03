@@ -46,7 +46,8 @@ export function moneyField({
       {
         name: 'currency',
         type: 'select',
-        required: true,
+        // Optional amounts (MRP, a variant's own price) leave the whole group optional
+        required,
         defaultValue: 'INR',
         options: [...CURRENCIES],
         admin: { hidden: true },

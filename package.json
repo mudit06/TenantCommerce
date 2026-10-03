@@ -25,9 +25,12 @@
     "test": "vitest run",
     "test:unit": "vitest run --project unit",
     "test:int": "vitest run --project integration",
-    "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build"
+    "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
+    "seed:home-orbit": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/vendors/home-orbit/seed.ts"
   },
   "dependencies": {
+    "@fontsource-variable/plus-jakarta-sans": "^5.3.0",
+    "@fontsource-variable/saira": "^5.3.0",
     "@payloadcms/db-mongodb": "3.90.2",
     "@payloadcms/email-resend": "3.90.2",
     "@payloadcms/next": "3.90.2",
@@ -37,6 +40,7 @@
     "@payloadcms/storage-s3": "3.90.2",
     "@payloadcms/translations": "3.90.2",
     "@payloadcms/ui": "3.90.2",
+    "@tailwindcss/postcss": "^4.3.3",
     "cross-env": "10.1.0",
     "graphql": "16.14.2",
     "next": "16.3.8",
@@ -44,6 +48,7 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "sharp": "0.35.5",
+    "tailwindcss": "^4.3.3",
     "zod": "4.6.5"
   },
   "devDependencies": {

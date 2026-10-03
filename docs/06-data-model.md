@@ -8,13 +8,9 @@ Conventions used below:
 - Every collection has Payload's `id`, `createdAt`, `updatedAt`. Soft-deletable collections have
   `deletedAt` (use Payload trash where supported).
 - `status` fields are enums; transitions are enforced in services, not just in the UI.
-- Plugin-provided collections (ecommerce plugin: products, variants, carts, orders, transactions,
-  addresses) are **extended** with the fields below via the plugin's override options. Do not fork
-  them. **Pending the Sprint 1 spike:** the plugin's own shapes differ from this document (prices
-  in per-currency fields such as `priceInINR`, its own `variantTypes`/`variantOptions`
-  collections, a single `inventory` number lowered when an order is placed, cart endpoints under
-  `/api/carts`). The spike decides whether we adopt those shapes or own these collections; record
-  it as an ADR and update this file before building catalog or cart (docs/open-items.md).
+- Products, variants, carts, orders, transactions and addresses are **our own collections**
+  (ADR 0006, approved 3 October 2026), not the ecommerce plugin's. "(extends ecommerce plugin)"
+  in older headings below is historical: the fields listed are the whole collection.
 
 ## Platform
 
@@ -156,6 +152,12 @@ address are required for imported goods), `stats { unitsSold30d, updatedAt }` (n
 `sort=popular` and the Bestseller badge), `ratingSummary { average, count, histogram[5] }` (kept
 current by the `reviews` module from published reviews only; drives stars on cards and the
 `AggregateRating` markup).
+
+As built (ADR 0006, 3 October 2026): all fields above exist except `spareParts`, `compatibleWith`,
+`warrantyMonths`, `installationAvailable`, `minOrderQty`, `maxOrderQty`, `tags`, `stats` and
+`ratingSummary` (they come with their modules); `taxRate` is `gstRate` (a select of the current
+slabs until `tax-rates` exists); `purchaseMode` defaults to `enquire` until checkout exists; the
+plan's product limit is checked on create and `tenants.usage.productsCount` kept current.
 
 ### variants (extends ecommerce plugin)
 `product`, `sku` (unique per tenant), `options` (`{ finish: 'Chrome', size: 'M' }`, from the

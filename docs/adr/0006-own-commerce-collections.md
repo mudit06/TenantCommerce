@@ -1,7 +1,6 @@
 # ADR 0006: Own the product, cart and order collections instead of the Payload ecommerce plugin
 
-- Status: **proposed** (3 October 2026). Needs mudit's approval: it changes the stack line
-  "`@payloadcms/plugin-ecommerce` (custom Razorpay payment adapter)" in CLAUDE.md and docs/00.
+- Status: **accepted** (mudit, 3 October 2026). CLAUDE.md, docs/00, 02, 06 and 09 updated.
 - Context: Sprint 1 spike 1 (docs/open-items section 2). `@payloadcms/plugin-ecommerce` 3.90.2
   was installed in a throwaway project and its collections, endpoints and hooks read. What it
   does, against what our docs require:
@@ -19,7 +18,7 @@
   plugin and override most of it (fields, endpoints, hooks); (c) own the collections: products,
   variants, carts, orders, transactions, written as ordinary collections in our modules
   (`catalog`, `cart`, `orders`, `payments`), with Razorpay as our own connector (docs/09).
-- Decision (proposed): (c).
+- Decision: (c).
 - Why: (a) loses money in paise, attribute-set variants and reserve-at-checkout, all of which the
   storefront specs depend on, and its cart endpoints would bypass the host-to-tenant rule. (b)
   keeps the plugin as a dependency while replacing nearly everything it brings, and every plugin
@@ -29,5 +28,5 @@
   sprints 3 to 5 anyway). The plugin is removed from docs/02 and CLAUDE.md's stack list. Razorpay
   becomes a connector behind the payment interface (docs/09) rather than a plugin adapter.
   Payload upgrades touch fewer moving parts.
-- Until approved: categories, attribute sets, brands and documents are built (they don't depend
-  on this choice); products, variants, cart and orders wait.
+- Built first: products and variants (catalog module), for Home Orbit's catalogue launch. Cart,
+  orders and transactions follow in stage B.

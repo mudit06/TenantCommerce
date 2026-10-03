@@ -3,7 +3,7 @@
 The single place to check build status. Update it in the same commit as the work (docs/16
 definition of done). Screen ids match `docs/screens/*.md` and the wireframes.
 
-Last updated: 3 October 2026 (vendor CMS stage A). Nothing is deployed anywhere yet; the code runs
+Last updated: 3 October 2026 (Home Orbit storefront). Nothing is deployed anywhere yet; the code runs
 locally (README).
 
 ## At a glance
@@ -11,15 +11,23 @@ locally (README).
 | Area | Screens in spec | Done | Partial | Not started | Rough share built |
 |---|---|---|---|---|---|
 | Super admin (platform panel) | 13 | 7 | 6 | 0 | about 80% |
-| Vendor CMS | 31 (2 are Phase 2) | 4 | 7 | 20 (2 of them Phase 2) | about 25% (stage A without products) |
-| Storefront | 24 (1 is Phase 2) | 0 | 0 | 24 | 0% |
-| **All 68 screens** | | **11** | **13** | **44** | |
+| Vendor CMS | 31 (2 are Phase 2) | 4 | 9 | 18 (2 of them Phase 2) | about 35%: stage A about 90%, stages B and C not started |
+| Storefront | 24 (1 is Phase 2) | 3 | 5 | 16 (1 of them Phase 2) | about 25%: the catalogue store (browse, search, product, quote, contact) |
+| **All 68 screens** | | **14** | **20** | **34** | |
 
 Against the 12-sprint MVP plan (docs/17): sprint 1 (scaffold, tenancy, staff auth, isolation tests,
 local CI) is done except two-step login, and the super admin screens from the roadmap's Platform
-list are built ahead of the vendor CMS. Stage A of the vendor CMS (below) is built except
-products, variants and CSV import, which wait for the decision in ADR 0006 (proposed). Vendor
-data is entered by hand for now (mudit, 3 October 2026), so CSV import is not urgent.
+list are built ahead of the vendor CMS. Stage A of the vendor CMS (below) is built except CSV
+import and slug redirects; products and variants are our own collections (ADR 0006, accepted).
+Vendor data is entered by hand for now (mudit, 3 October 2026), so CSV import is not urgent.
+
+**Vendor 1, Home Orbit (3 October 2026).** Onboarded on the local database with its catalogue:
+110 products in 13 categories with photos cropped from its PDF, specification fields, About us
+and a home page; launches as a catalogue with enquiries (no prices in the catalogue, mudit 3
+October 2026). Its storefront runs at http://home-orbit.localhost:3000 after
+`pnpm seed:home-orbit`. Lighthouse mobile on the production build: performance 91 to 98,
+accessibility 100, best practices 100 (home, category, product). What Home Orbit still has to
+send: docs/vendors/home-orbit.md.
 
 Legend: **Done** = built and tested to the screen spec for MVP. **Partial** = usable, with the
 listed gaps. **Not started** = nothing built yet.
@@ -39,15 +47,16 @@ If vendor 1 launches as a catalogue with enquiries (no online payment), stage A 
 for its first storefront.
 
 **Stage A as built (3 October 2026):** store settings, media library (object storage ready),
-categories, attribute sets, brands, documents, pages with blocks and scheduled publishing,
-menus, banners, dealers, enquiries, Staff and roles, and a setup checklist on the store
-dashboard. **Still to build for stage A:** products and variants (after ADR 0006 is approved),
-CSV import, slug redirects.
+categories, attribute sets, brands, documents, products and variants (specifications from the
+attribute set, "Create variants" for every finish and size), pages with blocks and scheduled
+publishing, menus, banners, dealers, enquiries, Staff and roles, and a setup checklist on the
+store dashboard. **Still to build for stage A:** CSV import, slug redirects, dealer locator page.
 
 **Entering vendor 1's data by hand, in this order:** Store settings (logo, contact, grievance
 officer) → Attribute sets (the fields customers filter by) → Categories (each with its attribute
 set) → Media (photos, PDFs) → Documents → Dealers → Pages (policies, then the home page) → Menus.
-Products follow once their screens exist. The store dashboard's checklist tracks it.
+→ Products (main category, photos, specifications, then "Create variants" when prices and stock
+matter). The store dashboard's checklist tracks it.
 
 ## Super admin (docs/screens/super-admin.md)
 
@@ -86,7 +95,9 @@ has tenant isolation, role and feature tests (`tests/integration/store.test.ts`)
 | `cms-navigation` Menus | Partial | Header with dropdown columns, footer columns, phone menu; links to pages, categories or URLs | Preview needs the storefront |
 | `cms-enquiries` Enquiries inbox | Partial | `ENQ-<n>` per store, New / In progress / Closed tabs with counts, type and status, assign to a colleague, reply by email or WhatsApp (staff's own apps), internal notes, staff can log phone enquiries; enquiries feature only | Attachments (need private storage); the storefront forms that fill it |
 | `cms-dealers` Dealers | Partial | Name, type, address, pincode, map position, phone, hours, categories stocked, show on store; dealer-locator feature only | CSV import, map preview, position from the pincode |
-| `cms-products`, `cms-product-edit`, `cms-import` | Not started | — | Wait for ADR 0006 (own product collections, proposed) |
+| `cms-products` Products | Partial | List with search by name, model number or keywords; status, featured, plan product limit with the count on the dashboard | Bulk actions, stock column (with stage B) |
+| `cms-product-edit` Product editor | Partial | Basics, photos and YouTube videos, specifications built from the category's attribute set (inherited from the parent), finishes and sizes with "Create variants for every combination", price, MRP, GST rate, HSN, weight and size, label details defaulting from store settings, documents, related products, search fields, versions. Can't go active without a photo and label details; online selling needs a price and HSN | GST split preview, scheduled publish, translations (Phase 2), spare parts (Phase 2) |
+| `cms-import` CSV import | Not started | — | Not urgent: data is entered by hand for now |
 | `cms-orders`, `cms-order`, `cms-customers` | Not started | — | Stage B (sprints 4 and 5) |
 | `cms-shipping`, `cms-payments`, `cms-notifications`, `cms-messaging` | Not started | — | Stage B (sprints 4 to 7) |
 | `cms-schemes`, `cms-scheme-edit`, `cms-coupons` | Not started | — | Stage C (sprint 9) |
@@ -95,15 +106,33 @@ has tenant isolation, role and feature tests (`tests/integration/store.test.ts`)
 | `cms-reports` | Not started | — | Sprint 5 onwards |
 | `cms-service`, `cms-trade` | Phase 2 | — | — |
 
-Brands and banners have no screen of their own in the spec; they are built as lists under Catalog
-and Content.
+Brands, banners and variants have no screen of their own in the spec; they are built as lists
+under Catalog and Content.
 
 ## Storefront (docs/screens/storefront.md)
 
-Not started. It needs `src/proxy.ts` (host to store), the shared kit, the first vendor's UI folder
-and the catalog. All 24 screens (`st-home` to `st-offline`; `st-warranty` is Phase 2) are open.
-For the first client, the inputs are in docs/10 "New vendor checklist" plus their brand files,
-domain, GST details and product data.
+Built on 3 October 2026 for Home Orbit's catalogue launch: `src/proxy.ts` (store domain to its
+pages, security headers), tenant-scoped cached data helpers (`src/lib/data`), the shared kit and
+vendor registry (`src/storefront`), Home Orbit's theme and hero (`src/storefront/vendors/home-orbit`).
+Every store without its own folder gets the kit's default look (the demo stores show it).
+
+| Screen | Status | Built | Left, and why |
+|---|---|---|---|
+| `st-home` Home | Partial | The store's published home page from blocks (all 14 types), or a default from its catalog; vendor hero override | Offer strip and wishlist blocks (stage C) |
+| `st-category` Category listing | Done (catalogue mode) | Breadcrumbs, subcategories, filters with counts from the attribute set, sort, pages, clean URLs that redirect to the current address | Price and in-stock filters (stage B); Atlas Search facets when catalogues grow |
+| `st-filters` Filter sheet | Done | Bottom sheet on phones, side panel on desktop, filters kept in the URL | — |
+| `st-search` Search | Partial | Search by name, model number or keywords | Autocomplete and typo tolerance (Atlas Search) |
+| `st-product` Product page | Partial (catalogue mode) | Gallery, model number, finish and size pickers, Request a quote with the chosen options, WhatsApp with a ready message, sticky actions on phones, specifications, label details, downloads, related products, Product and Breadcrumb markup | Price, add to cart, pincode check, stock (stage B); reviews (stage C) |
+| `st-contact` Contact and quote request | Done | Form to the Enquiries inbox with honeypot and rate limit, contact details, grievance officer | — |
+| `st-downloads` Downloads | Partial | Downloads block on pages, documents on product pages | Own page with filters |
+| `st-offline` Install, offline and unavailable | Partial | Store unavailable (suspended, maintenance), coming soon (draft in production), 404 | PWA install and offline page (Serwist) |
+| `st-dealers` Dealer locator | Not started | — | Dealer data and the map |
+| `st-cart`, `st-checkout`, `st-confirmation`, `st-login`, `st-account`, `st-order`, `st-track`, `st-messages` | Not started | — | Stage B (selling) |
+| `st-wishlist`, `st-review`, `st-offers`, `st-offer-messages`, `st-affiliate`, `st-affiliate-dash` | Not started | — | Stage C (growth) |
+| `st-warranty` | Phase 2 | — | — |
+
+Also built: CMS and policy pages (`/pages/<slug>`), per-store `robots.txt` and `sitemap.xml`
+(live stores only), page titles and descriptions, canonical URLs.
 
 ## Cross-cutting
 
@@ -120,7 +149,7 @@ domain, GST details and product data.
 | Jobs | Subscription past-due task and scheduled page publishing run locally; Vercel cron for the job runner not configured |
 | Media storage | Local disk in development; S3/Cloudflare R2 + CDN switched on by `S3_BUCKET` (docs/12). Production bucket not chosen yet |
 | Email | Local log adapter and Resend adapter; React Email templates later |
-| `proxy.ts`, security headers (CSP, HSTS), rate limiting | Not started: come with the storefront |
+| `proxy.ts`, security headers, rate limiting | Proxy and headers done (nosniff, referrer, frame, permissions, HSTS in production); enquiry rate limit in memory per server. Left: Content-Security-Policy with nonces, Upstash for several instances, redirect to the primary domain |
 | Connector secret encryption | Not started: comes with the first connector |
 | Error tracking (Sentry), structured logs | Not started |
 | CI | Local `pnpm verify`; Husky pre-push hook and hosted CI not yet |

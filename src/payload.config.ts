@@ -11,10 +11,19 @@ import { buildConfig } from 'payload'
 import sharp from 'sharp'
 
 import { fieldSuperAdminOnly, isPlatformStaff, TENANT_ROLE_LABELS, TENANT_ROLES } from '@/access'
+import { withStorefrontRevalidation } from '@/hooks/revalidateStorefront'
 import { devLogEmailAdapter } from '@/lib/email/devLog'
 import { env } from '@/lib/env'
 import { AuditLogs } from '@/modules/audit'
-import { AttributeSets, Brands, Categories, ProductDocuments } from '@/modules/catalog'
+import {
+  AttributeSets,
+  Brands,
+  catalogEndpoints,
+  Categories,
+  ProductDocuments,
+  Products,
+  Variants,
+} from '@/modules/catalog'
 import {
   Banners,
   Media,
@@ -111,18 +120,22 @@ export default buildConfig({
     avatar: 'default',
   },
   collections: [
-    // Store content and catalog (tenant-scoped, docs/04)
-    SiteSettings,
-    Categories,
-    AttributeSets,
-    Brands,
-    ProductDocuments,
-    Media,
-    Pages,
-    Navigation,
-    Banners,
+    // Store content and catalog (tenant-scoped, docs/04). Changes clear the store's cached pages.
+    ...[
+      SiteSettings,
+      Products,
+      Variants,
+      Categories,
+      AttributeSets,
+      Brands,
+      ProductDocuments,
+      Media,
+      Pages,
+      Navigation,
+      Banners,
+      Dealers,
+    ].map(withStorefrontRevalidation),
     Enquiries,
-    Dealers,
     Counters,
     // Platform
     Tenants,
@@ -134,7 +147,7 @@ export default buildConfig({
     AuditLogs,
   ],
   upload: { limits: { fileSize: MAX_UPLOAD_BYTES } },
-  endpoints: [...tenancyEndpoints, ...identityEndpoints],
+  endpoints: [...tenancyEndpoints, ...identityEndpoints, ...catalogEndpoints],
   jobs: {
     tasks: [checkSubscriptionsTask],
     // Long-running servers (local, Docker) run the queue themselves; on Vercel a cron hits
@@ -206,6 +219,8 @@ export default buildConfig({
         // One per store: the menu opens the store's document directly
         'site-settings': { isGlobal: true },
         navigation: { isGlobal: true },
+        products: {},
+        variants: {},
         categories: {},
         'attribute-sets': {},
         brands: {},

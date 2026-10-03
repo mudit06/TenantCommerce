@@ -1,6 +1,7 @@
 import type { PayloadRequest } from 'payload'
 
-import { atomicIncrement } from '@/lib/db/atomic'
+import { atomicIncrement, atomicSet } from '@/lib/db/atomic'
+import type { Plan } from '@/payload-types'
 import { AppError } from '@/lib/errors'
 
 const GB = 1024 ** 3
@@ -43,5 +44,42 @@ export async function adjustStorageUsage(
     // Several uploads at once would conflict on the store document inside their transactions.
     // Callers must not have changed this tenant document in the same transaction.
     outsideTransaction: true,
+  })
+}
+
+/** The plan limits of a store (empty when it has no plan loaded). */
+export async function planLimitsOf(
+  req: PayloadRequest,
+  tenantId: string,
+): Promise<NonNullable<Plan['limits']> | null> {
+  const tenant = await req.payload
+    .findByID({ collection: 'tenants', id: tenantId, depth: 1, overrideAccess: true, req })
+    .catch(() => null)
+  if (!tenant) throw new AppError('NOT_FOUND', 'Store not found', 404)
+  return typeof tenant.plan === 'object' ? (tenant.plan?.limits ?? null) : null
+}
+
+/** Refuses adding a product past the plan's product limit (docs/00 plans). */
+export async function assertProductCapacity(
+  req: PayloadRequest,
+  tenantId: string,
+  currentCount: number,
+): Promise<void> {
+  const max = (await planLimitsOf(req, tenantId))?.maxProducts
+  if (max && currentCount >= max) {
+    throw new AppError(
+      'PLAN_LIMIT_REACHED',
+      `The plan allows ${max.toLocaleString('en-IN')} products and this store has ${currentCount.toLocaleString('en-IN')}. Archive or delete some, or change the plan.`,
+      422,
+    )
+  }
+}
+
+/** Stores the store's current product count for dashboards and plan usage. */
+export async function setProductCount(req: PayloadRequest, tenantId: string, count: number) {
+  await atomicSet(req, {
+    collection: 'tenants',
+    filter: { _id: tenantId },
+    set: { 'usage.productsCount': count, 'usage.updatedAt': new Date() },
   })
 }

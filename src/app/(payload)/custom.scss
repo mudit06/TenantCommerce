@@ -1062,3 +1062,36 @@ a.te-btn {
     color: var(--te-sidebar-text);
   }
 }
+
+// ---- Product specifications (catalog AttributesField) ------------------------------------
+
+.te-specs {
+  margin-bottom: 24px;
+
+  &__group {
+    display: grid;
+    gap: 12px;
+    padding: 16px;
+    margin: 12px 0;
+    border: 1px solid var(--te-border, var(--theme-elevation-150));
+    border-radius: 8px;
+  }
+
+  &__legend {
+    padding: 0 6px;
+    font-weight: 600;
+  }
+
+  &__row {
+    display: grid;
+    gap: 6px;
+  }
+}
+
+.te-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid var(--theme-elevation-250);
+}

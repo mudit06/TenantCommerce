@@ -45,7 +45,9 @@ installable (PWA) online store and CMS, run by our team on one shared codebase.
 | Hosting | Vercel + MongoDB Atlas, Docker-ready for self-hosting |
 | Architecture | Modular monolith (see 01-architecture.md) |
 | Stack | Next.js 16 + Payload CMS 3 in one app on MongoDB, as listed in CLAUDE.md and docs/02. A NestJS backend with a separate React frontend was considered and not chosen (mudit, 3 October 2026) |
-| Repo | Local development only for now; no GitHub remote |
+| Commerce collections | Products, variants, carts, orders and transactions are our own Payload collections, not `@payloadcms/plugin-ecommerce` (ADR 0006, approved by mudit 3 October 2026) |
+| First vendor | Home Orbit (door hardware, key hangers, curtain brackets, bathroom accessories) launches as a catalogue with enquiries: products, sizes and finishes with "Request a quote" and WhatsApp, no online payment yet. Online selling follows in stage B (mudit, 3 October 2026) |
+| Repo | GitHub `mudit06/tenantcommerce` (private) |
 
 ## Glossary
 
