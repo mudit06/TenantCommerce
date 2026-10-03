@@ -31,6 +31,9 @@ best practices 100, SEO 100 on home, category and product pages (warm server; th
 request after a restart scored 85). What Home Orbit still has to
 send: docs/vendors/home-orbit.md.
 
+To check it all by hand on your machine: `docs/manual-testing.md` (last run end to end on a
+fresh database on 3 October 2026).
+
 Legend: **Done** = built and tested to the screen spec for MVP. **Partial** = usable, with the
 listed gaps. **Not started** = nothing built yet.
 
@@ -155,5 +158,5 @@ Also built: CMS and policy pages (`/pages/<slug>`), per-store `robots.txt` and `
 | Connector secret encryption | Not started: comes with the first connector |
 | Error tracking (Sentry), structured logs | Not started |
 | CI | Local `pnpm verify`; Husky pre-push hook and hosted CI not yet |
-| End-to-end tests in the repo (Playwright) | Not started: this sprint's browser checks were run by hand |
+| End-to-end tests in the repo (Playwright) | Not started: browser checks are run by hand, following `docs/manual-testing.md` |
 | Dependency audit | 1 open: `braces` inside the SCSS compiler's file watcher, no fix released; build-time only, accepted |

@@ -13,6 +13,7 @@ Nothing is deployed yet.
 ## Start here
 
 - `docs/progress.md`: what is built and what is left, per screen
+- `docs/manual-testing.md`: run it locally and check every built flow by hand, step by step
 - `CLAUDE.md`: rules and docs map for AI coding assistants (and a good summary for humans)
 - `docs/00-overview.md`: decisions, glossary, phases
 - `docs/01-architecture.md`: modular monolith, request flow, module map
@@ -40,6 +41,9 @@ Every store answers on `<slug>.localhost:3000` locally; Chrome, Edge and Firefox
 
 Sign in at http://localhost:3000/admin with the email and password `pnpm setup:local` printed
 (they are also in `.env` as `SEED_SUPER_ADMIN_EMAIL` and `SEED_SUPER_ADMIN_PASSWORD`).
+
+To check every flow by hand (super admin, Home Orbit's CMS, its storefront), follow
+`docs/manual-testing.md`.
 
 What else to know:
 

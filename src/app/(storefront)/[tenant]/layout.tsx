@@ -65,20 +65,27 @@ export default async function StoreLayout({ children, params }: Props) {
     ctx.store.status === 'suspended' ||
     Boolean(ctx.settings?.maintenanceMode) ||
     (preview && process.env.NODE_ENV === 'production')
+  const closedMessage =
+    ctx.store.status === 'suspended'
+      ? {
+          title: 'Store unavailable',
+          body: 'This store is not taking visitors at the moment. Please check back later.',
+        }
+      : preview
+        ? {
+            title: `${name} is coming soon`,
+            body: 'We are getting the store ready. Please check back soon.',
+          }
+        : {
+            title: `${name} will be back soon`,
+            body: 'We are making a few changes to the store. Please check back in a little while.',
+          }
 
   return (
     <html lang="en-IN" style={style}>
       <body>
         {closed ? (
-          <StoreMessage
-            title={
-              ctx.store.status === 'suspended' ? 'Store unavailable' : `${name} is coming soon`
-            }
-          >
-            {ctx.store.status === 'suspended'
-              ? 'This store is not taking visitors at the moment. Please check back later.'
-              : 'We are getting the store ready. Please check back soon.'}
-          </StoreMessage>
+          <StoreMessage title={closedMessage.title}>{closedMessage.body}</StoreMessage>
         ) : (
           <>
             <a

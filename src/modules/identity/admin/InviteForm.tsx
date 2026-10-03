@@ -26,7 +26,8 @@ export function InviteForm({
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
-  const [roles, setRoles] = useState<string[]>(tenantId ? ['manager'] : [])
+  // Nothing ticked: the inviter picks the role on purpose (least access, docs/05)
+  const [roles, setRoles] = useState<string[]>([])
   const [platformRole, setPlatformRole] = useState<string>('support')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [busy, setBusy] = useState(false)
@@ -126,7 +127,9 @@ export function InviteForm({
         </p>
       ) : null}
       <Button
-        disabled={busy || Boolean(disabledReason) || !email || !name}
+        disabled={
+          busy || Boolean(disabledReason) || !email || !name || (Boolean(tenantId) && !roles.length)
+        }
         onClick={() => void submit()}
       >
         Send invite

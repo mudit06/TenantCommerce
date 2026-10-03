@@ -41,7 +41,9 @@ export function ProductEnquiry({
     })
     .filter(Boolean)
     .join(', ')
-  const whatsappText = `Hello ${storeName}, I'd like a quote for ${title} (${modelNumber})${optionsText ? `, ${optionsText}` : ''}. ${pageUrl}`
+  // Titles usually end with the model number already
+  const productLabel = title.includes(modelNumber) ? title : `${title} · ${modelNumber}`
+  const whatsappText = `Hello ${storeName}, I'd like a quote for ${productLabel}${optionsText ? `, ${optionsText}` : ''}. ${pageUrl}`
   const whatsappHref = whatsappNumber
     ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappText)}`
     : null
@@ -122,7 +124,7 @@ export function ProductEnquiry({
             Request a quote
           </h2>
           <p className="mb-4 text-sm text-ink-soft">
-            {title} · {modelNumber}
+            {productLabel}
             {optionsText ? ` · ${optionsText}` : ''}
           </p>
           <QuoteForm

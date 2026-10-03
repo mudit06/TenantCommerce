@@ -168,7 +168,7 @@ export async function StoreSetup({
           ))}
         </Rows>
         <p className="te-muted te-small">
-          Products and variants come next. Orders, payments and shipping follow in the selling
+          Then add products under Catalog. Orders, payments and shipping follow in the selling
           stage.
         </p>
       </Card>
