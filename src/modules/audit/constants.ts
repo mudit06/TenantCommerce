@@ -1,5 +1,7 @@
 export const AUDIT_ACTIONS = [
   'support_access',
+  // A change made by our team inside a store's CMS during "Manage store" (docs/05)
+  'store_managed_change',
   'store_created',
   'store_status_changed',
   'feature_changed',

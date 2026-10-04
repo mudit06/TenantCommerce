@@ -51,9 +51,13 @@ Ecom/
    │  │     ├─ compare/          # Product compare (Phase 2)
    │  │     └─ b2b/              # Trade portal for dealers, retailers, wholesalers, designers (Phase 2)
    │  └─ (platform)/             # Our own marketing site / status pages (optional)
-   ├─ hooks/                     # As built: revalidateStorefront (clears a store's cached pages)
-   ├─ admin/                     # Shared admin shell: logo, nav links, the /admin dashboard switch,
-   │                             # te-* UI primitives, URL helpers, browser API helper
+   ├─ hooks/                     # As built: revalidateStorefront (clears a store's cached pages),
+   │                             # storeSessionAudit (logs our team's changes in a store, docs/05)
+   ├─ admin/                     # Shared admin shell: nav/ (one menu per workspace), session/ (the
+   │                             # platform session banner), views/ (the /admin dashboards),
+   │                             # ui/ (te-* primitives, icons, dialog), workspace.ts (platform
+   │                             # panel vs store CMS), store.ts (current store), URL helpers,
+   │                             # browser API helper. Styles: app/(payload)/styles
    ├─ collections/               # Thin re-exports: each file imports config from its module
    ├─ globals/                   # Platform-wide globals (platform settings)
    ├─ blocks/                    # CMS block schemas (data only). Rendering lives in storefront

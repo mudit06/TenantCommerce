@@ -3,7 +3,7 @@
 The single place to check build status. Update it in the same commit as the work (docs/16
 definition of done). Screen ids match `docs/screens/*.md` and the wireframes.
 
-Last updated: 3 October 2026 (Home Orbit storefront). Nothing is deployed anywhere yet; the code runs
+Last updated: 4 October 2026 (admin redesign, Manage store and View as support). Nothing is deployed anywhere yet; the code runs
 locally (README).
 
 ## At a glance
@@ -71,7 +71,7 @@ matter). The store dashboard's checklist tracks it.
 | `sa-dashboard` Platform dashboard | Partial | Live stores (paying, on trial), MRR, past due with amount, trials, Needs attention (past due, trials ending, plan limits at 90%, draft stores, owners who haven't accepted), Recently onboarded | Orders today, GMV, sales chart, top stores (need orders and daily-stats, sprints 4 and 5); failing connectors, WhatsApp templates, SSL rows (need connectors) |
 | `sa-vendors` All vendors | Done | List, search by name, slug, legal name or GSTIN, status tabs with counts, filters and columns | Export CSV; subscription and products-used columns |
 | `sa-vendor-new` New vendor | Done | All five steps, GSTIN check and PAN/state fill, industry preset capped by plan, trial, owner invite, same service as `pnpm create-tenant` | Store settings, counters, tax rates and menus are created by those modules when they are built (they listen to `tenant.created`) |
-| `sa-vendor` Vendor overview | Partial | Business details (edit), status, plan, primary domain, plan usage, recent changes, Go live, Suspend, Resume, Archive with reason, internal notes | Manage store and View as support (next task); store health (last order, connector health); logo |
+| `sa-vendor` Vendor overview | Partial | Business details (edit), status, plan, primary domain, plan usage, recent changes, Go live, Suspend, Resume, Archive with reason, internal notes, **Manage store** and **View as support** (reason, 2-hour session, banner, audit; docs/05 "As built") | Store health (last order, connector health); logo |
 | `sa-vendor-features` Features | Done | Switches within the plan, dependency prompt, Phase 2 rows locked, settings with platform caps, re-apply preset | — |
 | `sa-vendor-connectors` Connectors | Partial | What the vendor's plan allows | Keys ("Saved · hidden"), health, last webhook, SMS daily limit: arrive with each connector (sprints 4 to 7) |
 | `sa-vendor-domains` Domains | Done (MVP) | Subdomain, primary, redirect flag | Custom domains with SSL are Phase 2 |
@@ -89,14 +89,14 @@ has tenant isolation, role and feature tests (`tests/integration/store.test.ts`)
 
 | Screen | Status | Built | Left, and why |
 |---|---|---|---|
-| `cms-dashboard` Store dashboard | Partial | Store, status, plan usage (products, staff, storage), new enquiries, a setup checklist for stage A | Sales figures, orders to ship, low stock: come with orders and products |
+| `cms-dashboard` Store dashboard | Partial | Greeting, store status notice, cards for published, draft and scheduled pages, products and new enquiries; needs your attention; recent activity with who and when; coming up (scheduled publishes); quick actions; setup checklist; plan usage | Sales figures, orders to ship, low stock: come with orders and products |
 | `cms-staff` Staff and roles | Done | Staff list, invite, resend, change roles, remove, what each role can do, plan staff limit; a store always keeps an owner | Two-step column (two-step deferred) |
 | `cms-settings` Store settings | Partial | Branding, contact, grievance officer, label defaults, GST details (read only), order and invoice prefixes, returns, announcement bar, policy links, search and analytics IDs, maintenance mode. Created for every store at onboarding | Cash on delivery and prepaid rules come with the Payments screen (stage B) |
 | `cms-media` Media library | Done | Upload images and PDFs, WebP sizes, alt text required, size limits, storage counted against the plan, S3/R2 + CDN switch (docs/12 "Media") | Production bucket (docs/open-items) |
 | `cms-categories` Categories | Partial | Tree with parent, slug filled from the name, attribute set (or the parent's), tile image, banner, description, size chart (size-guide feature), sort order, show on store, SEO; no loops, at most 3 levels | Drag-to-reorder tree view (Payload list for now); redirect when a slug changes |
 | `cms-attributes` Attribute sets | Done | Fields with type, unit, group, filter, variant option, compare (Phase 2), required; options with swatch colour or photo; codes and values filled from labels; checked (unique codes, options present, at most 3 variant options) | — |
-| `cms-pages` Pages | Done | Pages with drafts, versions, scheduled publishing; draft policy pages and home page created for every store | — |
-| `cms-page-edit` Page builder | Partial | 14 block types (hero, banner, product grid, category tiles, rich text, image and text, benefits, testimonials, FAQ, video, downloads, dealer finder, enquiry form, brand story) | Live preview needs the storefront; offer, coupon, review and newsletter blocks come with stage C |
+| `cms-pages` Pages | Done | Own list screen: status tabs with counts (published, unpublished changes, drafts, scheduled), search by title or address, filters (template, changed by, modified), sort, template and status badges, last changed by, published date, edit, view on store, duplicate, delete with confirmation; "Create page" asks Default, Landing or Policy first. Drafts, versions, scheduled publishing; draft policy pages and home page created for every store | Archived state (not in the data model) |
+| `cms-page-edit` Page builder | Partial | 14 block types (hero, banner, product grid, category tiles, rich text, image and text, benefits, testimonials, FAQ, video, downloads, dealer finder, enquiry form, brand story); Content and SEO tabs; template chosen as cards in the sidebar; block rows named by their content; "Add block" library grouped Marketing, Commerce, Basic, Utility with pictures and descriptions; live preview of the draft in the store's own storefront code (Phone, Tablet, Desktop) on a signed link; search result preview with length guidance | A side panel for block settings (Payload edits blocks in place); offer, coupon, review and newsletter blocks come with stage C |
 | `cms-navigation` Menus | Partial | Header with dropdown columns, footer columns, phone menu; links to pages, categories or URLs | Preview needs the storefront |
 | `cms-enquiries` Enquiries inbox | Partial | `ENQ-<n>` per store, New / In progress / Closed tabs with counts, type and status, assign to a colleague, reply by email or WhatsApp (staff's own apps), internal notes, staff can log phone enquiries; enquiries feature only | Attachments (need private storage); the storefront forms that fill it |
 | `cms-dealers` Dealers | Partial | Name, type, address, pincode, map position, phone, hours, categories stocked, show on store; dealer-locator feature only | CSV import, map preview, position from the pincode |
@@ -147,12 +147,13 @@ Also built: CMS and policy pages (`/pages/<slug>`), per-store `robots.txt` and `
 | Tenant isolation: plugin + role access + integration tests | Done for every collection that exists; each new collection adds its test |
 | Staff accounts, roles, invites, lockout, password policy | Done |
 | Two-step login (TOTP) | Deferred by mudit (3 October 2026); needed before real vendor data goes live |
-| Manage store / View as support (audited platform access) | Not started: next platform task |
+| Manage store / View as support (audited platform access) | Done (4 October 2026): platform panel and store CMS are separate workspaces; our team reaches store data only in a store session (docs/05 "As built") |
+| Admin look and feel | Redesigned 4 October 2026: one menu per workspace (grouped, icons, counts, collapsible to icons), new theme over all of Payload's screens, light and dark, self-hosted font (docs/screens/vendor-cms.md "Look and feel") |
 | Shopper accounts | Not started: Sprint 1 spike |
 | Feature switches, plan ceilings, industry presets | Done |
 | Audit log | Writes done for platform actions; viewer is "Later" |
 | Jobs | Subscription past-due task and scheduled page publishing run locally; Vercel cron for the job runner not configured |
-| Media storage | Local disk in development; S3/Cloudflare R2 + CDN switched on by `S3_BUCKET` (docs/12). Production bucket not chosen yet |
+| Media storage | Local disk in development; S3/Cloudflare R2 + CDN switched on by `S3_BUCKET` (docs/12), one folder per store (`media/<tenantId>/`), boot check refuses local disk on Vercel. Production bucket not chosen yet |
 | Email | Local log adapter and Resend adapter; React Email templates later |
 | `proxy.ts`, security headers, rate limiting | Proxy and headers done (nosniff, referrer, frame, permissions, HSTS in production); enquiry rate limit in memory per server. Left: Content-Security-Policy with nonces, Upstash for several instances, redirect to the primary domain |
 | Connector secret encryption | Not started: comes with the first connector |

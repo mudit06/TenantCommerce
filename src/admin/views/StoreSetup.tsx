@@ -28,35 +28,26 @@ export async function StoreSetup({
     ).totalDocs
   const has = (feature: string) => enabledFeatures.includes(feature)
 
-  const [
-    settings,
-    attributeSets,
-    categories,
-    media,
-    policiesLive,
-    homeLive,
-    dealers,
-    newEnquiries,
-  ] = await Promise.all([
-    payload
-      .find({
-        collection: 'site-settings',
-        where: { tenant: { equals: tenantId } },
-        depth: 0,
-        limit: 1,
-        overrideAccess: true,
-      })
-      .then((result) => result.docs[0]),
-    count('attribute-sets'),
-    count('categories'),
-    count('media'),
-    count('pages', {
-      and: [{ template: { equals: 'policy' } }, { _status: { equals: 'published' } }],
-    }),
-    count('pages', { and: [{ slug: { equals: 'home' } }, { _status: { equals: 'published' } }] }),
-    has('dealer-locator') ? count('dealers') : Promise.resolve(0),
-    has('enquiries') ? count('enquiries', { status: { equals: 'new' } }) : Promise.resolve(0),
-  ])
+  const [settings, attributeSets, categories, media, policiesLive, homeLive, dealers] =
+    await Promise.all([
+      payload
+        .find({
+          collection: 'site-settings',
+          where: { tenant: { equals: tenantId } },
+          depth: 0,
+          limit: 1,
+          overrideAccess: true,
+        })
+        .then((result) => result.docs[0]),
+      count('attribute-sets'),
+      count('categories'),
+      count('media'),
+      count('pages', {
+        and: [{ template: { equals: 'policy' } }, { _status: { equals: 'published' } }],
+      }),
+      count('pages', { and: [{ slug: { equals: 'home' } }, { _status: { equals: 'published' } }] }),
+      has('dealer-locator') ? count('dealers') : Promise.resolve(0),
+    ])
   const menuItems = await payload
     .find({
       collection: 'navigation',
@@ -128,50 +119,36 @@ export async function StoreSetup({
   ]
   const done = steps.filter((step) => step.done).length
   return (
-    <>
-      {has('enquiries') && newEnquiries > 0 ? (
-        <Card title="Enquiries">
-          <Rows>
-            <Row
-              aside={<Pill tone="info">{newEnquiries} new</Pill>}
-              href={`${adminUrl.collection('enquiries')}?where[status][in][0]=new`}
-              primary="New enquiries waiting for a reply"
-            />
-          </Rows>
-        </Card>
-      ) : null}
-      <Card
-        actions={
-          <Pill
-            tone={done === steps.length ? 'success' : 'neutral'}
-          >{`${done} of ${steps.length}`}</Pill>
-        }
-        title="Set up your store"
-      >
-        <Rows>
-          {steps.map((step) => (
-            <Row
-              aside={
-                step.done ? (
-                  <Pill tone="success">
-                    {step.count !== undefined ? `Done · ${step.count}` : 'Done'}
-                  </Pill>
-                ) : (
-                  <Pill tone="warning">To do</Pill>
-                )
-              }
-              href={step.href}
-              key={step.label}
-              primary={step.label}
-              secondary={step.hint}
-            />
-          ))}
-        </Rows>
-        <p className="te-muted te-small">
-          Then add products under Catalog. Orders, payments and shipping follow in the selling
-          stage.
-        </p>
-      </Card>
-    </>
+    <Card
+      actions={
+        <Pill
+          tone={done === steps.length ? 'success' : 'neutral'}
+        >{`${done} of ${steps.length}`}</Pill>
+      }
+      title="Set up your store"
+    >
+      <Rows>
+        {steps.map((step) => (
+          <Row
+            aside={
+              step.done ? (
+                <Pill tone="success">
+                  {step.count !== undefined ? `Done · ${step.count}` : 'Done'}
+                </Pill>
+              ) : (
+                <Pill tone="warning">To do</Pill>
+              )
+            }
+            href={step.href}
+            key={step.label}
+            primary={step.label}
+            secondary={step.hint}
+          />
+        ))}
+      </Rows>
+      <p className="te-muted te-small">
+        Then add products under Commerce. Orders, payments and shipping follow in the selling stage.
+      </p>
+    </Card>
   )
 }

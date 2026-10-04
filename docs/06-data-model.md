@@ -69,7 +69,10 @@ module's zod schema), `enabledBy`, `enabledAt`. Unique `(tenant, key)`. Enabling
 ### users (platform + staff auth)
 See 05-auth-and-roles.md. `email`, `name`, `phone` (optional), `platformRole`,
 `tenants[] { tenant, roles[] }`, `status` (`invited|active|disabled`), `twoFactorSecret` (encrypted;
-waits on the two-step login spike), `lastLoginAt`, `invitedBy`, `invitedAt`.
+waits on the two-step login spike), `lastLoginAt`, `invitedBy`, `invitedAt`,
+`storeSession { tenant, mode (manage|view), reason, startedAt, endsAt }` (platform staff only: the
+open "Manage store" / "View as support" session, docs/05; written only by the identity module's
+store-session service, never through the API; ends by itself at `endsAt`).
 
 ## Store configuration (T)
 
@@ -134,6 +137,7 @@ keys, smart features, BIS/CE marks. Clothing = size, colour, fabric, fit, sleeve
 ### products (extends ecommerce plugin)
 `title` (L), `slug`, `status` (`draft|active|archived`), `type` (`simple|variable`),
 `modelNumber` / `articleNumber` (searchable, important for hardware and sanitary),
+`lastEditedBy` (as on pages, set by a hook),
 `brand`, `categories[]`, `primaryCategory`, `shortDescription` (L), `description` (L, rich text),
 `highlights[]` (L), `gallery[]` -> media (first is primary), `videos[]` (YouTube URL or media,
 type `installation|demo|promo`), `attributes` (json keyed by attribute code, validated against the
@@ -182,7 +186,12 @@ filter), `products[]`, `image`.
 
 ### pages
 `title` (L), `slug`, `layout` (blocks, see 10-storefront), `status` (draft/published, Payload
-versions + drafts + scheduled publish), `seo` group, `template` (`default|landing|policy`).
+versions + drafts + scheduled publish), `seo` group, `template` (`default|landing|policy`),
+`lastEditedBy` (name of the last person to save, drafts included, so each version names its
+author; "(platform team)" when our team saved it in a store session) and `publishedAt` (the last
+publish, by a person or a scheduled job). Both are set by hooks only (`src/fields/editedBy.ts`).
+The template is the page's structure on the store, never its look: `landing` (and the home page)
+renders blocks only, `default` and `policy` put breadcrumbs and the title above the blocks.
 
 ### navigation (per-tenant singleton)
 `header[]` (nested links, mega-menu columns, featured image), `footer` (columns of links),
@@ -197,6 +206,8 @@ Payload upload collection, tenant-scoped. `alt` (L, required for images), `focal
 image sizes: thumb 200, card 600, detail 1200 WebP, the original re-encoded to WebP at most
 2000 px serves as zoom. Max upload 10 MB images, 50 MB PDFs. Files in S3/R2 behind a CDN in
 production (local disk in development); the database stores metadata only (docs/12 "Media").
+`prefix` (hidden): the store's folder in the bucket, `media/<tenantId>/` for files uploaded from
+4 October 2026 (earlier files keep their folder).
 
 ### redirects, forms, form-submissions
 From the official plugins, tenant-scoped.

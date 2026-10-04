@@ -30,9 +30,15 @@ export const FeatureFlags: CollectionConfig = {
     group: false,
   },
   access: {
-    read: tenantRoleOrPlatform({ roles: ['owner', 'manager'], supportCanAccess: true }),
+    // Switches are platform data too (the vendor's Features tab), so our team keeps them outside
+    // a store session
+    read: tenantRoleOrPlatform({
+      roles: ['owner', 'manager'],
+      supportCanAccess: true,
+      platformOutsideStore: true,
+    }),
     create: superAdminOnly,
-    update: tenantRoleOrPlatform({ roles: ['owner', 'manager'] }),
+    update: tenantRoleOrPlatform({ roles: ['owner', 'manager'], platformOutsideStore: true }),
     delete: nobody,
   },
   indexes: [{ fields: ['tenant', 'key'], unique: true }],

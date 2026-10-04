@@ -30,6 +30,23 @@ export const getPublishedPage = (tenantId: string, slug: string): Promise<Page |
     { tags: [storefrontTag(tenantId)], revalidate: 3600 },
   )()
 
+/**
+ * The latest draft of one page of this store, for the editor's preview only (never cached: the
+ * preview route checks a signed link first). The store filter is explicit (CLAUDE.md rule 1).
+ */
+export async function getDraftPage(tenantId: string, pageId: string): Promise<Page | null> {
+  const payload = await getPayloadClient()
+  const { docs } = await payload.find({
+    collection: 'pages',
+    where: { and: [{ tenant: { equals: tenantId } }, { id: { equals: pageId } }] },
+    depth: 2,
+    limit: 1,
+    draft: true,
+    overrideAccess: true,
+  })
+  return docs[0] ?? null
+}
+
 /** Live banners for a placement, highest priority first. */
 export const getBanners = (
   tenantId: string,

@@ -7,11 +7,13 @@ import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant'
 import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
-import { buildConfig } from 'payload'
+import { buildConfig, type CollectionConfig } from 'payload'
 import sharp from 'sharp'
 
 import { fieldSuperAdminOnly, isPlatformStaff, TENANT_ROLE_LABELS, TENANT_ROLES } from '@/access'
+import { platformScreen, storeScreen } from '@/admin/workspace'
 import { withStorefrontRevalidation } from '@/hooks/revalidateStorefront'
+import { withStoreSessionAudit } from '@/hooks/storeSessionAudit'
 import { devLogEmailAdapter } from '@/lib/email/devLog'
 import { env } from '@/lib/env'
 import { AuditLogs } from '@/modules/audit'
@@ -51,6 +53,10 @@ const dirname = path.dirname(filename)
 
 // Modules seed their per-store data when a store is created (docs/01 events)
 registerContentEvents()
+
+/** A store's own data: its CMS screens only, and audited when our team changes it (docs/05). */
+const storeCollection = (collection: CollectionConfig) =>
+  withStoreSessionAudit(storeScreen(collection))
 
 /** Largest upload Payload accepts (PDF catalogues); images are capped lower in media hooks. */
 const MAX_UPLOAD_BYTES = 50 * 1024 * 1024
@@ -92,12 +98,21 @@ export default buildConfig({
         Logo: '@/admin/graphics/Logo#Logo',
         Icon: '@/admin/graphics/Icon#Icon',
       },
-      afterNavLinks: [
-        '@/admin/nav/StoreNavLinks#StoreNavLinks',
-        '@/admin/nav/PlatformNavLinks#PlatformNavLinks',
+      // One menu per workspace: the platform panel or a store's CMS (src/admin/nav)
+      Nav: '@/admin/nav/AppNav#AppNav',
+      header: [
+        // "You are managing <store> as platform admin" on every page of a store session (docs/05)
+        '@/admin/session/StoreSessionBanner#StoreSessionBanner',
+        // Descriptions under each block in the page builder's "Add block" library
+        '@/blocks/admin/BlockLibraryHints#BlockLibraryHints',
       ],
       views: {
         dashboard: { Component: '@/admin/views/Dashboard#Dashboard' },
+        newPage: {
+          Component: '@/modules/content/admin/NewPageView#NewPageView',
+          path: '/new-page',
+          meta: { title: 'Create a page' },
+        },
         newVendor: {
           Component: '@/modules/tenancy/admin/views/NewVendorView#NewVendorView',
           path: '/vendors/new',
@@ -121,6 +136,7 @@ export default buildConfig({
   },
   collections: [
     // Store content and catalog (tenant-scoped, docs/04). Changes clear the store's cached pages.
+    // Shown in a store's CMS only; our team opens them through a store session (docs/05).
     ...[
       SiteSettings,
       Products,
@@ -134,17 +150,14 @@ export default buildConfig({
       Navigation,
       Banners,
       Dealers,
-    ].map(withStorefrontRevalidation),
-    Enquiries,
+    ].map((collection) => storeCollection(withStorefrontRevalidation(collection))),
+    storeCollection(Enquiries),
     Counters,
-    // Platform
-    Tenants,
-    TenantDomains,
-    Plans,
-    Subscriptions,
+    // Platform panel only. Feature switches are kept by both: the vendor's Features tab and the
+    // store's own feature screens (they have no menu entry of their own)
+    ...[Tenants, TenantDomains, Plans, Subscriptions].map(platformScreen),
     FeatureFlags,
-    Users,
-    AuditLogs,
+    ...[Users, AuditLogs].map(platformScreen),
   ],
   upload: { limits: { fileSize: MAX_UPLOAD_BYTES } },
   endpoints: [...tenancyEndpoints, ...identityEndpoints, ...catalogEndpoints],

@@ -97,6 +97,15 @@ filter from 1 July 2026 for e-commerce entities selling imported goods). Facet c
   through our app server or the database. Local development: the `media/` folder (git-ignored).
   **MongoDB holds only each file's metadata** (name, size, dimensions, alt text, store), about
   1 KB per file, never the bytes.
+- **One folder per store (4 October 2026).** New files go to `media/<tenantId>/<file>` in the
+  bucket (the `prefix` field's default, so browser uploads and server uploads agree). A store's
+  files can then be listed, backed up, exported for a DPDP request or removed with an archived
+  store without touching another store's; a bucket lifecycle rule or a CDN purge can target one
+  store. Files uploaded earlier keep `media/<file>` and keep working.
+- **Production guard.** `src/lib/mediaStorage.ts` checks at boot: on Vercel the app refuses to
+  start without `S3_BUCKET` (its disk is wiped on every deploy and differs between instances, so
+  uploads would vanish); elsewhere in production it warns. It also warns when `MEDIA_PUBLIC_URL`
+  is missing, because then every image is streamed through the app server.
 - **What is stored per image.** The upload is re-encoded to WebP at most 2000 px on the long side
   (this also strips EXIF, including phone GPS), plus `thumb` 200, `card` 600 and `detail` 1200 px
   WebP versions. The original serves as the zoom image. A 4 MB phone photo becomes roughly
@@ -122,3 +131,11 @@ is serving the multi-MB originals or storing files inside MongoDB; neither is do
 cost: a 2,000-product catalogue with 5 photos each is about 10,000 images, about 5 GB with all
 sizes: inside R2's free 10 GB, then about ₹1.30 per GB a month. Put the bucket on a custom
 domain behind Cloudflare's cache so repeat views don't count as bucket reads.
+
+**What still costs at higher load (reviewed 4 October 2026).** Serving is fine as above; the
+upload side is where load shows first. Each image upload is resized four times with sharp inside
+the request (a few hundred ms of CPU per photo), which is fine for staff uploading by hand but not
+for a 2,000-photo CSV import: that import should queue the resizing as a job (docs/15 worker).
+Storage totals are kept with an atomic `$inc`, so parallel uploads don't lose bytes. Before
+launch: give the bucket's files a long `Cache-Control` and purge the CDN when staff replace a
+file, and choose the production bucket (docs/open-items).

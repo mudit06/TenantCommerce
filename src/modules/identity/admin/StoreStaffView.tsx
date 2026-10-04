@@ -2,13 +2,15 @@ import { getTenantFromCookie } from '@payloadcms/plugin-multi-tenant/utilities'
 import type { AdminViewServerProps } from 'payload'
 
 import {
-  isSuperAdmin,
+  isPlatformStaff,
   ROLE_SUMMARY,
+  storeSessionOf,
   TENANT_ROLE_LABELS,
   TENANT_ROLES,
   tenantIdsWithRoles,
 } from '@/access'
 import { Card, Notice, UsageBar } from '@/admin/ui'
+import { AdminScreen } from '@/admin/ui/AdminScreen'
 
 import { InviteForm } from './InviteForm'
 import { StaffTable } from './StaffTable'
@@ -16,19 +18,35 @@ import { StaffTable } from './StaffTable'
 const MARK = { yes: '✓', read: 'read', no: '—' } as const
 
 /** Staff and roles (docs/screens/vendor-cms.md `cms-staff`): owners invite and manage colleagues. */
-export async function StoreStaffView({ initPageResult }: AdminViewServerProps) {
-  const { req } = initPageResult
+export async function StoreStaffView(view: AdminViewServerProps) {
+  return (
+    <AdminScreen view={view}>
+      <StoreStaff view={view} />
+    </AdminScreen>
+  )
+}
+
+async function StoreStaff({ view }: { view: AdminViewServerProps }) {
+  const { req } = view.initPageResult
   const owned = tenantIdsWithRoles(req.user, ['owner'])
   const selected = getTenantFromCookie(req.headers, 'text')
-  const superAdmin = isSuperAdmin(req.user)
-  const tenantId =
-    selected && (superAdmin || owned.includes(String(selected))) ? String(selected) : owned[0]
+  // Our team works on a store's staff while managing that store (docs/05), or on the vendor's
+  // Staff tab in the platform panel
+  const session = storeSessionOf(req.user)
+  const platform = isPlatformStaff(req.user)
+  const tenantId = platform
+    ? session?.mode === 'manage'
+      ? session.tenantId
+      : undefined
+    : selected && owned.includes(String(selected))
+      ? String(selected)
+      : owned[0]
   if (!tenantId) {
     return (
       <div className="te-page">
-        <Notice tone={superAdmin ? 'info' : 'danger'}>
-          {superAdmin
-            ? 'Pick a store in the Store selector to see its staff.'
+        <Notice tone={platform ? 'info' : 'danger'}>
+          {platform
+            ? 'Open the store with “Manage store” to change its staff here, or use the vendor’s Staff tab.'
             : 'Only the store owner manages staff.'}
         </Notice>
       </div>

@@ -5,7 +5,7 @@ export type ApiResult<T> = { ok: true; data: T } | { ok: false; error: ApiError 
 
 export async function callApi<T = unknown>(
   path: string,
-  init: { method?: 'POST' | 'PATCH' | 'GET'; body?: unknown } = {},
+  init: { method?: 'POST' | 'PATCH' | 'GET' | 'DELETE'; body?: unknown } = {},
 ): Promise<ApiResult<T>> {
   try {
     const response = await fetch(`/api${path}`, {
@@ -21,7 +21,12 @@ export async function callApi<T = unknown>(
       ok: false,
       error: json?.error ?? {
         code: 'HTTP_' + response.status,
-        message: 'Something went wrong. Try again.',
+        message:
+          response.status === 401
+            ? 'Your session has ended. Sign in again and retry.'
+            : response.status === 403
+              ? 'You don’t have permission to do this in this store.'
+              : `The server couldn’t finish this (error ${response.status}). Try again in a moment; if it keeps happening, tell the platform team.`,
       },
     }
   } catch {

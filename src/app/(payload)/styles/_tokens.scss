@@ -1,0 +1,142 @@
+// Design tokens (docs/screens/vendor-cms.md "Look and feel"). One set for every custom screen and
+// mapped onto Payload's own variables, so Payload's screens and ours look like one product.
+// Light and dark: Payload sets data-theme on <html>.
+
+:root {
+  --font-body:
+    'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI',
+    sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'IBM Plex Mono', Menlo, Consolas, monospace;
+
+  // Shape
+  --te-radius-sm: 6px;
+  --te-radius: 8px;
+  --te-radius-lg: 12px;
+  --style-radius-s: var(--te-radius-sm);
+  --style-radius-m: var(--te-radius);
+  --style-radius-l: var(--te-radius-lg);
+
+  // Payload's neutral scale, re-tinted cool slate (both themes derive from it)
+  --color-base-0: #ffffff;
+  --color-base-50: #f6f7f9;
+  --color-base-100: #eef0f3;
+  --color-base-150: #e4e7ec;
+  --color-base-200: #d6dae1;
+  --color-base-250: #c7cdd6;
+  --color-base-300: #b5bcc7;
+  --color-base-350: #a3abb8;
+  --color-base-400: #9099a8;
+  --color-base-450: #7e8897;
+  --color-base-500: #6c7686;
+  --color-base-550: #5c6575;
+  --color-base-600: #4d5665;
+  --color-base-650: #404856;
+  --color-base-700: #343b47;
+  --color-base-750: #29303a;
+  --color-base-800: #1f242c;
+  --color-base-850: #171b22;
+  --color-base-900: #12151b;
+  --color-base-950: #0c0f13;
+  --color-base-1000: #07090c;
+
+  // Brand and surfaces
+  --te-brand: #2b4acb;
+  --te-brand-hover: #233fb3;
+  --te-brand-soft: #eef1fd;
+  --te-brand-ring: rgba(43, 74, 203, 0.28);
+  --te-on-brand: #ffffff;
+  --te-text: #111827;
+  --te-text-2: #4b5565;
+  --te-text-3: #8a93a3;
+  --te-page: #f6f7f9;
+  --te-card: #ffffff;
+  --te-subtle: #f9fafb;
+  --te-line: #e6e8ec;
+  --te-line-strong: #d6dae1;
+  --te-success: #0b7a53;
+  --te-success-bg: #e3f4ec;
+  --te-warning: #965a00;
+  --te-warning-bg: #fdf1dc;
+  --te-danger: #be3328;
+  --te-danger-bg: #fbe7e4;
+  --te-info: #2b4acb;
+  --te-info-bg: #eef1fd;
+  --te-neutral: #4b5565;
+  --te-neutral-bg: #eef0f3;
+
+  // Sidebar: light and quiet, the content is the focus
+  --te-sidebar: #fbfbfc;
+  --te-sidebar-line: #eceef2;
+  --te-sidebar-text: #4b5565;
+  --te-sidebar-strong: #111827;
+  --te-sidebar-hover: #f0f2f5;
+  --te-sidebar-active: #eef1fd;
+  --te-sidebar-active-text: #2b4acb;
+  --te-sidebar-label: #8a93a3;
+
+  // Depth
+  --te-shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.04);
+  --te-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+  --te-shadow-lg: 0 12px 32px rgba(16, 24, 40, 0.12), 0 2px 6px rgba(16, 24, 40, 0.06);
+  --te-focus: 0 0 0 3px var(--te-brand-ring);
+  --te-ease: cubic-bezier(0.2, 0, 0, 1);
+
+  --nav-width: 264px;
+}
+
+html[data-theme='light'] {
+  --theme-bg: var(--te-page);
+  --theme-text: var(--te-text);
+  --theme-input-bg: var(--te-card);
+  --theme-border-color: var(--te-line);
+}
+
+html[data-theme='dark'] {
+  --te-brand: #7d93ff;
+  --te-brand-hover: #95a7ff;
+  --te-brand-soft: #1b2445;
+  --te-brand-ring: rgba(125, 147, 255, 0.35);
+  --te-on-brand: #0b1018;
+  --te-text: #e8ecf2;
+  --te-text-2: #a8b2c1;
+  --te-text-3: #77839a;
+  --te-page: #0f141b;
+  --te-card: #151b24;
+  --te-subtle: #121821;
+  --te-line: #252e3b;
+  --te-line-strong: #323c4b;
+  --te-success: #4fcb9c;
+  --te-success-bg: #10302a;
+  --te-warning: #f0b355;
+  --te-warning-bg: #352812;
+  --te-danger: #ff8577;
+  --te-danger-bg: #3b1b18;
+  --te-info: #7d93ff;
+  --te-info-bg: #1b2445;
+  --te-neutral: #a8b2c1;
+  --te-neutral-bg: #1e2632;
+  --te-sidebar: #0c1117;
+  --te-sidebar-line: #1d2531;
+  --te-sidebar-text: #a8b2c1;
+  --te-sidebar-strong: #e8ecf2;
+  --te-sidebar-hover: #151c26;
+  --te-sidebar-active: #1b2445;
+  --te-sidebar-active-text: #aebcff;
+  --te-sidebar-label: #6d7990;
+  --te-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --te-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --te-shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
+  --theme-bg: var(--te-page);
+  --theme-text: var(--te-text);
+  --theme-input-bg: var(--te-card);
+  --theme-border-color: var(--te-line);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

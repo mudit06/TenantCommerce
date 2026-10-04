@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next'
+import { headers } from 'next/headers'
 import type { CSSProperties, ReactNode } from 'react'
 
+import { PREVIEW_PAGE_HEADER } from '@/storefront/constants'
 import { getStoreContext } from '@/storefront/context'
 import { Footer } from '@/storefront/kit/layout/Footer'
 import { Header } from '@/storefront/kit/layout/Header'
@@ -61,10 +63,14 @@ export default async function StoreLayout({ children, params }: Props) {
   } as CSSProperties
   const name = ctx.settings?.storeName ?? ctx.store.name
   const preview = ctx.store.status === 'draft'
+  // The editor's draft preview (signed link, checked by the proxy and again by the page) shows the
+  // store as it will look, even before launch or during maintenance
+  const editorPreview = Boolean((await headers()).get(PREVIEW_PAGE_HEADER))
   const closed =
-    ctx.store.status === 'suspended' ||
-    Boolean(ctx.settings?.maintenanceMode) ||
-    (preview && process.env.NODE_ENV === 'production')
+    !editorPreview &&
+    (ctx.store.status === 'suspended' ||
+      Boolean(ctx.settings?.maintenanceMode) ||
+      (preview && process.env.NODE_ENV === 'production'))
   const closedMessage =
     ctx.store.status === 'suspended'
       ? {

@@ -133,3 +133,41 @@ export function formatMonth(date: Date | string, timeZone = DEFAULT_TIMEZONE): s
     new Date(date),
   )
 }
+
+/** 10:42 */
+export function formatTime(date: Date | string, timeZone = DEFAULT_TIMEZONE): string {
+  return new Intl.DateTimeFormat('en-IN', {
+    timeZone,
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).format(new Date(date))
+}
+
+/** 4 Oct 2026 · 10:00 (a moment people plan around, like a scheduled publish) */
+export function formatDateAndTime(date: Date | string, timeZone = DEFAULT_TIMEZONE): string {
+  return `${formatDate(date, timeZone)} · ${formatTime(date, timeZone)}`
+}
+
+/**
+ * How long ago or how soon, the way people say it: "Just now", "10 minutes ago", "Today, 08:30",
+ * "Yesterday, 18:10", "Tomorrow, 10:00", else the date. Calendar days follow the zone.
+ */
+export function formatRelative(
+  date: Date | string,
+  now: Date = new Date(),
+  timeZone = DEFAULT_TIMEZONE,
+): string {
+  const at = new Date(date)
+  const diffMinutes = Math.round((now.getTime() - at.getTime()) / 60_000)
+  if (diffMinutes >= 0 && diffMinutes < 1) return 'Just now'
+  if (diffMinutes >= 1 && diffMinutes < 60) {
+    return `${diffMinutes} minute${diffMinutes === 1 ? '' : 's'} ago`
+  }
+  const days = calendarDaysBetween(now, at, timeZone)
+  const time = formatTime(at, timeZone)
+  if (days === 0) return `Today, ${time}`
+  if (days === -1) return `Yesterday, ${time}`
+  if (days === 1) return `Tomorrow, ${time}`
+  return days > 0 ? formatDateAndTime(at, timeZone) : formatDate(at, timeZone)
+}

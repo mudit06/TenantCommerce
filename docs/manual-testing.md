@@ -91,6 +91,21 @@ Click Home Orbit.
       (Maharashtra 27).
 - [ ] Add a line under **Internal notes** and Save. **Recent changes** at the bottom lists your
       edit.
+- [ ] The menu on the left has only platform sections (Vendors, Billing, Platform). Typing
+      `/admin/collections/pages` in the address bar says "Nothing found": store screens open only
+      inside a store session.
+- [ ] Press **Manage store**. A box explains the 2-hour session and asks for a reason; "Open the
+      store's CMS" with an empty or 3-letter reason is refused. Type "Vendor asked us to set up the
+      Diwali page" and open it.
+- [ ] A brown bar on every page says "You are managing Home Orbit as platform admin", with the
+      reason and the end time. The menu is Home Orbit's own (Content, Commerce, Engagement,
+      Settings) and the platform sections are gone; `/admin/collections/plans` says "Nothing
+      found".
+- [ ] Change a word on the **About us** page and save it as a draft. The Pages list says
+      "by Platform Admin (platform team)". Back in the platform panel later, **Recent changes**
+      on the vendor overview lists the session and the change with the reason.
+- [ ] Press **End session** in the bar: you are back on the platform dashboard. **View as
+      support** works the same way but nothing can be saved.
 
 ### 1.6 Vendor tabs
 
@@ -157,13 +172,19 @@ Private window. Open the **Home Orbit** set-password link from section 0 (or the
 
 - [ ] The page asks for New Password and Confirm Password. A password shorter than 10 characters
       is refused. Use 10 or more, for example `HomeOrbit@2026`.
-- [ ] After saving you are signed in at the **store dashboard**: "Hello, Home", Home Orbit,
-      Draft, Starter plan.
-- [ ] Plan usage: Products **110 / 500**, Staff 1 / 3, Media storage about 0.01 GB.
+- [ ] After saving you are signed in at the **store dashboard**: "Good morning" (or afternoon,
+      evening), Home Orbit at the top of the menu, and "Your store isn't live yet".
+- [ ] Cards: Published pages 2, Draft pages 5, Scheduled 0, Products 110 active of 110, New
+      enquiries 0. Each card opens the matching list.
+- [ ] **Needs your attention** says the 5 policy pages are still drafts; **Recent activity** lists
+      Home and About us published and the uploaded photos, with who and when.
+- [ ] Plan card: Products **110 / 500**, Staff 1 / 3, Media storage about 0.01 GB.
 - [ ] **Set up your store: 5 of 8**. Done: Attribute sets (6), Categories (13), Media library
       (115), Home page published, Menus. To do: Store settings, Policy pages, Dealers.
-- [ ] The menu shows only store sections (Store, Catalog, Content, Sales, Team). There is no
-      Vendors or Plans: store staff never see the platform panel.
+- [ ] The menu shows only store sections (Content, Commerce, Engagement, Settings), with a draft
+      count on Pages. There is no Vendors or Plans: store staff never see the platform panel.
+- [ ] The collapse button at the bottom of the menu shrinks it to icons (hover shows the names);
+      it stays collapsed after a reload. Below 1024 px wide the menu opens from the ☰ button.
 
 ### 2.2 Store settings (contact details reach the storefront)
 
@@ -215,10 +236,24 @@ Store → Store settings, tab **Contact**.
 
 - [ ] Content → Media: upload any photo. Saving without **alt text** is refused; add it and the
       photo saves. The dashboard's media storage goes up.
-- [ ] Content → Pages: **About us** and **Home** are published; Shipping, Returns, Privacy, Terms
-      and Warranty are drafts.
-- [ ] Open **Home**, change the hero heading text, and Publish. Reload
-      http://home-orbit.localhost:3000 : the new heading shows at once. Change it back.
+- [ ] Content → Pages: tabs All 7 · Published 2 · Drafts 5. **About us** (Default) and **Home**
+      (Landing) are published; the five policy pages are drafts. Each row shows the template, the
+      status, when and by whom it was changed, and when it was published.
+- [ ] Type `ship` in the search box (or press `/` first): only Shipping policy is left. Pick
+      Template → Policy, then **Clear filters** from an empty result.
+- [ ] **Create page** opens the choice of Default, Landing or Policy page. Pick Landing: the
+      editor opens with Landing ticked in the sidebar. Leave without saving.
+- [ ] On a row, ⋯ → **Duplicate** opens a draft copy ("About us (copy)"); ⋯ → **Delete** on the
+      copy asks first and says what is deleted. Confirm: it is gone.
+- [ ] Open **Home**. The blocks read like the page: "01 Hero slider · Right choice for the home"
+      and so on. **Add block** opens the library grouped Marketing, Commerce, Basic, Utility, each
+      with a picture and one line on what it does.
+- [ ] Press the eye button next to Save Draft: the page appears on the right in Home Orbit's own
+      design, with Phone, Tablet and Desktop sizes. Change the hero heading and **Save Draft**: the
+      preview updates; http://home-orbit.localhost:3000 still shows the old heading. Publish, and
+      the store shows the new one. Change it back.
+- [ ] The **SEO** tab shows how the page looks in Google and says when the title or description is
+      too long.
 - [ ] Open the **Shipping policy** draft, write a line, and Publish. It opens at
       http://home-orbit.localhost:3000/pages/shipping .
 - [ ] Content → Menus: the header menu with the category dropdowns, footer columns and the phone
@@ -408,7 +443,7 @@ Uploaded files stay in `media/`; delete that folder too for a completely clean s
 - Prices, cart, checkout, payments, shipping, orders, customer accounts (stage B)
 - Offers, coupons, reviews, wishlist, affiliates (stage C)
 - CSV import, the dealer locator page, the PWA "install app" and offline page
-- Two-step login (deferred), "Manage store / View as support" from the super admin
+- Two-step login (deferred)
 - Real emails: locally they are printed in the `pnpm dev` terminal
 - Custom domains: locally every store is `<slug>.localhost:3000`
 

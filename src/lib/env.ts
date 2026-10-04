@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { mediaStorageProblems } from './mediaStorage'
+
 // Config comes from env vars validated at boot (docs/01). Add every new variable here and
 // to .env.example in the same change.
 const emptyToUndefined = (value: unknown) => (value === '' ? undefined : value)
@@ -39,6 +41,17 @@ function loadEnv(): Env {
       .map((issue) => `  - ${issue.path.join('.')}: ${issue.message}`)
       .join('\n')
     throw new Error(`Invalid environment variables (see .env.example):\n${problems}`)
+  }
+  // `next build` runs with NODE_ENV=production but serves no files; check when the server runs
+  const building = process.env.NEXT_PHASE === 'phase-production-build'
+  if (!building) {
+    const { errors, warnings } = mediaStorageProblems({ VERCEL: process.env.VERCEL }, parsed.data)
+    if (errors.length) {
+      throw new Error(
+        `Invalid environment variables (see .env.example):\n${errors.map((p) => `  - ${p}`).join('\n')}`,
+      )
+    }
+    for (const warning of warnings) console.warn(`[env] ${warning}`)
   }
   return parsed.data
 }

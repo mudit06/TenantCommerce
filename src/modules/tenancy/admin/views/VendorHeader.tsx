@@ -1,6 +1,7 @@
 import type { UIFieldServerComponent } from 'payload'
 
-import { isSuperAdmin } from '@/access'
+import { isPlatformStaff, isSuperAdmin } from '@/access'
+import { primaryHostOf, storeUrlForHost } from '@/admin/store'
 import { Pill } from '@/admin/ui'
 import { labelOf, TENANT_STATUS_TONE } from '@/admin/ui/tones'
 import { formatDate } from '@/lib/dates'
@@ -8,6 +9,7 @@ import { GST_STATES, isGstStateCode } from '@/lib/gst/gstin'
 
 import { INDUSTRIES } from '../../constants'
 import { StatusActions } from './StatusActions'
+import { StoreAccessActions } from './StoreAccessActions'
 
 /** Top of the vendor overview: who this is, its status and plan, and the store actions. */
 export const VendorHeader: UIFieldServerComponent = async ({ id, req }) => {
@@ -17,17 +19,8 @@ export const VendorHeader: UIFieldServerComponent = async ({ id, req }) => {
     .findByID({ collection: 'tenants', id, depth: 1, overrideAccess: false, user: req.user })
     .catch(() => null)
   if (!tenant) return null
-  const { docs: domains } = await payload.find({
-    collection: 'tenant-domains',
-    where: { and: [{ tenant: { equals: id } }, { isPrimary: { equals: true } }] },
-    limit: 1,
-    depth: 0,
-    overrideAccess: true,
-  })
-  const primary = domains[0]?.host
-  const storeUrl = primary
-    ? `${primary.endsWith('localhost') ? 'http' : 'https'}://${primary}${primary.endsWith('localhost') ? ':3000' : ''}`
-    : undefined
+  const primary = await primaryHostOf(payload, String(id))
+  const storeUrl = storeUrlForHost(primary)
   const plan = typeof tenant.plan === 'object' ? tenant.plan : null
   const industries = (tenant.industry ?? [])
     .map((value) => INDUSTRIES.find((industry) => industry.value === value)?.label ?? value)
@@ -55,9 +48,15 @@ export const VendorHeader: UIFieldServerComponent = async ({ id, req }) => {
           <span className="te-muted">Live since {formatDate(tenant.activatedAt)}</span>
         ) : null}
       </div>
-      {isSuperAdmin(req.user) ? (
-        <StatusActions status={tenant.status} storeUrl={storeUrl} tenantId={String(tenant.id)} />
-      ) : null}
+      <div className="te-vendor-header__actions">
+        {isSuperAdmin(req.user) ? (
+          <StatusActions status={tenant.status} storeUrl={storeUrl} tenantId={String(tenant.id)} />
+        ) : null}
+        {isPlatformStaff(req.user) && tenant.status !== 'archived' ? (
+          // Work inside the store's own CMS (docs/05): a separate workspace, reason asked once
+          <StoreAccessActions canManage={isSuperAdmin(req.user)} tenantId={String(tenant.id)} />
+        ) : null}
+      </div>
     </div>
   )
 }

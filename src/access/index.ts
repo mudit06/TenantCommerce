@@ -1,9 +1,11 @@
 import type { Access, FieldAccess, Where } from 'payload'
 
 import type { PlatformRole, TenantRole } from './roles'
+import { storeSessionOf } from './storeSession'
 
 export * from './matrix'
 export * from './roles'
+export * from './storeSession'
 
 // Access functions composed per collection (docs/05). The multi-tenant plugin adds the
 // "only your stores" constraint on top of these for tenant-scoped collections; these add roles.
@@ -95,25 +97,71 @@ export const platformStaffOrOwnTenant =
     isPlatformStaff(req.user) || inTenants(field, tenantIdsWithRoles(req.user, roles))
 
 /**
- * Tenant-scoped collections: super admins write, support reads, and store staff with one of
- * `roles` work inside their own stores (docs/05 permission matrix).
+ * What a platform admin may do in tenant-scoped data. Without an open store session: nothing,
+ * unless the collection is platform data kept per store (`platformOutsideStore`, feature flags).
+ * With one (docs/05 "Manage store", "View as support"): that one store only, read-only when
+ * viewing. `supportCanAccess` marks a read rule, as every read in our collections sets it.
+ */
+function platformAccess(
+  user: unknown,
+  role: PlatformRole,
+  {
+    read,
+    platformOutsideStore,
+    field,
+  }: { read: boolean; platformOutsideStore: boolean; field: string },
+  data?: Record<string, unknown> | null,
+): Where | boolean {
+  const session = storeSessionOf(user)
+  if (!session) {
+    if (!platformOutsideStore) return false
+    return role === 'super-admin' || read
+  }
+  if (session.mode === 'view' && !read) return false
+  return scopedToTenants(field, [session.tenantId], data)
+}
+
+/**
+ * Tenant-scoped collections: store staff with one of `roles` work inside their own stores
+ * (docs/05 permission matrix); our team works in a store through a store session.
  */
 export const tenantRoleOrPlatform =
   ({
     roles,
     supportCanAccess = false,
+    platformOutsideStore = false,
     field = 'tenant',
   }: {
     roles: readonly TenantRole[]
+    /** This rule is a read: support may use it (and our team in "View as support") */
     supportCanAccess?: boolean
+    /** Platform data kept per store (feature flags): our team reaches it from the platform panel */
+    platformOutsideStore?: boolean
     field?: string
   }): Access =>
   ({ req, data }) => {
     const role = platformRoleOf(req.user)
-    if (role === 'super-admin') return true
-    if (role === 'support') return supportCanAccess
+    if (role) {
+      return platformAccess(
+        req.user,
+        role,
+        { read: supportCanAccess, platformOutsideStore, field },
+        data,
+      )
+    }
     return scopedToTenants(field, tenantIdsWithRoles(req.user, roles), data)
   }
+
+/** The same platform rule for access functions that check store staff in their own way. */
+export const platformTenantAccess = (
+  user: unknown,
+  { read, field = 'tenant' }: { read: boolean; field?: string },
+  data?: Record<string, unknown> | null,
+): Where | boolean | null => {
+  const role = platformRoleOf(user)
+  if (!role) return null
+  return platformAccess(user, role, { read, platformOutsideStore: false, field }, data)
+}
 
 // ---- Field access -----------------------------------------------------------------------
 

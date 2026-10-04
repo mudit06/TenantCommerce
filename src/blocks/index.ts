@@ -2,6 +2,8 @@ import type { Block } from 'payload'
 
 import { linkField } from '@/fields/link'
 
+import { BLOCK_GROUPS, BLOCK_META, blockThumbnail, type BlockGroup } from './meta'
+
 // CMS blocks: data shape only (docs/10). Each vendor's storefront code decides how a block looks;
 // the shape is the same for every vendor. Blocks of optional features (offer strip, scheme
 // products, coupon list, reviews, offers sign-up, affiliate invite) are added with their modules,
@@ -326,7 +328,32 @@ export const BrandStoryBlock: Block = {
   ],
 }
 
-/** Every block a page can use, in the order the "Add block" menu shows them. */
+const GROUP_ORDER: BlockGroup[] = ['marketing', 'commerce', 'basic', 'utility']
+
+/**
+ * The page builder's presentation of a block (src/blocks/meta.ts): its group in the "Add block"
+ * library, thumbnail, and a row label that names the block by its content. Data shape unchanged.
+ */
+function forPageBuilder(block: Block): Block {
+  const meta = BLOCK_META[block.slug]
+  if (!meta) return block
+  return {
+    ...block,
+    admin: {
+      ...block.admin,
+      group: BLOCK_GROUPS[meta.group],
+      images: { thumbnail: { url: blockThumbnail(block.slug), alt: meta.description } },
+      components: { ...block.admin?.components, Label: '@/blocks/admin/BlockLabel#BlockLabel' },
+    },
+  }
+}
+
+const groupIndex = (block: Block) => {
+  const group = BLOCK_META[block.slug]?.group
+  return group ? GROUP_ORDER.indexOf(group) : GROUP_ORDER.length
+}
+
+/** Every block a page can use, grouped as the "Add block" library shows them. */
 export const PAGE_BLOCKS: Block[] = [
   HeroBlock,
   BannerBlock,
@@ -343,3 +370,6 @@ export const PAGE_BLOCKS: Block[] = [
   EnquiryFormBlock,
   BrandStoryBlock,
 ]
+  .map(forPageBuilder)
+  // Stable sort: blocks keep their order inside a group
+  .sort((a, b) => groupIndex(a) - groupIndex(b))

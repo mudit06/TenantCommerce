@@ -1,6 +1,7 @@
 import { APIError, type CollectionConfig } from 'payload'
 
 import { CATALOG_READ, CATALOG_WRITE, idOf, tenantRoleOrPlatform } from '@/access'
+import { lastEditedByField, recordEditor } from '@/fields/editedBy'
 import { moneyField } from '@/fields/money'
 import { seoFields } from '@/fields/seo'
 import { fillSlugFrom, slugField } from '@/fields/slug'
@@ -354,10 +355,12 @@ export const Products: CollectionConfig = {
       defaultValue: false,
       admin: { position: 'sidebar' },
     },
+    lastEditedByField(),
   ],
   hooks: {
     beforeValidate: [fillSlugFrom('title')],
     beforeChange: [
+      recordEditor,
       async ({ data, operation, originalDoc, req }) => {
         const tenantId = idOf(data.tenant ?? originalDoc?.tenant)
         if (!tenantId) throw new APIError('Choose the store first', 400, undefined, true)

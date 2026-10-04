@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { idOf } from '@/access'
 import { withTransaction } from '@/lib/db/transaction'
-import { inviteStaff } from '@/modules/identity'
+import { endStoreSession, inviteStaff, startStoreSession } from '@/modules/identity'
 import {
   changeSubscriptionPlan,
   changeTenantStatus,
@@ -514,5 +514,64 @@ describe('staff invites', () => {
         overrideAccess: true,
       }),
     ).rejects.toThrow(/10 characters/)
+  })
+})
+
+describe('store sessions: Manage store and View as support (docs/05)', () => {
+  it('opens a store for 2 hours with a reason, logs it, and closes it', async () => {
+    const req = await reqAs(payload, admin)
+    const opened = await withTransaction(req, () =>
+      startStoreSession(req, {
+        tenantId: String(storeA.id),
+        mode: 'manage',
+        reason: 'Vendor asked us to set up the home page',
+      }),
+    )
+    expect(Date.parse(opened.endsAt) - Date.now()).toBeGreaterThan(119 * 60 * 1000)
+    const reloaded = await userByEmail(payload, 'admin@platform.test')
+    expect(idOf(reloaded.storeSession?.tenant)).toBe(String(storeA.id))
+    const { docs } = await payload.find({
+      collection: 'audit-logs',
+      where: {
+        and: [{ action: { equals: 'support_access' } }, { tenant: { equals: storeA.id } }],
+      },
+      sort: '-at',
+    })
+    expect(docs[0]).toMatchObject({ reason: 'Vendor asked us to set up the home page' })
+
+    const endReq = await reqAs(payload, reloaded)
+    await withTransaction(endReq, () => endStoreSession(endReq))
+    const closed = await userByEmail(payload, 'admin@platform.test')
+    expect(closed.storeSession?.tenant ?? null).toBeNull()
+  })
+
+  it('lets support only view, and nobody set a session through the API', async () => {
+    const req = await reqAs(payload, support)
+    await expect(
+      startStoreSession(req, { tenantId: String(storeA.id), mode: 'manage', reason: 'Trying it' }),
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' })
+    const ownerReq = await reqAs(payload, ownerA)
+    await expect(
+      startStoreSession(ownerReq, {
+        tenantId: String(storeA.id),
+        mode: 'view',
+        reason: 'Not our team',
+      }),
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' })
+    const updated = await payload.update({
+      collection: 'users',
+      id: admin.id,
+      data: {
+        storeSession: {
+          tenant: storeA.id,
+          mode: 'manage',
+          reason: 'sneaky',
+          endsAt: new Date(Date.now() + 3600_000).toISOString(),
+        },
+      },
+      user: admin,
+      overrideAccess: false,
+    })
+    expect(updated.storeSession?.tenant ?? null).toBeNull()
   })
 })

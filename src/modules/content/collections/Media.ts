@@ -1,8 +1,16 @@
 import path from 'node:path'
 
-import { APIError, type CollectionConfig, type PayloadRequest } from 'payload'
+import { getTenantFromCookie } from '@payloadcms/plugin-multi-tenant/utilities'
+import { APIError, type CollectionConfig, type PayloadRequest, type TextField } from 'payload'
 
-import { ANY_STORE_ROLE, idOf, MEDIA_WRITE, tenantRoleOrPlatform } from '@/access'
+import {
+  ANY_STORE_ROLE,
+  idOf,
+  MEDIA_WRITE,
+  storeSessionOf,
+  tenantIdsWithRoles,
+  tenantRoleOrPlatform,
+} from '@/access'
 import { adjustStorageUsage, assertStorageAvailable } from '@/modules/tenancy'
 
 export const IMAGE_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
@@ -23,6 +31,27 @@ type SizedDoc = {
 export const storedBytes = (doc: SizedDoc | null | undefined): number =>
   (doc?.filesize ?? 0) +
   Object.values(doc?.sizes ?? {}).reduce((sum, size) => sum + (size?.filesize ?? 0), 0)
+
+/**
+ * Each store's files live in their own folder of the bucket, `media/<store id>/<file>` (docs/12
+ * "Media"): a store's files can be listed, exported, backed up or removed on their own, and one
+ * store's uploads never sit among another's. The storage plugin keeps this field and joins it
+ * under the collection prefix; it is the form's default, so uploads straight from the browser
+ * (S3_CLIENT_UPLOADS) land in the same folder as uploads through the server. Files uploaded
+ * before keep the folder they were stored in.
+ */
+const storeFolderField: TextField = {
+  name: 'prefix',
+  type: 'text',
+  admin: { hidden: true },
+  defaultValue: ({ req, user }: { req: PayloadRequest; user?: unknown }) => {
+    const session = storeSessionOf(user)
+    if (session) return session.tenantId
+    const stores = tenantIdsWithRoles(user, MEDIA_WRITE)
+    const selected = req?.headers ? getTenantFromCookie(req.headers, 'text') : null
+    return selected && stores.includes(String(selected)) ? String(selected) : stores[0]
+  },
+}
 
 /** Payload serves files at /api/media/file/<name>; anyone may fetch a file, nobody may list. */
 const isFileRequest = (req: PayloadRequest) =>
@@ -47,8 +76,9 @@ export const Media: CollectionConfig = {
   },
   access: {
     read: async (args) => {
-      // Product photos must load for shoppers; listing the library stays staff-only per store
-      if (!args.req.user && isFileRequest(args.req)) return true
+      // Files are public by address (shoppers, previews, signed-in staff of any workspace alike,
+      // docs/12 "Media"); listing the library stays staff-only per store
+      if (isFileRequest(args.req)) return true
       return tenantRoleOrPlatform({ roles: ANY_STORE_ROLE, supportCanAccess: true })(args)
     },
     create: tenantRoleOrPlatform({ roles: MEDIA_WRITE }),
@@ -103,6 +133,7 @@ export const Media: CollectionConfig = {
         isImage(data?.mimeType) && !value?.trim() ? 'Alt text is required for images' : true,
     },
     { name: 'caption', type: 'text' },
+    storeFolderField,
   ],
   hooks: {
     beforeOperation: [

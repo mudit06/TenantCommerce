@@ -91,6 +91,30 @@ screens and one set of rules:
 Implement both as a platform-admin session scoped to one tenant (`actingTenant` in the session),
 so every access check and query still filters on that one tenant.
 
+**As built (4 October 2026).** The session is `users.storeSession` (store, mode, reason, start,
+end), opened from the vendor overview ("Manage store", "View as support") through
+`POST /api/admin/v1/platform/store-session` and ended from the banner. The admin is split into
+two workspaces (`src/admin/workspace.ts`, `src/access/storeSession.ts`):
+
+- **Platform panel**: what our team sees without a session. Only platform screens (vendors,
+  plans, subscriptions, team, staff users); store screens are hidden and their addresses answer
+  "not found". Access gives platform staff **no store data at all** outside a session, except
+  feature switches (platform data kept per store, `platformOutsideStore`). Platform services keep
+  using the Local API with `overrideAccess`, so onboarding, billing and the vendor tabs are
+  unchanged.
+- **Store CMS**: what a store's staff see, and our team during a session: the same menu, screens
+  and feature switches as that store's own staff, with the platform screens hidden. Access is
+  scoped to the session's store (`tenantRoleOrPlatform`, `featureGatedAccess`); `view` is
+  read-only. Every create, update and delete during `manage` writes `store_managed_change` to
+  `audit-logs` with the session's reason (`src/hooks/storeSessionAudit.ts`); opening and ending
+  write `support_access`. Pages and products also show "(platform team)" as their last editor.
+- The session is per account, not per browser tab: opening a store switches every tab of that
+  login to it, and "End session" (or the 2 hours running out) brings them all back to the
+  platform panel. Opening a second store ends the first.
+- Known limit: a scheduled publish runs as the person who scheduled it. If our team scheduled it
+  during a session that has ended by then, the job is refused; staff of the store should
+  schedule, or the admin re-schedules from a new session.
+
 Implement as functions in `src/access/` (`isPlatformAdmin`, `hasTenantRole(roles)`,
 `tenantRoleOrPlatform(roles)`), composed per collection. Never inline role strings in collections;
 import from `src/access/roles.ts`.

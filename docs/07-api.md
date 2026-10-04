@@ -225,6 +225,8 @@ Guests keep the wishlist on the device; the kit stores product ids only and call
 | GET | `/reports/offers?from=&to=` | Per scheme and coupon: orders, sales, discount given, new customers |
 | GET | `/reports/affiliates?from=&to=` | Per affiliate: clicks, orders, sales, commission by status |
 | GET | `/reports/abandoned-carts?from=&to=` | Carts abandoned, reminded, recovered, recovered sales |
+| POST | `/platform/store-session` | Platform staff: `{ tenantId, mode: 'manage'|'view', reason }` opens that store's CMS for 2 hours (docs/05). `manage` is super admin only; the reason (5 to 300 characters) and the start go to the store's audit log. Points the store selector cookie at the store |
+| DELETE | `/platform/store-session` | Platform staff: ends the open store session (logged) and clears the store selector cookie |
 | POST | `/platform/tenants` | Super admin: onboard a vendor (body = `onboardingSchema` in `src/modules/tenancy/schemas.ts`); returns the store id, never the invite link |
 | POST | `/platform/tenants/:id/activate` / `suspend` / `resume` / `archive` | Super admin: `{ reason? }`, required for suspend and archive; lifecycle in docs/04 |
 | PATCH | `/platform/tenants/:id/features` | Super admin: `{ key, enabled, cascade? }`. Without `cascade` a dependency problem answers 409 `FEATURE_DEPENDENCY` so the screen can ask first; 422 `FEATURE_NOT_IN_PLAN` / `FEATURE_NOT_AVAILABLE` (Phase 2) |

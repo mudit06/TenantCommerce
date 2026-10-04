@@ -3,8 +3,9 @@ import type { Access } from 'payload'
 import {
   idOf,
   isPlatformStaff,
-  platformRoleOf,
+  platformTenantAccess,
   scopedToTenants,
+  storeSessionOf,
   tenantIdsWithRoles,
   type TenantRole,
 } from '@/access'
@@ -14,9 +15,12 @@ type Membership = { tenant?: unknown; roles?: readonly string[] | null }
 
 /**
  * Whether any of the user's stores has `feature` on, read from the populated memberships
- * (`users.auth.depth` 1). Synchronous so Payload's `admin.hidden` can use it.
+ * (`users.auth.depth` 1). Synchronous so Payload's `admin.hidden` can use it. Our team in a store
+ * session sees what that store's own staff see.
  */
 export function userHasFeature(user: unknown, feature: FeatureKey): boolean {
+  const session = storeSessionOf(user)
+  if (session) return session.enabledFeatures ? session.enabledFeatures.includes(feature) : true
   if (isPlatformStaff(user)) return true
   const memberships = (user as { tenants?: Membership[] | null } | null)?.tenants ?? []
   return memberships.some((row) => {
@@ -32,8 +36,8 @@ export const hiddenWithoutFeature =
     !userHasFeature(user, feature)
 
 /**
- * Collection access for an optional feature's data: our team as usual, store staff with one
- * of `roles` only in stores where the feature is enabled. A switched-off feature's data stays in
+ * Collection access for an optional feature's data: store staff with one of `roles`, and our team
+ * in a store session, only in stores where the feature is enabled. A switched-off feature's data stays in
  * the database but answers nothing (docs/08).
  */
 export const featureGatedAccess =
@@ -47,10 +51,13 @@ export const featureGatedAccess =
     supportCanAccess?: boolean
   }): Access =>
   async ({ req, data }) => {
-    const role = platformRoleOf(req.user)
-    if (role === 'super-admin') return true
-    if (role === 'support') return supportCanAccess
-    const ids = tenantIdsWithRoles(req.user, roles)
+    const platform = platformTenantAccess(req.user, { read: supportCanAccess }, data)
+    const ids =
+      platform === null
+        ? tenantIdsWithRoles(req.user, roles)
+        : platform === false
+          ? []
+          : [storeSessionOf(req.user)!.tenantId]
     if (ids.length === 0) return false
     const { docs } = await req.payload.find({
       collection: 'tenants',

@@ -8,6 +8,7 @@ import type { Plan, Tenant } from '@/payload-types'
 
 import {
   createPlatformUser,
+  inStoreSession,
   onboardingInput,
   reqAs,
   seedPlans,
@@ -135,18 +136,66 @@ describe('catalog isolation and roles', () => {
     ).rejects.toThrow()
   })
 
-  it('lets support read every store but change nothing', async () => {
-    const { totalDocs } = await payload.count({
+  it('gives our team no store data outside a store session (docs/05)', async () => {
+    for (const user of [admin, support]) {
+      // Access answers "no": Payload refuses the read outright
+      await expect(
+        payload.count({ collection: 'categories', user, overrideAccess: false }),
+      ).rejects.toThrow()
+    }
+    await expect(
+      payload.create({
+        collection: 'categories',
+        data: { tenant: idA(), name: 'Outside a session' },
+        user: admin,
+        overrideAccess: false,
+      }),
+    ).rejects.toThrow()
+  })
+
+  it('lets View as support read one store and change nothing', async () => {
+    const viewing = inStoreSession(support, idA(), 'view')
+    const { docs } = await payload.find({
       collection: 'categories',
-      user: support,
+      user: viewing,
       overrideAccess: false,
+      depth: 0,
     })
-    expect(totalDocs).toBeGreaterThan(0)
+    expect(docs.length).toBeGreaterThan(0)
+    expect(new Set(docs.map((doc) => String(doc.tenant)))).toEqual(new Set([idA()]))
     await expect(
       payload.create({
         collection: 'categories',
         data: { tenant: idA(), name: 'By support' },
-        user: support,
+        user: viewing,
+        overrideAccess: false,
+      }),
+    ).rejects.toThrow()
+  })
+
+  it('lets a super admin managing a store edit that store only, audited', async () => {
+    const managing = inStoreSession(admin, idA(), 'manage')
+    const created = await payload.create({
+      collection: 'categories',
+      data: { tenant: idA(), name: 'Set up by platform' },
+      user: managing,
+      overrideAccess: false,
+    })
+    const { docs: logs } = await payload.find({
+      collection: 'audit-logs',
+      where: {
+        and: [
+          { action: { equals: 'store_managed_change' } },
+          { docId: { equals: String(created.id) } },
+        ],
+      },
+    })
+    expect(logs[0]).toMatchObject({ reason: 'Integration test', actingAsPlatform: true })
+    await expect(
+      payload.create({
+        collection: 'categories',
+        data: { tenant: idB(), name: 'Other store' },
+        user: managing,
         overrideAccess: false,
       }),
     ).rejects.toThrow()

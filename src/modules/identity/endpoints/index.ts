@@ -6,6 +6,11 @@ import { apiHandler, assertSameOrigin, ok, readBody, routeParam } from '@/lib/ht
 
 import { inviteInputSchema, inviteStaff, resendInvite } from '../services/invites'
 import {
+  endStoreSession,
+  startStoreSession,
+  startStoreSessionSchema,
+} from '../services/storeSession'
+import {
   changeStaffRoles,
   removeFromStore,
   staffRolesSchema,
@@ -16,8 +21,44 @@ const requireUser = (req: Parameters<Endpoint['handler']>[0]) => {
   if (!req.user) throw new AppError('UNAUTHENTICATED', 'Sign in first', 401)
 }
 
+/**
+ * The multi-tenant plugin's selected-store cookie (read by its list filters and new documents).
+ * A store session points it at the opened store; ending one clears it.
+ */
+const selectedStoreCookie = (tenantId: string | null) =>
+  tenantId
+    ? `payload-tenant=${encodeURIComponent(tenantId)}; Path=/; SameSite=Lax`
+    : 'payload-tenant=; Path=/; SameSite=Lax; Max-Age=0'
+
+const withCookie = (response: Response, cookie: string) => {
+  response.headers.append('Set-Cookie', cookie)
+  return response
+}
+
 /** Staff invites (docs/07 admin endpoints). Accepting uses Payload's /admin/reset/:token page. */
 export const identityEndpoints: Endpoint[] = [
+  {
+    // "Manage store" / "View as support" (docs/05): opens one store's CMS for 2 hours
+    path: '/admin/v1/platform/store-session',
+    method: 'post',
+    handler: apiHandler(async (req) => {
+      requireUser(req)
+      assertSameOrigin(req)
+      const input = await readBody(req, startStoreSessionSchema)
+      const result = await withTransaction(req, () => startStoreSession(req, input))
+      return withCookie(ok(result, 201), selectedStoreCookie(result.tenantId))
+    }),
+  },
+  {
+    path: '/admin/v1/platform/store-session',
+    method: 'delete',
+    handler: apiHandler(async (req) => {
+      requireUser(req)
+      assertSameOrigin(req)
+      const result = await withTransaction(req, () => endStoreSession(req))
+      return withCookie(ok(result), selectedStoreCookie(null))
+    }),
+  },
   {
     path: '/admin/v1/staff/invites',
     method: 'post',

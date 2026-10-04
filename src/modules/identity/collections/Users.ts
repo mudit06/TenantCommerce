@@ -1,11 +1,14 @@
 import { APIError, type CollectionConfig } from 'payload'
 
 import {
+  fieldPlatformStaffOnly,
   fieldSuperAdminOnly,
   isPlatformStaff,
   isSuperAdmin,
   PLATFORM_ROLE_LABELS,
   PLATFORM_ROLES,
+  STORE_SESSION_MODE_LABELS,
+  STORE_SESSION_MODES,
   superAdminOnly,
   tenantIdsWithRoles,
   USER_STATUSES,
@@ -104,6 +107,29 @@ export const Users: CollectionConfig = {
       type: 'date',
       admin: { position: 'sidebar', readOnly: true },
       access: { create: () => false, update: () => false },
+    },
+    {
+      // "Manage store" / "View as support" (docs/05): written only by the store-session service
+      // (identity/services/storeSession), which checks the role and records the reason
+      name: 'storeSession',
+      label: 'Store session',
+      type: 'group',
+      admin: { hidden: true },
+      access: { read: fieldPlatformStaffOnly, create: () => false, update: () => false },
+      fields: [
+        { name: 'tenant', type: 'relationship', relationTo: 'tenants' },
+        {
+          name: 'mode',
+          type: 'select',
+          options: STORE_SESSION_MODES.map((value) => ({
+            value,
+            label: STORE_SESSION_MODE_LABELS[value],
+          })),
+        },
+        { name: 'reason', type: 'text' },
+        { name: 'startedAt', type: 'date' },
+        { name: 'endsAt', type: 'date' },
+      ],
     },
   ],
   hooks: {

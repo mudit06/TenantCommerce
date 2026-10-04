@@ -565,6 +565,13 @@ export interface User {
   lastLoginAt?: string | null;
   invitedBy?: (string | null) | User;
   invitedAt?: string | null;
+  storeSession?: {
+    tenant?: (string | null) | Tenant;
+    mode?: ('manage' | 'view') | null;
+    reason?: string | null;
+    startedAt?: string | null;
+    endsAt?: string | null;
+  };
   tenants?:
     | {
         tenant: string | Tenant;
@@ -658,11 +665,6 @@ export interface Page {
   id: string;
   tenant?: (string | null) | Tenant;
   title: string;
-  /**
-   * Filled from the title. Store address: /pages/<slug>. The home page uses “home”.
-   */
-  slug?: string | null;
-  template: 'default' | 'landing' | 'policy';
   layout?:
     | (
         | HeroBlock
@@ -682,6 +684,13 @@ export interface Page {
       )[]
     | null;
   seo?: Seo;
+  template: 'default' | 'landing' | 'policy';
+  /**
+   * Filled from the title. Store address: /pages/<slug>. The home page uses “home”.
+   */
+  slug?: string | null;
+  publishedAt?: string | null;
+  lastEditedBy?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -916,6 +925,7 @@ export interface Product {
    */
   purchaseMode: 'buy' | 'enquire' | 'both';
   isFeatured?: boolean | null;
+  lastEditedBy?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1523,6 +1533,7 @@ export interface AuditLog {
   actorRole?: string | null;
   action:
     | 'support_access'
+    | 'store_managed_change'
     | 'store_created'
     | 'store_status_changed'
     | 'feature_changed'
@@ -1977,6 +1988,7 @@ export interface ProductsSelect<T extends boolean = true> {
   status?: T;
   purchaseMode?: T;
   isFeatured?: T;
+  lastEditedBy?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2160,8 +2172,6 @@ export interface MediaSelect<T extends boolean = true> {
 export interface PagesSelect<T extends boolean = true> {
   tenant?: T;
   title?: T;
-  slug?: T;
-  template?: T;
   layout?:
     | T
     | {
@@ -2181,6 +2191,10 @@ export interface PagesSelect<T extends boolean = true> {
         brandStory?: T | BrandStoryBlockSelect<T>;
       };
   seo?: T | SeoSelect<T>;
+  template?: T;
+  slug?: T;
+  publishedAt?: T;
+  lastEditedBy?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -2696,6 +2710,15 @@ export interface UsersSelect<T extends boolean = true> {
   lastLoginAt?: T;
   invitedBy?: T;
   invitedAt?: T;
+  storeSession?:
+    | T
+    | {
+        tenant?: T;
+        mode?: T;
+        reason?: T;
+        startedAt?: T;
+        endsAt?: T;
+      };
   tenants?:
     | T
     | {

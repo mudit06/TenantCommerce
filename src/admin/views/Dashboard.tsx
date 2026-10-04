@@ -1,30 +1,20 @@
 import type { AdminViewServerProps } from 'payload'
 
-import { isPlatformStaff, isSuperAdmin, tenantIdsWithRoles } from '@/access'
-import { PlatformDashboard, StoreDashboard } from '@/modules/tenancy/admin'
+import { isSuperAdmin, workspaceOf } from '@/access'
+import { PlatformDashboard } from '@/modules/tenancy/admin'
 
-import { StoreSetup } from './StoreSetup'
+import { StoreHome } from './StoreHome'
 
-/** /admin: our team sees the platform dashboard, vendor staff see their store. */
-export async function Dashboard(props: AdminViewServerProps) {
-  const { req } = props.initPageResult
+/**
+ * /admin: the platform dashboard for our team, the store dashboard for a store's staff and for
+ * our team while a store session is open (docs/05).
+ */
+export async function Dashboard({ initPageResult }: AdminViewServerProps) {
+  const { req, permissions } = initPageResult
   const user = req.user
-  const name = (user && 'name' in user && typeof user.name === 'string' && user.name) || 'there'
-  if (isPlatformStaff(user)) {
+  if (workspaceOf(user) === 'platform') {
+    const name = (user && 'name' in user && typeof user.name === 'string' && user.name) || 'there'
     return <PlatformDashboard canEdit={isSuperAdmin(user)} payload={req.payload} userName={name} />
   }
-  return (
-    <StoreDashboard
-      extra={(tenant) => (
-        <StoreSetup
-          enabledFeatures={tenant.enabledFeatures}
-          payload={req.payload}
-          tenantId={tenant.id}
-        />
-      )}
-      payload={req.payload}
-      tenantIds={tenantIdsWithRoles(user)}
-      userName={name}
-    />
-  )
+  return <StoreHome payload={req.payload} permissions={permissions} user={user} />
 }

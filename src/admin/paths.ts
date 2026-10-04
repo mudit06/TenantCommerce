@@ -15,6 +15,11 @@ export const adminUrl = {
   user: (id: string | number) => `${ADMIN}/collections/users/${id}`,
   team: `${ADMIN}/team`,
   staff: `${ADMIN}/staff`,
+  /** Choose a page type before the editor opens (Pages "Create page") */
+  newPage: `${ADMIN}/new-page`,
+  pages: `${ADMIN}/collections/pages`,
+  page: (id: string | number) => `${ADMIN}/collections/pages/${id}`,
+  createPage: (template: string) => `${ADMIN}/collections/pages/create?template=${template}`,
   collection: (slug: string) => `${ADMIN}/collections/${slug}`,
   create: (slug: string) => `${ADMIN}/collections/${slug}/create`,
 }

@@ -9,4 +9,10 @@ export {
   type InviteResult,
 } from './services/invites'
 export { changeStaffRoles, removeFromStore } from './services/membership'
+export {
+  endStoreSession,
+  startStoreSession,
+  type StartStoreSessionInput,
+  type StoreSessionResult,
+} from './services/storeSession'
 export { INVITE_VALID_HOURS, MIN_PASSWORD_LENGTH } from './constants'

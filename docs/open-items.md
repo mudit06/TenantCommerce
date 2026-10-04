@@ -47,8 +47,8 @@ The super admin panel is built (README status). These came up while building it:
 | Two-step login for platform admins (spike 4 above) | Deferred by mudit on 3 October 2026; the Team screen says so. Password policy, lockout and 8-hour sessions are in | Pick `payload-totp` or our own TOTP before real vendor data goes live |
 | Per-vendor "Allowed" connector switch (super admin Connectors tab) | The tab shows what the plan allows. docs/06 has no field for a per-vendor allow switch under the plan | Decide: the plan is the only ceiling (simplest), or add `tenants.allowedConnectors` |
 | Invite links | Reuse Payload's reset-password token (72 h, single use). Payload stores it unhashed, docs/05 says hashed | Accept, or write our own invite token (small job) |
-| Admin fonts | Plus Jakarta Sans and IBM Plex Mono load from Google Fonts in the admin | Self-host them (no third-party request, simpler CSP) when the storefront kit adds fonts |
-| Manage store and View as support | Not built yet: it needs the vendor CMS collections to be useful | Next platform task, with the reason prompt, 2-hour session, banner and audit (docs/05) |
+| Admin fonts | Plus Jakarta Sans is self-hosted (@fontsource) since 4 October 2026; code text uses the system monospace font | — |
+| Scheduled publish after a store session ends | A publish scheduled by our team during "Manage store" runs as that admin; once the session has ended the job is refused (docs/05 "As built") | Accept (store staff schedule their own pages), or let jobs run as the store |
 | Git hosting | Code lives on GitHub (`mudit06/tenantcommerce`), recorded in docs/00 | Hosted CI to replace the local `pnpm verify` |
 | Content-Security-Policy on the storefront | Other security headers are set in `src/proxy.ts` | A CSP with per-request nonces (Next inline scripts, analytics IDs from settings, Razorpay later) |
 | Primary domain redirect | `tenant-domains.redirectToPrimary` is stored, not acted on | 301 to the primary host in the storefront layout or proxy, with custom domains (Phase 2) |

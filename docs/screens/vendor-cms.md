@@ -34,6 +34,15 @@ carts, Affiliates, Reviews) · Content (Pages, Navigation) · Store (Dealers, Sh
 WhatsApp and SMS, Order updates, Settings, Staff and roles) · Insights (Reports) · Modules (Phase 2,
 only when switched on: Service requests, Trade accounts, Loyalty points).
 
+**As built (4 October 2026, `src/admin/nav/menu.ts`), grouped as mudit asked:** Dashboard ·
+Content (Pages, Media, Menus, Banners) · Commerce (Products, Variants, Categories, Attribute sets,
+Brands, Documents) · Engagement (Enquiries, Dealers) · Settings (Store settings, Staff and roles).
+Sales, Marketing and Insights entries join these groups as their screens are built. Pages shows
+the number of drafts and Enquiries the number of new ones. The store's name sits at the top of
+the menu (a switcher for staff of several stores), the signed-in person at the bottom; the menu
+collapses to icons with tooltips. The platform panel has its own menu and never appears inside
+a store's CMS (docs/05 "As built").
+
 ## Rules that apply to every screen
 
 - Every query is filtered by `tenant` (`docs/04`). Money: type rupees, store integer paise.
@@ -67,6 +76,15 @@ One TenantEcom theme applied to Payload's admin through its custom CSS variables
 
 Type: Plus Jakarta Sans (UI), IBM Plex Mono (order numbers, SKUs, codes). Cards 12 px radius with a
 light shadow; buttons and inputs 8 px radius; status pills are soft-coloured with a dot.
+
+**As built (4 October 2026, `src/app/(payload)/styles`).** The brand, text, status and surface
+tokens above are kept. The sidebar is now light (`#FBFBFC`, active row brand soft with a brand
+bar; dark theme `#0C1117`) so the content leads, and Payload's own grey scale is re-tinted to the
+same cool slate so its screens (lists, editors, drawers, sign-in) match ours. Plus Jakarta Sans
+is self-hosted; code text uses the system monospace font. Content status is always icon plus
+words (Draft, Published, Scheduled, Unpublished changes), never colour alone. Shared pieces live
+in `src/admin/ui` (page header, button links, badges, empty states, skeletons, confirm dialog,
+icons); new screens use them rather than their own styles.
 
 ## Phase notes as of 3 October 2026
 

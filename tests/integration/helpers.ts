@@ -79,3 +79,19 @@ export const onboardingInput = (
   },
   owner: { name: `Owner ${slug}`, email: overrides.ownerEmail, sendInvite: false },
 })
+
+/** The user as our team member with an open store session (docs/05), for Local API calls. */
+export const inStoreSession = (
+  user: TestUser,
+  tenantId: string,
+  mode: 'manage' | 'view',
+): TestUser => ({
+  ...user,
+  storeSession: {
+    tenant: tenantId,
+    mode,
+    reason: 'Integration test',
+    startedAt: new Date().toISOString(),
+    endsAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+  },
+})
