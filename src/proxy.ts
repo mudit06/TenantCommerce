@@ -1,7 +1,12 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 import { verifyPreviewToken } from '@/lib/preview-token'
-import { PREVIEW_PAGE_HEADER, PREVIEW_PREFIX, STORE_HOST_HEADER } from '@/storefront/constants'
+import {
+  PREVIEW_PAGE_HEADER,
+  PREVIEW_PREFIX,
+  PUBLIC_PROTOCOL,
+  STORE_HOST_HEADER,
+} from '@/storefront/constants'
 
 // Next 16 proxy (docs/01 "Request flow: storefront page"). A request on a store's domain is
 // rewritten to /<host>/<path>, served by src/app/(storefront)/[tenant]; the store is looked up
@@ -48,7 +53,9 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   if (ADMIN_HOSTS.has(host)) {
-    if (pathname === '/') return NextResponse.redirect(new URL('/admin', request.url))
+    // Not request.url: behind a reverse proxy it holds the server's own address (127.0.0.1:3000)
+    if (pathname === '/')
+      return NextResponse.redirect(`${PUBLIC_PROTOCOL}://${request.headers.get('host')}/admin`)
     // Our internal headers are only ever set below, for a store's own domain: a copy sent by a
     // browser to the admin host must not open a store's pages there
     const headers = new Headers(request.headers)

@@ -55,6 +55,7 @@ messaging (WhatsApp, SMS, email) providers are connectors behind one interface e
 | docs/16-conventions-and-testing.md | before opening any PR |
 | docs/17-roadmap.md | deciding whether a feature is MVP, Phase 2 or Later |
 | docs/18-notifications.md | sending shoppers order updates or offer messages (campaigns, abandoned cart, review requests) on WhatsApp, SMS or email; templates, opt-in |
+| docs/19-hosting-and-domains.md | deploying to a server (Vercel or a VPS such as GoDaddy), DNS, SSL, pointing a vendor's domain at its store |
 | docs/open-items.md | starting work: decisions and spikes still open (don't build on an open item) |
 | research/features.html | product research on competitor sites (human-readable) |
 | docs/screens/super-admin.md | building any super admin (platform panel) screen: per-screen spec |

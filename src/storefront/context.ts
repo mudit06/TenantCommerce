@@ -5,7 +5,7 @@ import { cache } from 'react'
 import { getCategoryTree } from '@/lib/data/catalog'
 import { getStoreByHost, getStoreContent } from '@/lib/data/store'
 
-import { STORE_HOST_HEADER } from './constants'
+import { PUBLIC_PROTOCOL, STORE_HOST_HEADER } from './constants'
 import { getVendorUI } from './registry'
 
 /**
@@ -24,8 +24,7 @@ export const getStoreContext = cache(async (hostParam: string) => {
     getVendorUI(store.slug),
     getCategoryTree(store.tenantId),
   ])
-  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
-  const origin = `${protocol}://${requestHeaders.get('host') ?? host}`
+  const origin = `${PUBLIC_PROTOCOL}://${requestHeaders.get('host') ?? host}`
   return {
     store,
     ...content,

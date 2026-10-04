@@ -3,7 +3,7 @@
 The single place to check build status. Update it in the same commit as the work (docs/16
 definition of done). Screen ids match `docs/screens/*.md` and the wireframes.
 
-Last updated: 4 October 2026 (admin redesign, Manage store and View as support). Nothing is deployed anywhere yet; the code runs
+Last updated: 4 October 2026 (admin redesign, Manage store and View as support; hosting guide, docs/19). Nothing is deployed anywhere yet; the code runs
 locally (README).
 
 ## At a glance
@@ -144,6 +144,7 @@ Also built: CMS and policy pages (`/pages/<slug>`), per-store `robots.txt` and `
 | Item | Status |
 |---|---|
 | Project setup: TypeScript strict, ESLint, Prettier, Vitest, Docker image, `pnpm verify` | Done |
+| Hosting | Not deployed. Server guide written (docs/19: VPS with Docker and Caddy, GoDaddy notes, vendor domains); the Docker image now ships `public/`, and the admin `/` redirect, sitemap and robots.txt build https addresses from the Host header so they work behind a reverse proxy (4 October 2026). Left: choose Vercel or a VPS, a form for custom domains (Phase 2) |
 | Tenant isolation: plugin + role access + integration tests | Done for every collection that exists; each new collection adds its test |
 | Staff accounts, roles, invites, lockout, password policy | Done |
 | Two-step login (TOTP) | Deferred by mudit (3 October 2026); needed before real vendor data goes live |

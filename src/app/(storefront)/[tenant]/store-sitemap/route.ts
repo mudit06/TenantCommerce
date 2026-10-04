@@ -1,5 +1,6 @@
 import { getCategoryTree, getProductsInCategories } from '@/lib/data/catalog'
 import { getStoreByHost } from '@/lib/data/store'
+import { PUBLIC_PROTOCOL } from '@/storefront/constants'
 import { productHref } from '@/storefront/kit/links'
 
 const escape = (text: string) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -11,7 +12,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ tena
   const host = decodeURIComponent((await params).tenant)
   const store = await getStoreByHost(host)
   if (!store || store.status !== 'active') return new Response('Not found', { status: 404 })
-  const origin = `${new URL(request.url).protocol}//${request.headers.get('host') ?? host}`
+  const origin = `${PUBLIC_PROTOCOL}://${request.headers.get('host') ?? host}`
   const tree = await getCategoryTree(store.tenantId)
   const products = await getProductsInCategories(
     store.tenantId,

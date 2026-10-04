@@ -9,3 +9,10 @@ export const PREVIEW_PAGE_HEADER = 'x-te-preview-page'
 
 /** Path prefix of draft previews on a store's domain (src/app/(storefront)/[tenant]/preview). */
 export const PREVIEW_PREFIX = '/preview/pages/'
+
+/**
+ * Scheme of public addresses. Production always sits behind HTTPS (Vercel, or Caddy on a server,
+ * docs/19), where the app itself sees plain http and its own address in `request.url`, so links
+ * and redirects are built from this and the Host header instead.
+ */
+export const PUBLIC_PROTOCOL = process.env.NODE_ENV === 'production' ? 'https' : 'http'

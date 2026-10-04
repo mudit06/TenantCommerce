@@ -1,4 +1,5 @@
 import { getStoreByHost } from '@/lib/data/store'
+import { PUBLIC_PROTOCOL } from '@/storefront/constants'
 
 export const dynamic = 'force-dynamic'
 
@@ -6,7 +7,7 @@ export const dynamic = 'force-dynamic'
 export async function GET(request: Request, { params }: { params: Promise<{ tenant: string }> }) {
   const host = decodeURIComponent((await params).tenant)
   const store = await getStoreByHost(host)
-  const origin = `${new URL(request.url).protocol}//${request.headers.get('host') ?? host}`
+  const origin = `${PUBLIC_PROTOCOL}://${request.headers.get('host') ?? host}`
   const body =
     store?.status === 'active'
       ? `User-agent: *\nAllow: /\nDisallow: /search\nDisallow: /api/\nDisallow: /admin\n\nSitemap: ${origin}/sitemap.xml\n`

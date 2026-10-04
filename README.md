@@ -18,6 +18,7 @@ Nothing is deployed yet.
 - `docs/00-overview.md`: decisions, glossary, phases
 - `docs/01-architecture.md`: modular monolith, request flow, module map
 - `research/features.html`: competitor feature research (open in a browser)
+- `docs/19-hosting-and-domains.md`: putting it on a server (requirements, VPS step by step, GoDaddy), and how vendor domains reach their store
 - `docs/wireframes/`: clickable wireframes of the super admin, vendor CMS and storefront (see its README)
 
 ## Run it locally
