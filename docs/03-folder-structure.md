@@ -1,7 +1,7 @@
 # 03 Folder structure
 
-The empty skeleton already exists on disk (folders hold a `.gitkeep`). Put new files where this
-document says. If something has no obvious home, ask before creating a new top-level folder.
+Put new files where this document says; folders are created as code lands in them. If something
+has no obvious home, ask before creating a new top-level folder.
 
 ```
 Ecom/
@@ -51,6 +51,13 @@ Ecom/
    │  │     ├─ compare/          # Product compare (Phase 2)
    │  │     └─ b2b/              # Trade portal for dealers, retailers, wholesalers, designers (Phase 2)
    │  └─ (platform)/             # Our own marketing site / status pages (optional)
+   ├─ hooks/                     # As built: revalidateStorefront (clears a store's cached pages),
+   │                             # storeSessionAudit (logs our team's changes in a store, docs/05)
+   ├─ admin/                     # Shared admin shell: nav/ (one menu per workspace), session/ (the
+   │                             # platform session banner), views/ (the /admin dashboards),
+   │                             # ui/ (te-* primitives, icons, dialog), workspace.ts (platform
+   │                             # panel vs store CMS), store.ts (current store), URL helpers,
+   │                             # browser API helper. Styles: app/(payload)/styles
    ├─ collections/               # Thin re-exports: each file imports config from its module
    ├─ globals/                   # Platform-wide globals (platform settings)
    ├─ blocks/                    # CMS block schemas (data only). Rendering lives in storefront
@@ -60,6 +67,7 @@ Ecom/
    ├─ endpoints/                 # Payload custom endpoints (/api/store/*, /api/webhooks/*)
    ├─ jobs/                      # Payload job tasks and workflows (import, pdf, email, sync)
    ├─ modules/                   # Domain modules. Each: collections/, services/, events.ts, index.ts
+   │  ├─ features.ts             # Feature registry: collects every module's feature.ts (docs/08)
    │  ├─ tenancy/
    │  ├─ identity/
    │  ├─ catalog/
@@ -123,8 +131,11 @@ src/modules/<name>/
 ├─ services/         # Business logic. Pure where possible, take tenantId as first argument
 ├─ endpoints/        # Module's custom API endpoints (registered in payload.config)
 ├─ jobs/             # Module's job tasks
+├─ admin/            # Custom admin views and components for this module's screens; admin/index.ts
+│                    # exports what other modules' screens may reuse
+├─ schemas.ts        # zod input schemas shared by endpoints, scripts and admin forms (no server imports)
 ├─ events.ts         # Events this module emits and the handlers it registers
-├─ feature.ts        # Feature key + plan requirements (optional modules only)
+├─ feature.ts        # Feature keys, config schemas, dependencies (data only; the registry imports it)
 ├─ types.ts
 └─ index.ts          # PUBLIC API. Only this file may be imported by other modules
 ```
@@ -147,3 +158,16 @@ src/storefront/vendors/<vendor-slug>/
   `camelCase.ts` for other modules.
 - Collection slugs: plural kebab-case (`product-documents`). Field names: camelCase.
 - Vendor slug: lowercase kebab, permanent once created (it names the UI folder).
+
+## As built (3 October 2026)
+
+```
+src/storefront/
+├─ types.ts, registry.ts, context.ts   # VendorUI contract, vendor map, per-request store context
+├─ actions.ts                          # Server action for quote and contact forms
+├─ kit/                                # Shared kit: layout/, product/, listing/, blocks/, media, icons, ui
+└─ vendors/<slug>/index.ts             # Theme tokens and block overrides (default, home-orbit)
+src/lib/data/                          # Tenant-scoped, cached Local API reads for the storefront
+scripts/vendors/<slug>/                # A vendor's catalogue data, photos, brand files and seed script
+docs/vendors/<slug>.md                 # What a vendor sent, what we assumed, what is still needed
+```

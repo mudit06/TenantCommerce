@@ -18,6 +18,13 @@
   their own when the scheme ends. Changing the product's real price is a normal edit (and is
   written to `audit-logs`).
 - Ratings come from published reviews only (`products.ratingSummary`); staff can't type a rating.
+- **As built (3 October 2026):** a variant option (finish, size) is stored on the product as the
+  list of values it is offered in (`attributes.finish = ['antique', 'rose-gold']`); an option with
+  nothing ticked doesn't apply to that product. "Create variants for every combination" makes the
+  missing variants (at most 120) with a title ("8 inch · Antique") and a SKU
+  (`HOPH-504-8-INCH-ANTIQUE`). In catalogue mode the product page's finish and size pickers read
+  the offered values, so variants are only needed once prices and stock are. Category filters and
+  counts are computed in memory from the store's cached product list for that category.
 - Merch collections can be the target of a scheme or a coupon ("10% off the matt black range").
 
 ## CSV import (MVP)
@@ -82,5 +89,53 @@ filter from 1 July 2026 for e-commerce entities selling imported goods). Facet c
 
 ## Media
 
-Images uploaded to object storage; served through CDN with on-the-fly resizing (Cloudinary or
-`next/image` with a custom loader). Require alt text. Strip EXIF. Max 2000px stored.
+**As built (3 October 2026, `src/modules/content/collections/Media.ts`).**
+
+- **Where files live.** Production: S3-compatible object storage (Cloudflare R2 recommended, or
+  AWS S3 Mumbai) through `@payloadcms/storage-s3`, switched on by `S3_BUCKET`; shoppers load files
+  straight from the bucket's CDN domain (`MEDIA_PUBLIC_URL`), so image traffic never passes
+  through our app server or the database. Local development: the `media/` folder (git-ignored).
+  **MongoDB holds only each file's metadata** (name, size, dimensions, alt text, store), about
+  1 KB per file, never the bytes.
+- **One folder per store (4 October 2026).** New files go to `media/<tenantId>/<file>` in the
+  bucket (the `prefix` field's default, so browser uploads and server uploads agree). A store's
+  files can then be listed, backed up, exported for a DPDP request or removed with an archived
+  store without touching another store's; a bucket lifecycle rule or a CDN purge can target one
+  store. Files uploaded earlier keep `media/<file>` and keep working.
+- **Production guard.** `src/lib/mediaStorage.ts` checks at boot: on Vercel the app refuses to
+  start without `S3_BUCKET` (its disk is wiped on every deploy and differs between instances, so
+  uploads would vanish); elsewhere in production it warns. It also warns when `MEDIA_PUBLIC_URL`
+  is missing, because then every image is streamed through the app server.
+- **What is stored per image.** The upload is re-encoded to WebP at most 2000 px on the long side
+  (this also strips EXIF, including phone GPS), plus `thumb` 200, `card` 600 and `detail` 1200 px
+  WebP versions. The original serves as the zoom image. A 4 MB phone photo becomes roughly
+  300 KB (original), 120 KB (detail), 40 KB (card) and 8 KB (thumb); the storefront loads the
+  smallest size that fits (`card` on listings, `detail` on the product page).
+- **Limits.** 10 MB per image, 50 MB per PDF; JPEG, PNG, WebP, AVIF and PDF only. Every stored
+  byte (original plus sizes) counts against the plan's storage (`tenants.usage.storageBytes`); an
+  upload past the limit is refused. Alt text is required for images.
+- **Uploads on Vercel.** Vercel caps a request at 4.5 MB, so production sets `S3_CLIENT_UPLOADS`
+  and the browser sends the file straight to the bucket with a signed URL.
+- **Access.** Files are public by URL (shoppers must see product photos); listing the library is
+  staff-only, per store. Private files (shoppers' enquiry attachments, invoices) will use a
+  separate private collection with signed, expiring links.
+
+**Does storing MBs of images slow the store? (500 visitors an hour)** 500 visitors an hour who
+each open about 8 pages is about 4,000 page views an hour, roughly one a second. A listing page
+with 24 `card` images at about 40 KB is about 1 MB of images, served by the CDN from the edge
+nearest the shopper (Mumbai, Chennai, Delhi for R2 and CloudFront), not by our server. The
+database answers a small metadata query per page. At this traffic neither the app server nor
+MongoDB notices the images; image traffic is at most about 4 GB an hour (less once browsers and
+the CDN cache repeat views), which R2 serves without download fees. What would make a store slow
+is serving the multi-MB originals or storing files inside MongoDB; neither is done. Storage
+cost: a 2,000-product catalogue with 5 photos each is about 10,000 images, about 5 GB with all
+sizes: inside R2's free 10 GB, then about ₹1.30 per GB a month. Put the bucket on a custom
+domain behind Cloudflare's cache so repeat views don't count as bucket reads.
+
+**What still costs at higher load (reviewed 4 October 2026).** Serving is fine as above; the
+upload side is where load shows first. Each image upload is resized four times with sharp inside
+the request (a few hundred ms of CPU per photo), which is fine for staff uploading by hand but not
+for a 2,000-photo CSV import: that import should queue the resizing as a job (docs/15 worker).
+Storage totals are kept with an atomic `$inc`, so parallel uploads don't lose bytes. Before
+launch: give the bucket's files a long `Cache-Control` and purge the CDN when staff replace a
+file, and choose the production bucket (docs/open-items).

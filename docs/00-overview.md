@@ -23,6 +23,8 @@ installable (PWA) online store and CMS, run by our team on one shared codebase.
 | Onboarding | Platform team creates tenants and vendor logins. No self sign-up in MVP |
 | Market | India first (INR, GST). Code ready for multi-currency later |
 | Revenue | Monthly SaaS subscription per vendor. Billed manually in MVP, Razorpay Subscriptions in Phase 2 |
+| Plans (interim) | Starter ₹3,499 a month for up to 500 products; Enterprise ₹6,999 a month for up to 10,000 products. New Starter vendors start with ₹9,999 for the first 3 months, then pay monthly. Prices plus GST; staff, storage and order limits still placeholders. Editable in the admin (Billing, Plans), to be revised (mudit, 3 October 2026) |
+| Two-step login | Deferred for now; staff sign in with email and password, lockout and 8-hour sessions (mudit, 3 October 2026). Needed before real vendor data goes live |
 | Payments | Per-vendor connectors using the vendor's own gateway keys. Razorpay first. COD supported |
 | Shipping | Shiprocket connector in MVP (moved from Phase 2), on the vendor's own Shiprocket account: pincode serviceability, courier booking, labels, pickups, tracking, failed deliveries, RTO, return pickups. Manual shipping (zones, rates, tracking no.) stays for vendors without it. Shopper delivery charges come from the vendor's own rates |
 | Shopper messages | Order updates (confirmed, packed, shipped, out for delivery, delivered...) on WhatsApp, SMS and email in MVP, sent from each vendor's own WhatsApp number and SMS sender on the vendor's own accounts (ADR 0005, docs/18) |
@@ -43,7 +45,9 @@ installable (PWA) online store and CMS, run by our team on one shared codebase.
 | Hosting | Vercel + MongoDB Atlas, Docker-ready for self-hosting |
 | Architecture | Modular monolith (see 01-architecture.md) |
 | Stack | Next.js 16 + Payload CMS 3 in one app on MongoDB, as listed in CLAUDE.md and docs/02. A NestJS backend with a separate React frontend was considered and not chosen (mudit, 3 October 2026) |
-| Repo | Local development only for now; no GitHub remote |
+| Commerce collections | Products, variants, carts, orders and transactions are our own Payload collections, not `@payloadcms/plugin-ecommerce` (ADR 0006, approved by mudit 3 October 2026) |
+| First vendor | Home Orbit (door hardware, key hangers, curtain brackets, bathroom accessories) launches as a catalogue with enquiries: products, sizes and finishes with "Request a quote" and WhatsApp, no online payment yet. Online selling follows in stage B (mudit, 3 October 2026) |
+| Repo | GitHub `mudit06/tenantcommerce` (private) |
 
 ## Glossary
 

@@ -20,10 +20,12 @@ wireframes. What is left: three product decisions, the Sprint 1 spikes, and chec
 | Live Shiprocket rates as the shopper's delivery fee | Checkout pricing | Same thread; the docs keep the vendor's own rate card |
 | Allow throwaway test code for the spikes below | Sprint 1 | The "no code yet" rule currently stops them |
 | The sheet's "Not Required" tab marks the page builder "Optional". The docs keep it core MVP; say if it should become a feature flag | Pages screens | "Feature sheet gap check" thread |
+| Media storage provider for production: Cloudflare R2 (no download fees, recommended) or AWS S3 Mumbai | Going live, not development (local disk works) | docs/12 "Media" |
 
 ## 2. Spikes for Sprint 1 (each ends in an ADR and doc updates)
 
-1. **Payload ecommerce plugin fit.** The plugin's shapes differ from docs/06 and docs/11: prices in
+1. **Payload ecommerce plugin fit.** Done: ADR 0006 accepted 3 October 2026, we own the
+   collections. The plugin's shapes differ from docs/06 and docs/11: prices in
    per-currency fields such as `priceInINR` (not `{ amountMinor, currency }`), its own
    `variantTypes`/`variantOptions` collections (not attribute-set axes), one `inventory` number
    lowered when an order is placed (not reserve-at-checkout), and cart endpoints under
@@ -36,9 +38,32 @@ wireframes. What is left: three product decisions, the Sprint 1 spikes, and chec
 4. **Staff two-step login.** Payload has none built in; pick a Payload 3 plugin (for example
    `payload-totp`) or write it (docs/02, docs/05).
 
+## 2b. Found while building the platform panel (3 October 2026)
+
+The super admin panel is built (README status). These came up while building it:
+
+| Item | What was done for now | Needs |
+|---|---|---|
+| Two-step login for platform admins (spike 4 above) | Deferred by mudit on 3 October 2026; the Team screen says so. Password policy, lockout and 8-hour sessions are in | Pick `payload-totp` or our own TOTP before real vendor data goes live |
+| Per-vendor "Allowed" connector switch (super admin Connectors tab) | The tab shows what the plan allows. docs/06 has no field for a per-vendor allow switch under the plan | Decide: the plan is the only ceiling (simplest), or add `tenants.allowedConnectors` |
+| Invite links | Reuse Payload's reset-password token (72 h, single use). Payload stores it unhashed, docs/05 says hashed | Accept, or write our own invite token (small job) |
+| Admin fonts | Plus Jakarta Sans is self-hosted (@fontsource) since 4 October 2026; code text uses the system monospace font | — |
+| Scheduled publish after a store session ends | A publish scheduled by our team during "Manage store" runs as that admin; once the session has ended the job is refused (docs/05 "As built") | Accept (store staff schedule their own pages), or let jobs run as the store |
+| Git hosting | Code lives on GitHub (`mudit06/tenantcommerce`), recorded in docs/00 | Hosted CI to replace the local `pnpm verify` |
+| Content-Security-Policy on the storefront | Other security headers are set in `src/proxy.ts` | A CSP with per-request nonces (Next inline scripts, analytics IDs from settings, Razorpay later) |
+| Primary domain redirect | `tenant-domains.redirectToPrimary` is stored, not acted on | 301 to the primary host in the storefront layout or proxy, with custom domains (Phase 2) |
+| Rate limits across instances | Enquiry limit in memory per server (`src/lib/rate-limit`) | Upstash Redis when the app runs on more than one instance (docs/14) |
+| Home Orbit's missing details | Store in draft with placeholders | docs/vendors/home-orbit.md "Still needed" |
+| Enquiry attachments (BOQs, drawings from shoppers) | Not stored yet: the media library's files are public, which is wrong for shoppers' documents | A private upload collection served through a signed, expiring link, built with the storefront enquiry form |
+| Category slug changes | Changing a slug changes the store address; no redirect is created yet | The `redirects` collection (docs/06), before the storefront goes live |
+| Dealer map position | Staff type latitude and longitude (from Google Maps) | Fill it from the pincode once the platform `pincodes` table is loaded (docs/06) |
+| Enquiry numbers | `ENQ-<n>` per store, taken outside the save's transaction so two enquiries at the same moment don't clash; a save that then fails leaves a gap | Fine for enquiries and orders. GST invoices must stay consecutive: take those inside the transaction with a retry (docs/11) |
+| Dependency audit | `undici` and `dompurify` (inside Payload) pinned to patched versions with pnpm overrides. One left: `braces` in the SCSS compiler's file watcher, no fix released, build-time only | Remove the overrides once Payload ships the patched versions; recheck `pnpm audit` on each upgrade |
+
 ## 3. Before launch (not blocking development)
 
-- Plan names, prices and limits (placeholders today), and what happens at the monthly order limit
+- Final plan prices and the staff, storage and order limits (interim prices set on 3 October 2026,
+  docs/00), and what happens at the monthly order limit
 - The platform domain, which must not contain "sr", "kr" or "shiprocket", or Shiprocket rejects the
   tracking webhook
 - A CA to confirm the GST rules now written into docs/11: delivery charge and COD fee at the goods'

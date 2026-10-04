@@ -84,9 +84,7 @@ webhook (`/api/webhooks/resend`) reports bounces and complaints back to `contact
 
 ## Razorpay (MVP)
 
-Payload's ecommerce plugin uses a payment adapter pattern and ships only a Stripe adapter, so we
-implement a Razorpay adapter that conforms to the plugin's adapter interface **and** our
-`PaymentConnector` interface (thin wrapper). A community `payload-razorpay` plugin exists but is
+Razorpay is our own `PaymentConnector` (ADR 0006: no ecommerce plugin, so no plugin adapter). A community `payload-razorpay` plugin exists but is
 not production ready; read it for reference only.
 
 Flow (Standard Checkout):

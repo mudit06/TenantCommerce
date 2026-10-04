@@ -65,9 +65,11 @@ What keeps it a *modular* monolith (and therefore splittable later):
 ## Request flow: storefront page
 
 1. Browser requests `https://shop.vendor-a.com/products/basin-mixer`.
-2. `src/proxy.ts` (Next 16 replacement for `middleware.ts`) reads the `host` header, looks up the
-   tenant in a cached host map (`tenant-domains`), and rewrites (not redirects) to
-   `/[tenant]/products/basin-mixer`, served by `src/app/(storefront)/[tenant]/`. The shopper's URL
+2. `src/proxy.ts` (Next 16 replacement for `middleware.ts`) reads the `host` header and rewrites
+   (not redirects) to `/<host>/products/basin-mixer`, served by `src/app/(storefront)/[tenant]/`
+   (the segment holds the host). The layout looks the store up from the host with a cached Local
+   API query (`getStoreByHost`, tag `tenant-domains`), so the proxy has no database code; it also
+   sets `x-te-store-host`, and a `/<host>/` path only answers on that host (as built, 3 October 2026). The shopper's URL
    never shows the slug. Reserved slugs (`admin`, `api`, `_next`, `platform`...) can't be tenant
    slugs. Unknown host -> 404 page.
    Suspended tenant -> "store unavailable" page.

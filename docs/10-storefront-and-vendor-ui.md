@@ -25,6 +25,11 @@ export async function getVendorUI(slug: string): Promise<VendorUI> {
 `VendorUI` contract (in `src/storefront/types.ts`): `Header`, `Footer`, `HomePage`,
 `CategoryPage`, `ProductPage`, `ProductCard`, `SearchPage`, `CartPage`, `CheckoutLayout`,
 `AccountLayout`, `NotFound`, `blocks: Record<BlockType, Component>`, `theme` (CSS file import).
+
+**As built (3 October 2026):** the contract has `theme` (colour, font and radius tokens set as CSS
+variables on `<html>`), `tagline` and `blocks` (own renderers for some block types; Home Orbit
+overrides `hero`). Page-level overrides (Header, ProductPage…) get added when a vendor's design
+needs them. Fonts are self-hosted with `@fontsource-variable/*` (no request to Google).
 Page files under `app/(storefront)/[tenant]/` are thin: load data, get UI, render.
 
 Use static `import()` maps (not string-built paths) so the bundler can code-split per vendor.
@@ -95,12 +100,26 @@ AffiliateDashboard. Phase 2: CompareToggle and CompareTable, TradePriceBlock, Lo
 ## New vendor checklist
 
 1. Create tenant via script/admin (docs/04).
-2. `cp -r src/storefront/vendors/_template src/storefront/vendors/<slug>`; register in `registry.ts`.
+2. Create `src/storefront/vendors/<slug>/index.ts` (copy `home-orbit`); register it in `registry.ts`.
+   Put the vendor's catalogue data, photos and seed in `scripts/vendors/<slug>/` and what they
+   sent and still owe in `docs/vendors/<slug>.md`.
 3. Set theme tokens and fonts; override only what the design needs (start with Header, Footer, Home).
 4. Configure attribute sets for their categories; import products via CSV.
 5. Enable modules per their plan; configure Razorpay; shipping zones; GST details; policies.
 6. Lighthouse mobile >= 90 on home, listing, product; run e2e smoke for that tenant.
 7. Point DNS / subdomain; go live checklist in docs/15.
+
+## What to collect from a new vendor
+
+Ask for these when the contract is signed; stage letters match docs/progress.md.
+
+| When | What |
+|---|---|
+| Onboarding | Legal name, GSTIN, registered address, support email and phone, WhatsApp number, grievance officer (name, designation, email, phone), owner's name and email |
+| Stage A (catalog) | Category tree; the attributes customers filter by per category (finish, size, material...); product sheet (Excel or CSV) with name, model number, SKU, variants, MRP, selling price, HSN, GST rate, weight, dimensions, stock, country of origin, maker or importer details; product images; spec sheets, manuals and catalogues (PDF); dealer and showroom list; policy texts (shipping, returns, privacy, terms, warranty) |
+| Storefront design | Logo (SVG or large PNG), brand colours and fonts, any existing website or Figma design, the domain they want |
+| Stage B (selling) | Razorpay account (test keys first), COD yes or no and its limits, Shiprocket account or their own couriers with a delivery rate card, order and invoice number prefixes, signature image for invoices; for WhatsApp and SMS updates, Meta Business and DLT paperwork (takes days, start early) |
+| Stage C (growth) | Which offers they run (festival schemes, coupons), affiliate program terms, review policy |
 
 ## Storefront page inventory
 

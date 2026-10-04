@@ -8,13 +8,9 @@ Conventions used below:
 - Every collection has Payload's `id`, `createdAt`, `updatedAt`. Soft-deletable collections have
   `deletedAt` (use Payload trash where supported).
 - `status` fields are enums; transitions are enforced in services, not just in the UI.
-- Plugin-provided collections (ecommerce plugin: products, variants, carts, orders, transactions,
-  addresses) are **extended** with the fields below via the plugin's override options. Do not fork
-  them. **Pending the Sprint 1 spike:** the plugin's own shapes differ from this document (prices
-  in per-currency fields such as `priceInINR`, its own `variantTypes`/`variantOptions`
-  collections, a single `inventory` number lowered when an order is placed, cart endpoints under
-  `/api/carts`). The spike decides whether we adopt those shapes or own these collections; record
-  it as an ADR and update this file before building catalog or cart (docs/open-items.md).
+- Products, variants, carts, orders, transactions and addresses are **our own collections**
+  (ADR 0006, approved 3 October 2026), not the ecommerce plugin's. "(extends ecommerce plugin)"
+  in older headings below is historical: the fields listed are the whole collection.
 
 ## Platform
 
@@ -26,23 +22,35 @@ CGST/SGST vs IGST), `industry` (`sanitary|locks|hardware|decor|clothing|other`, 
 (Asia/Kolkata), `supportEmail`, `supportPhone`, `whatsappNumber`, `dbRef` (default `shared`),
 `notes` (internal), `usage { productsCount, staffCount, storageBytes, ordersThisMonth, updatedAt }`
 (kept current by hooks on products, users and media plus the nightly stats job; drives the plan
-meters and the 90% warnings).
+meters and the 90% warnings; the staff meter counts `users` live), `createdBy` -> users,
+`activatedAt` (first time the store went live), `presetAppliedAt` (industry preset last applied,
+shown on the Features tab). The GSTIN fills `pan`, `stateCode` and the registered address's state.
+`status` moves only through `changeTenantStatus` (lifecycle in docs/04, reason required to suspend
+or archive); stores are created only by onboarding (`createTenant`) and never deleted from the admin.
 
 ### tenant-domains
-`host` (unique, lowercased), `tenant`, `type` (`subdomain|custom`), `isPrimary`, `verifiedAt`,
-`sslStatus`, `redirectToPrimary` (bool).
+`host` (unique, lowercased), `tenant`, `type` (`subdomain|custom`), `isPrimary` (one per store,
+enforced by a hook), `verifiedAt`, `sslStatus` (`pending|issuing|active|failed`), `redirectToPrimary` (bool).
 
 ### plans
 `name`, `code`, `priceMonthly` (money), `priceYearly`, `limits` group (`maxProducts`,
 `maxStaffUsers`, `maxStorageGB`, `maxOrdersPerMonth`), `allowedModules[]` (feature keys),
-`allowedConnectors[]` (connector keys), `isActive`.
+`allowedConnectors[]` (connector keys), `isActive`, `sortOrder`, `introOffer { price (money), months }`
+(optional starting offer: a subscription's first payment covers `months` at `price`, then the
+plan price applies; Starter has ₹9,999 for 3 months, docs/00). Never deleted (subscriptions point at
+them); removing a feature from `allowedModules` switches it off for that plan's stores.
 
 ### subscriptions
-`tenant`, `plan`, `status` (`trialing|active|past_due|cancelled|paused`), `currentPeriodStart`,
-`currentPeriodEnd`, `trialEndsAt`, `billingMode` (`manual|razorpay`), `providerSubscriptionId`,
+`tenant` (unique: one subscription per store), `vendorName` (copy of the store name for the list and
+search), `plan`, `status` (`trialing|active|past_due|cancelled|paused`), `billingCycle`
+(`monthly|yearly`), `currentPeriodStart`, `currentPeriodEnd` (exclusive; a trial's period ends at
+`trialEndsAt`), `trialEndsAt`, `billingMode` (`manual|razorpay`), `providerSubscriptionId`,
 `payments[] { amountMinor, paidOn, method (neft|rtgs|upi|cheque|card), reference, coversPeriod { start, end }, recordedBy }`
-(the super admin "Record payment" form in the MVP), `history[] { at, event, by, data }` (trial
-started, plan changed, payment recorded, paused...).
+(the super admin "Record payment" form in the MVP; a payment covers the next period from the end of
+the current one), `history[] { at, event, amountMinor, reference, by, data }` (trial started, plan
+changed, payment recorded, paused...). Every field is read-only in the admin: changes go through
+`recordSubscriptionPayment`, `changeSubscriptionPlan` and `changeSubscriptionStatus`. The daily
+`tenancy-check-subscriptions` job stores `past_due`; screens compute it live as well.
 
 ### pincodes (platform, no tenant)
 `pincode` (6 digits, unique), `city` (district), `state`, `stateCode` (2-digit GST state code),
@@ -59,8 +67,12 @@ and placing dealers on the map (staff can still drag the pin). Owned by the `shi
 module's zod schema), `enabledBy`, `enabledAt`. Unique `(tenant, key)`. Enabling checks the plan.
 
 ### users (platform + staff auth)
-See 05-auth-and-roles.md. `email`, `name`, `platformRole`, `tenants[] { tenant, roles[] }`,
-`status`, `twoFactorSecret` (encrypted), `lastLoginAt`.
+See 05-auth-and-roles.md. `email`, `name`, `phone` (optional), `platformRole`,
+`tenants[] { tenant, roles[] }`, `status` (`invited|active|disabled`), `twoFactorSecret` (encrypted;
+waits on the two-step login spike), `lastLoginAt`, `invitedBy`, `invitedAt`,
+`storeSession { tenant, mode (manage|view), reason, startedAt, endsAt }` (platform staff only: the
+open "Manage store" / "View as support" session, docs/05; written only by the identity module's
+store-session service, never through the API; ends by itself at `endsAt`).
 
 ## Store configuration (T)
 
@@ -96,14 +108,19 @@ reference one. Seeded per tenant from the industry preset; rates are data, never
 
 ### counters (T)
 `tenant`, `key` (`order`, `enquiry`, `invoice:2026-27`, `credit-note:2026-27`, `payout:2026-27`), `value`.
-Incremented atomically with `$inc` + `findOneAndUpdate` (upsert) for gapless numbering.
+Incremented atomically with `$inc` + `findOneAndUpdate` (upsert). As built (`nextNumber` in the
+`tax-invoicing` module): enquiry and order numbers are taken outside the save's transaction, so
+two at the same moment never clash; a failed save leaves a gap. Invoice numbers must be
+consecutive (GST rule 46) and will be taken inside the transaction with a retry.
 
 ## Catalog (T)
 
 ### categories
 `name` (L), `slug`, `parent` (nested-docs), `breadcrumbs`, `description` (L, rich text), `image`,
 `banner`, `attributeSet` -> attribute-sets, `sizeChart` -> media or rich text (clothing),
-`sortOrder`, `isVisible`, `seo` group.
+`sortOrder`, `isVisible`, `seo` group. As built: `slug` is unique per store and filled from the
+name; `attributeSet` may be left empty to use the parent's; at most 3 levels; a category with
+subcategories can't be deleted; `description` is plain text for now.
 
 ### attribute-sets
 `name`, `attributes[]`: `{ code, label (L), type: 'text'|'number'|'select'|'multiselect'|'boolean'|'color',
@@ -120,6 +137,7 @@ keys, smart features, BIS/CE marks. Clothing = size, colour, fabric, fit, sleeve
 ### products (extends ecommerce plugin)
 `title` (L), `slug`, `status` (`draft|active|archived`), `type` (`simple|variable`),
 `modelNumber` / `articleNumber` (searchable, important for hardware and sanitary),
+`lastEditedBy` (as on pages, set by a hook),
 `brand`, `categories[]`, `primaryCategory`, `shortDescription` (L), `description` (L, rich text),
 `highlights[]` (L), `gallery[]` -> media (first is primary), `videos[]` (YouTube URL or media,
 type `installation|demo|promo`), `attributes` (json keyed by attribute code, validated against the
@@ -138,6 +156,12 @@ address are required for imported goods), `stats { unitsSold30d, updatedAt }` (n
 `sort=popular` and the Bestseller badge), `ratingSummary { average, count, histogram[5] }` (kept
 current by the `reviews` module from published reviews only; drives stars on cards and the
 `AggregateRating` markup).
+
+As built (ADR 0006, 3 October 2026): all fields above exist except `spareParts`, `compatibleWith`,
+`warrantyMonths`, `installationAvailable`, `minOrderQty`, `maxOrderQty`, `tags`, `stats` and
+`ratingSummary` (they come with their modules); `taxRate` is `gstRate` (a select of the current
+slabs until `tax-rates` exists); `purchaseMode` defaults to `enquire` until checkout exists; the
+plan's product limit is checked on create and `tenants.usage.productsCount` kept current.
 
 ### variants (extends ecommerce plugin)
 `product`, `sku` (unique per tenant), `options` (`{ finish: 'Chrome', size: 'M' }`, from the
@@ -162,7 +186,12 @@ filter), `products[]`, `image`.
 
 ### pages
 `title` (L), `slug`, `layout` (blocks, see 10-storefront), `status` (draft/published, Payload
-versions + drafts + scheduled publish), `seo` group, `template` (`default|landing|policy`).
+versions + drafts + scheduled publish), `seo` group, `template` (`default|landing|policy`),
+`lastEditedBy` (name of the last person to save, drafts included, so each version names its
+author; "(platform team)" when our team saved it in a store session) and `publishedAt` (the last
+publish, by a person or a scheduled job). Both are set by hooks only (`src/fields/editedBy.ts`).
+The template is the page's structure on the store, never its look: `landing` (and the home page)
+renders blocks only, `default` and `policy` put breadcrumbs and the title above the blocks.
 
 ### navigation (per-tenant singleton)
 `header[]` (nested links, mega-menu columns, featured image), `footer` (columns of links),
@@ -174,8 +203,11 @@ versions + drafts + scheduled publish), `seo` group, `template` (`default|landin
 
 ### media
 Payload upload collection, tenant-scoped. `alt` (L, required for images), `focalPoint`,
-image sizes: thumb 200, card 600, detail 1200, zoom 2000 (WebP/AVIF via CDN). Max upload 10 MB
-images, 50 MB PDFs. Storage adapter to S3/R2.
+image sizes: thumb 200, card 600, detail 1200 WebP, the original re-encoded to WebP at most
+2000 px serves as zoom. Max upload 10 MB images, 50 MB PDFs. Files in S3/R2 behind a CDN in
+production (local disk in development); the database stores metadata only (docs/12 "Media").
+`prefix` (hidden): the store's folder in the bucket, `media/<tenantId>/` for files uploaded from
+4 October 2026 (earlier files keep their folder).
 
 ### redirects, forms, form-submissions
 From the official plugins, tenant-scoped.
@@ -285,12 +317,16 @@ pickup parcel), `refund`.
 `qty`, `name`, `email`, `phone`, `city`, `pincode`, `company`, `message`, `attachments[]`, `status`
 (`new|contacted|quoted|won|lost`; the inbox tabs group them as New, In progress = contacted or
 quoted, Closed = won or lost), `assignedTo`, `internalNotes[] { by, at, text }` (staff only),
-`source` (page URL, UTM), `consent`.
+`source` (page URL, UTM), `consent`. As built (stage A): `product`/`variant` are the text fields
+`productTitle` and `modelNumber` until products exist; `consent` is `consentToContact`;
+`attachments` wait for a private upload collection (docs/open-items 2b). Staff can log phone and
+walk-in enquiries; a phone or an email is required.
 
 ### dealers (MVP)
 `name`, `type` (`dealer|distributor|showroom|service-centre|experience-centre`), `address`,
 `city`, `state`, `pincode`, `location` (GeoJSON Point, `2dsphere` index), `phone`, `email`,
-`hours`, `categories[]` (what they stock), `isActive`.
+`hours`, `categories[]` (what they stock), `isActive`. As built: `location` is a Payload `point`
+field ([longitude, latitude], 2dsphere index) typed by staff until the pincode lookup exists.
 
 ### warranty-registrations (Phase 2)
 `customer` or contact, `product`, `serialNumber`, `purchaseDate`, `invoiceFile`, `purchasedFrom`
@@ -431,9 +467,12 @@ Daily counters, not one document per click: `affiliate`, `date`, `clicks`, `uniq
   `affiliateSalesMinor`, `recoveredCarts`. Unique `(tenant, date)`. Written by a nightly job
   (and today's row refreshed hourly); both dashboards and the platform GMV read these instead of
   scanning orders.
-- **audit-logs** (writes in MVP, viewer Later): `actor` (user), `actorRole`, `action`
-  (`support_access|feature_changed|connector_changed|plan_changed|staff_changed|two_factor_reset|price_changed|refund|store_suspended|scheme_changed|coupon_changed|commission_changed|affiliate_payout|review_moderated|...`),
-  `collection`, `docId`, `diff`, `reason` (required for platform access: manage or view), `actingAsPlatform` (true for changes a super admin made while managing a store), `ip`, `at`. Append-only,
+- **audit-logs** (writes in MVP, viewer Later): `tenant` (empty for platform-wide entries such as
+  inviting a teammate or editing a plan, so it uses its own relationship rather than the
+  multi-tenant plugin's required field), `actor` (user), `actorRole`, `summary` (one readable line,
+  shown in Recent changes), `action`
+  (`support_access|store_created|store_status_changed|feature_changed|connector_changed|plan_changed|plan_edited|subscription_payment|subscription_status_changed|staff_invited|staff_changed|two_factor_reset|domain_changed|price_changed|refund|scheme_changed|coupon_changed|commission_changed|affiliate_payout|review_moderated|...`; the list lives in `src/modules/audit/constants.ts`),
+  `collectionSlug` (`collection` is a reserved name in Mongoose), `docId`, `diff`, `reason` (required for platform access: manage or view), `actingAsPlatform` (true for changes a super admin made while managing a store), `ip`, `at`. Append-only,
   tenant-scoped, readable by platform admins. The super admin "Recent changes" card reads it.
 
 ## Notifications (T, owned by the `notifications` module, docs/18)

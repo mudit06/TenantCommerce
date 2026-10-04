@@ -1,0 +1,629 @@
+// The admin shell: left menu (src/admin/nav) and the platform session banner (src/admin/session).
+
+// ---- Left menu ---------------------------------------------------------------------------
+
+.te-nav.nav {
+  background: var(--te-sidebar);
+  border-right: 1px solid var(--te-sidebar-line);
+  border-left: 0;
+  overflow: visible;
+}
+
+.te-nav__scroll {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+}
+
+.te-nav__top {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--app-header-height);
+  padding: 12px 12px 8px;
+  background: var(--te-sidebar);
+}
+
+.te-nav__brand {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+  padding: 6px;
+  border-radius: var(--te-radius);
+}
+
+.te-nav__mark {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: var(--te-brand);
+  color: var(--te-on-brand);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+
+  &--store {
+    background: linear-gradient(135deg, var(--te-brand), #6d55e0);
+  }
+}
+
+.te-nav__brand-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.te-nav__brand-name {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--te-sidebar-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.te-nav__brand-sub {
+  font-size: 12px;
+  color: var(--te-sidebar-label);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Store switcher for staff of several stores: an invisible select over the brand block
+.te-nav__switcher {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 6px;
+  border-radius: var(--te-radius);
+  color: var(--te-sidebar-label);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--te-sidebar-hover);
+  }
+
+  &:focus-within {
+    box-shadow: var(--te-focus);
+  }
+
+  select {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+}
+
+.te-nav__mobile-close {
+  display: none;
+  background: none;
+  border: 0;
+  padding: 8px;
+  color: var(--te-sidebar-text);
+}
+
+.te-nav__sections {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 12px 16px;
+  flex: 1;
+}
+
+.te-nav__section-label {
+  padding: 0 10px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--te-sidebar-label);
+}
+
+.te-nav__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.te-nav__link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  padding: 7px 10px;
+  border-radius: var(--te-radius);
+  color: var(--te-sidebar-text);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    background-color 0.12s var(--te-ease),
+    color 0.12s var(--te-ease);
+
+  &:hover {
+    background: var(--te-sidebar-hover);
+    color: var(--te-sidebar-strong);
+    text-decoration: none;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--te-focus);
+  }
+
+  &--active,
+  &--active:hover {
+    background: var(--te-sidebar-active);
+    color: var(--te-sidebar-active-text);
+    font-weight: 600;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: -12px;
+      top: 8px;
+      bottom: 8px;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: var(--te-brand);
+    }
+  }
+}
+
+.te-nav__icon {
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.te-nav__label {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.te-nav__badge {
+  min-width: 20px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--te-neutral-bg);
+  color: var(--te-text-2);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+
+  .te-nav__link--active & {
+    background: var(--te-card);
+    color: var(--te-brand);
+  }
+}
+
+.te-nav__footer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 12px 14px;
+  border-top: 1px solid var(--te-sidebar-line);
+  background: var(--te-sidebar);
+}
+
+.te-nav__person {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  padding: 6px;
+  border-radius: var(--te-radius);
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    background: var(--te-sidebar-hover);
+  }
+}
+
+.te-nav__avatar {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--te-neutral-bg);
+  color: var(--te-text);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.te-nav__person-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.te-nav__person-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--te-sidebar-strong);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.te-nav__person-role {
+  font-size: 12px;
+  color: var(--te-sidebar-label);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.te-nav__footer-actions {
+  display: flex;
+  gap: 2px;
+}
+
+.te-nav__icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: var(--te-radius);
+  background: transparent;
+  color: var(--te-sidebar-text);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--te-sidebar-hover);
+    color: var(--te-sidebar-strong);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--te-focus);
+  }
+}
+
+// Desktop: the menu is always shown, as full menu or icon rail; Payload's hamburger is for phones
+@media (min-width: 1025px) {
+  .template-default__nav-toggler-wrapper {
+    display: none;
+  }
+
+  html[data-te-nav='rail'] {
+    --nav-width: 68px;
+  }
+
+  .te-nav--rail {
+    .te-nav__brand-text,
+    .te-nav__switcher,
+    .te-nav__label,
+    .te-nav__section-label,
+    .te-nav__person-text {
+      display: none;
+    }
+
+    .te-nav__top,
+    .te-nav__sections {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    .te-nav__brand {
+      justify-content: center;
+      padding: 6px 0;
+    }
+
+    .te-nav__link {
+      justify-content: center;
+      padding: 9px 0;
+
+      &--active::before {
+        left: -10px;
+      }
+    }
+
+    .te-nav__section + .te-nav__section {
+      border-top: 1px solid var(--te-sidebar-line);
+      padding-top: 10px;
+    }
+
+    .te-nav__badge {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      min-width: 16px;
+      padding: 0 4px;
+      font-size: 10px;
+    }
+
+    .te-nav__footer {
+      flex-direction: column;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    .te-nav__footer-actions {
+      flex-direction: column;
+    }
+
+    // Tooltips for the icon rail
+    [data-tooltip] {
+      position: relative;
+
+      &:hover::after,
+      &:focus-visible::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        left: calc(100% + 10px);
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 100;
+        padding: 5px 9px;
+        border-radius: var(--te-radius-sm);
+        background: var(--te-text);
+        color: var(--te-card);
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+        pointer-events: none;
+        box-shadow: var(--te-shadow-lg);
+      }
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .te-nav__mobile-close {
+    display: inline-flex;
+  }
+}
+
+// ---- Platform session banner (docs/05) ----------------------------------------------------
+
+// The banner stays on top while scrolling; the menu and the editor's sticky bars sit below it
+html:has(.te-session-banner) {
+  --te-banner-h: 44px;
+  --sidebar-wrap-top: calc(var(--doc-controls-height) + var(--te-banner-h));
+  --sidebar-wrap-height: calc(100vh - var(--doc-controls-height) - var(--te-banner-h));
+
+  .te-nav.nav {
+    top: var(--te-banner-h);
+    height: calc(100vh - var(--te-banner-h));
+  }
+
+  .doc-controls {
+    top: var(--te-banner-h);
+  }
+}
+
+.te-session-banner {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  height: var(--te-banner-h, 44px);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: #ffffff;
+  background: #7a3b00;
+
+  &--view {
+    background: #1f3a8a;
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+.te-session-banner__text {
+  display: flex;
+  gap: 10px;
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+
+  strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.te-session-banner__meta {
+  opacity: 0.85;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media (max-width: 900px) {
+    display: none;
+  }
+}
+
+.te-session-banner__end {
+  flex-shrink: 0;
+  padding: 5px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: var(--te-radius);
+  background: transparent;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+// Screens rendered without a menu (Payload's "Not found") use the full width
+.template-default:not(:has(> .nav)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+// ---- Store menu: the wireframe's dark sidebar (docs/screens/vendor-cms.md "Look and feel") ----
+// Only a store's CMS; the platform panel keeps the light menu above.
+
+.te-nav--store {
+  --te-sidebar: #0f1a2b;
+  --te-sidebar-line: rgba(255, 255, 255, 0.08);
+  --te-sidebar-text: #b6c1d2;
+  --te-sidebar-strong: #ffffff;
+  --te-sidebar-hover: rgba(255, 255, 255, 0.05);
+  --te-sidebar-active: #1b2a41;
+  --te-sidebar-active-text: #ffffff;
+  --te-sidebar-label: #6e7b91;
+  --te-sidebar-hi: #8fa3ff;
+
+  html[data-theme='dark'] & {
+    --te-sidebar: #0b1018;
+    --te-sidebar-active: #18212f;
+    --te-sidebar-text: #a0acbe;
+    --te-sidebar-hi: #9daeff;
+  }
+
+  &.te-nav.nav {
+    border-right-color: transparent;
+  }
+
+  .te-nav__top {
+    border-bottom: 1px solid var(--te-sidebar-line);
+    margin-bottom: 8px;
+  }
+
+  .te-nav__mark--store {
+    background: linear-gradient(135deg, #3a5bff, #1fb894);
+    color: #ffffff;
+  }
+
+  .te-nav__link--active {
+    .te-nav__icon {
+      color: var(--te-sidebar-hi);
+    }
+
+    &::before {
+      display: none;
+    }
+  }
+
+  .te-nav__badge {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--te-sidebar-strong);
+  }
+
+  .te-nav__link--active .te-nav__badge {
+    background: var(--te-sidebar-hi);
+    color: #0f1a2b;
+  }
+
+  .te-nav__link:focus-visible {
+    box-shadow: 0 0 0 2px var(--te-sidebar-hi);
+  }
+}
+
+.te-nav__link--soon,
+.te-nav__link--soon:hover {
+  background: none;
+  color: var(--te-sidebar-label);
+  cursor: default;
+}
+
+.te-nav__soon {
+  padding: 1px 7px;
+  border: 1px dashed currentColor;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.te-nav__plan {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 12px 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--te-sidebar-active);
+  color: var(--te-sidebar-text);
+  font-size: 12px;
+}
+
+.te-nav__plan-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--te-sidebar-strong);
+}
+
+.te-nav__plan-numbers {
+  font-family: var(--font-mono);
+}
+
+.te-nav__plan-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(127, 140, 160, 0.25);
+  overflow: hidden;
+
+  i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--te-sidebar-hi, var(--te-brand));
+  }
+
+  &--hot i {
+    background: var(--te-warning);
+  }
+}
+
+.te-nav__footer-spacer {
+  flex: 1;
+}
+
+@media (min-width: 1025px) {
+  .te-nav--rail .te-nav__plan,
+  .te-nav--rail .te-nav__soon {
+    display: none;
+  }
+}

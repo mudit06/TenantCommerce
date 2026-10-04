@@ -16,12 +16,31 @@ There are two separate auth collections with different security needs.
   **invite**: the user is created with `status: invited` and gets an email with a single-use link
   (token stored hashed, valid 72 h, resend allowed) to set a password; platform roles also set up
   two-step login before the first sign-in completes. Endpoints in docs/07 (`/staff/invites`).
+  **As built (Sprint 1):** `inviteStaff` in `src/modules/identity` creates the user with an unusable
+  random password and reuses Payload's reset-password token as the invite (72 h, single use, a
+  resend replaces it); the link opens Payload's own `/admin/reset/<token>` page, and setting the
+  password flips `status` to `active`. Payload stores that token unhashed, which differs from the
+  line above: see docs/open-items. Inviting an email that already has an account adds the store to
+  that account instead. The plan's staff limit is checked on every invite.
 - Two-step login (TOTP, authenticator app): Payload's built-in auth has none, so the Sprint 1 auth
   spike picks a Payload 3 plugin (for example `payload-totp`) or writes it; secrets encrypted with
   `CONNECTOR_ENC_KEY`'s scheme; platform admins can reset it, which writes an audit log entry.
-- Password policy: min 10 chars, breached-password check (k-anonymity HIBP) optional, lockout after
-  5 failed attempts for 15 minutes (`auth.maxLoginAttempts`, `lockTime`).
+- Password policy: min 10 chars (a `beforeOperation` hook on create, update and reset, since
+  Payload's own minimum is 3), breached-password check (k-anonymity HIBP) optional, lockout after
+  5 failed attempts for 15 minutes (`auth.maxLoginAttempts`, `lockTime`). Disabled accounts get the
+  same "email or password is incorrect" message as a wrong password.
 - Session: Payload JWT in an HTTP-only, Secure, SameSite=Lax cookie on the admin domain. 8 h expiry.
+
+**Owners manage their staff (as built, 3 October 2026).** The Staff and roles screen
+(`/admin/staff`) lets a store owner invite, change roles and remove colleagues; the same
+service backs the super admin's vendor Staff tab. Membership rows are never edited through the
+users collection by store staff (the plugin's array field is super-admin only); the endpoints in
+docs/07 check the owner role in that store and refuse to leave a store without an owner.
+
+**Writes check the target store.** On create and update Payload accepts any query result from an
+access function, so `tenantRoleOrPlatform` and `featureGatedAccess` also compare the incoming
+`tenant` with the stores where the user holds the role. A catalog editor in store A who is a
+content editor in store B can't create a category in B.
 
 ### Staff permission matrix
 
@@ -71,6 +90,30 @@ screens and one set of rules:
 
 Implement both as a platform-admin session scoped to one tenant (`actingTenant` in the session),
 so every access check and query still filters on that one tenant.
+
+**As built (4 October 2026).** The session is `users.storeSession` (store, mode, reason, start,
+end), opened from the vendor overview ("Manage store", "View as support") through
+`POST /api/admin/v1/platform/store-session` and ended from the banner. The admin is split into
+two workspaces (`src/admin/workspace.ts`, `src/access/storeSession.ts`):
+
+- **Platform panel**: what our team sees without a session. Only platform screens (vendors,
+  plans, subscriptions, team, staff users); store screens are hidden and their addresses answer
+  "not found". Access gives platform staff **no store data at all** outside a session, except
+  feature switches (platform data kept per store, `platformOutsideStore`). Platform services keep
+  using the Local API with `overrideAccess`, so onboarding, billing and the vendor tabs are
+  unchanged.
+- **Store CMS**: what a store's staff see, and our team during a session: the same menu, screens
+  and feature switches as that store's own staff, with the platform screens hidden. Access is
+  scoped to the session's store (`tenantRoleOrPlatform`, `featureGatedAccess`); `view` is
+  read-only. Every create, update and delete during `manage` writes `store_managed_change` to
+  `audit-logs` with the session's reason (`src/hooks/storeSessionAudit.ts`); opening and ending
+  write `support_access`. Pages and products also show "(platform team)" as their last editor.
+- The session is per account, not per browser tab: opening a store switches every tab of that
+  login to it, and "End session" (or the 2 hours running out) brings them all back to the
+  platform panel. Opening a second store ends the first.
+- Known limit: a scheduled publish runs as the person who scheduled it. If our team scheduled it
+  during a session that has ended by then, the job is refused; staff of the store should
+  schedule, or the admin re-schedules from a new session.
 
 Implement as functions in `src/access/` (`isPlatformAdmin`, `hasTenantRole(roles)`,
 `tenantRoleOrPlatform(roles)`), composed per collection. Never inline role strings in collections;

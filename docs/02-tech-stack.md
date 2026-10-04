@@ -7,9 +7,9 @@ Versions checked 2 October 2026. Pin exact versions in `package.json` and upgrad
 | Layer | Choice | Notes |
 |---|---|---|
 | Runtime | Node.js 22 LTS (24 when Payload 4 lands) | Same version locally, in Docker and on Vercel |
-| Language | TypeScript, `strict: true` | Generated Payload types in `src/payload-types.ts` |
-| Framework | Next.js 16.2.x (App Router) | Payload 3 supports 15.2.9+ in specific minor ranges and 16.2.6+. Use 16.2.6+ |
-| CMS / backend | Payload 3.x (latest stable 3.9x) | Runs inside Next.js. Gives admin UI, REST, GraphQL, Local API, auth, jobs |
+| Language | TypeScript 5.9, `strict: true` | Generated Payload types in `src/payload-types.ts`. TypeScript 6 and 7 are out, but Payload 3 is built and tested on 5.x; move with Payload 4 |
+| Framework | Next.js 16.3.x (App Router), pinned 16.3.8 | `@payloadcms/next` 3.90 needs Next 16.3.3 or later (checked 3 October 2026). `agentRules: false` in `next.config.ts` stops `next dev` from appending its own block to CLAUDE.md |
+| CMS / backend | Payload 3.x, pinned 3.90.2 | Runs inside Next.js. Gives admin UI, REST, GraphQL, Local API, auth, jobs |
 | Database | MongoDB Atlas, `@payloadcms/db-mongodb` | Replica set required for transactions |
 | Package manager | pnpm | Workspace-ready if we split packages later |
 
@@ -20,7 +20,7 @@ Payload 4 is in canary (needs Node 24, Next 16.2.6+, TS 6). Stay on 3.x; plan th
 | Plugin | Use |
 |---|---|
 | `@payloadcms/plugin-multi-tenant` | `tenant` field, tenant-scoped admin, tenant selector, per-tenant users |
-| `@payloadcms/plugin-ecommerce` | Products, variants, carts, orders, transactions, addresses, multi-currency, payment adapter pattern. Ships only a Stripe adapter, so we write a Razorpay adapter (docs/09-connectors.md). Verify current feature set in a spike before building on it |
+| ~~`@payloadcms/plugin-ecommerce`~~ | Not used (ADR 0006): products, variants, carts, orders and transactions are our own collections in the `catalog`, `cart`, `orders` and `payments` modules |
 | `@payloadcms/plugin-seo` | Meta title/description/OG image on products, categories, pages |
 | `@payloadcms/plugin-form-builder` | Contact, enquiry and custom forms built by vendors |
 | `@payloadcms/plugin-redirects` | Old-URL redirects when vendors migrate from a previous site |
@@ -54,7 +54,7 @@ Payload 4 is in canary (needs Node 24, Next 16.2.6+, TS 6). Stay on 3.x; plan th
 | Hosting | Vercel (app), MongoDB Atlas (M10+ in prod, Mumbai region `ap-south-1`) | MVP |
 | Media storage + CDN | Cloudflare R2 or AWS S3 + CloudFront, or Cloudinary | MVP |
 | Search | MongoDB Atlas Search (tenant filter in every query) | MVP |
-| Email | Resend + React Email | MVP |
+| Email | Resend + React Email. Staff emails (invites, password resets) go through Payload's email adapter: `@payloadcms/email-resend` when `RESEND_API_KEY` is set, otherwise `src/lib/email/devLog.ts` prints them to the server log | MVP |
 | Payments | Razorpay (vendor's own keys) | MVP |
 | PDF invoices | `@react-pdf/renderer` in a job | MVP |
 | Error tracking | Sentry | MVP |
@@ -68,8 +68,8 @@ Payload 4 is in canary (needs Node 24, Next 16.2.6+, TS 6). Stay on 3.x; plan th
 
 ## Dev tooling
 
-ESLint (next + typescript-eslint), Prettier, Vitest (unit), Playwright (e2e), Testcontainers or
-`mongodb-memory-server` (integration), Husky + lint-staged, Docker Compose (Mongo replica set +
+ESLint 9 (next + typescript-eslint), Prettier, Vitest 5 (unit; it resolves the `@/` alias natively), Playwright (e2e),
+`mongodb-memory-server-core` or any replica set in `MONGODB_TEST_URI` (integration), Husky + lint-staged, Docker Compose (Mongo replica set +
 app). Local and staging email goes to the `dev-log` connector (docs/09); preview email templates
 with React Email's own preview server.
 

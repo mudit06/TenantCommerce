@@ -34,6 +34,9 @@
 `Strict-Transport-Security`, `Content-Security-Policy` (allow Razorpay checkout, analytics IDs
 from settings), `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`,
 `Permissions-Policy` (geolocation only on dealer locator), `X-Frame-Options: DENY` (admin).
+As built (3 October 2026): `src/proxy.ts` sets nosniff, the referrer policy, `X-Frame-Options:
+SAMEORIGIN`, a permissions policy and HSTS (production) on storefront responses. The CSP needs
+per-request nonces for Next's inline scripts and is still open (docs/open-items).
 
 ## Rate limits (defaults)
 

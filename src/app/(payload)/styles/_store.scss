@@ -1,0 +1,503 @@
+// A store CMS in the wireframe's Design view (docs/wireframes #cms-dashboard, docs/screens/
+// vendor-cms.md "Look and feel"): the top bar (src/admin/header) and the dashboard's own cards
+// (src/admin/views/StoreHome). The dark store menu lives in _shell.scss.
+
+// ---- Top bar ----------------------------------------------------------------------------
+
+// A white bar with a hairline in a store's CMS, as in the wireframe
+.template-default:has(.te-nav--store) .app-header .app-header__bg {
+  background: var(--te-card);
+  backdrop-filter: none;
+}
+
+.app-header__actions:has(.te-topbar) {
+  max-width: none;
+  overflow: visible;
+}
+
+.te-topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13.5px;
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border: 1px solid var(--te-line);
+    border-radius: var(--te-radius);
+    background: var(--te-card);
+    color: var(--te-text);
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: var(--te-shadow-sm);
+
+    &:hover {
+      border-color: var(--te-brand);
+      color: var(--te-brand);
+      text-decoration: none;
+    }
+  }
+
+  &__bell {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--te-radius);
+    color: var(--te-text-2);
+
+    &:hover {
+      background: var(--te-page);
+      color: var(--te-text);
+    }
+  }
+
+  &__badge {
+    position: absolute;
+    top: 1px;
+    right: 0;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--te-danger);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+  }
+
+  &__who {
+    color: var(--te-text);
+    font-weight: 600;
+    white-space: nowrap;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--te-brand);
+      text-decoration: none;
+    }
+  }
+
+  &__role {
+    color: var(--te-text-2);
+    font-weight: 500;
+  }
+
+  @media (max-width: 1200px) {
+    &__who {
+      display: none;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .te-search,
+    &__btn span {
+      display: none;
+    }
+  }
+}
+
+.te-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 340px;
+  padding: 5px 10px;
+  border: 1px solid var(--te-line);
+  border-radius: var(--te-radius);
+  background: var(--te-page);
+  color: var(--te-text-3);
+
+  &:focus-within {
+    border-color: var(--te-brand);
+    box-shadow: var(--te-focus);
+  }
+
+  &__input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    color: var(--te-text);
+    font: inherit;
+    outline: none;
+
+    &::placeholder {
+      color: var(--te-text-3);
+    }
+
+    &::-webkit-search-cancel-button {
+      display: none;
+    }
+  }
+
+  &__kbd {
+    padding: 0 5px;
+    border: 1px solid var(--te-line);
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--te-text-3);
+  }
+
+  &__list {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 50;
+    margin: 0;
+    padding: 4px;
+    list-style: none;
+    background: var(--te-card);
+    border: 1px solid var(--te-line);
+    border-radius: 10px;
+    box-shadow: var(--te-shadow-lg);
+    color: var(--te-text);
+    white-space: normal;
+
+    li {
+      padding: 8px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .te-muted {
+      color: var(--te-text-2);
+    }
+  }
+
+  &__option--active {
+    background: var(--te-brand-soft);
+  }
+}
+
+// ---- Store dashboard --------------------------------------------------------------------
+
+.te-num {
+  text-align: right !important;
+  white-space: nowrap;
+}
+
+.te-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.te-card--flush > .te-card__body {
+  padding: 8px 0 0;
+
+  .te-table th:first-child,
+  .te-table td:first-child {
+    padding-left: 20px;
+  }
+
+  .te-table th:last-child,
+  .te-table td:last-child {
+    padding-right: 20px;
+  }
+}
+
+.te-chip-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: var(--te-brand-soft);
+  color: var(--te-brand);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    background: var(--te-brand);
+    color: var(--te-on-brand);
+    text-decoration: none;
+  }
+}
+
+.te-checklist {
+  display: grid;
+  gap: 10px 20px;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 26px;
+  }
+
+  &__box {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--te-text-3);
+    border-radius: 5px;
+  }
+
+  &__label {
+    flex: 1;
+    font-weight: 600;
+  }
+
+  &__item--done {
+    .te-checklist__box {
+      background: var(--te-brand);
+      border-color: var(--te-brand);
+      color: var(--te-on-brand);
+    }
+
+    .te-checklist__label {
+      color: var(--te-text-2);
+      font-weight: 400;
+    }
+  }
+
+  &__bar {
+    width: 120px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--te-neutral-bg);
+    overflow: hidden;
+
+    i {
+      display: block;
+      height: 100%;
+      background: var(--te-brand);
+    }
+  }
+}
+
+// A figure with no screen behind it yet (Orders today)
+.te-stat--static,
+.te-stat--static:hover {
+  transform: none;
+  box-shadow: var(--te-shadow);
+  border-color: var(--te-line);
+  cursor: default;
+}
+
+.te-dash {
+  .te-attention__item {
+    align-items: flex-start;
+
+    > svg:first-child {
+      color: inherit;
+    }
+  }
+
+  .te-attention__icon {
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--te-radius);
+    background: var(--te-neutral-bg);
+    color: var(--te-neutral);
+
+    @each $tone in success, warning, danger, info {
+      &--#{$tone} {
+        background: var(--te-#{$tone}-bg);
+        color: var(--te-#{$tone});
+      }
+    }
+  }
+
+  .te-attention__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .te-attention__primary {
+    font-weight: 600;
+  }
+
+  .te-attention__secondary {
+    color: var(--te-text-2);
+    font-size: 13px;
+    font-weight: 400;
+  }
+
+  .te-attention__go {
+    align-self: center;
+  }
+
+  .te-quick-actions--compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    .te-quick-action {
+      padding: 9px 10px;
+      gap: 10px;
+    }
+
+    .te-quick-action__icon {
+      width: 30px;
+      height: 30px;
+    }
+
+    .te-quick-action__label {
+      font-size: 13.5px;
+    }
+
+    .te-quick-action__hint {
+      display: none;
+    }
+  }
+
+  .te-activity__item {
+    align-items: center;
+  }
+
+  .te-activity__when {
+    flex-shrink: 0;
+    margin-left: auto;
+    color: var(--te-text-3);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+}
+
+.te-chart {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 150px auto;
+  gap: 6px 10px;
+  margin: 0;
+
+  &__y {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: var(--te-text-3);
+    font-size: 11px;
+    text-align: right;
+  }
+
+  &__plot {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    border-bottom: 1px solid var(--te-line);
+    background: linear-gradient(var(--te-line), var(--te-line)) 0 50% / 100% 1px no-repeat;
+  }
+
+  &__col {
+    display: flex;
+    align-items: flex-end;
+    flex: 1;
+    height: 100%;
+
+    i {
+      display: block;
+      width: 100%;
+      min-height: 2px;
+      border-radius: 4px 4px 0 0;
+      background: var(--te-brand);
+      opacity: 0.3;
+    }
+
+    .te-chart__bar--today {
+      opacity: 1;
+    }
+  }
+
+  &__x {
+    grid-column: 2;
+    display: flex;
+    justify-content: space-between;
+    color: var(--te-text-3);
+    font-size: 11px;
+  }
+}
+
+.te-growth {
+  display: grid;
+  gap: 12px 18px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+
+  &__tile {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--te-text-2);
+    font-size: 13px;
+    font-weight: 600;
+  }
+}
+
+// ---- Banner while shoppers can't buy (src/admin/header/StoreBanner) ----------------------
+
+.te-store-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 24px;
+  font-size: 14px;
+  color: var(--te-text);
+
+  p {
+    margin: 0;
+    flex: 1;
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  &--danger {
+    background: var(--te-danger-bg);
+
+    svg {
+      color: var(--te-danger);
+    }
+  }
+
+  &--warning {
+    background: var(--te-warning-bg);
+
+    svg {
+      color: var(--te-warning);
+    }
+  }
+
+  &__action {
+    flex-shrink: 0;
+    padding: 4px 10px;
+    border: 1px solid var(--te-line);
+    border-radius: var(--te-radius);
+    background: var(--te-card);
+    color: var(--te-text);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+}

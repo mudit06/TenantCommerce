@@ -56,6 +56,7 @@ Seed script creates 2 demo tenants (one sanitary, one clothing) with sample cata
 - Vercel: main app. Wildcard domain `*.<platform-domain>` + custom domains attached per tenant.
 - Docker: multi-stage `docker/Dockerfile` (Next `output: 'standalone'`), runs on any VM/K8s. Keep
   it building in CI so we can leave Vercel anytime.
+- Step-by-step server setup (VPS with Docker and Caddy, GoDaddy notes, vendor domains): docs/19.
 - Migrations: Payload migrations for data changes (`pnpm payload migrate:create`), run before
   deploy. Index creation in migrations.
 

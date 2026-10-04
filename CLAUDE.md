@@ -15,7 +15,8 @@ shared marketplace. Vendors pay a monthly SaaS subscription. The platform team o
 - TypeScript (strict) everywhere
 - Next.js 16 App Router with Payload CMS 3 embedded in the same app (one deployable)
 - MongoDB Atlas via `@payloadcms/db-mongodb`
-- `@payloadcms/plugin-multi-tenant`, `@payloadcms/plugin-ecommerce` (custom Razorpay payment adapter)
+- `@payloadcms/plugin-multi-tenant`; products, variants, carts and orders are our own collections
+  (ADR 0006, not `@payloadcms/plugin-ecommerce`); Razorpay is a payment connector (docs/09)
 - Tailwind CSS + shadcn/ui, Serwist for the PWA
 - Vercel + Atlas in production, Docker image kept working
 
@@ -33,6 +34,8 @@ messaging (WhatsApp, SMS, email) providers are connectors behind one interface e
 
 | File | Read when you are... |
 |---|---|
+| docs/progress.md | starting any task: what is built and what is left, per screen (update it with your change) |
+| docs/manual-testing.md | checking flows by hand in a browser (update it when you add or change a flow) |
 | docs/00-overview.md | new to the project; need decisions, glossary, phases |
 | docs/01-architecture.md | touching structure, request flow, module boundaries, scaling |
 | docs/02-tech-stack.md | adding a dependency or choosing a library |
@@ -52,6 +55,7 @@ messaging (WhatsApp, SMS, email) providers are connectors behind one interface e
 | docs/16-conventions-and-testing.md | before opening any PR |
 | docs/17-roadmap.md | deciding whether a feature is MVP, Phase 2 or Later |
 | docs/18-notifications.md | sending shoppers order updates or offer messages (campaigns, abandoned cart, review requests) on WhatsApp, SMS or email; templates, opt-in |
+| docs/19-hosting-and-domains.md | deploying to a server (Vercel or a VPS such as GoDaddy), DNS, SSL, pointing a vendor's domain at its store |
 | docs/open-items.md | starting work: decisions and spikes still open (don't build on an open item) |
 | research/features.html | product research on competitor sites (human-readable) |
 | docs/screens/super-admin.md | building any super admin (platform panel) screen: per-screen spec |

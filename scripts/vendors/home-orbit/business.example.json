@@ -1,0 +1,26 @@
+{
+  "_note": "PLACEHOLDERS. Copy to business.json (git-ignored) and fill in Home Orbit's real details before the store goes live. The GSTIN below is the sample from the GST portal's documentation, not Home Orbit's.",
+  "planCode": "starter",
+  "business": {
+    "name": "Home Orbit",
+    "legalName": "Home Orbit (legal name to be confirmed)",
+    "gstin": "27AAPFU0939F1ZV",
+    "registeredAddress": { "line1": "Address to be confirmed", "city": "", "pincode": "" },
+    "industry": ["hardware", "decor"],
+    "supportEmail": "",
+    "supportPhone": ""
+  },
+  "owner": { "name": "Home Orbit owner", "email": "owner@homeorbit.example" },
+  "contact": {
+    "email": "",
+    "phone": "",
+    "whatsapp": "",
+    "address": ""
+  },
+  "grievanceOfficer": { "name": "", "designation": "", "email": "", "phone": "" },
+  "legalDefaults": {
+    "manufacturerName": "Home Orbit",
+    "manufacturerAddress": "Registered address to be confirmed",
+    "consumerCare": ""
+  }
+}

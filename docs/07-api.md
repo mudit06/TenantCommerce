@@ -205,6 +205,8 @@ Guests keep the wishlist on the device; the kit stores product ids only and call
 | POST | `/connectors/:provider/test` | Test credentials |
 | POST | `/staff/invites` | Owner or platform admin: `{ email, name?, roles[] }` creates an `invited` user and emails the set-password link (plan staff limit checked) |
 | POST | `/staff/invites/:userId/resend` | New link, old one revoked |
+| PATCH | `/staff/:userId/roles` | Owner or super admin: `{ tenantId, roles[] }` changes that person's roles in the store; a store always keeps one owner |
+| POST | `/staff/:userId/remove` | Owner or super admin: `{ tenantId }` takes the person out of that store (their account stays for other stores); never the last owner |
 | POST | `/staff/invites/accept` | Public: `{ token, password }` (+ two-step setup for platform roles) |
 | POST | `/privacy-requests/:id/export` | Build the shopper's data export (job) and attach an expiring link to the request |
 | POST | `/privacy-requests/:id/complete-deletion` | Anonymize the customer, keep tax records (docs/14) |
@@ -223,9 +225,19 @@ Guests keep the wishlist on the device; the kit stores product ids only and call
 | GET | `/reports/offers?from=&to=` | Per scheme and coupon: orders, sales, discount given, new customers |
 | GET | `/reports/affiliates?from=&to=` | Per affiliate: clicks, orders, sales, commission by status |
 | GET | `/reports/abandoned-carts?from=&to=` | Carts abandoned, reminded, recovered, recovered sales |
-| POST | `/platform/tenants` | Platform admin: create tenant with defaults |
-| POST | `/platform/tenants/:id/suspend` / `resume` | Platform admin |
-| PATCH | `/platform/tenants/:id/features` | Platform admin: enable/disable modules within plan |
+| POST | `/platform/store-session` | Platform staff: `{ tenantId, mode: 'manage'|'view', reason }` opens that store's CMS for 2 hours (docs/05). `manage` is super admin only; the reason (5 to 300 characters) and the start go to the store's audit log. Points the store selector cookie at the store |
+| DELETE | `/platform/store-session` | Platform staff: ends the open store session (logged) and clears the store selector cookie |
+| POST | `/platform/tenants` | Super admin: onboard a vendor (body = `onboardingSchema` in `src/modules/tenancy/schemas.ts`); returns the store id, never the invite link |
+| POST | `/platform/tenants/:id/activate` / `suspend` / `resume` / `archive` | Super admin: `{ reason? }`, required for suspend and archive; lifecycle in docs/04 |
+| PATCH | `/platform/tenants/:id/features` | Super admin: `{ key, enabled, cascade? }`. Without `cascade` a dependency problem answers 409 `FEATURE_DEPENDENCY` so the screen can ask first; 422 `FEATURE_NOT_IN_PLAN` / `FEATURE_NOT_AVAILABLE` (Phase 2) |
+| POST | `/platform/tenants/:id/features/apply-preset` | Super admin: reset the switches to the industry preset, capped by the plan |
+| POST | `/platform/subscriptions/:id/payments` | Super admin: `{ amountMinor, paidOn, method, reference? }` records a manual payment covering the next period |
+| POST | `/platform/subscriptions/:id/plan` | Super admin: `{ planId, billingCycle? }`; features outside the new plan switch off |
+| POST | `/platform/subscriptions/:id/status` | Super admin: `{ action: 'pause'|'resume'|'cancel', reason? }` |
+
+All `/api/admin/v1/*` endpoints check the `Origin` header against the host (cookie sessions) and
+run their writes in one database transaction (`src/lib/db/transaction.ts`). Commands inside a
+Mongo transaction must run one after another, never in `Promise.all`.
 
 ## Outbound webhooks and public vendor API (Later)
 

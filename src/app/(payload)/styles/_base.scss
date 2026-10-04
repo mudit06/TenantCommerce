@@ -1,0 +1,985 @@
+// Building blocks of our custom screens (src/admin/ui): page layout, cards, figures, rows,
+// pills, notices, forms, tables, usage meters. Shared by the platform panel and the store CMS.
+
+.te-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--te-text);
+
+  &__muted {
+    color: var(--te-text-3);
+    font-weight: 500;
+  }
+}
+
+.te-logo__mark {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--te-brand);
+  color: var(--te-on-brand);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+
+  &--small {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    font-size: 11px;
+  }
+}
+
+// Money input (fields/money/RupeeInput)
+.te-rupee-input__control {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: var(--style-radius-m);
+  background: var(--theme-input-bg);
+  overflow: hidden;
+
+  &:focus-within {
+    border-color: var(--te-brand);
+    box-shadow: var(--te-focus);
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    padding: 8px 12px;
+    background: transparent;
+    color: var(--te-text);
+    font: inherit;
+    outline: none;
+  }
+}
+
+.te-rupee-input__prefix {
+  display: grid;
+  place-items: center;
+  padding: 0 12px;
+  background: var(--te-neutral-bg);
+  color: var(--te-text-2);
+}
+
+.te-rupee-input__error {
+  color: var(--te-danger);
+  font-size: 13px;
+  margin: 6px 0 0;
+}
+
+// ---- Page layout ------------------------------------------------------------------------
+
+.te-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px var(--gutter-h, 24px) 48px;
+  color: var(--te-text);
+
+  &--tab {
+    padding-top: 16px;
+  }
+}
+
+.te-page__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.te-page__title {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.te-page__subtitle {
+  margin: 4px 0 0;
+  color: var(--te-text-2);
+}
+
+.te-breadcrumb {
+  margin: 0 0 4px;
+  font-size: 13px;
+
+  a {
+    color: var(--te-text-2);
+  }
+}
+
+.te-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1fr);
+
+  @media (min-width: 1000px) {
+    &--2-1 {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    }
+  }
+}
+
+.te-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+@media (min-width: 1000px) {
+  .te-sticky {
+    position: sticky;
+    top: 80px;
+    align-self: start;
+  }
+}
+
+.te-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--style-radius-l);
+  background: var(--te-brand-soft);
+  color: var(--te-text);
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+}
+
+// ---- Cards, figures, rows ---------------------------------------------------------------
+
+.te-card {
+  background: var(--te-card);
+  border: 1px solid var(--te-line);
+  border-radius: var(--style-radius-l);
+  box-shadow: var(--te-shadow);
+  min-width: 0;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 20px 0;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px 20px 20px;
+    overflow-x: auto;
+
+    &--flush {
+      padding: 8px 0 4px;
+    }
+  }
+
+  &--sidebar {
+    margin-bottom: 16px;
+  }
+}
+
+.te-figures {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+
+  &--list {
+    margin-bottom: 20px;
+  }
+}
+
+.te-figure {
+  padding: 16px 20px;
+  background: var(--te-card);
+  border: 1px solid var(--te-line);
+  border-radius: var(--style-radius-l);
+  box-shadow: var(--te-shadow);
+
+  &__label {
+    color: var(--te-text-2);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  &__value {
+    margin-top: 6px;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  &__hint {
+    margin-top: 6px;
+    color: var(--te-text-3);
+    font-size: 13px;
+  }
+
+  &--danger .te-figure__value {
+    color: var(--te-danger);
+  }
+}
+
+.te-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  &__item + &__item {
+    border-top: 1px solid var(--te-line);
+  }
+
+  &__item > div,
+  &__link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+  }
+
+  &__link {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover .te-rows__primary {
+      color: var(--te-brand);
+    }
+  }
+
+  &__item:not(:has(a)) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+  }
+
+  &__main {
+    min-width: 0;
+  }
+
+  &__primary {
+    font-weight: 600;
+  }
+
+  &__secondary {
+    color: var(--te-text-2);
+    font-size: 13px;
+  }
+
+  &__aside {
+    flex-shrink: 0;
+    color: var(--te-text-2);
+    font-size: 13px;
+  }
+}
+
+.te-empty {
+  margin: 0;
+  color: var(--te-text-3);
+}
+
+.te-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+
+  li {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 8px;
+  }
+
+  &__date {
+    color: var(--te-text-3);
+  }
+}
+
+// ---- Pills, notices, text helpers -------------------------------------------------------
+
+.te-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  @each $tone in success, warning, danger, info, neutral {
+    &--#{$tone} {
+      color: var(--te-#{$tone});
+      background: var(--te-#{$tone}-bg);
+    }
+  }
+}
+
+.te-notice {
+  padding: 12px 16px;
+  border-radius: var(--style-radius-m);
+  font-size: 14px;
+
+  @each $tone in success, warning, danger, info, neutral {
+    &--#{$tone} {
+      color: var(--te-text);
+      background: var(--te-#{$tone}-bg);
+      border-left: 3px solid var(--te-#{$tone});
+    }
+  }
+}
+
+.te-muted {
+  color: var(--te-text-2);
+}
+
+.te-small {
+  font-size: 13px;
+}
+
+.te-strong {
+  font-weight: 600;
+}
+
+.te-mono {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+@each $tone in success, warning, danger, info {
+  .te-text--#{$tone} {
+    color: var(--te-#{$tone});
+  }
+}
+
+.te-link,
+.te-link-button {
+  color: var(--te-brand);
+  text-decoration: none;
+  font-weight: 500;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.te-link-button {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+a.te-btn {
+  text-decoration: none;
+  margin: 0;
+}
+
+// ---- Usage meters -----------------------------------------------------------------------
+
+.te-usage {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 13px;
+  }
+
+  &__numbers {
+    color: var(--te-text-2);
+  }
+
+  &__track {
+    height: 6px;
+    border-radius: 999px;
+    background: var(--te-neutral-bg);
+    overflow: hidden;
+  }
+
+  &__fill {
+    height: 100%;
+    border-radius: 999px;
+
+    &--success {
+      background: var(--te-brand);
+    }
+
+    &--warning {
+      background: var(--te-warning);
+    }
+
+    &--danger {
+      background: var(--te-danger);
+    }
+
+    &--neutral {
+      background: var(--te-text-3);
+    }
+  }
+}
+
+// ---- Tables -----------------------------------------------------------------------------
+
+.te-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+
+  th {
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--te-text-2);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--te-line);
+  }
+
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--te-line);
+    vertical-align: top;
+  }
+
+  tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .te-card__body--flush & th:first-child,
+  .te-card__body--flush & td:first-child {
+    padding-left: 20px;
+  }
+
+  &__row--locked td {
+    color: var(--te-text-3);
+  }
+}
+
+// ---- Switch, forms ----------------------------------------------------------------------
+
+.te-switch {
+  position: relative;
+  display: inline-flex;
+  width: 38px;
+  height: 22px;
+  flex-shrink: 0;
+
+  input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    margin: 0;
+    cursor: pointer;
+    z-index: 1;
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+
+  &__track {
+    width: 100%;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--te-line);
+    transition: background 0.15s;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      transition: transform 0.15s;
+    }
+  }
+
+  input:checked + &__track {
+    background: var(--te-brand);
+
+    &::after {
+      transform: translateX(16px);
+    }
+  }
+
+  input:focus-visible + &__track {
+    outline: 2px solid var(--te-brand);
+    outline-offset: 2px;
+  }
+
+  input:disabled + &__track {
+    opacity: 0.5;
+  }
+}
+
+.te-switch-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  cursor: pointer;
+
+  &--locked {
+    color: var(--te-text-3);
+    cursor: default;
+  }
+}
+
+.te-feature-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  column-gap: 16px;
+}
+
+.te-always-on {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 0;
+  color: var(--te-text-2);
+}
+
+.te-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+
+  .btn {
+    margin: 8px 0 0;
+    align-self: flex-start;
+  }
+}
+
+.te-form-grid {
+  display: grid;
+  gap: 14px 16px;
+  grid-template-columns: minmax(0, 1fr);
+
+  @media (min-width: 700px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  &__wide {
+    grid-column: 1 / -1;
+  }
+}
+
+.te-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--te-text-2);
+  margin-bottom: 4px;
+}
+
+.te-input {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--te-line-strong);
+  border-radius: var(--te-radius);
+  background: var(--theme-input-bg);
+  color: var(--te-text);
+  font: inherit;
+  transition:
+    border-color 0.15s var(--te-ease),
+    box-shadow 0.15s var(--te-ease);
+
+  &:hover {
+    border-color: var(--te-text-3);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--te-brand);
+    box-shadow: var(--te-focus);
+  }
+
+  &[aria-invalid='true'] {
+    border-color: var(--te-danger);
+  }
+
+  &--short {
+    max-width: 140px;
+  }
+}
+
+.te-derived {
+  margin: 0;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.te-field-error {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--te-danger);
+}
+
+.te-fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.te-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.te-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--te-line);
+  border-radius: 999px;
+  background: var(--te-card);
+  cursor: pointer;
+  font-size: 14px;
+
+  &:has(input:checked) {
+    border-color: var(--te-brand);
+    background: var(--te-brand-soft);
+  }
+
+  input {
+    accent-color: var(--te-brand);
+  }
+}
+
+.te-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+
+  input {
+    accent-color: var(--te-brand);
+  }
+}
+
+.te-plan-options {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin-bottom: 8px;
+}
+
+.te-plan-option {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+  border: 1px solid var(--te-line);
+  border-radius: var(--style-radius-l);
+  cursor: pointer;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &--selected {
+    border-color: var(--te-brand);
+    box-shadow: 0 0 0 1px var(--te-brand);
+    background: var(--te-brand-soft);
+  }
+
+  &:has(input:focus-visible) {
+    outline: 2px solid var(--te-brand);
+    outline-offset: 2px;
+  }
+}
+
+.te-button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  .btn {
+    margin: 0;
+  }
+}
+
+.te-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px;
+  margin-top: 8px;
+  border-radius: var(--style-radius-m);
+  background: var(--te-warning-bg);
+
+  p {
+    margin: 0;
+  }
+
+  &__buttons {
+    display: flex;
+    gap: 8px;
+
+    .btn {
+      margin: 0;
+    }
+  }
+}
+
+.te-inline-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  .btn {
+    margin: 0;
+  }
+}
+
+.te-config {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--style-radius-m);
+  background: var(--te-neutral-bg);
+
+  &__row {
+    display: grid;
+    grid-template-columns: minmax(180px, 260px) 1fr;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__nested {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    margin: 0;
+  }
+}
+
+.te-dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 20px;
+  margin: 0;
+
+  dt {
+    color: var(--te-text-2);
+  }
+
+  dd {
+    margin: 0;
+  }
+}
+
+// ---- Vendor detail and list --------------------------------------------------------------
+
+.te-vendor-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  margin-bottom: 24px;
+  border: 1px solid var(--te-line);
+  border-radius: var(--style-radius-l);
+  background: var(--te-card);
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 14px;
+  }
+}
+
+.te-status-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+
+  &__buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    .btn {
+      margin: 0;
+    }
+  }
+
+  .te-confirm {
+    max-width: 420px;
+  }
+}
+
+.te-list-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.te-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.te-tab {
+  padding: 6px 12px;
+  border-radius: 999px;
+  color: var(--te-text-2);
+  text-decoration: none;
+  font-weight: 500;
+
+  &:hover {
+    background: var(--te-neutral-bg);
+  }
+
+  &--active {
+    background: var(--te-brand-soft);
+    color: var(--te-brand);
+  }
+
+  &__count {
+    color: var(--te-text-3);
+    margin-left: 4px;
+  }
+}
+
+@media (max-width: 600px) {
+  .te-page {
+    padding: 16px 16px 40px;
+  }
+
+  .te-status-actions {
+    align-items: flex-start;
+  }
+
+  .te-config__row {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ---- Polish ------------------------------------------------------------------------------
+
+.te-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.te-input::placeholder,
+.te-rupee-input__control input::placeholder {
+  color: var(--te-text-3);
+  opacity: 0.8;
+}
+
+// ---- Product specifications (catalog AttributesField) ------------------------------------
+
+.te-specs {
+  margin-bottom: 24px;
+
+  &__group {
+    display: grid;
+    gap: 12px;
+    padding: 16px;
+    margin: 12px 0;
+    border: 1px solid var(--te-border, var(--theme-elevation-150));
+    border-radius: 8px;
+  }
+
+  &__legend {
+    padding: 0 6px;
+    font-weight: 600;
+  }
+
+  &__row {
+    display: grid;
+    gap: 6px;
+  }
+}
+
+.te-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid var(--theme-elevation-250);
+}

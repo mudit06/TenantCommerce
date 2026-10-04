@@ -1,0 +1,10 @@
+// TenantEcom admin theme (docs/screens/vendor-cms.md "Look and feel"), applied over Payload's
+// admin through its CSS variables, plus the te-* classes our custom screens use. Light and dark.
+// The UI font is self-hosted (@fontsource, imported in layout.tsx): no third-party font request.
+
+@use './styles/tokens';
+@use './styles/payload';
+@use './styles/shell';
+@use './styles/base';
+@use './styles/screens';
+@use './styles/store';
