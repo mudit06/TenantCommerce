@@ -499,3 +499,131 @@ html:has(.te-session-banner) {
 .template-default:not(:has(> .nav)) {
   grid-template-columns: minmax(0, 1fr);
 }
+
+// ---- Store menu: the wireframe's dark sidebar (docs/screens/vendor-cms.md "Look and feel") ----
+// Only a store's CMS; the platform panel keeps the light menu above.
+
+.te-nav--store {
+  --te-sidebar: #0f1a2b;
+  --te-sidebar-line: rgba(255, 255, 255, 0.08);
+  --te-sidebar-text: #b6c1d2;
+  --te-sidebar-strong: #ffffff;
+  --te-sidebar-hover: rgba(255, 255, 255, 0.05);
+  --te-sidebar-active: #1b2a41;
+  --te-sidebar-active-text: #ffffff;
+  --te-sidebar-label: #6e7b91;
+  --te-sidebar-hi: #8fa3ff;
+
+  html[data-theme='dark'] & {
+    --te-sidebar: #0b1018;
+    --te-sidebar-active: #18212f;
+    --te-sidebar-text: #a0acbe;
+    --te-sidebar-hi: #9daeff;
+  }
+
+  &.te-nav.nav {
+    border-right-color: transparent;
+  }
+
+  .te-nav__top {
+    border-bottom: 1px solid var(--te-sidebar-line);
+    margin-bottom: 8px;
+  }
+
+  .te-nav__mark--store {
+    background: linear-gradient(135deg, #3a5bff, #1fb894);
+    color: #ffffff;
+  }
+
+  .te-nav__link--active {
+    .te-nav__icon {
+      color: var(--te-sidebar-hi);
+    }
+
+    &::before {
+      display: none;
+    }
+  }
+
+  .te-nav__badge {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--te-sidebar-strong);
+  }
+
+  .te-nav__link--active .te-nav__badge {
+    background: var(--te-sidebar-hi);
+    color: #0f1a2b;
+  }
+
+  .te-nav__link:focus-visible {
+    box-shadow: 0 0 0 2px var(--te-sidebar-hi);
+  }
+}
+
+.te-nav__link--soon,
+.te-nav__link--soon:hover {
+  background: none;
+  color: var(--te-sidebar-label);
+  cursor: default;
+}
+
+.te-nav__soon {
+  padding: 1px 7px;
+  border: 1px dashed currentColor;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.te-nav__plan {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 12px 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--te-sidebar-active);
+  color: var(--te-sidebar-text);
+  font-size: 12px;
+}
+
+.te-nav__plan-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--te-sidebar-strong);
+}
+
+.te-nav__plan-numbers {
+  font-family: var(--font-mono);
+}
+
+.te-nav__plan-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(127, 140, 160, 0.25);
+  overflow: hidden;
+
+  i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--te-sidebar-hi, var(--te-brand));
+  }
+
+  &--hot i {
+    background: var(--te-warning);
+  }
+}
+
+.te-nav__footer-spacer {
+  flex: 1;
+}
+
+@media (min-width: 1025px) {
+  .te-nav--rail .te-nav__plan,
+  .te-nav--rail .te-nav__soon {
+    display: none;
+  }
+}

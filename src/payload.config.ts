@@ -100,9 +100,13 @@ export default buildConfig({
       },
       // One menu per workspace: the platform panel or a store's CMS (src/admin/nav)
       Nav: '@/admin/nav/AppNav#AppNav',
+      // A store CMS's top bar from the wireframe: search, View store, enquiry bell, who is signed in
+      actions: ['@/admin/header/StoreTopBar#StoreTopBar'],
       header: [
         // "You are managing <store> as platform admin" on every page of a store session (docs/05)
         '@/admin/session/StoreSessionBanner#StoreSessionBanner',
+        // Suspended store or maintenance mode: on every page of a store's CMS
+        '@/admin/header/StoreBanner#StoreBanner',
         // Descriptions under each block in the page builder's "Add block" library
         '@/blocks/admin/BlockLibraryHints#BlockLibraryHints',
       ],

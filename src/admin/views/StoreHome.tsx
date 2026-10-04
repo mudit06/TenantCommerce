@@ -1,34 +1,26 @@
 import type { Payload, SanitizedPermissions } from 'payload'
 import { Suspense } from 'react'
 
-import { storeSessionOf } from '@/access'
+import { idOf, storeSessionOf, type TenantRole } from '@/access'
 import { adminUrl } from '@/admin/paths'
-import { currentStore, type CurrentStore } from '@/admin/store'
+import { currentStore, storeRolesOf } from '@/admin/store'
 import { ButtonLink, Card, EmptyState, Notice, PageHeader, Skeleton } from '@/admin/ui'
 import { Icon, type IconName } from '@/admin/ui/icons'
-import {
-  DEFAULT_TIMEZONE,
-  formatDateAndTime,
-  formatDateWithWeekday,
-  formatRelative,
-} from '@/lib/dates'
+import { formatDateAndTime, formatDateWithWeekday, formatRelative, greetingFor } from '@/lib/dates'
 import { pageAddress, storePageOverview, type PageRow } from '@/modules/content'
+import { ENQUIRY_TYPES } from '@/modules/enquiries'
 import { StorePlanCard } from '@/modules/tenancy/admin'
 
 import { StoreSetup } from './StoreSetup'
+import {
+  type AttentionItem,
+  type EnquirySummary,
+  loadCatalogSummary,
+  loadEnquirySummary,
+  loadStoreAttention,
+} from './storeHomeData'
 
-type Can = (collection: string, action?: 'read' | 'create') => boolean
-
-const greeting = (now: Date) => {
-  const hour = Number(
-    new Intl.DateTimeFormat('en-GB', {
-      timeZone: DEFAULT_TIMEZONE,
-      hour: 'numeric',
-      hourCycle: 'h23',
-    }).format(now),
-  )
-  return hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
-}
+type Can = (collection: string, action?: 'read' | 'create' | 'update') => boolean
 
 function Stat({
   label,
@@ -197,8 +189,26 @@ async function RecentActivity({
   )
 }
 
-function QuickActions({ can, store }: { can: Can; store: CurrentStore }) {
-  const actions: { href: string; label: string; hint: string; icon: IconName; show: boolean }[] = [
+type QuickAction = { href: string; label: string; hint: string; icon: IconName; show: boolean }
+
+/** Shortcuts for what this person can create or change (wireframe "Quick actions"). */
+function QuickActions({
+  can,
+  features,
+  canManageStaff,
+}: {
+  can: Can
+  features: readonly string[]
+  canManageStaff: boolean
+}) {
+  const actions: QuickAction[] = [
+    {
+      href: adminUrl.create('products'),
+      label: 'Add product',
+      hint: 'With photos and specifications',
+      icon: 'products',
+      show: can('products', 'create'),
+    },
     {
       href: adminUrl.newPage,
       label: 'Create page',
@@ -208,7 +218,7 @@ function QuickActions({ can, store }: { can: Can; store: CurrentStore }) {
     },
     {
       href: adminUrl.createPage('landing'),
-      label: 'Create landing page',
+      label: 'Landing page',
       hint: 'Offers, collections, home',
       icon: 'layout',
       show: can('pages', 'create'),
@@ -221,22 +231,50 @@ function QuickActions({ can, store }: { can: Can; store: CurrentStore }) {
       show: can('media', 'create'),
     },
     {
-      href: adminUrl.create('products'),
-      label: 'Add product',
-      hint: 'With photos and specifications',
-      icon: 'products',
-      show: can('products', 'create'),
+      href: adminUrl.create('categories'),
+      label: 'Add category',
+      hint: 'Where products sit in the store',
+      icon: 'categories',
+      show: can('categories', 'create'),
+    },
+    {
+      href: adminUrl.create('enquiries'),
+      label: 'Log an enquiry',
+      hint: 'A phone or walk-in request',
+      icon: 'phone',
+      show: features.includes('enquiries') && can('enquiries', 'create'),
+    },
+    {
+      href: adminUrl.create('dealers'),
+      label: 'Add dealer',
+      hint: 'Shown on the dealer locator',
+      icon: 'dealers',
+      show: features.includes('dealer-locator') && can('dealers', 'create'),
+    },
+    {
+      href: adminUrl.staff,
+      label: 'Invite staff',
+      hint: 'Give a colleague a login',
+      icon: 'staff',
+      show: canManageStaff,
+    },
+    {
+      href: adminUrl.collection('site-settings'),
+      label: 'Store settings',
+      hint: 'Logo, contact, policies',
+      icon: 'settings',
+      show: can('site-settings', 'update'),
     },
   ]
   const shown = actions.filter((action) => action.show)
-  if (shown.length === 0 && !store.storeUrl) return null
+  if (shown.length === 0) return null
   return (
     <Card title="Quick actions">
-      <div className="te-quick-actions">
+      <div className="te-quick-actions te-quick-actions--compact">
         {shown.map((action) => (
-          <a className="te-quick-action" href={action.href} key={action.href}>
+          <a className="te-quick-action" href={action.href} key={action.href} title={action.hint}>
             <span aria-hidden className="te-quick-action__icon">
-              <Icon name={action.icon} size={18} />
+              <Icon name={action.icon} size={17} />
             </span>
             <span>
               <span className="te-quick-action__label">{action.label}</span>
@@ -249,10 +287,127 @@ function QuickActions({ can, store }: { can: Can; store: CurrentStore }) {
   )
 }
 
+const ENQUIRY_TYPE_LABEL = new Map<string, string>(
+  ENQUIRY_TYPES.map((type) => [type.value, type.label]),
+)
+
+/** Enquiries per day for two weeks (the wireframe's sales chart, until orders exist). */
+function EnquiryChart({ days }: { days: EnquirySummary['daily'] }) {
+  const total = days.reduce((sum, day) => sum + day.count, 0)
+  const top = Math.ceil(Math.max(4, ...days.map((day) => day.count)) / 2) * 2
+  return (
+    <figure
+      aria-label={`${total} enquiries in the last 14 days, ${days.at(-1)?.count ?? 0} today`}
+      className="te-chart"
+      role="img"
+    >
+      <div aria-hidden className="te-chart__y">
+        <span>{top}</span>
+        <span>{top / 2}</span>
+        <span>0</span>
+      </div>
+      <div aria-hidden className="te-chart__plot">
+        {days.map((day, index) => (
+          <div className="te-chart__col" key={day.label} title={`${day.label}: ${day.count}`}>
+            <i
+              className={index === days.length - 1 ? 'te-chart__bar--today' : undefined}
+              style={{ height: `${(day.count / top) * 100}%` }}
+            />
+          </div>
+        ))}
+      </div>
+      <figcaption aria-hidden className="te-chart__x">
+        <span>{days[0]?.label}</span>
+        <span>{total} in 14 days</span>
+        <span>Today</span>
+      </figcaption>
+    </figure>
+  )
+}
+
+function NewEnquiries({ summary, now }: { summary: EnquirySummary; now: Date }) {
+  if (summary.latest.length === 0) {
+    return (
+      <EmptyState icon="enquiries" title="No new enquiries">
+        Quote requests and questions from the store land here first.
+      </EmptyState>
+    )
+  }
+  return (
+    <ol className="te-activity">
+      {summary.latest.map((enquiry) => {
+        const about = enquiry.productTitle
+          ? `${enquiry.qty ? `${enquiry.qty} × ` : ''}${enquiry.productTitle}`
+          : (enquiry.message ?? '')
+        return (
+          <li key={enquiry.id}>
+            <a className="te-activity__item" href={adminUrl.doc('enquiries', enquiry.id)}>
+              <span className="te-activity__text">
+                <span className="te-activity__primary">
+                  {ENQUIRY_TYPE_LABEL.get(enquiry.type) ?? enquiry.type}
+                </span>
+                <span className="te-activity__secondary te-clamp">
+                  {[enquiry.company || enquiry.name, enquiry.city].filter(Boolean).join(', ')}
+                  {about ? ` · ${about}` : ''}
+                </span>
+              </span>
+              <span className="te-activity__when">{formatRelative(enquiry.createdAt, now)}</span>
+            </a>
+          </li>
+        )
+      })}
+    </ol>
+  )
+}
+
+const TONE_RANK: Record<string, number> = { danger: 0, warning: 1, info: 2, neutral: 3, success: 4 }
+
+function AttentionList({ items }: { items: AttentionItem[] }) {
+  return (
+    <ul className="te-attention">
+      {items.map((item) => {
+        const body = (
+          <>
+            <span aria-hidden className={`te-attention__icon te-attention__icon--${item.tone}`}>
+              <Icon name={item.icon} size={16} />
+            </span>
+            <span className="te-attention__text">
+              <span className="te-attention__primary">{item.text}</span>
+              {item.detail ? <span className="te-attention__secondary">{item.detail}</span> : null}
+            </span>
+            {item.href ? <Icon className="te-attention__go" name="chevronRight" size={16} /> : null}
+          </>
+        )
+        return (
+          <li key={item.key}>
+            {item.href ? (
+              <a className="te-attention__item" href={item.href}>
+                {body}
+              </a>
+            ) : (
+              <div className="te-attention__item">{body}</div>
+            )}
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+const GROWTH = [
+  { feature: 'schemes', label: 'Schemes and offers', icon: 'calendar' },
+  { feature: 'reviews', label: 'Reviews to approve', icon: 'star' },
+  { feature: 'affiliate', label: 'Affiliates', icon: 'link' },
+  { feature: 'abandoned-cart', label: 'Abandoned carts', icon: 'cart' },
+  { feature: 'coupons', label: 'Coupons', icon: 'brands' },
+  { feature: 'offer-messages', label: 'Offer messages', icon: 'mail' },
+] as const satisfies readonly { feature: string; label: string; icon: IconName }[]
+
 /**
- * The store dashboard (docs/screens `cms-dashboard`): the state of the store at a glance, what
- * needs doing, what changed and who changed it, and the next scheduled changes. Sales cards
- * arrive with orders (stage B).
+ * The store dashboard (docs/screens `cms-dashboard`, laid out as the wireframe's Design view):
+ * launch checklist, figures, enquiries, what needs doing, quick actions, what changed and who
+ * changed it, stock, and the next scheduled changes. Cards follow the person's role and the
+ * store's features. Sales, orders to ship and order updates arrive with orders (stage B).
  */
 export async function StoreHome({
   payload,
@@ -276,33 +431,8 @@ export async function StoreHome({
   const can: Can = (collection, action = 'read') =>
     Boolean(permissions.collections?.[collection]?.[action])
   const session = storeSessionOf(user)
-  const tenant = await payload.findByID({
-    collection: 'tenants',
-    id: store.id,
-    depth: 0,
-    overrideAccess: true,
-  })
-  const enabledFeatures = tenant.enabledFeatures ?? []
-  const where = { tenant: { equals: store.id } }
-
-  const [pages, products, activeProducts, newEnquiries] = await Promise.all([
-    storePageOverview(payload, store.id),
-    can('products') ? payload.count({ collection: 'products', where, overrideAccess: true }) : null,
-    can('products')
-      ? payload.count({
-          collection: 'products',
-          where: { and: [where, { status: { equals: 'active' } }] },
-          overrideAccess: true,
-        })
-      : null,
-    can('enquiries')
-      ? payload.count({
-          collection: 'enquiries',
-          where: { and: [where, { status: { equals: 'new' } }] },
-          overrideAccess: true,
-        })
-      : null,
-  ])
+  const enabledFeatures = store.features
+  const pages = can('pages') ? await storePageOverview(payload, store.id) : []
   const byStatus = (status: PageRow['status']) => pages.filter((row) => row.status === status)
   const published = byStatus('published').length + byStatus('changed').length
   const drafts = byStatus('draft')
@@ -320,35 +450,56 @@ export async function StoreHome({
       ? user.name
       : ''
   ).split(' ')[0]
-  const attention = [
-    newEnquiries?.totalDocs
-      ? {
-          key: 'enquiries',
-          icon: 'enquiries' as const,
-          text: `${newEnquiries.totalDocs} new ${newEnquiries.totalDocs === 1 ? 'enquiry' : 'enquiries'} waiting for a reply`,
-          href: `${adminUrl.collection('enquiries')}?where[status][equals]=new`,
-        }
-      : null,
+  const userId = String(idOf((user as { id?: unknown } | null)?.id) ?? '')
+  const roles = storeRolesOf(user, store.id)
+  const hasRole = (allowed: readonly TenantRole[]) => roles.some((role) => allowed.includes(role))
+  const seesEnquiries = enabledFeatures.includes('enquiries') && can('enquiries')
+  const seesOrders = hasRole(['owner', 'manager', 'order-manager'])
+  const isAdmin = hasRole(['owner', 'manager'])
+  const canManageStaff = session ? session.mode === 'manage' : roles.includes('owner')
+
+  const [enquiries, catalog] = await Promise.all([
+    seesEnquiries ? loadEnquirySummary(payload, store.id, userId, now) : null,
+    can('products') ? loadCatalogSummary(payload, store.id) : null,
+  ])
+  const storeAttention = await loadStoreAttention({
+    payload,
+    tenantId: store.id,
+    roles,
+    userId,
+    now,
+    enquiries,
+    catalog,
+    canWriteCatalog: can('products', 'create'),
+  })
+  const pageAttention: AttentionItem[] = [
     can('pages') && draftPolicies.length
       ? {
           key: 'policies',
+          tone: 'warning' as const,
           icon: 'legal' as const,
-          text: `${draftPolicies.length} policy ${draftPolicies.length === 1 ? 'page is' : 'pages are'} still a draft: publish before launch`,
+          text: `${draftPolicies.length} policy ${draftPolicies.length === 1 ? 'page is' : 'pages are'} still a draft`,
+          detail: 'Publish shipping, returns, privacy and terms before launch.',
           href: `${adminUrl.pages}?template=policy`,
         }
       : null,
     can('pages') && changed.length
       ? {
           key: 'changed',
+          tone: 'info' as const,
           icon: 'edit' as const,
           text: `${changed.length} published ${changed.length === 1 ? 'page has' : 'pages have'} changes not live yet`,
           href: `${adminUrl.pages}?status=changed`,
         }
       : null,
   ].filter((item): item is NonNullable<typeof item> => Boolean(item))
+  const attention = [...storeAttention, ...pageAttention].sort(
+    (a, b) => (TONE_RANK[a.tone] ?? 9) - (TONE_RANK[b.tone] ?? 9),
+  )
+  const growth = isAdmin ? GROWTH.filter((item) => enabledFeatures.includes(item.feature)) : []
 
   return (
-    <div className="te-page">
+    <div className="te-page te-dash">
       <PageHeader
         actions={
           <>
@@ -357,16 +508,19 @@ export async function StoreHome({
                 View store
               </ButtonLink>
             ) : null}
-            {can('pages', 'create') ? (
+            {can('products', 'create') ? (
+              <ButtonLink href={adminUrl.create('products')} icon="plus" variant="primary">
+                Add product
+              </ButtonLink>
+            ) : can('pages', 'create') ? (
               <ButtonLink href={adminUrl.newPage} icon="plus" variant="primary">
                 Create page
               </ButtonLink>
             ) : null}
           </>
         }
-        eyebrow={store.name}
-        subtitle={formatDateWithWeekday(now)}
-        title={`${greeting(now)}${firstName ? `, ${firstName}` : ''}`}
+        subtitle={`${formatDateWithWeekday(now)} · ${store.name}`}
+        title={`${greetingFor(now)}${firstName ? `, ${firstName}` : ''}`}
       />
 
       {store.status === 'suspended' ? (
@@ -376,89 +530,182 @@ export async function StoreHome({
         </Notice>
       ) : store.status === 'draft' ? (
         <Notice tone="info">
-          Your store isn’t live yet. Finish the setup steps on the right; the platform team takes it
-          live.
+          Your store isn’t live yet. Finish the launch checklist; the platform team takes it live.
         </Notice>
       ) : null}
       {session?.mode === 'view' ? (
         <Notice tone="info">You are viewing this store read-only as support.</Notice>
       ) : null}
 
+      {isAdmin ? (
+        <Suspense fallback={<Skeleton label="Loading the launch checklist" lines={3} />}>
+          <StoreSetup enabledFeatures={enabledFeatures} payload={payload} tenantId={store.id} />
+        </Suspense>
+      ) : null}
+
       <div className="te-stats">
-        {can('pages') ? (
-          <>
-            <Stat
-              href={`${adminUrl.pages}?status=published`}
-              icon="checkCircle"
-              label="Published pages"
-              tone="success"
-              value={published}
-              hint={changed.length ? `${changed.length} with unpublished changes` : 'All live'}
-            />
-            <Stat
-              href={`${adminUrl.pages}?status=draft`}
-              icon="draft"
-              label="Draft pages"
-              value={drafts.length}
-              hint={drafts.length ? 'Not on the store yet' : 'Nothing waiting'}
-            />
-            <Stat
-              href={`${adminUrl.pages}?status=scheduled`}
-              icon="calendar"
-              label="Scheduled"
-              tone="info"
-              value={scheduled.length}
-              hint={
-                scheduled[0]
-                  ? `Next ${formatRelative(scheduled[0].scheduled!.at, now)}`
-                  : 'Nothing planned'
-              }
-            />
-          </>
+        {seesOrders ? (
+          <div className="te-stat te-stat--static">
+            <span aria-hidden className="te-stat__icon">
+              <Icon name="receipt" size={18} />
+            </span>
+            <span className="te-stat__label">Orders today</span>
+            <span className="te-stat__value">—</span>
+            <span className="te-stat__hint">Starts with online selling</span>
+          </div>
         ) : null}
-        {products && activeProducts ? (
+        {catalog ? (
           <Stat
-            href={adminUrl.collection('products')}
+            href={adminUrl.filtered('products', 'status', 'active')}
             icon="products"
-            label="Products"
-            value={activeProducts.totalDocs}
-            hint={`active of ${products.totalDocs}`}
+            label="Products live"
+            value={catalog.active.toLocaleString('en-IN')}
+            hint={`${catalog.draft} in draft · ${catalog.total} in all`}
           />
         ) : null}
-        {newEnquiries && enabledFeatures.includes('enquiries') ? (
+        {enquiries ? (
           <Stat
-            href={`${adminUrl.collection('enquiries')}?where[status][equals]=new`}
+            href={adminUrl.filtered('enquiries', 'status', 'new')}
             icon="enquiries"
             label="New enquiries"
-            tone={newEnquiries.totalDocs ? 'warning' : 'neutral'}
-            value={newEnquiries.totalDocs}
-            hint={newEnquiries.totalDocs ? 'Waiting for a reply' : 'All answered'}
+            tone={enquiries.newCount ? 'warning' : 'neutral'}
+            value={enquiries.newCount}
+            hint={`${enquiries.newQuotes} quote ${enquiries.newQuotes === 1 ? 'request' : 'requests'} · ${enquiries.inProgress} in progress`}
+          />
+        ) : null}
+        {can('pages') ? (
+          <Stat
+            href={`${adminUrl.pages}?status=draft`}
+            icon="draft"
+            label="Draft pages"
+            value={drafts.length}
+            hint={
+              scheduled[0]
+                ? `${published} live · next scheduled ${formatRelative(scheduled[0].scheduled!.at, now)}`
+                : `${published} live`
+            }
+          />
+        ) : null}
+        {catalog ? (
+          <Stat
+            href={adminUrl.collection('variants')}
+            icon="variants"
+            label="Low stock"
+            tone={catalog.lowStock.length ? 'warning' : 'neutral'}
+            value={catalog.lowStock.length}
+            hint={catalog.alertsSet ? 'variants' : 'Set “Alert me below” on variants'}
           />
         ) : null}
       </div>
 
+      {enquiries ? (
+        <div className="te-grid te-grid--2-1">
+          <Card title="Enquiries, last 14 days">
+            <EnquiryChart days={enquiries.daily} />
+          </Card>
+          <Card
+            actions={
+              <a className="te-link" href={adminUrl.collection('enquiries')}>
+                All
+              </a>
+            }
+            title="New enquiries"
+          >
+            <NewEnquiries now={now} summary={enquiries} />
+          </Card>
+        </div>
+      ) : null}
+
       <div className="te-grid te-grid--2-1">
-        <div className="te-stack">
+        <Card title="Needs your attention">
           {attention.length ? (
-            <Card title="Needs your attention">
-              <ul className="te-attention">
-                {attention.map((item) => (
-                  <li key={item.key}>
-                    <a className="te-attention__item" href={item.href}>
-                      <Icon name={item.icon} size={16} />
-                      <span>{item.text}</span>
-                      <Icon className="te-attention__go" name="chevronRight" size={16} />
+            <AttentionList items={attention} />
+          ) : (
+            <EmptyState icon="checkCircle" title="All clear">
+              Nothing needs you right now.
+            </EmptyState>
+          )}
+        </Card>
+        <QuickActions can={can} canManageStaff={canManageStaff} features={enabledFeatures} />
+      </div>
+
+      {growth.length ? (
+        <Card title="Offers and growth">
+          <div className="te-growth">
+            {growth.map((item) => (
+              <div className="te-growth__tile" key={item.feature}>
+                <span className="te-growth__label">
+                  <Icon name={item.icon} size={15} />
+                  {item.label}
+                </span>
+                <b>—</b>
+                <span className="te-muted te-small">Switched on · screen coming soon</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      ) : null}
+
+      <div className="te-grid te-grid--2-1">
+        <Card title="Recent activity">
+          <Suspense fallback={<Skeleton label="Loading recent activity" lines={5} />}>
+            <RecentActivity can={can} pages={pages} payload={payload} tenantId={store.id} />
+          </Suspense>
+        </Card>
+        <div className="te-stack">
+          {catalog && catalog.lowStock.length ? (
+            <Card className="te-card--flush" title="Low stock">
+              <table className="te-table">
+                <thead>
+                  <tr>
+                    <th>Variant</th>
+                    <th className="te-num">In stock</th>
+                    <th className="te-num">Alert at</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {catalog.lowStock.slice(0, 5).map((row) => (
+                    <tr key={row.id}>
+                      <td>
+                        <a className="te-link" href={adminUrl.doc('variants', row.id)}>
+                          {row.name}
+                        </a>
+                      </td>
+                      <td className={`te-num${row.stock === 0 ? ' te-text--danger' : ''}`}>
+                        {row.stock}
+                      </td>
+                      <td className="te-num">{row.alertAt}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </Card>
+          ) : null}
+          {catalog && can('products', 'create') && catalog.drafts.length ? (
+            <Card
+              actions={
+                <a className="te-link" href={adminUrl.filtered('products', 'status', 'draft')}>
+                  All drafts
+                </a>
+              }
+              title="Products to finish"
+            >
+              <ol className="te-activity">
+                {catalog.drafts.map((product) => (
+                  <li key={product.id}>
+                    <a className="te-activity__item" href={adminUrl.doc('products', product.id)}>
+                      <span className="te-activity__text">
+                        <span className="te-activity__primary">{product.title}</span>
+                        <span className="te-activity__secondary">
+                          {product.modelNumber} · edited {formatRelative(product.updatedAt, now)}
+                        </span>
+                      </span>
                     </a>
                   </li>
                 ))}
-              </ul>
+              </ol>
             </Card>
           ) : null}
-          <Card title="Recent activity">
-            <Suspense fallback={<Skeleton label="Loading recent activity" lines={5} />}>
-              <RecentActivity can={can} pages={pages} payload={payload} tenantId={store.id} />
-            </Suspense>
-          </Card>
           {can('pages') ? (
             <Card
               actions={
@@ -490,22 +737,18 @@ export async function StoreHome({
                   ))}
                 </ol>
               ) : (
-                <EmptyState icon="calendar" title="Nothing scheduled">
-                  Schedule a page from its editor to put it live at a set time, for example a
-                  festive offer at 10:00 on the day.
-                </EmptyState>
+                <p className="te-muted te-small">
+                  Nothing scheduled. Schedule a page from its editor to put it live at a set time,
+                  for example a festive offer at 10:00 on the day.
+                </p>
               )}
             </Card>
           ) : null}
-        </div>
-        <div className="te-stack">
-          <QuickActions can={can} store={store} />
-          <Suspense fallback={<Skeleton label="Loading the setup checklist" lines={6} />}>
-            <StoreSetup enabledFeatures={enabledFeatures} payload={payload} tenantId={store.id} />
-          </Suspense>
-          <Suspense fallback={<Skeleton label="Loading plan usage" lines={3} />}>
-            <StorePlanCard payload={payload} tenantId={store.id} />
-          </Suspense>
+          {isAdmin ? (
+            <Suspense fallback={<Skeleton label="Loading plan usage" lines={3} />}>
+              <StorePlanCard payload={payload} tenantId={store.id} />
+            </Suspense>
+          ) : null}
         </div>
       </div>
     </div>

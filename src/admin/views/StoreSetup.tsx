@@ -1,13 +1,15 @@
 import type { CollectionSlug, Payload, Where } from 'payload'
 
 import { adminUrl } from '@/admin/paths'
-import { Card, Pill, Row, Rows } from '@/admin/ui'
+import { Card } from '@/admin/ui'
+import { Icon } from '@/admin/ui/icons'
 
 type Step = { label: string; hint: string; href: string; done: boolean; count?: number }
 
 /**
- * Setting up a store for its first storefront (docs/progress.md stage A), as a checklist on the
- * store dashboard. Counts are read per store with an explicit tenant filter (docs/04).
+ * Setting up a store for its first storefront (docs/progress.md stage A): the wireframe's launch
+ * checklist on the store dashboard, gone once every step is done (cms-dashboard rule 2). Counts
+ * are read per store with an explicit tenant filter (docs/04).
  */
 export async function StoreSetup({
   payload,
@@ -28,7 +30,7 @@ export async function StoreSetup({
     ).totalDocs
   const has = (feature: string) => enabledFeatures.includes(feature)
 
-  const [settings, attributeSets, categories, media, policiesLive, homeLive, dealers] =
+  const [settings, attributeSets, categories, media, products, policiesLive, homeLive, dealers] =
     await Promise.all([
       payload
         .find({
@@ -42,6 +44,7 @@ export async function StoreSetup({
       count('attribute-sets'),
       count('categories'),
       count('media'),
+      count('products', { status: { equals: 'active' } }),
       count('pages', {
         and: [{ template: { equals: 'policy' } }, { _status: { equals: 'published' } }],
       }),
@@ -87,9 +90,16 @@ export async function StoreSetup({
       count: media,
     },
     {
+      label: 'Products live',
+      hint: 'At least one active product with photos',
+      href: adminUrl.collection('products'),
+      done: products > 0,
+      count: products,
+    },
+    {
       label: 'Policy pages published',
       hint: 'Shipping, returns, privacy, terms, warranty',
-      href: adminUrl.collection('pages'),
+      href: `${adminUrl.pages}?template=policy`,
       done: policiesLive >= 5,
       count: policiesLive,
     },
@@ -118,37 +128,42 @@ export async function StoreSetup({
       : []),
   ]
   const done = steps.filter((step) => step.done).length
+  if (done === steps.length) return null
   return (
     <Card
       actions={
-        <Pill
-          tone={done === steps.length ? 'success' : 'neutral'}
-        >{`${done} of ${steps.length}`}</Pill>
+        <div
+          aria-label={`${done} of ${steps.length} done`}
+          aria-valuemax={steps.length}
+          aria-valuemin={0}
+          aria-valuenow={done}
+          className="te-checklist__bar"
+          role="progressbar"
+        >
+          <i style={{ width: `${(done / steps.length) * 100}%` }} />
+        </div>
       }
-      title="Set up your store"
+      title={`Launch checklist · ${done} of ${steps.length} done`}
     >
-      <Rows>
+      <ul className="te-checklist">
         {steps.map((step) => (
-          <Row
-            aside={
-              step.done ? (
-                <Pill tone="success">
-                  {step.count !== undefined ? `Done · ${step.count}` : 'Done'}
-                </Pill>
-              ) : (
-                <Pill tone="warning">To do</Pill>
-              )
-            }
-            href={step.href}
-            key={step.label}
-            primary={step.label}
-            secondary={step.hint}
-          />
+          <li className={step.done ? 'te-checklist__item--done' : undefined} key={step.label}>
+            <span aria-hidden className="te-checklist__box">
+              {step.done ? <Icon name="check" size={11} strokeWidth={3} /> : null}
+            </span>
+            <span className="te-checklist__label" title={step.hint}>
+              {step.label}
+              {step.done && step.count ? <span className="te-muted"> · {step.count}</span> : null}
+              <span className="te-visually-hidden">{step.done ? ' (done)' : ' (to do)'}</span>
+            </span>
+            {step.done ? null : (
+              <a className="te-chip-link" href={step.href}>
+                Open
+              </a>
+            )}
+          </li>
         ))}
-      </Rows>
-      <p className="te-muted te-small">
-        Then add products under Commerce. Orders, payments and shipping follow in the selling stage.
-      </p>
+      </ul>
     </Card>
   )
 }

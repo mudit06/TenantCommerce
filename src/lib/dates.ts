@@ -171,3 +171,18 @@ export function formatRelative(
   if (days === 1) return `Tomorrow, ${time}`
   return days > 0 ? formatDateAndTime(at, timeZone) : formatDate(at, timeZone)
 }
+
+/** 2 Oct (day and short month): chart axes */
+export function formatDayMonth(date: Date | string, timeZone = DEFAULT_TIMEZONE): string {
+  return new Intl.DateTimeFormat('en-IN', { timeZone, day: 'numeric', month: 'short' }).format(
+    new Date(date),
+  )
+}
+
+/** "Good morning" before noon, "Good afternoon" until 5 pm, then "Good evening" */
+export function greetingFor(date: Date, timeZone = DEFAULT_TIMEZONE): string {
+  const hour = Number(
+    new Intl.DateTimeFormat('en-GB', { timeZone, hour: 'numeric', hourCycle: 'h23' }).format(date),
+  )
+  return hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
+}

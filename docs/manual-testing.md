@@ -98,8 +98,8 @@ Click Home Orbit.
       store's CMS" with an empty or 3-letter reason is refused. Type "Vendor asked us to set up the
       Diwali page" and open it.
 - [ ] A brown bar on every page says "You are managing Home Orbit as platform admin", with the
-      reason and the end time. The menu is Home Orbit's own (Content, Commerce, Engagement,
-      Settings) and the platform sections are gone; `/admin/collections/plans` says "Nothing
+      reason and the end time. The menu is Home Orbit's own (Catalog, Sales, Marketing,
+      Content, Store, Insights) and the platform sections are gone; `/admin/collections/plans` says "Nothing
       found".
 - [ ] Change a word on the **About us** page and save it as a draft. The Pages list says
       "by Platform Admin (platform team)". Back in the platform panel later, **Recent changes**
@@ -172,17 +172,30 @@ Private window. Open the **Home Orbit** set-password link from section 0 (or the
 
 - [ ] The page asks for New Password and Confirm Password. A password shorter than 10 characters
       is refused. Use 10 or more, for example `HomeOrbit@2026`.
-- [ ] After saving you are signed in at the **store dashboard**: "Good morning" (or afternoon,
-      evening), Home Orbit at the top of the menu, and "Your store isn't live yet".
-- [ ] Cards: Published pages 2, Draft pages 5, Scheduled 0, Products 110 active of 110, New
-      enquiries 0. Each card opens the matching list.
-- [ ] **Needs your attention** says the 5 policy pages are still drafts; **Recent activity** lists
-      Home and About us published and the uploaded photos, with who and when.
-- [ ] Plan card: Products **110 / 500**, Staff 1 / 3, Media storage about 0.01 GB.
-- [ ] **Set up your store: 5 of 8**. Done: Attribute sets (6), Categories (13), Media library
-      (115), Home page published, Menus. To do: Store settings, Policy pages, Dealers.
-- [ ] The menu shows only store sections (Content, Commerce, Engagement, Settings), with a draft
-      count on Pages. There is no Vendors or Plans: store staff never see the platform panel.
+- [ ] After saving you are signed in at the **store dashboard**, laid out as the wireframe
+      (`docs/wireframes/index.html#cms-dashboard`, Design view): "Good morning" (or afternoon,
+      evening), today's date and Home Orbit, **View store** and **Add product**, and "Your store
+      isn't live yet".
+- [ ] The menu is dark, with Home Orbit and "Store admin" at the top and the wireframe's groups:
+      Dashboard, Catalog, Sales, Marketing, Content, Store, Insights, each entry with an icon and
+      a draft count on Pages. Screens not built yet (Import and export, Orders, Customers,
+      Shipping, Payments, WhatsApp and SMS, Order updates, Reports, and the Marketing entries
+      whose switch is on) are greyed with a **Soon** tag and do nothing. At the foot: Products
+      **110 / 500**, Starter plan. There is no Vendors or Plans: store staff never see the
+      platform panel.
+- [ ] The white top bar has a search box (**Ctrl K** jumps to it), **View store**, a bell with the
+      number of new enquiries, and "your name · Owner". Type `soap` and press Enter: Products
+      opens filtered to soap dishes; the arrow keys pick Enquiries or Pages instead.
+- [ ] **Launch checklist · 6 of 9 done**, as ticked boxes. Done: Attribute sets (6), Categories
+      (13), Media library (115), Products live (110), Home page published, Menus. To do, each
+      with **Open**: Store settings, Policy pages published, Dealers.
+- [ ] Figures: Orders today "—" (starts with online selling), Products live 110, New enquiries 0,
+      Draft pages 5, Low stock 0. Each opens the matching list.
+- [ ] **Needs your attention** says the 5 policy pages are still drafts. **Quick actions** has Add
+      product, Create page, Landing page, Upload media, Add category, Log an enquiry, Add dealer,
+      Invite staff, Store settings.
+- [ ] **Recent activity** lists Home and About us and the uploaded photos, with who and when;
+      **Coming up** says nothing is scheduled; the plan card shows Staff 1 / 3 and media storage.
 - [ ] The collapse button at the bottom of the menu shrinks it to icons (hover shows the names);
       it stays collapsed after a reload. Below 1024 px wide the menu opens from the ☰ button.
 
@@ -199,7 +212,9 @@ Store → Store settings, tab **Contact**.
       email.
 - [ ] Tab **Grievance officer and labels**: fill in a name, designation, email and phone, then
       Save. The contact page and the footer show the grievance officer.
-- [ ] Back on the dashboard, the Store settings step reads Done (6 of 8).
+- [ ] Back on the dashboard, the Store settings step is ticked (7 of 9).
+- [ ] Tab **Store status**: tick **Maintenance mode** and Save. A yellow bar "Maintenance mode is
+      on" shows on every page of the CMS and in Needs your attention. Untick it again.
 
 ### 2.3 Attribute sets and categories
 
@@ -268,13 +283,14 @@ Store → Store settings, tab **Contact**.
 
 ### 2.7 Staff and roles
 
-- [ ] Team → Staff and roles: you are the Owner. The page explains what each role can do.
+- [ ] Store → Staff and roles: you are the Owner. The page explains what each role can do.
 - [ ] Invite `editor@homeorbit.example`, name `Cat Editor`. No role is ticked at first and
       **Send invite** stays grey; tick only **Catalog editor**, then send. Expect "Invite emailed
       to editor@homeorbit.example", and the email (with a link) in the `pnpm dev` terminal.
 - [ ] Open that link in a **third** window (another browser or another private profile), set a
       password, and sign in. The editor's menu has Catalog, Content and Store settings but **no
-      Enquiries**. Store settings opens read-only (no Save button). Typing
+      Enquiries** (no Sales group at all) and no Marketing. Their dashboard has no launch
+      checklist, no enquiry cards and only the quick actions they can use. Store settings opens read-only (no Save button). Typing
       `/admin/collections/enquiries` in the address bar says "Nothing found", and `/admin/staff`
       says "Only the store owner manages staff."
 - [ ] As the owner, press **Change roles** on the editor and add Content editor, then **Remove**
@@ -363,7 +379,9 @@ Back in the owner's private window.
 - [ ] Set Status to **Contacted**, assign it to yourself, add an internal note, and Save. It
       moves to the **In progress** tab. Set it to **Won** and it moves to Closed.
 - [ ] **Create New**: log a phone enquiry by hand. It gets the next ENQ number.
-- [ ] The dashboard shows the count of new enquiries.
+- [ ] The dashboard shows the new enquiries in the figures, the **New enquiries** list and the
+      **Enquiries, last 14 days** chart, and the top bar bell shows the same number. One left new
+      for more than a day shows in Needs your attention as "waiting more than a day".
 
 ## 5. Store status: Go live, Suspend, Resume
 

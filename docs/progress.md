@@ -3,7 +3,7 @@
 The single place to check build status. Update it in the same commit as the work (docs/16
 definition of done). Screen ids match `docs/screens/*.md` and the wireframes.
 
-Last updated: 4 October 2026 (admin redesign, Manage store and View as support; hosting guide, docs/19). Nothing is deployed anywhere yet; the code runs
+Last updated: 4 October 2026 (vendor CMS in the wireframe's look; admin redesign, Manage store and View as support; hosting guide, docs/19). Nothing is deployed anywhere yet; the code runs
 locally (README).
 
 ## At a glance
@@ -83,13 +83,19 @@ matter). The store dashboard's checklist tracks it.
 
 ## Vendor CMS (docs/screens/vendor-cms.md)
 
-Vendor staff sign in to their own store only, with menus grouped as the spec (Catalog, Sales,
-Content, Store, Team) and screens hidden when the store's feature is off. Every collection below
+Vendor staff sign in to their own store only. Since 4 October 2026 a store's CMS follows the
+wireframe's Design view (mudit asked for it "as it is" in the wireframes): a dark menu grouped
+Catalog, Sales, Marketing, Content, Store, Insights, with screens not built yet greyed as "Soon"
+(only for the roles and switched-on features they belong to) and the plan's product allowance at
+the foot; a top bar with search (Ctrl K), View store, a new-enquiry bell and name · role; and a
+bar on every page while the store is suspended or in maintenance. Entries need both Payload's
+visibility and read access, so a role never sees a screen (or its count) it can't open. The
+platform panel keeps its light menu. Every collection below
 has tenant isolation, role and feature tests (`tests/integration/store.test.ts`).
 
 | Screen | Status | Built | Left, and why |
 |---|---|---|---|
-| `cms-dashboard` Store dashboard | Partial | Greeting, store status notice, cards for published, draft and scheduled pages, products and new enquiries; needs your attention; recent activity with who and when; coming up (scheduled publishes); quick actions; setup checklist; plan usage | Sales figures, orders to ship, low stock: come with orders and products |
+| `cms-dashboard` Store dashboard | Partial | In the wireframe's order: greeting, store status notice, launch checklist as ticked boxes (gone when done), figures (orders today placeholder, products live, new enquiries, draft pages, low stock from each variant's alert), enquiries in the last 14 days, new enquiries, needs your attention (plan payment, trial ending, maintenance, enquiries waiting, enquiries assigned to you, low stock, plan limits, draft policy pages, unpublished changes, draft products, pending invites), quick actions, offers and growth (switched-on features), recent activity with who and when, low stock, products to finish, coming up, plan usage. Cards follow role and features | Sales today, orders to ship, order updates and the growth figures: come with orders, notifications and stage C |
 | `cms-staff` Staff and roles | Done | Staff list, invite, resend, change roles, remove, what each role can do, plan staff limit; a store always keeps an owner | Two-step column (two-step deferred) |
 | `cms-settings` Store settings | Partial | Branding, contact, grievance officer, label defaults, GST details (read only), order and invoice prefixes, returns, announcement bar, policy links, search and analytics IDs, maintenance mode. Created for every store at onboarding | Cash on delivery and prepaid rules come with the Payments screen (stage B) |
 | `cms-media` Media library | Done | Upload images and PDFs, WebP sizes, alt text required, size limits, storage counted against the plan, S3/R2 + CDN switch (docs/12 "Media") | Production bucket (docs/open-items) |

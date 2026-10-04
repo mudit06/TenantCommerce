@@ -7,10 +7,9 @@ import {
   platformRoleOf,
   storeSessionOf,
   TENANT_ROLE_LABELS,
-  type TenantRole,
   workspaceOf,
 } from '@/access'
-import { currentStore } from '@/admin/store'
+import { currentStore, storeRolesOf } from '@/admin/store'
 
 import { AppNavClient, type NavBadges, type NavIdentity } from './AppNavClient'
 import { buildMenu } from './menu'
@@ -22,7 +21,7 @@ type Props = ServerProps & { req?: PayloadRequest }
  * never both (src/admin/workspace.ts). Grouped sections with icons, live counts on Pages and
  * Enquiries, the store being edited at the top and the signed-in person at the bottom.
  */
-export async function AppNav({ req, visibleEntities }: Props) {
+export async function AppNav({ req, visibleEntities, permissions }: Props) {
   if (!req?.user) return null
   const user = req.user
   const workspace = workspaceOf(user)
@@ -33,16 +32,25 @@ export async function AppNav({ req, visibleEntities }: Props) {
   const canManageStaff = Boolean(
     store && (session ? session.mode === 'manage' : hasTenantRole(user, store.id, ['owner'])),
   )
+  const storeRoles = store ? storeRolesOf(user, store.id) : []
+  // Shown when Payload shows the collection and the person may read it (the role matrix,
+  // docs/05): a catalog editor never sees Enquiries or its count
+  const visible = new Set(
+    (visibleEntities?.collections ?? []).filter(
+      (slug) => !permissions || Boolean(permissions.collections?.[slug]?.read),
+    ),
+  )
   const sections = buildMenu({
     workspace,
-    visibleCollections: new Set(visibleEntities?.collections ?? []),
+    visibleCollections: visible,
     isSuperAdmin: isSuperAdmin(user),
     canManageStaff,
+    storeRoles,
+    features: store?.features ?? [],
   })
 
   const badges: NavBadges = {}
   if (store) {
-    const visible = new Set(visibleEntities?.collections ?? [])
     const [drafts, enquiries] = await Promise.all([
       visible.has('pages')
         ? req.payload.count({
@@ -65,18 +73,6 @@ export async function AppNav({ req, visibleEntities }: Props) {
 
   const name = ('name' in user && typeof user.name === 'string' && user.name) || user.email
   const platformRole = platformRoleOf(user)
-  const memberships = ('tenants' in user ? user.tenants : null) as
-    { tenant?: unknown; roles?: string[] | null }[] | null
-  const storeRoles = store
-    ? (memberships?.find((row) => {
-        const tenant = row.tenant
-        return (
-          (typeof tenant === 'object' && tenant && 'id' in tenant
-            ? String(tenant.id)
-            : String(tenant)) === store.id
-        )
-      })?.roles ?? [])
-    : []
   const identity: NavIdentity = {
     workspace,
     store: store
@@ -86,6 +82,8 @@ export async function AppNav({ req, visibleEntities }: Props) {
           status: store.status,
           planName: store.planName,
           storeUrl: store.storeUrl,
+          maxProducts: store.maxProducts ?? null,
+          productsCount: store.productsCount,
         }
       : null,
     session: session ? { mode: session.mode } : null,
@@ -94,8 +92,7 @@ export async function AppNav({ req, visibleEntities }: Props) {
       email: String(user.email ?? ''),
       role: platformRole
         ? PLATFORM_ROLE_LABELS[platformRole]
-        : storeRoles.map((role) => TENANT_ROLE_LABELS[role as TenantRole] ?? role).join(', ') ||
-          'Staff',
+        : storeRoles.map((role) => TENANT_ROLE_LABELS[role] ?? role).join(', ') || 'Staff',
     },
     canSwitchStore: !session && workspace === 'store',
   }
@@ -104,7 +101,7 @@ export async function AppNav({ req, visibleEntities }: Props) {
   const items = sections.map((section) => ({
     key: section.key,
     label: section.label,
-    items: section.items.map(({ key, label, href, icon, badge, exact, alsoActive }) => ({
+    items: section.items.map(({ key, label, href, icon, badge, exact, alsoActive, soon }) => ({
       key,
       label,
       href,
@@ -112,6 +109,7 @@ export async function AppNav({ req, visibleEntities }: Props) {
       badge,
       exact,
       alsoActive,
+      soon,
     })),
   }))
   return <AppNavClient badges={badges} identity={identity} sections={items} />

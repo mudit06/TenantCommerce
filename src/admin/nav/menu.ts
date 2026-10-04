@@ -1,4 +1,4 @@
-import type { Workspace } from '@/access'
+import { CATALOG_WRITE, ENQUIRY_WORK, STORE_ADMIN, type TenantRole, type Workspace } from '@/access'
 import { adminUrl } from '@/admin/paths'
 import type { IconName } from '@/admin/ui/icons'
 
@@ -22,6 +22,15 @@ export type MenuItem = {
   exact?: boolean
   /** Other screens that belong to this entry (the page type chooser belongs to Pages) */
   alsoActive?: string[]
+  /**
+   * A screen in the spec that isn't built yet (docs/progress.md): shown greyed with "Soon" and no
+   * link, so the menu reads as the wireframe. Remove the flag when the screen ships.
+   */
+  soon?: boolean
+  /** Store roles the entry is for (soon entries; built ones follow collection access) */
+  roles?: readonly TenantRole[]
+  /** Store feature switch the entry needs (docs/08) */
+  feature?: string
 }
 
 export type MenuSection = { key: string; label?: string; items: MenuItem[] }
@@ -32,6 +41,10 @@ export type MenuContext = {
   isSuperAdmin: boolean
   /** Owner of the current store, or our team managing it */
   canManageStaff: boolean
+  /** The person's roles in the current store (our team: owner when managing, support viewing) */
+  storeRoles?: readonly TenantRole[]
+  /** Feature switches on for the current store */
+  features?: readonly string[]
 }
 
 const collectionItem = (
@@ -41,6 +54,18 @@ const collectionItem = (
   extra: Partial<MenuItem> = {},
 ): MenuItem => ({ key, label, icon, href: adminUrl.collection(key), collection: key, ...extra })
 
+const soonItem = (
+  key: string,
+  label: string,
+  icon: IconName,
+  roles: readonly TenantRole[],
+  feature?: string,
+): MenuItem => ({ key, label, icon, href: '', soon: true, roles, feature })
+
+const MARKETING: readonly TenantRole[] = ['owner', 'manager']
+
+// Grouped as the wireframe's vendor CMS menu (docs/wireframes #cms-dashboard, docs/screens
+// vendor-cms.md "Menu"), mudit 4 October 2026
 const STORE_MENU: MenuSection[] = [
   {
     key: 'home',
@@ -55,21 +80,8 @@ const STORE_MENU: MenuSection[] = [
     ],
   },
   {
-    key: 'content',
-    label: 'Content',
-    items: [
-      collectionItem('pages', 'Pages', 'pages', {
-        badge: 'draftPages',
-        alsoActive: [adminUrl.newPage],
-      }),
-      collectionItem('media', 'Media', 'media'),
-      collectionItem('navigation', 'Menus', 'menus'),
-      collectionItem('banners', 'Banners', 'banners'),
-    ],
-  },
-  {
-    key: 'commerce',
-    label: 'Commerce',
+    key: 'catalog',
+    label: 'Catalog',
     items: [
       collectionItem('products', 'Products', 'products'),
       collectionItem('variants', 'Variants', 'variants'),
@@ -77,21 +89,53 @@ const STORE_MENU: MenuSection[] = [
       collectionItem('attribute-sets', 'Attribute sets', 'attributes'),
       collectionItem('brands', 'Brands', 'brands'),
       collectionItem('product-documents', 'Documents', 'documents'),
+      soonItem('import', 'Import and export', 'upload', CATALOG_WRITE),
+      collectionItem('media', 'Media', 'media'),
     ],
   },
   {
-    key: 'engagement',
-    label: 'Engagement',
+    key: 'sales',
+    label: 'Sales',
     items: [
+      soonItem('orders', 'Orders', 'receipt', ENQUIRY_WORK),
+      soonItem('customers', 'Customers', 'staff', ENQUIRY_WORK),
       collectionItem('enquiries', 'Enquiries', 'enquiries', { badge: 'newEnquiries' }),
-      collectionItem('dealers', 'Dealers', 'dealers'),
     ],
   },
   {
-    key: 'settings',
-    label: 'Settings',
+    key: 'marketing',
+    label: 'Marketing',
     items: [
-      collectionItem('site-settings', 'Store settings', 'store'),
+      soonItem('schemes', 'Schemes and offers', 'calendar', MARKETING, 'schemes'),
+      soonItem('coupons', 'Coupons', 'brands', MARKETING, 'coupons'),
+      soonItem('campaigns', 'Offer messages', 'mail', MARKETING, 'offer-messages'),
+      soonItem('abandoned', 'Abandoned carts', 'cart', MARKETING, 'abandoned-cart'),
+      soonItem('affiliates', 'Affiliates', 'link', MARKETING, 'affiliate'),
+      soonItem('reviews', 'Reviews', 'star', MARKETING, 'reviews'),
+    ],
+  },
+  {
+    key: 'content',
+    label: 'Content',
+    items: [
+      collectionItem('pages', 'Pages', 'pages', {
+        badge: 'draftPages',
+        alsoActive: [adminUrl.newPage],
+      }),
+      collectionItem('navigation', 'Navigation', 'menus'),
+      collectionItem('banners', 'Banners', 'banners'),
+    ],
+  },
+  {
+    key: 'store',
+    label: 'Store',
+    items: [
+      collectionItem('dealers', 'Dealers', 'dealers'),
+      soonItem('shipping', 'Shipping', 'truck', STORE_ADMIN),
+      soonItem('payments', 'Payments', 'card', STORE_ADMIN),
+      soonItem('messaging', 'WhatsApp and SMS', 'whatsapp', STORE_ADMIN),
+      soonItem('notifications', 'Order updates', 'bell', STORE_ADMIN),
+      collectionItem('site-settings', 'Settings', 'settings'),
       {
         key: 'staff',
         label: 'Staff and roles',
@@ -100,6 +144,11 @@ const STORE_MENU: MenuSection[] = [
         when: (ctx) => ctx.canManageStaff,
       },
     ],
+  },
+  {
+    key: 'insights',
+    label: 'Insights',
+    items: [soonItem('reports', 'Reports', 'chart', STORE_ADMIN)],
   },
 ]
 
@@ -156,6 +205,8 @@ export function buildMenu(ctx: MenuContext): MenuSection[] {
       ...section,
       items: section.items.filter((item) => {
         if (item.collection && !ctx.visibleCollections.has(item.collection)) return false
+        if (item.roles && !item.roles.some((role) => ctx.storeRoles?.includes(role))) return false
+        if (item.feature && !ctx.features?.includes(item.feature)) return false
         return item.when ? item.when(ctx) : true
       }),
     }))
@@ -167,6 +218,7 @@ export const isActive = (
   item: Pick<MenuItem, 'href' | 'exact' | 'alsoActive'>,
   pathname: string,
 ) => {
+  if (!item.href) return false
   if (item.alsoActive?.includes(pathname)) return true
   return item.exact
     ? pathname === item.href
@@ -176,6 +228,6 @@ export const isActive = (
 /** A menu entry as the client renders it: plain data, no rules. */
 export type NavItem = Pick<
   MenuItem,
-  'key' | 'label' | 'href' | 'icon' | 'badge' | 'exact' | 'alsoActive'
+  'key' | 'label' | 'href' | 'icon' | 'badge' | 'exact' | 'alsoActive' | 'soon'
 >
 export type NavSection = { key: string; label?: string; items: NavItem[] }

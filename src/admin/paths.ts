@@ -22,4 +22,8 @@ export const adminUrl = {
   createPage: (template: string) => `${ADMIN}/collections/pages/create?template=${template}`,
   collection: (slug: string) => `${ADMIN}/collections/${slug}`,
   create: (slug: string) => `${ADMIN}/collections/${slug}/create`,
+  doc: (slug: string, id: string | number) => `${ADMIN}/collections/${slug}/${id}`,
+  /** A list filtered by `where[field][operator]=value` (Payload's list address) */
+  filtered: (slug: string, field: string, value: string, operator = 'equals') =>
+    `${ADMIN}/collections/${slug}?where[${field}][${operator}]=${encodeURIComponent(value)}`,
 }

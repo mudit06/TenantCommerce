@@ -23,7 +23,8 @@ describe('admin menu per workspace', () => {
         canManageStaff: false,
       }),
     )
-    expect(menu).toEqual(['dashboard', 'pages', 'media', 'products', 'enquiries'])
+    // Grouped as the wireframe: Catalog, Sales, Marketing, Content, Store, Insights
+    expect(menu).toEqual(['dashboard', 'products', 'media', 'enquiries', 'pages'])
     expect(
       keys(
         buildMenu({
@@ -34,6 +35,45 @@ describe('admin menu per workspace', () => {
         }),
       ),
     ).toContain('staff')
+  })
+
+  it('greys out screens not built yet, for their roles and switched-on features only', () => {
+    const owner = buildMenu({
+      workspace: 'store',
+      visibleCollections: visible,
+      isSuperAdmin: false,
+      canManageStaff: true,
+      storeRoles: ['owner'],
+      features: ['reviews'],
+    })
+    const items = owner.flatMap((section) => section.items)
+    expect(owner.map((section) => section.label)).toEqual([
+      undefined,
+      'Catalog',
+      'Sales',
+      'Marketing',
+      'Content',
+      'Store',
+      'Insights',
+    ])
+    expect(items.find((item) => item.key === 'orders')).toMatchObject({ soon: true, href: '' })
+    expect(items.map((item) => item.key)).toContain('reviews')
+    expect(items.map((item) => item.key)).not.toContain('coupons')
+
+    const editor = keys(
+      buildMenu({
+        workspace: 'store',
+        visibleCollections: visible,
+        isSuperAdmin: false,
+        canManageStaff: false,
+        storeRoles: ['content-editor'],
+        features: ['reviews'],
+      }),
+    )
+    expect(editor).not.toContain('orders')
+    expect(editor).not.toContain('reviews')
+    // A soon entry never counts as the current screen
+    expect(isActive({ href: '' }, '/admin/account')).toBe(false)
   })
 
   it('shows our team only the platform panel outside a store session', () => {

@@ -48,9 +48,11 @@ import { SubscriptionBillingField as SubscriptionBillingField_fcfef03775b3f58376
 import { SubscriptionSummary as SubscriptionSummary_8c5627b16a26c7886584b3e7212f1e00 } from '@/modules/tenancy/admin/views/SubscriptionSummary'
 import { AppNav as AppNav_0a091e207ef0306455b92cca29012e1e } from '@/admin/nav/AppNav'
 import { StoreSessionBanner as StoreSessionBanner_fc20b85ae970e5ce16a164992566f354 } from '@/admin/session/StoreSessionBanner'
+import { StoreBanner as StoreBanner_15bebee9142466e766ea66a009e69ba9 } from '@/admin/header/StoreBanner'
 import { BlockLibraryHints as BlockLibraryHints_dc611f20083a013f1d541042bd5ca384 } from '@/blocks/admin/BlockLibraryHints'
 import { Icon as Icon_586723811577fcd570b153bacaa81664 } from '@/admin/graphics/Icon'
 import { Logo as Logo_fb41377240e79a3f427000f9c4717644 } from '@/admin/graphics/Logo'
+import { StoreTopBar as StoreTopBar_92c1acfa020c3baf55d49748ffd5bfba } from '@/admin/header/StoreTopBar'
 import { GlobalViewRedirect as GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
 import { TenantSelector as TenantSelector_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
 import { TenantSelectionProvider as TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
@@ -114,9 +116,11 @@ export const importMap = {
   "@/modules/tenancy/admin/views/SubscriptionSummary#SubscriptionSummary": SubscriptionSummary_8c5627b16a26c7886584b3e7212f1e00,
   "@/admin/nav/AppNav#AppNav": AppNav_0a091e207ef0306455b92cca29012e1e,
   "@/admin/session/StoreSessionBanner#StoreSessionBanner": StoreSessionBanner_fc20b85ae970e5ce16a164992566f354,
+  "@/admin/header/StoreBanner#StoreBanner": StoreBanner_15bebee9142466e766ea66a009e69ba9,
   "@/blocks/admin/BlockLibraryHints#BlockLibraryHints": BlockLibraryHints_dc611f20083a013f1d541042bd5ca384,
   "@/admin/graphics/Icon#Icon": Icon_586723811577fcd570b153bacaa81664,
   "@/admin/graphics/Logo#Logo": Logo_fb41377240e79a3f427000f9c4717644,
+  "@/admin/header/StoreTopBar#StoreTopBar": StoreTopBar_92c1acfa020c3baf55d49748ffd5bfba,
   "@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect": GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelector": TenantSelector_d6d5f193a167989e2ee7d14202901e62,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider": TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62,

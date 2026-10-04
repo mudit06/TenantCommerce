@@ -14,7 +14,15 @@ export type NavBadges = Partial<Record<BadgeKey, { count: number; label: string 
 
 export type NavIdentity = {
   workspace: 'platform' | 'store'
-  store: { id: string; name: string; status: string; planName?: string; storeUrl?: string } | null
+  store: {
+    id: string
+    name: string
+    status: string
+    planName?: string
+    storeUrl?: string
+    maxProducts?: number | null
+    productsCount?: number
+  } | null
   session: { mode: 'manage' | 'view' } | null
   person: { name: string; email: string; role: string }
   canSwitchStore: boolean
@@ -118,10 +126,44 @@ function Brand({ identity }: { identity: NavIdentity }) {
             ? session.mode === 'manage'
               ? 'Managing as platform'
               : 'Viewing as support'
-            : `Store CMS${store.planName ? ` · ${store.planName}` : ''}`}
+            : 'Store admin'}
         </span>
       </span>
       {identity.canSwitchStore ? <StoreSwitcher currentId={store.id} /> : null}
+    </div>
+  )
+}
+
+/** The plan's product allowance at the foot of a store's menu (wireframe Design view). */
+function PlanMeter({ store }: { store: NonNullable<NavIdentity['store']> }) {
+  const used = store.productsCount ?? 0
+  const max = store.maxProducts
+  const ratio = max ? Math.min(1, used / max) : 0
+  return (
+    <div className="te-nav__plan">
+      {max ? (
+        <>
+          <div className="te-nav__plan-row">
+            <span>Products</span>
+            <span className="te-nav__plan-numbers">
+              {used.toLocaleString('en-IN')} / {max.toLocaleString('en-IN')}
+            </span>
+          </div>
+          <div
+            aria-label="Products used on your plan"
+            aria-valuemax={max}
+            aria-valuemin={0}
+            aria-valuenow={used}
+            className={`te-nav__plan-track${ratio >= 0.9 ? ' te-nav__plan-track--hot' : ''}`}
+            role="progressbar"
+          >
+            <i style={{ width: `${ratio * 100}%` }} />
+          </div>
+        </>
+      ) : null}
+      <span className="te-nav__plan-name">
+        {store.planName ? `${store.planName} plan` : 'No plan'}
+      </span>
     </div>
   )
 }
@@ -158,6 +200,7 @@ export function AppNavClient({
     shouldAnimate && 'nav--nav-animate',
     hydrated && 'nav--nav-hydrated',
     rail && 'te-nav--rail',
+    identity.workspace === 'store' && 'te-nav--store',
   ]
     .filter(Boolean)
     .join(' ')
@@ -186,6 +229,21 @@ export function AppNavClient({
               {section.label ? <div className="te-nav__section-label">{section.label}</div> : null}
               <ul className="te-nav__list">
                 {section.items.map((item) => {
+                  if (item.soon) {
+                    return (
+                      <li key={item.key}>
+                        <span
+                          aria-disabled="true"
+                          className="te-nav__link te-nav__link--soon"
+                          data-tooltip={`${item.label} (coming soon)`}
+                        >
+                          <Icon className="te-nav__icon" name={item.icon} />
+                          <span className="te-nav__label">{item.label}</span>
+                          <span className="te-nav__soon">Soon</span>
+                        </span>
+                      </li>
+                    )
+                  }
                   const active = item.key === activeKey
                   const badge = item.badge ? badges[item.badge] : undefined
                   return (
@@ -214,36 +272,25 @@ export function AppNavClient({
               </ul>
             </div>
           ))}
-          {identity.store?.storeUrl ? (
-            <div className="te-nav__section">
-              <ul className="te-nav__list">
-                <li>
-                  <a
-                    className="te-nav__link"
-                    data-tooltip="View store"
-                    href={identity.store.storeUrl}
-                    rel="noreferrer"
-                    target="_blank"
-                  >
-                    <Icon className="te-nav__icon" name="external" />
-                    <span className="te-nav__label">View store</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          ) : null}
         </nav>
 
+        {identity.store ? <PlanMeter store={identity.store} /> : null}
+
         <div className="te-nav__footer">
-          <a className="te-nav__person" data-tooltip="Your account" href={`${ADMIN}/account`}>
-            <span aria-hidden className="te-nav__avatar">
-              {initials(identity.person.name)}
-            </span>
-            <span className="te-nav__person-text">
-              <span className="te-nav__person-name">{identity.person.name}</span>
-              <span className="te-nav__person-role">{identity.person.role}</span>
-            </span>
-          </a>
+          {identity.workspace === 'platform' ? (
+            <a className="te-nav__person" data-tooltip="Your account" href={`${ADMIN}/account`}>
+              <span aria-hidden className="te-nav__avatar">
+                {initials(identity.person.name)}
+              </span>
+              <span className="te-nav__person-text">
+                <span className="te-nav__person-name">{identity.person.name}</span>
+                <span className="te-nav__person-role">{identity.person.role}</span>
+              </span>
+            </a>
+          ) : (
+            // In a store the person sits in the top bar, as in the wireframe
+            <span className="te-nav__footer-spacer" />
+          )}
           <div className="te-nav__footer-actions">
             <button
               aria-label={rail ? 'Expand menu' : 'Collapse menu'}

@@ -2,7 +2,7 @@ import { cookies } from 'next/headers'
 import type { Payload } from 'payload'
 import { cache } from 'react'
 
-import { idOf, storeSessionOf, tenantIdsWithRoles, workspaceOf } from '@/access'
+import { idOf, storeSessionOf, tenantIdsWithRoles, type TenantRole, workspaceOf } from '@/access'
 import { storeOriginForHost } from '@/lib/storeOrigin'
 
 // The store a CMS page is about: the one in our team's store session, or the store chosen in the
@@ -17,6 +17,11 @@ export type CurrentStore = {
   planName?: string
   storeUrl?: string
   primaryHost?: string
+  /** Feature switches on for the store (docs/08) */
+  features: string[]
+  /** The plan's product allowance and how much of it is used (menu foot, wireframe) */
+  maxProducts?: number | null
+  productsCount: number
 }
 
 /** The shopper-facing address of a host (src/lib/storeOrigin). */
@@ -62,6 +67,9 @@ const loadStore = cache(async (payload: Payload, id: string): Promise<CurrentSto
     planName: plan?.name,
     primaryHost: host,
     storeUrl: storeUrlForHost(host),
+    features: tenant.enabledFeatures ?? [],
+    maxProducts: plan?.limits?.maxProducts,
+    productsCount: tenant.usage?.productsCount ?? 0,
   }
 })
 
@@ -70,4 +78,20 @@ export async function currentStore(payload: Payload, user: unknown): Promise<Cur
   if (workspaceOf(user) !== 'store') return null
   const [id] = await storeIdsFor(user)
   return id ? loadStore(payload, id) : null
+}
+
+/**
+ * The person's roles in a store. Our team in a store session acts as the owner when managing and
+ * as support when viewing (docs/05); access control decides what they can really change.
+ */
+export function storeRolesOf(user: unknown, storeId: string): TenantRole[] {
+  const session = storeSessionOf(user)
+  if (session)
+    return session.tenantId === storeId ? [session.mode === 'manage' ? 'owner' : 'support'] : []
+  const memberships =
+    user && typeof user === 'object' && 'tenants' in user
+      ? ((user as { tenants?: { tenant?: unknown; roles?: string[] | null }[] | null }).tenants ??
+        [])
+      : []
+  return (memberships.find((row) => idOf(row.tenant) === storeId)?.roles ?? []) as TenantRole[]
 }
