@@ -15,6 +15,7 @@ import {
   lastCoveredDay,
   nextPaymentTerms,
   periodEnd,
+  resumeState,
 } from './billing'
 
 type HistoryRow = NonNullable<Subscription['history']>[number]
@@ -255,14 +256,10 @@ export async function changeSubscriptionStatus(
       409,
     )
   }
-  // Resuming starts a fresh unpaid period from today: recording a payment makes it active
+  // Resuming returns to the trial or the paid period still running, else past due from today
   const data: Partial<Subscription> =
     input.action === 'resume'
-      ? {
-          status: 'active',
-          currentPeriodStart: startOfDay(now).toISOString(),
-          currentPeriodEnd: startOfDay(now).toISOString(),
-        }
+      ? (resumeState(sub, now, startOfDay(now)) as Partial<Subscription>)
       : { status: input.action === 'pause' ? 'paused' : 'cancelled' }
   const event = { pause: 'Paused', resume: 'Resumed', cancel: 'Cancelled' }[input.action]
   const updated = await req.payload.update({

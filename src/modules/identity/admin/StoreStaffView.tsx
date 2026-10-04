@@ -11,6 +11,8 @@ import {
 } from '@/access'
 import { Card, Notice, UsageBar } from '@/admin/ui'
 import { AdminScreen } from '@/admin/ui/AdminScreen'
+import { requireSignedIn } from '@/admin/session/requireSignedIn'
+import { adminUrl } from '@/admin/paths'
 
 import { InviteForm } from './InviteForm'
 import { StaffTable } from './StaffTable'
@@ -28,6 +30,7 @@ export async function StoreStaffView(view: AdminViewServerProps) {
 
 async function StoreStaff({ view }: { view: AdminViewServerProps }) {
   const { req } = view.initPageResult
+  requireSignedIn(req.user, adminUrl.staff)
   const owned = tenantIdsWithRoles(req.user, ['owner'])
   const selected = getTenantFromCookie(req.headers, 'text')
   // Our team works on a store's staff while managing that store (docs/05), or on the vendor's

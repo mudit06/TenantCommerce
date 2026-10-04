@@ -16,7 +16,8 @@ export function ResendInviteButton({ userId }: { userId: string }) {
   }
   return (
     <button className="te-link-button" disabled={busy} onClick={() => void resend()} type="button">
-      Resend invite
+      {/* Visible progress, so a slow first send isn't clicked again (each send voids the last link) */}
+      {busy ? 'Sending…' : 'Resend invite'}
     </button>
   )
 }

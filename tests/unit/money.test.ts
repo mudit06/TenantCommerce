@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { moneyField } from '@/fields/money'
 import {
   add,
   allocate,
@@ -61,5 +62,28 @@ describe('money in paise (ADR 0004)', () => {
     expect(formatINR(500, { decimals: 'always' })).toBe('₹5.00')
     expect(formatINRCompact(37_000_000)).toBe('₹3.70 L')
     expect(formatINRCompact(2_620_000_000)).toBe('₹2.62 Cr')
+  })
+})
+
+describe('money field', () => {
+  // Payload skips its own `min` and `required` checks when a field has a validate (QA SA-08)
+  const validateOf = (required: boolean) => {
+    const amount = moneyField({ name: 'price', required }).fields[0]
+    if (!amount || !('validate' in amount) || typeof amount.validate !== 'function')
+      throw new Error('no validate')
+    return amount.validate as (value: number | null | undefined) => true | string
+  }
+
+  it('refuses negative and fractional paise', () => {
+    expect(validateOf(false)(-500)).toBe('Amount can’t be negative')
+    expect(validateOf(false)(10.5)).toBe('Amount must be whole paise')
+    expect(validateOf(false)(0)).toBe(true)
+    expect(validateOf(false)(100_000)).toBe(true)
+  })
+
+  it('needs an amount only when the field is required', () => {
+    expect(validateOf(false)(null)).toBe(true)
+    expect(validateOf(true)(null)).toBe('Enter an amount')
+    expect(validateOf(true)(undefined)).toBe('Enter an amount')
   })
 })

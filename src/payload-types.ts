@@ -1536,6 +1536,7 @@ export interface AuditLog {
     | 'store_managed_change'
     | 'store_created'
     | 'store_status_changed'
+    | 'store_details_changed'
     | 'feature_changed'
     | 'connector_changed'
     | 'plan_changed'

@@ -3,6 +3,8 @@ import type { AdminViewServerProps } from 'payload'
 
 import { isPlatformStaff, isSuperAdmin } from '@/access'
 import { Card, Notice, Row, Rows } from '@/admin/ui'
+import { requireSignedIn } from '@/admin/session/requireSignedIn'
+import { adminUrl } from '@/admin/paths'
 
 import {
   LOCK_MINUTES,
@@ -16,6 +18,7 @@ import { StaffTable } from './StaffTable'
 /** docs/screens/super-admin.md "Team and access": our own team's accounts. */
 export async function TeamView({ initPageResult, params, searchParams }: AdminViewServerProps) {
   const { req, permissions, visibleEntities, locale } = initPageResult
+  requireSignedIn(req.user, adminUrl.team)
   const allowed = isPlatformStaff(req.user)
   const { docs: team } = allowed
     ? await req.payload.find({

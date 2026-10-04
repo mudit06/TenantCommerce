@@ -71,6 +71,30 @@ export function nextCoverageStart(sub: SubscriptionLike, now: Date): Date {
   return toDate(sub.currentPeriodEnd) ?? toDate(sub.trialEndsAt) ?? now
 }
 
+/**
+ * What a paused subscription returns to when it is resumed. A trial that hasn't ended carries on,
+ * and so does a paid period that still covers today. Otherwise the subscription is past due from
+ * today: the period is closed at the start of today, so the next payment covers today onwards and
+ * the paused weeks are never billed.
+ */
+export function resumeState(
+  sub: SubscriptionLike,
+  now: Date,
+  startOfToday: Date,
+): Pick<SubscriptionLike, 'status' | 'currentPeriodStart' | 'currentPeriodEnd'> {
+  const trialEnd = toDate(sub.trialEndsAt)
+  const hasPaid = (sub.payments?.length ?? 0) > 0
+  if (!hasPaid && trialEnd && trialEnd > now) return { status: 'trialing' }
+  const end = toDate(sub.currentPeriodEnd)
+  if (end && end > now) return { status: 'active' }
+  const start = toDate(sub.currentPeriodStart)
+  return {
+    status: 'past_due',
+    currentPeriodStart: (start && start < startOfToday ? start : startOfToday).toISOString(),
+    currentPeriodEnd: startOfToday.toISOString(),
+  }
+}
+
 export type PaymentTerms = {
   /** True when this payment takes the plan's introductory offer. */
   isIntro: boolean

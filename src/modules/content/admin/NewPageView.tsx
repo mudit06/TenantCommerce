@@ -5,6 +5,7 @@ import { currentStore } from '@/admin/store'
 import { AdminScreen } from '@/admin/ui/AdminScreen'
 import { ButtonLink, EmptyState, PAGE_TEMPLATES, PageHeader, type PageTemplate } from '@/admin/ui'
 import { Icon } from '@/admin/ui/icons'
+import { requireSignedIn } from '@/admin/session/requireSignedIn'
 
 const EXAMPLES: Record<PageTemplate, string[]> = {
   default: ['About us', 'Our factory', 'Care and cleaning guide'],
@@ -32,6 +33,7 @@ export async function NewPageView(view: AdminViewServerProps) {
 
 async function NewPageContent({ view }: { view: AdminViewServerProps }) {
   const { req, permissions } = view.initPageResult
+  requireSignedIn(req.user, adminUrl.newPage)
   const store = await currentStore(req.payload, req.user)
   if (!store || !permissions?.collections?.pages?.create) {
     return (

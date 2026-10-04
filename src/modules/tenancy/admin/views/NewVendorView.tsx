@@ -5,6 +5,7 @@ import { isSuperAdmin } from '@/access'
 import { adminUrl } from '@/admin/paths'
 import { Notice } from '@/admin/ui'
 import { env } from '@/lib/env'
+import { requireSignedIn } from '@/admin/session/requireSignedIn'
 
 import { NewVendorForm, type PlanOption } from './NewVendorForm'
 
@@ -15,6 +16,7 @@ export async function NewVendorView({
   searchParams,
 }: AdminViewServerProps) {
   const { req, permissions, visibleEntities, locale } = initPageResult
+  requireSignedIn(req.user, adminUrl.newVendor)
   const allowed = isSuperAdmin(req.user)
   const plans: PlanOption[] = allowed
     ? (

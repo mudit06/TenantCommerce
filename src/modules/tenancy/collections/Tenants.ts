@@ -7,6 +7,7 @@ import { slugField } from '@/fields/slug'
 import { DEFAULT_TIMEZONE } from '@/lib/dates'
 import { GST_STATE_OPTIONS, parseGstin } from '@/lib/gst/gstin'
 
+import { recordAudit } from '@/modules/audit'
 import { FEATURES } from '@/modules/features'
 
 import { INDUSTRIES, RESERVED_SLUGS, TENANT_STATUSES } from '../constants'
@@ -23,6 +24,26 @@ const tab = (path: string, label: string, order: number) => ({
  * deleted from the admin: stores are suspended or archived, and hard deletes go through a
  * reviewed script after the retention period.
  */
+/** Fields edited on the vendor overview, with the words Recent changes uses for them. */
+const EDITABLE_DETAILS: Record<string, string> = {
+  name: 'store name',
+  legalName: 'legal name',
+  gstin: 'GSTIN',
+  pan: 'PAN',
+  stateCode: 'GST state',
+  registeredAddress: 'registered address',
+  industry: 'industry',
+  supportEmail: 'support email',
+  supportPhone: 'support phone',
+  whatsappNumber: 'WhatsApp number',
+  defaultLocale: 'language',
+  timezone: 'time zone',
+  notes: 'internal notes',
+}
+
+const sameValue = (a: unknown, b: unknown) =>
+  JSON.stringify(a ?? null) === JSON.stringify(b ?? null)
+
 export const Tenants: CollectionConfig = {
   slug: 'tenants',
   labels: { singular: 'Vendor', plural: 'All vendors' },
@@ -296,6 +317,27 @@ export const Tenants: CollectionConfig = {
           }
         }
         return data
+      },
+    ],
+    afterChange: [
+      // Edits on the vendor overview show under Recent changes (QA SA-13). Status, plan and
+      // feature changes go through their services, which write their own entries.
+      async ({ doc, previousDoc, operation, req }) => {
+        if (operation !== 'update' || !req.user) return doc
+        const changed = Object.entries(EDITABLE_DETAILS)
+          .filter(([field]) => !sameValue(previousDoc?.[field], doc[field]))
+          .map(([, label]) => label)
+        if (changed.length === 0) return doc
+        await recordAudit(req, {
+          action: 'store_details_changed',
+          tenant: String(doc.id),
+          collectionSlug: 'tenants',
+          docId: String(doc.id),
+          summary: `Edited ${changed.join(', ')}`,
+          // Field names only: notes and contact details stay out of the log (docs/14)
+          diff: { fields: changed },
+        })
+        return doc
       },
     ],
     beforeChange: [

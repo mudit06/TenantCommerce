@@ -6,6 +6,7 @@ import {
   effectiveStatus,
   monthlyRecurringMinor,
   nextPaymentTerms,
+  resumeState,
   summarizeBilling,
 } from '@/modules/tenancy/services/billing'
 import { formatDate } from '@/lib/dates'
@@ -52,6 +53,48 @@ describe('manual subscription billing', () => {
   it('a paused subscription restarts from today', () => {
     const cover = coverageFor({ status: 'paused', currentPeriodEnd: '2026-01-01T00:00:00Z' }, now)
     expect(cover.start).toEqual(now)
+  })
+
+  it('resuming returns to the trial or the running period, else past due from today', () => {
+    const today = new Date('2026-10-02T18:30:00Z')
+    // Paused during a trial that hasn't ended (QA SA-32: it used to become past due at once)
+    expect(
+      resumeState(
+        {
+          status: 'paused',
+          trialEndsAt: '2026-10-16T18:30:00Z',
+          currentPeriodEnd: '2026-10-16T18:30:00Z',
+        },
+        now,
+        today,
+      ),
+    ).toEqual({ status: 'trialing' })
+    // A period that still covers today carries on unchanged
+    expect(
+      resumeState(
+        { status: 'paused', payments: [{}], currentPeriodEnd: '2026-11-01T18:30:00Z' },
+        now,
+        today,
+      ),
+    ).toEqual({ status: 'active' })
+    // Ended while paused: past due from today, never an end before its start
+    const ended = resumeState(
+      {
+        status: 'paused',
+        payments: [{}],
+        currentPeriodStart: '2026-08-01T18:30:00Z',
+        currentPeriodEnd: '2026-09-01T18:30:00Z',
+      },
+      now,
+      today,
+    )
+    expect(ended).toEqual({
+      status: 'past_due',
+      currentPeriodStart: '2026-08-01T18:30:00.000Z',
+      currentPeriodEnd: today.toISOString(),
+    })
+    // The next payment then covers today onwards, not the paused weeks
+    expect(coverageFor({ ...ended, billingCycle: 'monthly' }, now).start).toEqual(today)
   })
 
   it('the first payment takes the starting offer, later ones the monthly price', () => {

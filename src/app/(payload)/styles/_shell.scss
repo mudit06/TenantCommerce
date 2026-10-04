@@ -463,9 +463,17 @@ html:has(.te-session-banner) {
   opacity: 0.85;
   overflow: hidden;
   text-overflow: ellipsis;
+}
 
-  @media (max-width: 900px) {
-    display: none;
+// Narrow screens: two lines, so the reason and the end time stay visible (QA SA-15)
+@media (max-width: 900px) {
+  html:has(.te-session-banner) {
+    --te-banner-h: 60px;
+  }
+
+  .te-session-banner__text {
+    flex-direction: column;
+    gap: 2px;
   }
 }
 

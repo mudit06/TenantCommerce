@@ -4,6 +4,8 @@ export const AUDIT_ACTIONS = [
   'store_managed_change',
   'store_created',
   'store_status_changed',
+  // Business details or internal notes edited on the vendor overview
+  'store_details_changed',
   'feature_changed',
   'connector_changed',
   'plan_changed',

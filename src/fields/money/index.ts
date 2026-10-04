@@ -38,10 +38,12 @@ export function moneyField({
           readOnly,
           components: { Field: '@/fields/money/RupeeInput#RupeeInput' },
         },
-        validate: (value: number | null | undefined) =>
-          value === null || value === undefined || Number.isSafeInteger(value)
-            ? true
-            : 'Amount must be whole paise',
+        // A custom validate replaces Payload's own, so `required` and `min` are checked here too
+        validate: (value: number | null | undefined) => {
+          if (value === null || value === undefined) return required ? 'Enter an amount' : true
+          if (!Number.isSafeInteger(value)) return 'Amount must be whole paise'
+          return value < 0 ? 'Amount can’t be negative' : true
+        },
       },
       {
         name: 'currency',

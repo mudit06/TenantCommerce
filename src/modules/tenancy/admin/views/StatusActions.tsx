@@ -101,6 +101,12 @@ export function StatusActions({
             placeholder="For example: subscription unpaid for 30 days"
             value={reason}
           />
+          {!reason.trim() ? (
+            // The button stays off until there is a reason; say so (QA SA-31)
+            <p className="te-muted te-small" role="status">
+              Type a reason to {pending.label.toLowerCase()}.
+            </p>
+          ) : null}
           <div className="te-confirm__buttons">
             <Button
               buttonStyle="error"
