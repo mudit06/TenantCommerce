@@ -1,0 +1,28 @@
+// Public API of the orders module (docs/01): checkout, orders, their timeline, idempotency.
+export { IdempotencyKeys } from './collections/IdempotencyKeys'
+export { OrderEvents } from './collections/OrderEvents'
+export { Orders } from './collections/Orders'
+export * from './constants'
+export {
+  checkoutAddressSchema,
+  normalizeIndianMobile,
+  placeOrder,
+  placeOrderSchema,
+  quoteCheckout,
+  type CartLineInput,
+  type CheckoutAddress,
+  type CheckoutQuote,
+  type PlaceOrderInput,
+  type QuotedLine,
+} from './services/checkout'
+export { newTrackingCode, nextOrderNumber } from './services/numbers'
+export { addOrderEvent } from './services/timeline'
+export {
+  cancelOrder,
+  canMoveOrder,
+  confirmOrder,
+  loadOrder,
+  markOrderPaid,
+  ORDER_TRANSITIONS,
+  recordPaymentFailure,
+} from './services/transition'

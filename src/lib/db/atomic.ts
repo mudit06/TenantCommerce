@@ -112,3 +112,27 @@ export async function writeHiddenFields(
     .updateOne({ _id: input.id }, { $set: input.set }, { session: await sessionFor(req) })
     .exec()
 }
+
+/**
+ * One conditional update in the caller's transaction: changes the store's document `id` only if
+ * it still matches `condition` (stock still available), and says whether it did. MongoDB
+ * evaluates the condition and the update together, so two shoppers can't both take the last piece.
+ */
+export async function conditionalUpdate(
+  req: PayloadRequest,
+  input: {
+    collection: CollectionSlug
+    id: string
+    tenantId: string
+    condition?: Record<string, unknown>
+    update: Record<string, unknown>
+  },
+): Promise<boolean> {
+  // Mongoose casts the string ids to ObjectIds from the collection's schema
+  const result = await modelFor(req, input.collection)
+    .updateOne({ _id: input.id, tenant: input.tenantId, ...input.condition }, input.update, {
+      session: await sessionFor(req),
+    })
+    .exec()
+  return result.modifiedCount === 1
+}

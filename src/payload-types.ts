@@ -80,6 +80,17 @@ export interface Config {
     banners: Banner;
     dealers: Dealer;
     enquiries: Enquiry;
+    'shipping-zones': ShippingZone;
+    orders: Order;
+    'order-events': OrderEvent;
+    transactions: Transaction;
+    refunds: Refund;
+    invoices: Invoice;
+    shipments: Shipment;
+    carts: Cart;
+    'stock-movements': StockMovement;
+    'idempotency-keys': IdempotencyKey;
+    pincodes: Pincode;
     counters: Counter;
     'connector-configs': ConnectorConfig;
     tenants: Tenant;
@@ -114,6 +125,17 @@ export interface Config {
     banners: BannersSelect<false> | BannersSelect<true>;
     dealers: DealersSelect<false> | DealersSelect<true>;
     enquiries: EnquiriesSelect<false> | EnquiriesSelect<true>;
+    'shipping-zones': ShippingZonesSelect<false> | ShippingZonesSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
+    'order-events': OrderEventsSelect<false> | OrderEventsSelect<true>;
+    transactions: TransactionsSelect<false> | TransactionsSelect<true>;
+    refunds: RefundsSelect<false> | RefundsSelect<true>;
+    invoices: InvoicesSelect<false> | InvoicesSelect<true>;
+    shipments: ShipmentsSelect<false> | ShipmentsSelect<true>;
+    carts: CartsSelect<false> | CartsSelect<true>;
+    'stock-movements': StockMovementsSelect<false> | StockMovementsSelect<true>;
+    'idempotency-keys': IdempotencyKeysSelect<false> | IdempotencyKeysSelect<true>;
+    pincodes: PincodesSelect<false> | PincodesSelect<true>;
     counters: CountersSelect<false> | CountersSelect<true>;
     'connector-configs': ConnectorConfigsSelect<false> | ConnectorConfigsSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
@@ -990,6 +1012,7 @@ export interface Variant {
    */
   images?: (string | Media)[] | null;
   stockQty?: number | null;
+  reservedQty?: number | null;
   lowStockThreshold?: number | null;
   weightGrams?: number | null;
   allowBackorder?: boolean | null;
@@ -1387,6 +1410,669 @@ export interface Enquiry {
     utmMedium?: string | null;
     utmCampaign?: string | null;
   };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shipping-zones".
+ */
+export interface ShippingZone {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  name: string;
+  /**
+   * Off: shoppers in this zone can’t order (a blocked area)
+   */
+  isServiceable?: boolean | null;
+  sortOrder?: number | null;
+  states?:
+    | (
+        | '10'
+        | '11'
+        | '12'
+        | '13'
+        | '14'
+        | '15'
+        | '16'
+        | '17'
+        | '18'
+        | '19'
+        | '20'
+        | '21'
+        | '22'
+        | '23'
+        | '24'
+        | '26'
+        | '27'
+        | '29'
+        | '30'
+        | '31'
+        | '32'
+        | '33'
+        | '34'
+        | '35'
+        | '36'
+        | '37'
+        | '38'
+        | '97'
+        | '01'
+        | '02'
+        | '03'
+        | '04'
+        | '05'
+        | '06'
+        | '07'
+        | '08'
+        | '09'
+      )[]
+    | null;
+  /**
+   * Whole pincodes (411045) or their first digits (4110 covers 411001 to 411099)
+   */
+  pincodePrefixes?: string[] | null;
+  rateType: 'flat' | 'weight' | 'order-value';
+  fee?: Money;
+  freeAbove?: Money;
+  baseWeightGrams?: number | null;
+  perExtraKg?: Money;
+  /**
+   * The highest bracket the order reaches applies
+   */
+  valueBrackets?:
+    | {
+        from: Money;
+        bracketFee: Money;
+        id?: string | null;
+      }[]
+    | null;
+  codAllowed?: boolean | null;
+  etaMinDays?: number | null;
+  etaMaxDays?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  orderNumber: string;
+  status: 'pending' | 'confirmed' | 'processing' | 'completed' | 'cancelled';
+  paymentStatus: 'pending' | 'authorized' | 'paid' | 'partially_refunded' | 'refunded' | 'failed';
+  fulfillmentStatus:
+    | 'unfulfilled'
+    | 'packed'
+    | 'partially_shipped'
+    | 'shipped'
+    | 'out_for_delivery'
+    | 'delivery_failed'
+    | 'delivered'
+    | 'rto'
+    | 'lost'
+    | 'returned'
+    | 'cancelled';
+  contact?: {
+    name?: string | null;
+    email?: string | null;
+    phone?: string | null;
+  };
+  items?:
+    | {
+        productId?: string | null;
+        variantId?: string | null;
+        sku?: string | null;
+        title: string;
+        options?: string | null;
+        imageUrl?: string | null;
+        qty: number;
+        unitMinor?: number | null;
+        mrpMinor?: number | null;
+        discountMinor?: number | null;
+        hsnCode?: string | null;
+        gstRate?: number | null;
+        taxableMinor?: number | null;
+        cgstMinor?: number | null;
+        sgstMinor?: number | null;
+        igstMinor?: number | null;
+        lineTotalMinor?: number | null;
+        weightGrams?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  charges?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  totals?: {
+    itemsMinor?: number | null;
+    discountMinor?: number | null;
+    subtotalMinor?: number | null;
+    shippingMinor?: number | null;
+    codFeeMinor?: number | null;
+    taxableMinor?: number | null;
+    cgstMinor?: number | null;
+    sgstMinor?: number | null;
+    igstMinor?: number | null;
+    taxMinor?: number | null;
+    roundOffMinor?: number | null;
+    grandTotalMinor?: number | null;
+    paidMinor?: number | null;
+    refundedMinor?: number | null;
+  };
+  shippingAddress?: ShopperAddress;
+  billingSameAsShipping?: boolean | null;
+  buyerGstin?: string | null;
+  buyerLegalName?: string | null;
+  billingAddress?: ShopperAddress;
+  sellerStateCode?: string | null;
+  placeOfSupplyStateCode?: string | null;
+  paymentMethod: 'razorpay' | 'cod';
+  /**
+   * Razorpay test orders charge nobody
+   */
+  paymentMode?: ('test' | 'live') | null;
+  shippingMethod?: {
+    source?: ('shiprocket' | 'rate-card') | null;
+    zoneName?: string | null;
+    courierName?: string | null;
+    etaMinDays?: number | null;
+    etaMaxDays?: number | null;
+  };
+  appliedOffers?:
+    | {
+        kind?: ('scheme' | 'coupon') | null;
+        ref?: string | null;
+        code?: string | null;
+        name?: string | null;
+        discountMinor?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  couponCode?: string | null;
+  invoice?: (string | null) | Invoice;
+  /**
+   * The /t/<code> link in messages to the shopper
+   */
+  trackingCode: string;
+  whatsappOptIn?: boolean | null;
+  notes?: string | null;
+  source?: ('web' | 'pwa' | 'admin') | null;
+  locale?: string | null;
+  cartId?: string | null;
+  placedAt?: string | null;
+  confirmedAt?: string | null;
+  paidAt?: string | null;
+  completedAt?: string | null;
+  cancelledAt?: string | null;
+  /**
+   * An unpaid online order is cancelled after this
+   */
+  expiresAt?: string | null;
+  cancelReason?: string | null;
+  stockState?: ('none' | 'reserved' | 'sold' | 'released' | 'restocked') | null;
+  ip?: string | null;
+  userAgent?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ShopperAddress".
+ */
+export interface ShopperAddress {
+  name?: string | null;
+  /**
+   * +91 and 10 digits
+   */
+  phone?: string | null;
+  line1?: string | null;
+  line2?: string | null;
+  landmark?: string | null;
+  city?: string | null;
+  stateCode?:
+    | (
+        | '10'
+        | '11'
+        | '12'
+        | '13'
+        | '14'
+        | '15'
+        | '16'
+        | '17'
+        | '18'
+        | '19'
+        | '20'
+        | '21'
+        | '22'
+        | '23'
+        | '24'
+        | '26'
+        | '27'
+        | '29'
+        | '30'
+        | '31'
+        | '32'
+        | '33'
+        | '34'
+        | '35'
+        | '36'
+        | '37'
+        | '38'
+        | '97'
+        | '01'
+        | '02'
+        | '03'
+        | '04'
+        | '05'
+        | '06'
+        | '07'
+        | '08'
+        | '09'
+      )
+    | null;
+  pincode?: string | null;
+  country?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "invoices".
+ */
+export interface Invoice {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  order: string | Order;
+  type: 'tax-invoice' | 'credit-note';
+  number: string;
+  financialYear: string;
+  issuedAt: string;
+  /**
+   * The invoice a credit note corrects
+   */
+  againstInvoice?: (string | null) | Invoice;
+  seller:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  buyer:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  placeOfSupply:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  lines:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  totals:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  amountInWords: string;
+  /**
+   * E-invoicing, later
+   */
+  irn?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "order-events".
+ */
+export interface OrderEvent {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  order: string | Order;
+  type:
+    | 'created'
+    | 'payment_captured'
+    | 'payment_failed'
+    | 'status_changed'
+    | 'parcel_status_changed'
+    | 'note'
+    | 'refund'
+    | 'invoice'
+    | 'message_sent'
+    | 'shopper_reply';
+  text: string;
+  from?: string | null;
+  to?: string | null;
+  byUser?: (string | null) | User;
+  /**
+   * Who did it when not a staff member: system, shopper, Razorpay…
+   */
+  byLabel?: string | null;
+  data?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  at: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "transactions".
+ */
+export interface Transaction {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  order: string | Order;
+  provider: 'razorpay' | 'cod' | 'manual';
+  mode?: ('test' | 'live') | null;
+  providerOrderId: string;
+  providerPaymentId?: string | null;
+  amountMinor: number;
+  status: 'created' | 'authorized' | 'captured' | 'failed' | 'refunded' | 'partially_refunded';
+  /**
+   * upi, card, netbanking, wallet, emi
+   */
+  method?: string | null;
+  /**
+   * Bank or card network
+   */
+  methodDetail?: string | null;
+  capturedAt?: string | null;
+  failureReason?: string | null;
+  refundedMinor?: number | null;
+  /**
+   * Webhook events already handled
+   */
+  processedEventIds?: string[] | null;
+  /**
+   * The last provider payload, without card or contact details
+   */
+  raw?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "refunds".
+ */
+export interface Refund {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  order: string | Order;
+  transaction?: (string | null) | Transaction;
+  amountMinor: number;
+  reason: string;
+  method: 'razorpay' | 'manual';
+  providerRefundId?: string | null;
+  /**
+   * Bank transfer or UPI reference for a manual refund
+   */
+  reference?: string | null;
+  status: 'pending' | 'processed' | 'failed';
+  /**
+   * Order lines and quantities refunded, when not the whole order
+   */
+  lines?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  includesShipping?: boolean | null;
+  creditNote?: (string | null) | Invoice;
+  by?: (string | null) | User;
+  processedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shipments".
+ */
+export interface Shipment {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  order: string | Order;
+  direction: 'forward' | 'return';
+  status:
+    | 'packed'
+    | 'shipped'
+    | 'in_transit'
+    | 'out_for_delivery'
+    | 'delivery_failed'
+    | 'delivered'
+    | 'rto_initiated'
+    | 'rto_delivered'
+    | 'cancelled'
+    | 'lost';
+  items?:
+    | {
+        orderItemId: string;
+        title?: string | null;
+        sku?: string | null;
+        qty: number;
+        id?: string | null;
+      }[]
+    | null;
+  package?: {
+    lengthMm?: number | null;
+    breadthMm?: number | null;
+    heightMm?: number | null;
+    weightGrams?: number | null;
+  };
+  provider?: ('manual' | 'shiprocket') | null;
+  carrier?: string | null;
+  courierId?: string | null;
+  trackingNumber?: string | null;
+  trackingUrl?: string | null;
+  awb?: string | null;
+  providerOrderId?: string | null;
+  providerShipmentId?: string | null;
+  labelUrl?: string | null;
+  pickupScheduledFor?: string | null;
+  expectedDeliveryDate?: string | null;
+  codAmountMinor?: number | null;
+  ewayBillNo?: string | null;
+  attempts?: number | null;
+  failureReason?: ('customer_unavailable' | 'address_issue' | 'refused' | 'cod_not_ready' | 'other') | null;
+  ndrAction?: {
+    action?: ('re-attempt' | 'return') | null;
+    deferredDate?: string | null;
+    note?: string | null;
+    by?: (string | null) | User;
+    at?: string | null;
+  };
+  events?:
+    | {
+        status: string;
+        at: string;
+        source?: ('staff' | 'shiprocket' | 'import' | 'system') | null;
+        by?: (string | null) | User;
+        note?: string | null;
+        location?: string | null;
+        /**
+         * Shiprocket: AWB + status + scan time
+         */
+        dedupeKey?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  packedAt?: string | null;
+  shippedAt?: string | null;
+  outForDeliveryAt?: string | null;
+  deliveredAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "carts".
+ */
+export interface Cart {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  tokenHash: string;
+  status: 'active' | 'converted' | 'abandoned';
+  items?:
+    | {
+        product: string | Product;
+        variant?: (string | null) | Variant;
+        qty: number;
+        addedAt?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  contact?: {
+    name?: string | null;
+    email?: string | null;
+    phone?: string | null;
+  };
+  pincode?: string | null;
+  shippingAddress?: ShopperAddress;
+  couponCode?: string | null;
+  lastActivityAt?: string | null;
+  convertedOrder?: (string | null) | Order;
+  /**
+   * Removed 30 days after the last change
+   */
+  expiresAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stock-movements".
+ */
+export interface StockMovement {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  variant: string | Variant;
+  reason: 'reserve' | 'release' | 'sale' | 'cancel' | 'return' | 'adjustment' | 'import';
+  stockDelta?: number | null;
+  reservedDelta?: number | null;
+  order?: (string | null) | Order;
+  by?: (string | null) | User;
+  note?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "idempotency-keys".
+ */
+export interface IdempotencyKey {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  key: string;
+  route: string;
+  requestHash: string;
+  responseStatus?: number | null;
+  responseBody?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  expiresAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pincodes".
+ */
+export interface Pincode {
+  id: string;
+  pincode: string;
+  city?: string | null;
+  district?: string | null;
+  stateCode:
+    | '10'
+    | '11'
+    | '12'
+    | '13'
+    | '14'
+    | '15'
+    | '16'
+    | '17'
+    | '18'
+    | '19'
+    | '20'
+    | '21'
+    | '22'
+    | '23'
+    | '24'
+    | '26'
+    | '27'
+    | '29'
+    | '30'
+    | '31'
+    | '32'
+    | '33'
+    | '34'
+    | '35'
+    | '36'
+    | '37'
+    | '38'
+    | '97'
+    | '01'
+    | '02'
+    | '03'
+    | '04'
+    | '05'
+    | '06'
+    | '07'
+    | '08'
+    | '09';
   updatedAt: string;
   createdAt: string;
 }
@@ -1822,6 +2508,50 @@ export interface PayloadLockedDocument {
         value: string | Enquiry;
       } | null)
     | ({
+        relationTo: 'shipping-zones';
+        value: string | ShippingZone;
+      } | null)
+    | ({
+        relationTo: 'orders';
+        value: string | Order;
+      } | null)
+    | ({
+        relationTo: 'order-events';
+        value: string | OrderEvent;
+      } | null)
+    | ({
+        relationTo: 'transactions';
+        value: string | Transaction;
+      } | null)
+    | ({
+        relationTo: 'refunds';
+        value: string | Refund;
+      } | null)
+    | ({
+        relationTo: 'invoices';
+        value: string | Invoice;
+      } | null)
+    | ({
+        relationTo: 'shipments';
+        value: string | Shipment;
+      } | null)
+    | ({
+        relationTo: 'carts';
+        value: string | Cart;
+      } | null)
+    | ({
+        relationTo: 'stock-movements';
+        value: string | StockMovement;
+      } | null)
+    | ({
+        relationTo: 'idempotency-keys';
+        value: string | IdempotencyKey;
+      } | null)
+    | ({
+        relationTo: 'pincodes';
+        value: string | Pincode;
+      } | null)
+    | ({
         relationTo: 'counters';
         value: string | Counter;
       } | null)
@@ -2095,6 +2825,7 @@ export interface VariantsSelect<T extends boolean = true> {
   compareAtPrice?: T | MoneySelect<T>;
   images?: T;
   stockQty?: T;
+  reservedQty?: T;
   lowStockThreshold?: T;
   weightGrams?: T;
   allowBackorder?: T;
@@ -2609,6 +3340,388 @@ export interface EnquiriesSelect<T extends boolean = true> {
         utmMedium?: T;
         utmCampaign?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shipping-zones_select".
+ */
+export interface ShippingZonesSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  isServiceable?: T;
+  sortOrder?: T;
+  states?: T;
+  pincodePrefixes?: T;
+  rateType?: T;
+  fee?: T | MoneySelect<T>;
+  freeAbove?: T | MoneySelect<T>;
+  baseWeightGrams?: T;
+  perExtraKg?: T | MoneySelect<T>;
+  valueBrackets?:
+    | T
+    | {
+        from?: T | MoneySelect<T>;
+        bracketFee?: T | MoneySelect<T>;
+        id?: T;
+      };
+  codAllowed?: T;
+  etaMinDays?: T;
+  etaMaxDays?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  tenant?: T;
+  orderNumber?: T;
+  status?: T;
+  paymentStatus?: T;
+  fulfillmentStatus?: T;
+  contact?:
+    | T
+    | {
+        name?: T;
+        email?: T;
+        phone?: T;
+      };
+  items?:
+    | T
+    | {
+        productId?: T;
+        variantId?: T;
+        sku?: T;
+        title?: T;
+        options?: T;
+        imageUrl?: T;
+        qty?: T;
+        unitMinor?: T;
+        mrpMinor?: T;
+        discountMinor?: T;
+        hsnCode?: T;
+        gstRate?: T;
+        taxableMinor?: T;
+        cgstMinor?: T;
+        sgstMinor?: T;
+        igstMinor?: T;
+        lineTotalMinor?: T;
+        weightGrams?: T;
+        id?: T;
+      };
+  charges?: T;
+  totals?:
+    | T
+    | {
+        itemsMinor?: T;
+        discountMinor?: T;
+        subtotalMinor?: T;
+        shippingMinor?: T;
+        codFeeMinor?: T;
+        taxableMinor?: T;
+        cgstMinor?: T;
+        sgstMinor?: T;
+        igstMinor?: T;
+        taxMinor?: T;
+        roundOffMinor?: T;
+        grandTotalMinor?: T;
+        paidMinor?: T;
+        refundedMinor?: T;
+      };
+  shippingAddress?: T | ShopperAddressSelect<T>;
+  billingSameAsShipping?: T;
+  buyerGstin?: T;
+  buyerLegalName?: T;
+  billingAddress?: T | ShopperAddressSelect<T>;
+  sellerStateCode?: T;
+  placeOfSupplyStateCode?: T;
+  paymentMethod?: T;
+  paymentMode?: T;
+  shippingMethod?:
+    | T
+    | {
+        source?: T;
+        zoneName?: T;
+        courierName?: T;
+        etaMinDays?: T;
+        etaMaxDays?: T;
+      };
+  appliedOffers?:
+    | T
+    | {
+        kind?: T;
+        ref?: T;
+        code?: T;
+        name?: T;
+        discountMinor?: T;
+        id?: T;
+      };
+  couponCode?: T;
+  invoice?: T;
+  trackingCode?: T;
+  whatsappOptIn?: T;
+  notes?: T;
+  source?: T;
+  locale?: T;
+  cartId?: T;
+  placedAt?: T;
+  confirmedAt?: T;
+  paidAt?: T;
+  completedAt?: T;
+  cancelledAt?: T;
+  expiresAt?: T;
+  cancelReason?: T;
+  stockState?: T;
+  ip?: T;
+  userAgent?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ShopperAddress_select".
+ */
+export interface ShopperAddressSelect<T extends boolean = true> {
+  name?: T;
+  phone?: T;
+  line1?: T;
+  line2?: T;
+  landmark?: T;
+  city?: T;
+  stateCode?: T;
+  pincode?: T;
+  country?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "order-events_select".
+ */
+export interface OrderEventsSelect<T extends boolean = true> {
+  tenant?: T;
+  order?: T;
+  type?: T;
+  text?: T;
+  from?: T;
+  to?: T;
+  byUser?: T;
+  byLabel?: T;
+  data?: T;
+  at?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "transactions_select".
+ */
+export interface TransactionsSelect<T extends boolean = true> {
+  tenant?: T;
+  order?: T;
+  provider?: T;
+  mode?: T;
+  providerOrderId?: T;
+  providerPaymentId?: T;
+  amountMinor?: T;
+  status?: T;
+  method?: T;
+  methodDetail?: T;
+  capturedAt?: T;
+  failureReason?: T;
+  refundedMinor?: T;
+  processedEventIds?: T;
+  raw?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "refunds_select".
+ */
+export interface RefundsSelect<T extends boolean = true> {
+  tenant?: T;
+  order?: T;
+  transaction?: T;
+  amountMinor?: T;
+  reason?: T;
+  method?: T;
+  providerRefundId?: T;
+  reference?: T;
+  status?: T;
+  lines?: T;
+  includesShipping?: T;
+  creditNote?: T;
+  by?: T;
+  processedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "invoices_select".
+ */
+export interface InvoicesSelect<T extends boolean = true> {
+  tenant?: T;
+  order?: T;
+  type?: T;
+  number?: T;
+  financialYear?: T;
+  issuedAt?: T;
+  againstInvoice?: T;
+  seller?: T;
+  buyer?: T;
+  placeOfSupply?: T;
+  lines?: T;
+  totals?: T;
+  amountInWords?: T;
+  irn?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "shipments_select".
+ */
+export interface ShipmentsSelect<T extends boolean = true> {
+  tenant?: T;
+  order?: T;
+  direction?: T;
+  status?: T;
+  items?:
+    | T
+    | {
+        orderItemId?: T;
+        title?: T;
+        sku?: T;
+        qty?: T;
+        id?: T;
+      };
+  package?:
+    | T
+    | {
+        lengthMm?: T;
+        breadthMm?: T;
+        heightMm?: T;
+        weightGrams?: T;
+      };
+  provider?: T;
+  carrier?: T;
+  courierId?: T;
+  trackingNumber?: T;
+  trackingUrl?: T;
+  awb?: T;
+  providerOrderId?: T;
+  providerShipmentId?: T;
+  labelUrl?: T;
+  pickupScheduledFor?: T;
+  expectedDeliveryDate?: T;
+  codAmountMinor?: T;
+  ewayBillNo?: T;
+  attempts?: T;
+  failureReason?: T;
+  ndrAction?:
+    | T
+    | {
+        action?: T;
+        deferredDate?: T;
+        note?: T;
+        by?: T;
+        at?: T;
+      };
+  events?:
+    | T
+    | {
+        status?: T;
+        at?: T;
+        source?: T;
+        by?: T;
+        note?: T;
+        location?: T;
+        dedupeKey?: T;
+        id?: T;
+      };
+  packedAt?: T;
+  shippedAt?: T;
+  outForDeliveryAt?: T;
+  deliveredAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "carts_select".
+ */
+export interface CartsSelect<T extends boolean = true> {
+  tenant?: T;
+  tokenHash?: T;
+  status?: T;
+  items?:
+    | T
+    | {
+        product?: T;
+        variant?: T;
+        qty?: T;
+        addedAt?: T;
+        id?: T;
+      };
+  contact?:
+    | T
+    | {
+        name?: T;
+        email?: T;
+        phone?: T;
+      };
+  pincode?: T;
+  shippingAddress?: T | ShopperAddressSelect<T>;
+  couponCode?: T;
+  lastActivityAt?: T;
+  convertedOrder?: T;
+  expiresAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stock-movements_select".
+ */
+export interface StockMovementsSelect<T extends boolean = true> {
+  tenant?: T;
+  variant?: T;
+  reason?: T;
+  stockDelta?: T;
+  reservedDelta?: T;
+  order?: T;
+  by?: T;
+  note?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "idempotency-keys_select".
+ */
+export interface IdempotencyKeysSelect<T extends boolean = true> {
+  tenant?: T;
+  key?: T;
+  route?: T;
+  requestHash?: T;
+  responseStatus?: T;
+  responseBody?: T;
+  expiresAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pincodes_select".
+ */
+export interface PincodesSelect<T extends boolean = true> {
+  pincode?: T;
+  city?: T;
+  district?: T;
+  stateCode?: T;
   updatedAt?: T;
   createdAt?: T;
 }

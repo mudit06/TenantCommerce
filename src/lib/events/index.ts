@@ -10,6 +10,22 @@ export type PlatformEvents = {
   'tenant.status-changed': { tenantId: string; from: string; to: string }
   /** A feature switch changed (cache revalidation, module side effects). */
   'feature.changed': { tenantId: string; key: string; enabled: boolean }
+  // Orders and parcels (docs/11 "Events and side effects"). Handlers that send messages or
+  // build documents enqueue a job instead of working inline.
+  'order.placed': { tenantId: string; orderId: string }
+  'order.confirmed': { tenantId: string; orderId: string }
+  'order.paid': { tenantId: string; orderId: string }
+  'order.cancelled': { tenantId: string; orderId: string; refundDueMinor: number }
+  'order.delivered': { tenantId: string; orderId: string }
+  'shipment.changed': {
+    tenantId: string
+    orderId: string
+    shipmentId: string
+    from: string | null
+    to: string
+    attempt: number
+  }
+  'refund.processed': { tenantId: string; orderId: string; refundId: string; amountMinor: number }
 }
 
 export type EventName = keyof PlatformEvents

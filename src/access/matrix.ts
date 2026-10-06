@@ -21,6 +21,13 @@ export const MEDIA_WRITE: readonly TenantRole[] = [
 /** Dealers, store settings, shipping */
 export const STORE_ADMIN: readonly TenantRole[] = ['owner', 'manager']
 
+/** Orders, refunds, invoices, shipments (docs/05 matrix) */
+export const ORDER_WORK: readonly TenantRole[] = ['owner', 'manager', 'order-manager']
+export const ORDER_READ: readonly TenantRole[] = [...ORDER_WORK, 'support']
+
+/** Customers: order managers and support look, owners and managers change */
+export const CUSTOMER_READ: readonly TenantRole[] = ['owner', 'manager', 'order-manager', 'support']
+
 /** Enquiries, warranty and service requests */
 export const ENQUIRY_WORK: readonly TenantRole[] = ['owner', 'manager', 'order-manager', 'support']
 

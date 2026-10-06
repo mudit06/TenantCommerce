@@ -80,6 +80,15 @@ export const Variants: CollectionConfig = {
       type: 'row',
       fields: [
         { name: 'stockQty', label: 'In stock', type: 'number', defaultValue: 0, min: 0 },
+        {
+          // Held for orders waiting for payment; changed only by the inventory service ($inc)
+          name: 'reservedQty',
+          label: 'Held for orders',
+          type: 'number',
+          defaultValue: 0,
+          access: { create: () => false, update: () => false },
+          admin: { readOnly: true },
+        },
         { name: 'lowStockThreshold', label: 'Alert me below', type: 'number', min: 0 },
         { name: 'weightGrams', label: 'Weight (g)', type: 'number', min: 0 },
         {

@@ -38,7 +38,12 @@ import {
 import { Dealers } from '@/modules/dealers'
 import { Enquiries } from '@/modules/enquiries'
 import { identityEndpoints, Users } from '@/modules/identity'
-import { Counters } from '@/modules/tax-invoicing'
+import { Carts } from '@/modules/cart'
+import { StockMovements } from '@/modules/inventory'
+import { IdempotencyKeys, OrderEvents, Orders } from '@/modules/orders'
+import { Refunds, Transactions } from '@/modules/payments'
+import { Pincodes, Shipments, ShippingZones } from '@/modules/shipping'
+import { Counters, Invoices } from '@/modules/tax-invoicing'
 import {
   checkSubscriptionsTask,
   FeatureFlags,
@@ -167,6 +172,14 @@ export default buildConfig({
       Dealers,
     ].map((collection) => storeCollection(withStorefrontRevalidation(collection))),
     storeCollection(Enquiries),
+    // Selling (stage B): orders and their records are written by services only, so the store
+    // session audit wrapper is for the screens staff edit directly (shipping zones)
+    storeCollection(ShippingZones),
+    ...[Orders, OrderEvents, Transactions, Refunds, Invoices, Shipments, Carts, StockMovements].map(
+      storeScreen,
+    ),
+    IdempotencyKeys,
+    Pincodes,
     Counters,
     // Written only by the connector service (encrypts secrets, audits each change)
     ConnectorConfigs,
@@ -267,6 +280,16 @@ export default buildConfig({
         dealers: {},
         counters: {},
         'connector-configs': {},
+        'shipping-zones': {},
+        orders: {},
+        'order-events': {},
+        transactions: {},
+        refunds: {},
+        invoices: {},
+        shipments: {},
+        carts: {},
+        'stock-movements': {},
+        'idempotency-keys': {},
       },
       // Our team works across stores; support is read-only through access functions
       userHasAccessToAllTenants: (user) => isPlatformStaff(user),

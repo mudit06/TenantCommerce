@@ -279,6 +279,17 @@ per tenant), `locale` (language for messages), `codConfirmation` (Phase 2: `stat
 `not_required|pending|confirmed|declined|no_response`, `requestedAt`, `respondedAt`),
 `cancelReason`, `placedAt`, `ip`, `userAgent`.
 
+As built (6 October 2026, `src/modules/orders`): items keep `productId`, `variantId` and
+`imageUrl` as plain text (a snapshot that outlives the product, and no relationship checks inside
+checkout's transaction); `charges` holds the delivery charge and COD fee split across lines at
+their rates; `totals` adds `itemsMinor`, `taxableMinor`, `cgstMinor`, `sgstMinor`, `igstMinor`,
+`paidMinor`, `refundedMinor`; `shippingMethod { source (shiprocket|rate-card), zoneName,
+courierName, etaMinDays, etaMaxDays }`; `paymentMode` (Razorpay test or live); `whatsappOptIn`;
+`expiresAt` (unpaid online orders); `stockState` (`none|reserved|sold|released|restocked`).
+Customer, affiliate and referral links arrive with their modules. Orders, their events,
+transactions, refunds, invoices, shipments and carts are written by services only (API writes:
+nobody).
+
 ### order-events
 `order`, `type` (`created|payment_captured|status_changed|parcel_status_changed|note|refund|message_sent|shopper_reply`),
 `from`, `to`, `by` (user/customer/system), `data`. Append-only audit trail of an order.
@@ -302,6 +313,12 @@ vendors above the turnover threshold).
 Zone: `name`, `pincodes[]` / `pincodePrefixes[]` / `states[]`, `isServiceable`, `codAllowed`,
 `etaDays { min, max }`. Rate: `zone`, `type` (`flat|weight|order-value`), `brackets[]`,
 `freeAboveMinor`.
+
+As built: the rate lives on the zone (`rateType` flat, weight or order value, `fee`,
+`freeAbove`, `baseWeightGrams` + `perExtraKg`, `valueBrackets[]`), with `pincodePrefixes[]` for
+whole pincodes or their first digits; there is no separate `shipping-rates` collection. A store
+with no zones delivers everywhere free; with zones, a pincode outside every zone isn't served.
+`variants.reservedQty` holds stock for unpaid orders (`$inc` with a condition, docs/11 "Stock").
 
 ### shipments
 One parcel. `order`, `direction` (`forward|return`), `return` -> returns (return parcels), `items[]`,
