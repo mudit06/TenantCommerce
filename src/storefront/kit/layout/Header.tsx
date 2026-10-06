@@ -4,6 +4,7 @@ import type { StoreContext } from '../../context'
 import { MenuIcon, PhoneIcon, SearchIcon, WhatsAppIcon } from '../icons'
 import { linkHref } from '../links'
 import { Img } from '../media'
+import { CartLink } from '../shop/CartLink'
 import { buttonClass, Container } from '../ui'
 import { storeWhatsApp } from '../whatsapp'
 
@@ -197,11 +198,15 @@ export function Header({ ctx }: { ctx: StoreContext }) {
           >
             <SearchIcon />
           </Link>
-          <span className="hidden sm:block">
-            <Link className={buttonClass('primary')} href="/contact">
-              Get a quote
-            </Link>
-          </span>
+          {ctx.selling.selling ? (
+            <CartLink />
+          ) : (
+            <span className="hidden sm:block">
+              <Link className={buttonClass('primary')} href="/contact">
+                Get a quote
+              </Link>
+            </span>
+          )}
         </div>
       </Container>
     </header>

@@ -391,6 +391,38 @@ Open http://home-orbit.localhost:3000/products/feather-stainless-steel-pull-hand
 - [ ] http://demo-sanitary.localhost:3000 : the default design with Demo Sanitary's name. It has
       no products: nobody has entered any.
 
+### 3.6 Buying (cart, checkout, cash on delivery)
+
+Home Orbit's real prices aren't in yet, so give it sample ones first (local only, never on real
+data): `pnpm demo:selling home-orbit`. It prints how many products it priced, and sets COD
+(₹49 fee) and two delivery zones. To try online payment too, put your Razorpay **test** keys in
+`.env` as `RAZORPAY_TEST_KEY_ID`, `RAZORPAY_TEST_KEY_SECRET` (and optionally
+`RAZORPAY_TEST_WEBHOOK_SECRET`) before running it, or enter them on Payments (2.8).
+
+- [ ] Open a product, e.g. http://home-orbit.localhost:3000/products/feather-stainless-steel-pull-handle-hoph-504 :
+      a price with the MRP struck through and "% off", "Inclusive of all taxes", quantity and
+      "In stock", **Check delivery**, **Add to cart** and **Buy now**, then **Request a bulk
+      quote** and WhatsApp.
+- [ ] Type pincode 411045 and press Check: a delivery date, "Free delivery on this order" or the
+      fee, and "Cash on delivery available".
+- [ ] **Add to cart**: "Added to your cart" and the cart icon in the header shows 1.
+- [ ] Cart: the line, its price, quantity buttons and Remove; Price details with items, delivery
+      ("At checkout" until a pincode is set), total and "Includes GST of …". Press + : the total
+      goes up. Enter a pincode under the items: the delivery fee and date appear.
+- [ ] **Checkout**: fill mobile, email, pincode 411045 (the state fills itself: Maharashtra),
+      city, name and address. Delivery shows Standard with its date. Choose **Cash on delivery**:
+      the ₹49 fee joins the summary and the button reads "Place order · ₹…".
+- [ ] Place the order: "Thank you, Rahul. Your order is placed." with the order number (HOM-10001
+      for the first), the amount "to pay in cash on delivery", the delivery date and address,
+      and the items. The cart icon is empty again.
+- [ ] Copy the page address into another browser: "We can’t show this order here" (only the
+      browser that placed it sees it).
+- [ ] With test keys: choose **Pay online**; Razorpay's test window opens. Pay with a test card
+      or UPI `success@razorpay`: the confirmation says "paid by …". Close the window instead: the
+      page says the order is waiting for payment, with **Complete payment**.
+- [ ] Put a pincode outside India's zones that the store doesn't cover (none by default) or
+      empty the store's zones: delivery messages follow the zones (Shipping zones arrive in M5).
+
 ## 4. Enquiries inbox (vendor CMS)
 
 Back in the owner's private window.
@@ -485,7 +517,7 @@ Uploaded files stay in `media/`; delete that folder too for a completely clean s
 
 ## Not built yet (so don't test these)
 
-- Prices, cart, checkout, payments, shipping, orders, customer accounts (stage B)
+- The CMS Orders and Shipping screens, invoices, order emails and WhatsApp, customer accounts (later milestones of stage B)
 - Offers, coupons, reviews, wishlist, affiliates (stage C)
 - CSV import, the dealer locator page, the PWA "install app" and offline page
 - Two-step login (deferred)

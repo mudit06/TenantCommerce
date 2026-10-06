@@ -105,3 +105,38 @@ export const BENEFIT_ICONS = {
   phone: PhoneIcon,
   check: CheckIcon,
 } as const
+export const CartIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <circle cx="9" cy="20" r="1.4" />
+    <circle cx="18" cy="20" r="1.4" />
+    <path d="M2 3h3l2.6 12.4a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.6L21.5 7H6" />
+  </svg>
+)
+export const MinusIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M5 12h14" />
+  </svg>
+)
+export const PlusIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M12 5v14M5 12h14" />
+  </svg>
+)
+export const LockIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <rect height="10" rx="2" width="16" x="4" y="11" />
+    <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+  </svg>
+)
+export const CardIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <rect height="14" rx="2" width="20" x="2" y="5" />
+    <path d="M2 10h20" />
+  </svg>
+)
+export const CashIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <rect height="12" rx="2" width="20" x="2" y="6" />
+    <circle cx="12" cy="12" r="2.5" />
+  </svg>
+)

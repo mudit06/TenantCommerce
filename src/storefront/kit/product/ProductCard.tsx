@@ -4,6 +4,7 @@ import type { ProductCardData } from '@/lib/data/catalog'
 
 import { productHref } from '../links'
 import { Img } from '../media'
+import { Price } from '../shop/Price'
 
 /** `headingLevel`: 2 where the grid follows the page's h1 (listing, search), 3 under a section heading. */
 export function ProductCard({
@@ -37,7 +38,17 @@ export function ProductCard({
         <Heading className="line-clamp-2 text-sm font-semibold text-ink sm:text-base">
           {product.title}
         </Heading>
-        <p className="mt-auto pt-2 text-xs text-ink-soft">Price on request</p>
+        <div className="mt-auto pt-2">
+          {product.purchaseMode !== 'enquire' && product.price?.amountMinor ? (
+            <Price
+              amountMinor={product.price.amountMinor}
+              mrpMinor={product.compareAtPrice?.amountMinor}
+              size="sm"
+            />
+          ) : (
+            <p className="text-xs text-ink-soft">Price on request</p>
+          )}
+        </div>
       </div>
     </Link>
   )

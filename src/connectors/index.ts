@@ -12,6 +12,7 @@ export {
   connectorAvailability,
   connectorOverview,
   loadConnector,
+  recordWebhookHealth,
   saveConnector,
   setConnectorAllowed,
   testConnector,
@@ -20,3 +21,4 @@ export {
   type ConnectorSummary,
 } from './core/service'
 export type { ConnectorContext, ConnectorMode, TestResult } from './core/types'
+export * as razorpayApi from './payment/razorpay'

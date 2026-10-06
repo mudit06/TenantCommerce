@@ -41,7 +41,7 @@ import { identityEndpoints, Users } from '@/modules/identity'
 import { Carts } from '@/modules/cart'
 import { StockMovements } from '@/modules/inventory'
 import { IdempotencyKeys, OrderEvents, Orders } from '@/modules/orders'
-import { Refunds, Transactions } from '@/modules/payments'
+import { paymentEndpoints, reconcilePaymentsTask, Refunds, Transactions } from '@/modules/payments'
 import { Pincodes, Shipments, ShippingZones } from '@/modules/shipping'
 import { Counters, Invoices } from '@/modules/tax-invoicing'
 import {
@@ -195,9 +195,10 @@ export default buildConfig({
     ...identityEndpoints,
     ...catalogEndpoints,
     ...connectorEndpoints,
+    ...paymentEndpoints,
   ],
   jobs: {
-    tasks: [checkSubscriptionsTask],
+    tasks: [checkSubscriptionsTask, reconcilePaymentsTask],
     // Long-running servers (local, Docker) run the queue themselves; on Vercel a cron hits
     // /api/payload-jobs/run instead (docs/15)
     // /api/payload-jobs/run instead (docs/15). `default` runs scheduled page publishing.

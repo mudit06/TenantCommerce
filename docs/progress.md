@@ -152,7 +152,11 @@ Every store without its own folder gets the kit's default look (the demo stores 
 | `st-downloads` Downloads | Partial | Downloads block on pages, documents on product pages | Own page with filters |
 | `st-offline` Install, offline and unavailable | Partial | Store unavailable (suspended, maintenance), coming soon (draft in production), 404 | PWA install and offline page (Serwist) |
 | `st-dealers` Dealer locator | Not started | — | Dealer data and the map |
-| `st-cart`, `st-checkout`, `st-confirmation`, `st-login`, `st-account`, `st-order`, `st-track`, `st-messages` | Not started | — | Stage B (selling) |
+| `st-product` buying (6 October 2026) | Partial | When the store sells (Razorpay or COD set up) and the product has a price: price with MRP and % off, finish picker with each finish's price, quantity and stock, pincode check (date, fee, COD), Add to cart, Buy now, bulk quote and WhatsApp below, sticky Add to cart on phones, Offer markup for Google | Scheme prices and offers (stage C) |
+| `st-cart` Cart | Done (MVP) | Lines with photo, finish, code, price and MRP, quantity, remove, delivery pincode with date, price details (items, discounts, delivery, total, GST included, savings on MRP), payment chips, sticky checkout bar | Coupons and wishlist (stage C) |
+| `st-checkout` Checkout | Done (MVP) | Guest checkout on one page: contact, WhatsApp updates tick, address with the state from the pincode, business GSTIN, delivery with date and fee, pay online (Razorpay window) or COD with its fee and rules, order summary, test-mode notice, idempotent place order | Offer consent boxes (stage C), sign-in prefill (M7) |
+| `st-confirmation` Order confirmed | Done (MVP) | Thank you, order number, amount and how paid, delivery date and address, items; only for the browser that placed it (signed cookie, 24 hours); "Complete payment" when the Razorpay window was closed | Track order and invoice buttons (M4, M6) |
+| `st-login`, `st-account`, `st-order`, `st-track`, `st-messages` | Not started | — | Shopper accounts (M7) and order updates (M6) |
 | `st-wishlist`, `st-review`, `st-offers`, `st-offer-messages`, `st-affiliate`, `st-affiliate-dash` | Not started | — | Stage C (growth) |
 | `st-warranty` | Phase 2 | — | — |
 
@@ -173,7 +177,8 @@ Also built: CMS and policy pages (`/pages/<slug>`), per-store `robots.txt` and `
 | Shopper accounts | Not started: Sprint 1 spike |
 | Feature switches, plan ceilings, industry presets | Done |
 | Audit log | Writes done for platform actions; viewer is "Later" |
-| Jobs | Subscription past-due task and scheduled page publishing run locally; Vercel cron for the job runner not configured |
+| Jobs | Subscription past-due task, scheduled page publishing and the 15-minute Razorpay reconciliation (settle or cancel unpaid online orders) run locally; Vercel cron for the job runner not configured |
+| Selling (stage B, 6 October 2026) | Orders, payments, refunds, invoices, parcels, carts, stock movements, shipping zones; GST pricing service; atomic stock holds; Razorpay checkout, verified callback, webhook (`/api/webhooks/razorpay/<storeId>`, signature-checked, once per event) and reconciliation; COD. Try it locally: `pnpm demo:selling home-orbit` gives a store sample prices, zones and COD (docs/manual-testing.md 3.6) |
 | Media storage | Local disk in development; S3/Cloudflare R2 + CDN switched on by `S3_BUCKET` (docs/12), one folder per store (`media/<tenantId>/`), boot check refuses local disk on Vercel. Production bucket not chosen yet |
 | Email | Local log adapter and Resend adapter; React Email templates later |
 | `proxy.ts`, security headers, rate limiting | Proxy and headers done (nosniff, referrer, frame, permissions, HSTS in production); enquiry rate limit in memory per server. Left: Content-Security-Policy with nonces, Upstash for several instances, redirect to the primary domain |

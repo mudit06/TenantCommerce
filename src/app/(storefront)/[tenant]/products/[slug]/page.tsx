@@ -12,6 +12,8 @@ import { Gallery } from '@/storefront/kit/product/Gallery'
 import { LegalDetails } from '@/storefront/kit/product/LegalDetails'
 import { ProductGrid } from '@/storefront/kit/product/ProductCard'
 import { ProductEnquiry } from '@/storefront/kit/product/ProductEnquiry'
+import { QuoteForm } from '@/storefront/kit/product/QuoteForm'
+import { BuyBox } from '@/storefront/kit/shop/BuyBox'
 import { SpecTable } from '@/storefront/kit/product/SpecTable'
 import { RichText } from '@/storefront/kit/RichText'
 import { Container, SectionHeading } from '@/storefront/kit/ui'
@@ -47,7 +49,7 @@ export default async function ProductPage({ params }: Props) {
   const ctx = await getStoreContext(tenant)
   const data = await getProductBySlug(ctx.store.tenantId, slug)
   if (!data) notFound()
-  const { product, attributeSet, category, documents } = data
+  const { product, attributeSet, category, documents, variants } = data
   const attributes = attributeSet?.attributes ?? []
   const values = (product.attributes ?? {}) as Record<string, unknown>
   const axes = variantAxes(attributes, values).map((axis) => ({
@@ -60,6 +62,9 @@ export default async function ProductPage({ params }: Props) {
     })),
   }))
   const name = ctx.settings?.storeName ?? ctx.store.name
+  // Sold online when the store takes orders and the product has a price (docs/12 purchase modes)
+  const buying =
+    ctx.selling.selling && product.purchaseMode !== 'enquire' && Boolean(product.price?.amountMinor)
   const photos = (product.gallery ?? []).filter(
     (photo) => typeof photo === 'object' && photo !== null,
   )
@@ -90,6 +95,20 @@ export default async function ProductPage({ params }: Props) {
       .map((photo) => (typeof photo === 'object' ? `${ctx.origin}${mediaUrl(photo.url)}` : ''))
       .filter(Boolean),
     countryOfOrigin: product.legal?.countryOfOrigin ?? undefined,
+    offers:
+      buying && product.price?.amountMinor
+        ? {
+            '@type': 'Offer',
+            url: pageUrl,
+            priceCurrency: 'INR',
+            price: (product.price.amountMinor / 100).toFixed(2),
+            availability:
+              variants.length === 0 ||
+              variants.some((v) => v.allowBackorder || (v.stockQty ?? 0) - (v.reservedQty ?? 0) > 0)
+                ? 'https://schema.org/InStock'
+                : 'https://schema.org/OutOfStock',
+          }
+        : undefined,
   }
 
   return (
@@ -126,10 +145,12 @@ export default async function ProductPage({ params }: Props) {
           {product.shortDescription ? (
             <p className="mt-4 leading-relaxed text-ink-soft">{product.shortDescription}</p>
           ) : null}
-          <p className="mt-4 rounded-card bg-surface-alt px-4 py-3 text-sm text-ink">
-            Price on request. Tell us the finish, size and quantity you need and we’ll send you a
-            quote.
-          </p>
+          {buying ? null : (
+            <p className="mt-4 rounded-card bg-surface-alt px-4 py-3 text-sm text-ink">
+              Price on request. Tell us the finish, size and quantity you need and we’ll send you a
+              quote.
+            </p>
+          )}
           {product.highlights?.length ? (
             <ul className="mt-5 space-y-1.5 text-sm">
               {product.highlights.map((item, i) => (
@@ -141,15 +162,74 @@ export default async function ProductPage({ params }: Props) {
             </ul>
           ) : null}
           <div className="mt-6">
-            <ProductEnquiry
-              axes={axes}
-              enquiriesOn={ctx.hasFeature('enquiries')}
-              modelNumber={product.modelNumber}
-              pageUrl={pageUrl}
-              storeName={name}
-              title={product.title}
-              whatsappNumber={whatsappNumber(ctx.settings?.contact?.whatsapp)}
-            />
+            {buying ? (
+              <BuyBox
+                axes={axes}
+                baseMrpMinor={product.compareAtPrice?.amountMinor ?? null}
+                basePriceMinor={product.price?.amountMinor ?? null}
+                modelNumber={product.modelNumber}
+                pincodeCheck={ctx.hasFeature('pincode-check')}
+                productId={String(product.id)}
+                quoteHref={
+                  ctx.hasFeature('enquiries') && product.purchaseMode === 'both' ? '#quote' : null
+                }
+                variants={variants.map((v) => ({
+                  id: String(v.id),
+                  options: Object.fromEntries(
+                    Object.entries((v.options ?? {}) as Record<string, unknown>).map(([k, val]) => [
+                      k,
+                      String(val),
+                    ]),
+                  ),
+                  priceMinor: v.price?.amountMinor ?? product.price?.amountMinor ?? 0,
+                  mrpMinor:
+                    v.compareAtPrice?.amountMinor ?? product.compareAtPrice?.amountMinor ?? null,
+                  sku: v.sku ?? null,
+                  available: v.allowBackorder
+                    ? null
+                    : Math.max(0, (v.stockQty ?? 0) - (v.reservedQty ?? 0)),
+                }))}
+                whatsappHref={
+                  whatsappNumber(ctx.settings?.contact?.whatsapp)
+                    ? `https://wa.me/${whatsappNumber(ctx.settings?.contact?.whatsapp)}?text=${encodeURIComponent(`Hello ${name}, I have a question about ${product.title} (${product.modelNumber}). ${pageUrl}`)}`
+                    : null
+                }
+              />
+            ) : null}
+            {buying &&
+            !(ctx.hasFeature('enquiries') && product.purchaseMode === 'both') ? null : buying ? (
+              <section
+                aria-labelledby="quote-heading"
+                className="mt-8 scroll-mt-28 rounded-card border border-line bg-surface-alt p-4 sm:p-6"
+                id="quote"
+              >
+                <h2 className="mb-1 font-heading text-lg font-semibold" id="quote-heading">
+                  Request a bulk quote
+                </h2>
+                <p className="mb-4 text-sm text-ink-soft">
+                  For large quantities, projects and trade prices.
+                </p>
+                <QuoteForm
+                  modelNumber={product.modelNumber}
+                  page={pageUrl}
+                  productTitle={product.title}
+                  showQty
+                  storeName={name}
+                  submitLabel="Send quote request"
+                  type="bulk"
+                />
+              </section>
+            ) : (
+              <ProductEnquiry
+                axes={axes}
+                enquiriesOn={ctx.hasFeature('enquiries')}
+                modelNumber={product.modelNumber}
+                pageUrl={pageUrl}
+                storeName={name}
+                title={product.title}
+                whatsappNumber={whatsappNumber(ctx.settings?.contact?.whatsapp)}
+              />
+            )}
           </div>
         </div>
       </div>

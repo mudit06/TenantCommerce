@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { cache } from 'react'
 
 import { getCategoryTree } from '@/lib/data/catalog'
-import { getStoreByHost, getStoreContent } from '@/lib/data/store'
+import { getSellingInfo, getStoreByHost, getStoreContent } from '@/lib/data/store'
 
 import { PUBLIC_PROTOCOL, STORE_HOST_HEADER } from './constants'
 import { getVendorUI } from './registry'
@@ -19,10 +19,11 @@ export const getStoreContext = cache(async (hostParam: string) => {
   if (requestHeaders.get(STORE_HOST_HEADER) !== host) notFound()
   const store = await getStoreByHost(host)
   if (!store || store.status === 'archived') notFound()
-  const [content, ui, categories] = await Promise.all([
+  const [content, ui, categories, selling] = await Promise.all([
     getStoreContent(store.tenantId),
     getVendorUI(store.slug),
     getCategoryTree(store.tenantId),
+    getSellingInfo(store.tenantId),
   ])
   const origin = `${PUBLIC_PROTOCOL}://${requestHeaders.get('host') ?? host}`
   return {
@@ -30,6 +31,7 @@ export const getStoreContext = cache(async (hostParam: string) => {
     ...content,
     ui,
     categories,
+    selling,
     origin,
     hasFeature: (key: string) => content.features.includes(key),
   }

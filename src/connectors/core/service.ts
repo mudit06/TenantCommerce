@@ -441,3 +441,42 @@ export async function connectorOverview(
   })
   return { tenant, plan, connectors }
 }
+
+/**
+ * A webhook's outcome, kept as the connector's health (Connectors tab, Payments, the CMS banner):
+ * a failure starts "failing since" and counts; a good one clears it.
+ */
+export async function recordWebhookHealth(
+  payload: Payload,
+  tenantId: string,
+  providerKey: ConnectorProviderKey,
+  outcome: { ok: true } | { ok: false; error: string },
+): Promise<void> {
+  const config = await findConfig(payload, tenantId, providerKey)
+  if (!config) return
+  const now = new Date().toISOString()
+  const health = config.health ?? {}
+  await payload.update({
+    collection: 'connector-configs',
+    id: config.id,
+    data: {
+      health: outcome.ok
+        ? {
+            ...health,
+            lastWebhookAt: now,
+            lastWebhookOkAt: now,
+            failingSince: null,
+            failedCount: 0,
+          }
+        : {
+            ...health,
+            lastWebhookAt: now,
+            failingSince: health.failingSince ?? now,
+            failedCount: (health.failedCount ?? 0) + 1,
+            lastErrorAt: now,
+            lastError: outcome.error,
+          },
+    },
+    overrideAccess: true,
+  })
+}

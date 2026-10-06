@@ -8,6 +8,7 @@ export type Limit = { max: number; windowMs: number }
 export const LIMITS = {
   enquiry: { max: 5, windowMs: 10 * 60_000 },
   search: { max: 60, windowMs: 60_000 },
+  checkout: { max: 10, windowMs: 10 * 60_000 },
 } satisfies Record<string, Limit>
 
 /** Records a hit for `key` and says whether it is within `limit`. */

@@ -169,6 +169,7 @@ export interface Config {
   jobs: {
     tasks: {
       'tenancy-check-subscriptions': TaskTenancyCheckSubscriptions;
+      'payments-reconcile': TaskPaymentsReconcile;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -2399,7 +2400,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'tenancy-check-subscriptions' | 'schedulePublish';
+        taskSlug: 'inline' | 'tenancy-check-subscriptions' | 'payments-reconcile' | 'schedulePublish';
         taskID: string;
         input?:
           | {
@@ -2432,7 +2433,7 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'tenancy-check-subscriptions' | 'schedulePublish') | null;
+  taskSlug?: ('inline' | 'tenancy-check-subscriptions' | 'payments-reconcile' | 'schedulePublish') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -4113,6 +4114,17 @@ export interface TaskTenancyCheckSubscriptions {
   input?: unknown;
   output: {
     changed: number;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskPayments-reconcile".
+ */
+export interface TaskPaymentsReconcile {
+  input?: unknown;
+  output: {
+    settled: number;
+    cancelled: number;
   };
 }
 /**
