@@ -1,7 +1,7 @@
 /**
  * pnpm setup:local
- * Creates .env from .env.example for local development and fills in the two values that must be
- * secret: PAYLOAD_SECRET and the first super admin's password. Never overwrites an existing .env;
+ * Creates .env from .env.example for local development and fills in the values that must be
+ * secret: PAYLOAD_SECRET, CONNECTOR_ENC_KEY and the first super admin's password. Never overwrites an existing .env;
  * run again to see what is still missing.
  */
 import { randomBytes } from 'node:crypto'
@@ -26,6 +26,14 @@ const filled = []
 if (!valueOf(text, 'PAYLOAD_SECRET')) {
   text = setValue(text, 'PAYLOAD_SECRET', randomBytes(32).toString('hex'))
   filled.push('PAYLOAD_SECRET')
+}
+if (!valueOf(text, 'CONNECTOR_ENC_KEY')) {
+  // A .env made before connectors existed has no line for it yet
+  const key = randomBytes(32).toString('base64')
+  text = /^CONNECTOR_ENC_KEY=/m.test(text)
+    ? setValue(text, 'CONNECTOR_ENC_KEY', key)
+    : `${text.trimEnd()}\n\n# Encrypts connector secrets (docs/14). Never change it once keys are saved.\nCONNECTOR_ENC_KEY=${key}\n`
+  filled.push('CONNECTOR_ENC_KEY')
 }
 if (!valueOf(text, 'SEED_SUPER_ADMIN_PASSWORD')) {
   // Readable but strong: 4 groups of 4, well over the 10-character minimum

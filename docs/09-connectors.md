@@ -24,6 +24,18 @@ Each connector folder: `index.ts` (implements interface), `config.ts` (zod schem
 `publicConfig` and `secretConfig`, also used to render the admin form), `webhook.ts`,
 `README.md` (provider docs links, test credentials source, quirks).
 
+**As built (6 October 2026).** `src/connectors/core/`: `providers.ts` (each provider's fields,
+webhook path and events; the setup forms are drawn from it), `secrets.ts` (AES-256-GCM),
+`http.ts` (timeout, retries for safe calls, no bodies in logs), `service.ts` (`saveConnector`,
+`testConnector`, `loadConnector`, `setConnectorAllowed`, `connectorOverview`), `registry.ts`,
+`endpoints.ts`. Provider folders hold `testCredentials` for Razorpay (list one order), Meta
+(read the phone number: display name, quality rating, messaging limit) and Shiprocket (log in,
+find the pickup location); the rest of each interface arrives with checkout, shipping and order
+updates. Keys are entered by the store owner, or by our super admin in a "Manage store" session;
+every save is audited by field name only. A provider is usable when the plan allows it, our team
+hasn't switched it off for the store (`tenants.blockedConnectors`), and its keys are saved.
+SMS (MSG91) is listed but comes later (mudit, 6 October 2026).
+
 ## Interfaces (shape, not final code)
 
 ```ts

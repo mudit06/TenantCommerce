@@ -221,11 +221,28 @@ export const SiteSettings: CollectionConfig = {
             {
               name: 'checkout',
               type: 'group',
-              fields: [moneyField({ name: 'minOrderValue', label: 'Minimum order value' })],
-              admin: {
-                description:
-                  'Cash on delivery rules are set on the Payments screen (comes with checkout).',
-              },
+              fields: [
+                moneyField({ name: 'minOrderValue', label: 'Minimum order value' }),
+                // Cash on delivery rules, edited on the Payments screen (docs/screens Payments).
+                // COD is offered only when the platform's `cod` switch is on as well (docs/08).
+                {
+                  name: 'codEnabled',
+                  label: 'Offer cash on delivery',
+                  type: 'checkbox',
+                  defaultValue: false,
+                  admin: { hidden: true },
+                },
+                {
+                  ...moneyField({ name: 'codMinOrder', label: 'COD minimum order' }),
+                  admin: { hidden: true },
+                },
+                {
+                  ...moneyField({ name: 'codMaxOrder', label: 'COD maximum order' }),
+                  admin: { hidden: true },
+                },
+                { ...moneyField({ name: 'codFee', label: 'COD fee' }), admin: { hidden: true } },
+              ],
+              admin: { description: 'Cash on delivery rules are set on the Payments screen.' },
             },
             {
               name: 'returns',

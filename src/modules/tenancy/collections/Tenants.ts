@@ -7,6 +7,7 @@ import { slugField } from '@/fields/slug'
 import { DEFAULT_TIMEZONE } from '@/lib/dates'
 import { GST_STATE_OPTIONS, parseGstin } from '@/lib/gst/gstin'
 
+import { CONNECTOR_PROVIDERS } from '@/connectors/core/providers'
 import { recordAudit } from '@/modules/audit'
 import { FEATURES } from '@/modules/features'
 
@@ -277,6 +278,19 @@ export const Tenants: CollectionConfig = {
       type: 'select',
       hasMany: true,
       options: FEATURES.map((feature) => ({ value: feature.key, label: feature.label })),
+      admin: { hidden: true },
+      access: { create: () => false, update: () => false },
+    },
+    {
+      // Providers our team switched off for this store although its plan allows them (Connectors
+      // tab "Allowed", docs/screens/super-admin.md). Changed only by setConnectorAllowed.
+      name: 'blockedConnectors',
+      type: 'select',
+      hasMany: true,
+      options: CONNECTOR_PROVIDERS.map((provider) => ({
+        value: provider.key,
+        label: provider.label,
+      })),
       admin: { hidden: true },
       access: { create: () => false, update: () => false },
     },

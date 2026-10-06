@@ -81,3 +81,34 @@ export async function atomicSet(
     .updateOne(input.filter, { $set: { updatedAt: new Date(), ...input.set } })
     .exec()
 }
+
+/**
+ * Reads one field that access control hides from every API (sealed connector secrets), straight
+ * from the database. Server code only; the value never leaves the calling service.
+ */
+export async function readHiddenField(
+  payload: PayloadRequest['payload'],
+  input: { collection: CollectionSlug; id: string | number; field: string; req?: PayloadRequest },
+): Promise<unknown> {
+  const model = (payload.db as unknown as MongooseAdapter).collections[input.collection]
+  if (!model) throw new Error(`No database model for "${input.collection}"`)
+  const doc = (await model
+    .findById(
+      input.id,
+      { [input.field]: 1 },
+      { session: input.req ? await sessionFor(input.req) : undefined },
+    )
+    .lean()
+    .exec()) as Record<string, unknown> | null
+  return doc?.[input.field]
+}
+
+/** Writes fields that no API may write (sealed connector secrets), inside the caller's transaction. */
+export async function writeHiddenFields(
+  req: PayloadRequest,
+  input: { collection: CollectionSlug; id: string | number; set: Record<string, unknown> },
+): Promise<void> {
+  await modelFor(req, input.collection)
+    .updateOne({ _id: input.id }, { $set: input.set }, { session: await sessionFor(req) })
+    .exec()
+}

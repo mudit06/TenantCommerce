@@ -1162,3 +1162,103 @@ html[data-theme='dark'] .te-seo-preview {
     align-items: flex-start;
   }
 }
+
+// ---- Connectors: Payments, WhatsApp and SMS, the Connectors tab (docs/09) -----------------
+
+.te-grid--halves {
+  align-items: start;
+
+  @media (min-width: 1000px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.te-hr {
+  border: 0;
+  border-top: 1px solid var(--te-line);
+  margin: 14px 0;
+}
+
+.te-dl__pair {
+  display: contents;
+}
+
+.te-connector {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  &__mode {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__actions {
+    align-items: center;
+  }
+}
+
+.te-segmented {
+  display: inline-flex;
+  border: 1px solid var(--te-line-strong);
+  border-radius: var(--te-radius);
+  overflow: hidden;
+
+  &__option {
+    border: 0;
+    padding: 4px 12px;
+    background: transparent;
+    color: var(--te-text-2);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+
+    &[aria-checked='true'] {
+      background: var(--te-text);
+      color: var(--te-card);
+    }
+
+    &:disabled {
+      cursor: default;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--te-brand);
+      outline-offset: -2px;
+    }
+  }
+}
+
+.te-copy-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+
+  .btn {
+    margin: 0;
+  }
+
+  &__value {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    white-space: nowrap;
+    font-size: 13px;
+  }
+
+  code.te-copy-row__value {
+    font-family: var(--te-font-mono, ui-monospace, monospace);
+  }
+}

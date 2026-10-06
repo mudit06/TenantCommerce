@@ -81,6 +81,7 @@ export interface Config {
     dealers: Dealer;
     enquiries: Enquiry;
     counters: Counter;
+    'connector-configs': ConnectorConfig;
     tenants: Tenant;
     'tenant-domains': TenantDomain;
     plans: Plan;
@@ -114,6 +115,7 @@ export interface Config {
     dealers: DealersSelect<false> | DealersSelect<true>;
     enquiries: EnquiriesSelect<false> | EnquiriesSelect<true>;
     counters: CountersSelect<false> | CountersSelect<true>;
+    'connector-configs': ConnectorConfigsSelect<false> | ConnectorConfigsSelect<true>;
     tenants: TenantsSelect<false> | TenantsSelect<true>;
     'tenant-domains': TenantDomainsSelect<false> | TenantDomainsSelect<true>;
     plans: PlansSelect<false> | PlansSelect<true>;
@@ -231,10 +233,14 @@ export interface SiteSetting {
     footerNote?: string | null;
   };
   /**
-   * Cash on delivery rules are set on the Payments screen (comes with checkout).
+   * Cash on delivery rules are set on the Payments screen.
    */
   checkout?: {
     minOrderValue?: Money;
+    codEnabled?: boolean | null;
+    codMinOrder?: Money;
+    codMaxOrder?: Money;
+    codFee?: Money;
   };
   returns?: {
     windowDays?: number | null;
@@ -405,6 +411,7 @@ export interface Tenant {
         | 'loyalty'
       )[]
     | null;
+  blockedConnectors?: ('razorpay' | 'manual' | 'shiprocket' | 'meta-whatsapp' | 'msg91')[] | null;
   dbRef?: string | null;
   createdBy?: (string | null) | User;
   activatedAt?: string | null;
@@ -617,6 +624,7 @@ export interface Media {
    */
   alt?: string | null;
   caption?: string | null;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -669,18 +677,18 @@ export interface Page {
     | (
         | HeroBlock
         | BannerBlock
-        | ProductGridBlock
-        | CategoryTilesBlock
-        | RichTextBlock
-        | ImageTextBlock
         | BenefitsBlock
         | TestimonialsBlock
-        | FaqBlock
-        | VideoBlock
+        | BrandStoryBlock
+        | ProductGridBlock
+        | CategoryTilesBlock
         | DownloadsBlock
+        | RichTextBlock
+        | ImageTextBlock
+        | VideoBlock
+        | FaqBlock
         | DealerFinderBlock
         | EnquiryFormBlock
-        | BrandStoryBlock
       )[]
     | null;
   seo?: Seo;
@@ -1025,6 +1033,62 @@ export interface BannerBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BenefitsBlock".
+ */
+export interface BenefitsBlock {
+  items?:
+    | {
+        icon?: ('truck' | 'shield' | 'badge' | 'return' | 'phone' | 'check') | null;
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'benefits';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TestimonialsBlock".
+ */
+export interface TestimonialsBlock {
+  heading?: string | null;
+  /**
+   * Real quotes from real customers or partners only (docs/14). Product ratings come from the Reviews block, never typed here.
+   */
+  items?:
+    | {
+        quote: string;
+        name: string;
+        place?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'testimonials';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BrandStoryBlock".
+ */
+export interface BrandStoryBlock {
+  heading?: string | null;
+  text?: string | null;
+  image?: (string | null) | Media;
+  stats?:
+    | {
+        value: string;
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'brandStory';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ProductGridBlock".
  */
 export interface ProductGridBlock {
@@ -1048,6 +1112,18 @@ export interface CategoryTilesBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'categoryTiles';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DownloadsBlock".
+ */
+export interface DownloadsBlock {
+  heading?: string | null;
+  documentType?: ('catalogue' | 'brochure' | 'price-list' | 'all') | null;
+  limit?: number | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'downloads';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1104,40 +1180,15 @@ export interface ImageTextBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BenefitsBlock".
+ * via the `definition` "VideoBlock".
  */
-export interface BenefitsBlock {
-  items?:
-    | {
-        icon?: ('truck' | 'shield' | 'badge' | 'return' | 'phone' | 'check') | null;
-        text: string;
-        id?: string | null;
-      }[]
-    | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'benefits';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "TestimonialsBlock".
- */
-export interface TestimonialsBlock {
+export interface VideoBlock {
   heading?: string | null;
-  /**
-   * Real quotes from real customers or partners only (docs/14). Product ratings come from the Reviews block, never typed here.
-   */
-  items?:
-    | {
-        quote: string;
-        name: string;
-        place?: string | null;
-        id?: string | null;
-      }[]
-    | null;
+  youtubeUrl: string;
+  caption?: string | null;
   id?: string | null;
   blockName?: string | null;
-  blockType: 'testimonials';
+  blockType: 'video';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1155,30 +1206,6 @@ export interface FaqBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'faq';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "VideoBlock".
- */
-export interface VideoBlock {
-  heading?: string | null;
-  youtubeUrl: string;
-  caption?: string | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'video';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "DownloadsBlock".
- */
-export interface DownloadsBlock {
-  heading?: string | null;
-  documentType?: ('catalogue' | 'brochure' | 'price-list' | 'all') | null;
-  limit?: number | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'downloads';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1203,25 +1230,6 @@ export interface EnquiryFormBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'enquiryForm';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BrandStoryBlock".
- */
-export interface BrandStoryBlock {
-  heading?: string | null;
-  text?: string | null;
-  image?: (string | null) | Media;
-  stats?:
-    | {
-        value: string;
-        label: string;
-        id?: string | null;
-      }[]
-    | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'brandStory';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1391,6 +1399,68 @@ export interface Counter {
   tenant?: (string | null) | Tenant;
   key: string;
   value: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "connector-configs".
+ */
+export interface ConnectorConfig {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  provider: 'razorpay' | 'manual' | 'shiprocket' | 'meta-whatsapp' | 'msg91';
+  kind: 'payment' | 'shipping' | 'messaging';
+  enabled?: boolean | null;
+  mode?: ('test' | 'live') | null;
+  /**
+   * Safe to show: key IDs, phone number ID, pickup name
+   */
+  publicConfig?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  secretSealed?: string | null;
+  /**
+   * Which secrets are saved, never their values
+   */
+  savedSecrets?: string[] | null;
+  webhookToken?: string | null;
+  routingKey?: string | null;
+  health?: {
+    lastTestAt?: string | null;
+    lastTestOk?: boolean | null;
+    lastTestMessage?: string | null;
+    lastWebhookAt?: string | null;
+    lastWebhookOkAt?: string | null;
+    /**
+     * First failure since the last success; cleared when one works
+     */
+    failingSince?: string | null;
+    failedCount?: number | null;
+    lastErrorAt?: string | null;
+    lastError?: string | null;
+    /**
+     * Provider facts from the last check (WhatsApp quality, limit)
+     */
+    details?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+  };
+  connectedBy?: (string | null) | User;
+  connectedAt?: string | null;
+  updatedBy?: (string | null) | User;
   updatedAt: string;
   createdAt: string;
 }
@@ -1756,6 +1826,10 @@ export interface PayloadLockedDocument {
         value: string | Counter;
       } | null)
     | ({
+        relationTo: 'connector-configs';
+        value: string | ConnectorConfig;
+      } | null)
+    | ({
         relationTo: 'tenants';
         value: string | Tenant;
       } | null)
@@ -1881,6 +1955,10 @@ export interface SiteSettingsSelect<T extends boolean = true> {
     | T
     | {
         minOrderValue?: T | MoneySelect<T>;
+        codEnabled?: T;
+        codMinOrder?: T | MoneySelect<T>;
+        codMaxOrder?: T | MoneySelect<T>;
+        codFee?: T | MoneySelect<T>;
       };
   returns?:
     | T
@@ -2120,6 +2198,7 @@ export interface MediaSelect<T extends boolean = true> {
   tenant?: T;
   alt?: T;
   caption?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -2178,18 +2257,18 @@ export interface PagesSelect<T extends boolean = true> {
     | {
         hero?: T | HeroBlockSelect<T>;
         banner?: T | BannerBlockSelect<T>;
-        productGrid?: T | ProductGridBlockSelect<T>;
-        categoryTiles?: T | CategoryTilesBlockSelect<T>;
-        richText?: T | RichTextBlockSelect<T>;
-        imageText?: T | ImageTextBlockSelect<T>;
         benefits?: T | BenefitsBlockSelect<T>;
         testimonials?: T | TestimonialsBlockSelect<T>;
-        faq?: T | FaqBlockSelect<T>;
-        video?: T | VideoBlockSelect<T>;
+        brandStory?: T | BrandStoryBlockSelect<T>;
+        productGrid?: T | ProductGridBlockSelect<T>;
+        categoryTiles?: T | CategoryTilesBlockSelect<T>;
         downloads?: T | DownloadsBlockSelect<T>;
+        richText?: T | RichTextBlockSelect<T>;
+        imageText?: T | ImageTextBlockSelect<T>;
+        video?: T | VideoBlockSelect<T>;
+        faq?: T | FaqBlockSelect<T>;
         dealerFinder?: T | DealerFinderBlockSelect<T>;
         enquiryForm?: T | EnquiryFormBlockSelect<T>;
-        brandStory?: T | BrandStoryBlockSelect<T>;
       };
   seo?: T | SeoSelect<T>;
   template?: T;
@@ -2247,53 +2326,6 @@ export interface BannerBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ProductGridBlock_select".
- */
-export interface ProductGridBlockSelect<T extends boolean = true> {
-  heading?: T;
-  source?: T;
-  category?: T;
-  limit?: T;
-  layout?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CategoryTilesBlock_select".
- */
-export interface CategoryTilesBlockSelect<T extends boolean = true> {
-  heading?: T;
-  categories?: T;
-  style?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "RichTextBlock_select".
- */
-export interface RichTextBlockSelect<T extends boolean = true> {
-  content?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ImageTextBlock_select".
- */
-export interface ImageTextBlockSelect<T extends boolean = true> {
-  image?: T;
-  heading?: T;
-  text?: T;
-  imageSide?: T;
-  buttonLabel?: T;
-  buttonLink?: T | LinkSelect<T>;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "BenefitsBlock_select".
  */
 export interface BenefitsBlockSelect<T extends boolean = true> {
@@ -2326,17 +2358,77 @@ export interface TestimonialsBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "FaqBlock_select".
+ * via the `definition` "BrandStoryBlock_select".
  */
-export interface FaqBlockSelect<T extends boolean = true> {
+export interface BrandStoryBlockSelect<T extends boolean = true> {
   heading?: T;
-  items?:
+  text?: T;
+  image?: T;
+  stats?:
     | T
     | {
-        question?: T;
-        answer?: T;
+        value?: T;
+        label?: T;
         id?: T;
       };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProductGridBlock_select".
+ */
+export interface ProductGridBlockSelect<T extends boolean = true> {
+  heading?: T;
+  source?: T;
+  category?: T;
+  limit?: T;
+  layout?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CategoryTilesBlock_select".
+ */
+export interface CategoryTilesBlockSelect<T extends boolean = true> {
+  heading?: T;
+  categories?: T;
+  style?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DownloadsBlock_select".
+ */
+export interface DownloadsBlockSelect<T extends boolean = true> {
+  heading?: T;
+  documentType?: T;
+  limit?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RichTextBlock_select".
+ */
+export interface RichTextBlockSelect<T extends boolean = true> {
+  content?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageTextBlock_select".
+ */
+export interface ImageTextBlockSelect<T extends boolean = true> {
+  image?: T;
+  heading?: T;
+  text?: T;
+  imageSide?: T;
+  buttonLabel?: T;
+  buttonLink?: T | LinkSelect<T>;
   id?: T;
   blockName?: T;
 }
@@ -2353,12 +2445,17 @@ export interface VideoBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "DownloadsBlock_select".
+ * via the `definition` "FaqBlock_select".
  */
-export interface DownloadsBlockSelect<T extends boolean = true> {
+export interface FaqBlockSelect<T extends boolean = true> {
   heading?: T;
-  documentType?: T;
-  limit?: T;
+  items?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
   id?: T;
   blockName?: T;
 }
@@ -2381,24 +2478,6 @@ export interface EnquiryFormBlockSelect<T extends boolean = true> {
   heading?: T;
   text?: T;
   enquiryType?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BrandStoryBlock_select".
- */
-export interface BrandStoryBlockSelect<T extends boolean = true> {
-  heading?: T;
-  text?: T;
-  image?: T;
-  stats?:
-    | T
-    | {
-        value?: T;
-        label?: T;
-        id?: T;
-      };
   id?: T;
   blockName?: T;
 }
@@ -2546,6 +2625,41 @@ export interface CountersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "connector-configs_select".
+ */
+export interface ConnectorConfigsSelect<T extends boolean = true> {
+  tenant?: T;
+  provider?: T;
+  kind?: T;
+  enabled?: T;
+  mode?: T;
+  publicConfig?: T;
+  secretSealed?: T;
+  savedSecrets?: T;
+  webhookToken?: T;
+  routingKey?: T;
+  health?:
+    | T
+    | {
+        lastTestAt?: T;
+        lastTestOk?: T;
+        lastTestMessage?: T;
+        lastWebhookAt?: T;
+        lastWebhookOkAt?: T;
+        failingSince?: T;
+        failedCount?: T;
+        lastErrorAt?: T;
+        lastError?: T;
+        details?: T;
+      };
+  connectedBy?: T;
+  connectedAt?: T;
+  updatedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tenants_select".
  */
 export interface TenantsSelect<T extends boolean = true> {
@@ -2577,6 +2691,7 @@ export interface TenantsSelect<T extends boolean = true> {
         updatedAt?: T;
       };
   enabledFeatures?: T;
+  blockedConnectors?: T;
   dbRef?: T;
   createdBy?: T;
   activatedAt?: T;

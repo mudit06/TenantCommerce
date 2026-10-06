@@ -116,8 +116,10 @@ Click Home Orbit.
       http://home-orbit.localhost:3000/products/feather-stainless-steel-pull-handle-hoph-504 :
       the **Request a quote** form is gone. Switch it back on, reload the product page: the form
       is back.
-- [ ] **Connectors**: lists what the plan allows (Razorpay, Shiprocket and others). Keys come in
-      stage B, so there is nothing to enter yet.
+- [ ] **Connectors**: Payments (Razorpay), Shipping (manual, always on; Shiprocket), Order
+      updates (WhatsApp, SMS "Comes later", email, Phase 2 self-serve WhatsApp). Each provider
+      has an **Allowed** switch. Switch Razorpay off: "Razorpay switched off for this store".
+      Switch it back on. Rows say "Not connected by the vendor yet" until keys are saved (2.8).
 - [ ] **Domains**: `home-orbit.localhost`, primary.
 - [ ] **Billing**: Starter at ₹3,499 + GST and the ₹9,999 starting offer, with the cards
       **Record payment**, **Change plan** and **Pause or cancel**. Record a test payment of
@@ -297,6 +299,31 @@ Store → Store settings, tab **Contact**.
       them. They lose access to Home Orbit at once.
 - [ ] Press Remove on your own row: refused with "The store needs at least one owner. Make
       someone else owner first."
+
+### 2.8 Payments and WhatsApp keys (owner only)
+
+Do this as the owner, or as the super admin with **Manage store** on Home Orbit.
+
+- [ ] Store → **Payments**. Razorpay shows "Not connected", Mode Test/Live, Key ID, Key secret,
+      Webhook secret, the webhook address with **Copy**, and the events to tick in Razorpay.
+- [ ] Type Key ID `rzp_test_AbCdEfGh1234`, any key secret and webhook secret, press **Save**:
+      "Razorpay saved". Both secrets now read **Saved · hidden** with **Replace**; the store shows
+      a yellow "Test mode" note. Reload: the secrets are still hidden (they never come back to
+      the browser).
+- [ ] Press **Test connection**. With these made-up keys Razorpay refuses them: the pill says
+      "Keys refused" and the reason shows above the form. With your real test keys from Razorpay
+      (Settings → API keys) it says "Razorpay accepted the test keys" and the pill turns green.
+- [ ] A Key ID like `abc` is refused with "A Razorpay key ID starts with rzp_test_ or rzp_live_".
+- [ ] **Cash on delivery** (only when the `cod` feature is on): switch on, min ₹499, max
+      ₹25,000, fee ₹49, Save. On the super admin Connectors tab the COD line now reads "Vendor
+      rules: orders ₹499.00 to ₹25,000.00, ₹49.00 fee".
+- [ ] Store → **WhatsApp and SMS**: the WhatsApp form (phone number ID, business account ID,
+      access token, app secret), the webhook address and verify token for Meta. SMS says it comes
+      later; email is sent by the platform.
+- [ ] Sign in as a manager or catalog editor: neither Payments nor WhatsApp and SMS is in their
+      menu, and `/admin/payments` says only the owner sees keys.
+- [ ] Back in the super admin, the vendor's Connectors tab shows "Connected by", the mode, the
+      masked key ID and "Encrypted, never shown" for each secret, never the secret itself.
 
 ## 3. Storefront (what shoppers see)
 

@@ -99,6 +99,17 @@ COD has no row here: it is the `cod` feature flag plus the site-settings `checko
 `lastHealthCheckAt`, `lastError`. Unique `(tenant, provider)`. WhatsApp `publicConfig.phoneNumberId`
 is unique across all tenants (it routes webhooks to a tenant, docs/09).
 
+As built (6 October 2026, `src/connectors/collections/ConnectorConfigs.ts`): `secretSealed`
+(AES-256-GCM, unreadable through any API) with `savedSecrets[]` (names only, for "Saved ·
+hidden"), `webhookToken` (ours: Shiprocket's header token, Meta's verify token), `routingKey`
+(the WhatsApp phone number ID, checked unique across stores by the service), `health { lastTestAt,
+lastTestOk, lastTestMessage, lastWebhookAt, lastWebhookOkAt, failingSince, failedCount,
+lastErrorAt, lastError, details }`, `connectedBy`, `connectedAt`, `updatedBy`. Written only by
+`saveConnector` and webhook handlers (API create/update/delete: nobody); read by the store owner.
+`tenants.blockedConnectors[]` holds providers our team switched off for one store (the Connectors
+tab's Allowed switch, capped by `plans.allowedConnectors`). COD rules are `site-settings.checkout`
+`codEnabled`, `codMinOrder`, `codMaxOrder`, `codFee`, edited on Payments.
+
 ### tax-rates (T)
 `name` (e.g. "GST 18%"), `ratePercent` (0, 0.25, 3, 5, 18, 40 or custom; the 12% and 28% slabs
 ended on 22 September 2025), `cessPercent` (usually 0 now), `valueRule` (optional:

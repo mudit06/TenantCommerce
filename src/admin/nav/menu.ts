@@ -41,6 +41,8 @@ export type MenuContext = {
   isSuperAdmin: boolean
   /** Owner of the current store, or our team managing it */
   canManageStaff: boolean
+  /** Payment and messaging keys are the owner's (docs/05); our team sees them in a store session */
+  canSeeKeys?: boolean
   /** The person's roles in the current store (our team: owner when managing, support viewing) */
   storeRoles?: readonly TenantRole[]
   /** Feature switches on for the current store */
@@ -132,8 +134,20 @@ const STORE_MENU: MenuSection[] = [
     items: [
       collectionItem('dealers', 'Dealers', 'dealers'),
       soonItem('shipping', 'Shipping', 'truck', STORE_ADMIN),
-      soonItem('payments', 'Payments', 'card', STORE_ADMIN),
-      soonItem('messaging', 'WhatsApp and SMS', 'whatsapp', STORE_ADMIN),
+      {
+        key: 'payments',
+        label: 'Payments',
+        href: adminUrl.payments,
+        icon: 'card',
+        when: (ctx) => Boolean(ctx.canSeeKeys),
+      },
+      {
+        key: 'messaging',
+        label: 'WhatsApp and SMS',
+        href: adminUrl.messaging,
+        icon: 'whatsapp',
+        when: (ctx) => Boolean(ctx.canSeeKeys),
+      },
       soonItem('notifications', 'Order updates', 'bell', STORE_ADMIN),
       collectionItem('site-settings', 'Settings', 'settings'),
       {

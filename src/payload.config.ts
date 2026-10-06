@@ -12,6 +12,7 @@ import sharp from 'sharp'
 
 import { fieldSuperAdminOnly, isPlatformStaff, TENANT_ROLE_LABELS, TENANT_ROLES } from '@/access'
 import { platformScreen, storeScreen } from '@/admin/workspace'
+import { ConnectorConfigs, connectorEndpoints } from '@/connectors'
 import { withStorefrontRevalidation } from '@/hooks/revalidateStorefront'
 import { withStoreSessionAudit } from '@/hooks/storeSessionAudit'
 import { devLogEmailAdapter } from '@/lib/email/devLog'
@@ -127,6 +128,16 @@ export default buildConfig({
           path: '/team',
           meta: { title: 'Team and access' },
         },
+        payments: {
+          Component: '@/connectors/admin/PaymentsView#PaymentsView',
+          path: '/payments',
+          meta: { title: 'Payments' },
+        },
+        messaging: {
+          Component: '@/connectors/admin/MessagingView#MessagingView',
+          path: '/messaging',
+          meta: { title: 'WhatsApp and SMS' },
+        },
         storeStaff: {
           Component: '@/modules/identity/admin/StoreStaffView#StoreStaffView',
           path: '/staff',
@@ -157,6 +168,8 @@ export default buildConfig({
     ].map((collection) => storeCollection(withStorefrontRevalidation(collection))),
     storeCollection(Enquiries),
     Counters,
+    // Written only by the connector service (encrypts secrets, audits each change)
+    ConnectorConfigs,
     // Platform panel only. Feature switches are kept by both: the vendor's Features tab and the
     // store's own feature screens (they have no menu entry of their own)
     ...[Tenants, TenantDomains, Plans, Subscriptions].map(platformScreen),
@@ -164,7 +177,12 @@ export default buildConfig({
     ...[Users, AuditLogs].map(platformScreen),
   ],
   upload: { limits: { fileSize: MAX_UPLOAD_BYTES } },
-  endpoints: [...tenancyEndpoints, ...identityEndpoints, ...catalogEndpoints],
+  endpoints: [
+    ...tenancyEndpoints,
+    ...identityEndpoints,
+    ...catalogEndpoints,
+    ...connectorEndpoints,
+  ],
   jobs: {
     tasks: [checkSubscriptionsTask],
     // Long-running servers (local, Docker) run the queue themselves; on Vercel a cron hits
@@ -248,6 +266,7 @@ export default buildConfig({
         enquiries: {},
         dealers: {},
         counters: {},
+        'connector-configs': {},
       },
       // Our team works across stores; support is read-only through access functions
       userHasAccessToAllTenants: (user) => isPlatformStaff(user),

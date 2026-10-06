@@ -3,7 +3,7 @@
 The single place to check build status. Update it in the same commit as the work (docs/16
 definition of done). Screen ids match `docs/screens/*.md` and the wireframes.
 
-Last updated: 4 October 2026 (vendor CMS in the wireframe's look; admin redesign, Manage store and View as support; hosting guide, docs/19). Nothing is deployed anywhere yet; the code runs
+Last updated: 6 October 2026 (connectors: encrypted keys, Payments, WhatsApp and SMS, the super admin Connectors tab; selling and growth stages started, decisions below). Nothing is deployed anywhere yet; the code runs
 locally (README).
 
 ## At a glance
@@ -36,6 +36,18 @@ fresh database on 3 October 2026).
 
 Legend: **Done** = built and tested to the screen spec for MVP. **Partial** = usable, with the
 listed gaps. **Not started** = nothing built yet.
+
+## Decisions of 6 October 2026 (mudit)
+
+- Order updates go by **email and WhatsApp** in Phase 1; SMS comes later.
+- Two-step login stays deferred.
+- The super admin **Connectors** tab is built in full, with a per-vendor Allowed switch.
+- Shoppers pay **live Shiprocket rates** at checkout (the vendor's rate card when Shiprocket isn't
+  connected or can't answer).
+- Every growth feature is in for launch: schemes, coupons, reviews, wishlist, offer messages,
+  abandoned carts, affiliates.
+- Home Orbit launches as a **full online store**, not a catalogue only, so stages B and C are both
+  needed before its launch.
 
 ## Path to vendor 1's storefront
 
@@ -73,7 +85,7 @@ matter). The store dashboard's checklist tracks it.
 | `sa-vendor-new` New vendor | Done | All five steps, GSTIN check and PAN/state fill, industry preset capped by plan, trial, owner invite, same service as `pnpm create-tenant` | Store settings, counters, tax rates and menus are created by those modules when they are built (they listen to `tenant.created`) |
 | `sa-vendor` Vendor overview | Partial | Business details (edit), status, plan, primary domain, plan usage, recent changes, Go live, Suspend, Resume, Archive with reason, internal notes, **Manage store** and **View as support** (reason, 2-hour session, banner, audit; docs/05 "As built") | Store health (last order, connector health); logo |
 | `sa-vendor-features` Features | Done | Switches within the plan, dependency prompt, Phase 2 rows locked, settings with platform caps, re-apply preset | — |
-| `sa-vendor-connectors` Connectors | Partial | What the vendor's plan allows | Keys ("Saved · hidden"), health, last webhook, SMS daily limit: arrive with each connector (sprints 4 to 7) |
+| `sa-vendor-connectors` Connectors | Done (MVP) | Per-store **Allowed** switch capped by the plan (`tenants.blockedConnectors`), who connected each provider and when, mode, masked key ID, "Encrypted, never shown" per secret, last test, last good webhook, last error, failing banner, the vendor's COD rules (6 October 2026) | SMS limit when SMS arrives (later, mudit 6 October 2026); webhook health fills in as each webhook is built |
 | `sa-vendor-domains` Domains | Done (MVP) | Subdomain, primary, redirect flag | Custom domains with SSL are Phase 2 |
 | `sa-vendor-billing` Billing | Done | Plan and price with GST, starting offer (first payment covers the offer's months), record payment (moves the period), change plan, pause, resume, cancel, history | Invoices to the vendor are Phase 2 |
 | `sa-vendor-staff` Staff | Partial | Staff list, invite, resend invite, change roles, remove from the store (never the last owner), plan staff limit | Reset two-step (needs two-step) |
@@ -110,7 +122,9 @@ has tenant isolation, role and feature tests (`tests/integration/store.test.ts`)
 | `cms-product-edit` Product editor | Partial | Basics, photos and YouTube videos, specifications built from the category's attribute set (inherited from the parent), finishes and sizes with "Create variants for every combination", price, MRP, GST rate, HSN, weight and size, label details defaulting from store settings, documents, related products, search fields, versions. Can't go active without a photo and label details; online selling needs a price and HSN | GST split preview, scheduled publish, translations (Phase 2), spare parts (Phase 2) |
 | `cms-import` CSV import | Not started | — | Not urgent: data is entered by hand for now |
 | `cms-orders`, `cms-order`, `cms-customers` | Not started | — | Stage B (sprints 4 and 5) |
-| `cms-shipping`, `cms-payments`, `cms-notifications`, `cms-messaging` | Not started | — | Stage B (sprints 4 to 7) |
+| `cms-payments` Payments | Partial | Owner-only screen (`/admin/payments`): Razorpay key ID, key secret and webhook secret (encrypted, "Saved · hidden" + Replace), Test/Live mode, webhook address and events to tick, **Test connection**, health; cash on delivery rules (min, max, fee) when the `cod` feature is on; Phase 2 rows locked | Checkout, webhooks and the reconciliation job (M3) |
+| `cms-messaging` WhatsApp and SMS | Partial | Owner-only screen (`/admin/messaging`): Meta phone number ID, business account ID, access token, app secret, webhook address and verify token, **Test connection** reads the number, display name, quality and messaging limit | Templates and sending (M6). SMS later (mudit 6 October 2026) |
+| `cms-shipping`, `cms-notifications` | Not started | — | Shipping zones and Shiprocket (M5), order updates (M6) |
 | `cms-schemes`, `cms-scheme-edit`, `cms-coupons` | Not started | — | Stage C (sprint 9) |
 | `cms-campaigns`, `cms-abandoned`, `cms-reviews` | Not started | — | Stage C (sprint 10) |
 | `cms-affiliates` | Not started | — | Stage C (sprint 11) |
@@ -163,7 +177,7 @@ Also built: CMS and policy pages (`/pages/<slug>`), per-store `robots.txt` and `
 | Media storage | Local disk in development; S3/Cloudflare R2 + CDN switched on by `S3_BUCKET` (docs/12), one folder per store (`media/<tenantId>/`), boot check refuses local disk on Vercel. Production bucket not chosen yet |
 | Email | Local log adapter and Resend adapter; React Email templates later |
 | `proxy.ts`, security headers, rate limiting | Proxy and headers done (nosniff, referrer, frame, permissions, HSTS in production); enquiry rate limit in memory per server. Left: Content-Security-Policy with nonces, Upstash for several instances, redirect to the primary domain |
-| Connector secret encryption | Not started: comes with the first connector |
+| Connector secret encryption | Done (6 October 2026): AES-256-GCM with `CONNECTOR_ENC_KEY` (required in production; `pnpm setup:local` makes one), write-only through the connector service, never readable through the API (`src/connectors/core/secrets.ts`) |
 | Error tracking (Sentry), structured logs | Not started |
 | CI | Local `pnpm verify`; Husky pre-push hook and hosted CI not yet |
 | End-to-end tests in the repo (Playwright) | Not started: browser checks are run by hand, following `docs/manual-testing.md` |

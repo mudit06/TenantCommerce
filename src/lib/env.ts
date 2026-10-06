@@ -30,6 +30,20 @@ const envSchema = z.object({
     (value) => value === 'true' || value === '1',
     z.boolean().default(false),
   ),
+  // Connector secrets (Razorpay, WhatsApp, Shiprocket keys) are encrypted with this key,
+  // AES-256-GCM, 32 bytes in base64 (docs/14). Required in production; locally a key derived
+  // from PAYLOAD_SECRET is used when it is empty (src/connectors/core/secrets.ts).
+  CONNECTOR_ENC_KEY: z.preprocess(
+    emptyToUndefined,
+    z
+      .string()
+      .refine((value) => Buffer.from(value, 'base64').length === 32, {
+        message: 'CONNECTOR_ENC_KEY must be 32 bytes in base64: `openssl rand -base64 32`',
+      })
+      .optional(),
+  ),
+  // Meta Graph API version for WhatsApp (docs/09), pinned so Meta's changes arrive on purpose
+  META_GRAPH_API_VERSION: z.preprocess(emptyToUndefined, z.string().default('v21.0')),
 })
 
 export type Env = z.infer<typeof envSchema>

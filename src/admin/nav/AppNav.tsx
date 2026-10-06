@@ -45,6 +45,8 @@ export async function AppNav({ req, visibleEntities, permissions }: Props) {
     visibleCollections: visible,
     isSuperAdmin: isSuperAdmin(user),
     canManageStaff,
+    // Keys screens: the owner, or our team in a store session (read-only when viewing)
+    canSeeKeys: Boolean(store && (session || hasTenantRole(user, store.id, ['owner']))),
     storeRoles,
     features: store?.features ?? [],
   })
