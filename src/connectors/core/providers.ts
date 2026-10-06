@@ -50,7 +50,13 @@ export const CONNECTOR_PROVIDERS = [
     phase: 'mvp',
     hasModes: true,
     webhookPath: 'razorpay',
-    webhookEvents: ['payment.captured', 'payment.failed', 'order.paid', 'refund.processed'],
+    webhookEvents: [
+      'payment.captured',
+      'payment.failed',
+      'order.paid',
+      'refund.processed',
+      'refund.failed',
+    ],
     webhookAuth: 'signature',
     docsUrl: 'https://razorpay.com/docs/payments/dashboard/account-settings/api-keys/',
     fields: [

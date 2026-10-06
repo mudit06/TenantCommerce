@@ -1262,3 +1262,174 @@ html[data-theme='dark'] .te-seo-preview {
     font-family: var(--te-font-mono, ui-monospace, monospace);
   }
 }
+
+// ---- Orders and order detail (docs/screens Orders, Order detail) --------------------------
+
+.te-nowrap {
+  white-space: nowrap;
+}
+
+.te-bulkbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--te-line);
+
+  .btn {
+    margin: 0;
+  }
+
+  .btn--disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+}
+
+.te-csv-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--te-line);
+  background: var(--te-neutral-bg);
+
+  textarea {
+    font-family: var(--te-font-mono, ui-monospace, monospace);
+    min-height: 96px;
+  }
+}
+
+.te-pager {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.te-order {
+  &__title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__product {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  &__thumb {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    object-fit: contain;
+    border: 1px solid var(--te-line);
+    border-radius: 6px;
+    background: var(--te-neutral-bg);
+  }
+
+  &__supply {
+    margin: 4px 0 0;
+  }
+}
+
+.te-order-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+
+  .btn {
+    margin: 0;
+  }
+
+  .te-confirm {
+    align-items: stretch;
+    max-width: 640px;
+  }
+}
+
+.te-totals {
+  margin: 12px 0 0 auto;
+  max-width: 380px;
+  font-size: 14px;
+
+  div {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--te-line);
+  }
+
+  dt {
+    color: var(--te-text-2);
+  }
+
+  dd {
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__grand {
+    font-weight: 700;
+
+    dt {
+      color: var(--te-text);
+    }
+  }
+}
+
+.te-parcel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--te-line);
+  border-radius: var(--te-radius);
+
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__events {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 2px;
+  }
+}
+
+.te-form-grid--3 {
+  @media (min-width: 700px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.te-note-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+
+  .btn {
+    margin: 0;
+  }
+}
+
+.te-order .te-timeline li {
+  grid-template-columns: 150px 1fr;
+}
+
+// An order is a record with its own header and actions: Payload's title and Edit tab would
+// only repeat the order number
+.template-default__wrap:has(> .te-order) > .doc-header {
+  display: none;
+}

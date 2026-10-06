@@ -188,7 +188,8 @@ export async function cancelOrder(
 ): Promise<Order> {
   const order = await loadOrder(req, orderId)
   assertMove(order, 'cancelled')
-  if (SHIPPED_STATES.has(order.fulfillmentStatus)) {
+  // A parcel that came back to the store can be cancelled too (docs/11 rto_delivered)
+  if (SHIPPED_STATES.has(order.fulfillmentStatus) && order.fulfillmentStatus !== 'returned') {
     throw new AppError(
       'INVALID_TRANSITION',
       'This order has shipped. Handle it as a return or a failed delivery instead.',
@@ -196,6 +197,30 @@ export async function cancelOrder(
     )
   }
   const tenantId = tenantOf(order)
+  // Packed but not picked up: the parcels are cancelled with the order
+  const { docs: packed } = await req.payload.find({
+    collection: 'shipments',
+    where: { and: [{ order: { equals: order.id } }, { status: { equals: 'packed' } }] },
+    depth: 0,
+    pagination: false,
+    overrideAccess: true,
+    req,
+  })
+  for (const parcel of packed) {
+    await req.payload.update({
+      collection: 'shipments',
+      id: parcel.id,
+      data: {
+        status: 'cancelled',
+        events: [
+          ...(parcel.events ?? []),
+          { status: 'cancelled', at: new Date().toISOString(), source: 'system', note: reason },
+        ],
+      },
+      overrideAccess: true,
+      req,
+    })
+  }
   const lines = stockLinesOf(order)
   let stockState = order.stockState
   if (order.stockState === 'reserved') {

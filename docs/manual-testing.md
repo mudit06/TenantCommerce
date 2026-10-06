@@ -423,6 +423,30 @@ data): `pnpm demo:selling home-orbit`. It prints how many products it priced, an
 - [ ] Put a pincode outside India's zones that the store doesn't cover (none by default) or
       empty the store's zones: delivery messages follow the zones (Shipping zones arrive in M5).
 
+### 3.7 Orders in the CMS (after 3.6)
+
+As Home Orbit's owner, or the super admin with **Manage store**:
+
+- [ ] Sales → **Orders**: the order from 3.6 with "COD, to collect" and "Not shipped"; the tabs
+      count it under All and To pack. Search for its number, then for the phone 98765.
+- [ ] Open it: Order HOM-10001 with Confirmed, COD to collect, Not shipped. Items with GST
+      shown as CGST and SGST (Pune is in Maharashtra, like the store's placeholder GSTIN), the
+      place of supply line, the customer ("first order"), address and payment.
+- [ ] **Mark as packed** → Mark as packed: the parcel shows Packed and **Invoice** now lists
+      `INV/26-27/00001`. **Download invoice** opens the GST invoice; Print or save as PDF.
+- [ ] In the parcel, type a tracking number and press **Save and tell the shopper it shipped**;
+      then **Out for delivery**, then **Delivered**. The order reads Completed, Paid, Delivered
+      and the timeline ends with "₹… collected in cash on delivery".
+- [ ] **Refund** ₹100 with a reason and a UPI reference: the payment shows Partly refunded and
+      the invoice card lists a credit note `CN/26-27/00001`.
+- [ ] Place another COD order on the store, then **Cancel order** with a reason: stock goes
+      back and the order reads Cancelled.
+- [ ] On the list, tick two orders and **Download invoices** (only invoiced ones print); try
+      **Shipped from CSV** with a line `HOM-10003, Delhivery, 12345`; **Export CSV** downloads
+      the list for accounts.
+- [ ] Sign in as a catalog editor: Orders isn't in the menu. A store support login sees orders
+      but no action buttons.
+
 ## 4. Enquiries inbox (vendor CMS)
 
 Back in the owner's private window.

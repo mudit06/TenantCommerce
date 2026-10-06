@@ -298,6 +298,10 @@ nobody).
 `order`, `provider`, `providerOrderId`, `providerPaymentId`, `amountMinor`, `status`, `method`
 (upi/card/netbanking/wallet), `raw` (sanitized webhook payload), `processedEventIds[]`.
 
+As built: payment attempts are written only by the payments module (Razorpay order, verified
+callback, webhook, reconciliation); `methodDetail` holds "UPI", "Card · Visa"; `capturedAt`,
+`failureReason`, `refundedMinor`.
+
 ### refunds
 `order`, `transaction`, `amountMinor`, `reason`, `providerRefundId`, `status`, `creditNote` -> invoices.
 
@@ -308,6 +312,12 @@ prefix is saved), `financialYear`, `issuedAt`, `seller` snapshot (legal name, GS
 state code), `buyer` snapshot, `placeOfSupply`, `lines[]` (with HSN, taxable value, rates,
 amounts), `totals`, `amountInWords`, `pdf` -> media, `irn` + `qrCode` (Later, e-invoicing for
 vendors above the turnover threshold).
+
+As built (7 October 2026, `src/modules/tax-invoicing`): no stored PDF; the printable page is
+drawn from the snapshot on demand (`renderInvoicesHtml`), so a reprint never changes. `seller`
+adds the store name, signatory, signature and footer note; `buyer` adds `shipTo`;
+`placeOfSupply` keeps the order number (and, on a credit note, the reason); credit notes point
+at their invoice with `againstInvoice` and use the `credit-note:<FY>` counter.
 
 ### shipping-zones / shipping-rates
 Zone: `name`, `pincodes[]` / `pincodePrefixes[]` / `states[]`, `isServiceable`, `codAllowed`,

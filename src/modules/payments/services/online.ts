@@ -11,6 +11,8 @@ import { AppError } from '@/lib/errors'
 import { cancelOrder, loadOrder, markOrderPaid, recordPaymentFailure } from '@/modules/orders'
 import type { Transaction } from '@/payload-types'
 
+import { settleRefundFromWebhook } from './refunds'
+
 // Online payment with Razorpay Standard Checkout (docs/09 "Razorpay", docs/11 "Idempotency"):
 // 1. start: a Razorpay order for our pending order; 2. the browser pays in Razorpay's window;
 // 3. its callback is verified (HMAC) and settles the order at once; 4. the webhook is the source
@@ -238,6 +240,16 @@ export async function handleRazorpayWebhook(
     event = JSON.parse(rawBody) as WebhookEvent
   } catch {
     return 'ignored'
+  }
+  const refund = event.payload?.refund?.entity
+  if ((event.event === 'refund.processed' || event.event === 'refund.failed') && refund?.id) {
+    await settleRefundFromWebhook(
+      req,
+      tenantId,
+      refund.id,
+      event.event === 'refund.processed' ? 'processed' : 'failed',
+    )
+    return 'processed'
   }
   const payment = event.payload?.payment?.entity
   const razorpayOrderId = payment?.order_id ?? event.payload?.order?.entity?.id

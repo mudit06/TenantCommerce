@@ -127,6 +127,16 @@ export default async function OrderPlacedPage({ params, searchParams }: Props) {
           <p className="mt-2 text-sm text-ink-soft">{order.cancelReason}</p>
         ) : null}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          {order.invoice ? (
+            <a
+              className={buttonClass('outline')}
+              href={`/checkout/invoice?order=${encodeURIComponent(order.orderNumber)}`}
+              rel="noopener"
+              target="_blank"
+            >
+              Download invoice
+            </a>
+          ) : null}
           <Link className={buttonClass('outline')} href="/">
             Continue shopping
           </Link>

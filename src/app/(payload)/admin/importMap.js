@@ -34,6 +34,8 @@ import { TemplatePicker as TemplatePicker_c9fbc0d315486c6d3de274320b8f72e2 } fro
 import { PagesList as PagesList_5570c1b6487639aeea2bcd13f189e1c8 } from '@/modules/content/admin/PagesList'
 import { EnquiryReply as EnquiryReply_8f24c2d5a57c2425b5946afe706c8c83 } from '@/modules/enquiries/admin/EnquiryReply'
 import { EnquiryTabs as EnquiryTabs_9803cf84d1475965cbc1c1d1a58d99de } from '@/modules/enquiries/admin/EnquiryTabs'
+import { OrderDetail as OrderDetail_856150d4a97bd8954bda8b0c2e915e8d } from '@/modules/orders/admin/OrderDetail'
+import { OrdersList as OrdersList_a257406c88338e4b8e903eb62a324497 } from '@/modules/orders/admin/OrdersList'
 import { VendorHeader as VendorHeader_24bac79af4bee0c0bc3616e096eb62fe } from '@/modules/tenancy/admin/views/VendorHeader'
 import { PlanUsage as PlanUsage_b86f7171c65cc13eb68898df458d8a5f } from '@/modules/tenancy/admin/views/PlanUsage'
 import { RecentChanges as RecentChanges_fafd7d131f02cbb7c1197cc860509618 } from '@/modules/tenancy/admin/views/RecentChanges'
@@ -104,6 +106,8 @@ export const importMap = {
   "@/modules/content/admin/PagesList#PagesList": PagesList_5570c1b6487639aeea2bcd13f189e1c8,
   "@/modules/enquiries/admin/EnquiryReply#EnquiryReply": EnquiryReply_8f24c2d5a57c2425b5946afe706c8c83,
   "@/modules/enquiries/admin/EnquiryTabs#EnquiryTabs": EnquiryTabs_9803cf84d1475965cbc1c1d1a58d99de,
+  "@/modules/orders/admin/OrderDetail#OrderDetail": OrderDetail_856150d4a97bd8954bda8b0c2e915e8d,
+  "@/modules/orders/admin/OrdersList#OrdersList": OrdersList_a257406c88338e4b8e903eb62a324497,
   "@/modules/tenancy/admin/views/VendorHeader#VendorHeader": VendorHeader_24bac79af4bee0c0bc3616e096eb62fe,
   "@/modules/tenancy/admin/views/PlanUsage#PlanUsage": PlanUsage_b86f7171c65cc13eb68898df458d8a5f,
   "@/modules/tenancy/admin/views/RecentChanges#RecentChanges": RecentChanges_fafd7d131f02cbb7c1197cc860509618,

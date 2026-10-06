@@ -56,7 +56,7 @@ describe('admin menu per workspace', () => {
       'Store',
       'Insights',
     ])
-    expect(items.find((item) => item.key === 'orders')).toMatchObject({ soon: true, href: '' })
+    expect(items.find((item) => item.key === 'customers')).toMatchObject({ soon: true, href: '' })
     expect(items.map((item) => item.key)).toContain('reviews')
     expect(items.map((item) => item.key)).not.toContain('coupons')
 
@@ -70,7 +70,7 @@ describe('admin menu per workspace', () => {
         features: ['reviews'],
       }),
     )
-    expect(editor).not.toContain('orders')
+    expect(editor).not.toContain('customers')
     expect(editor).not.toContain('reviews')
     // A soon entry never counts as the current screen
     expect(isActive({ href: '' }, '/admin/account')).toBe(false)

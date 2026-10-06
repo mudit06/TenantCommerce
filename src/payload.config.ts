@@ -40,10 +40,10 @@ import { Enquiries } from '@/modules/enquiries'
 import { identityEndpoints, Users } from '@/modules/identity'
 import { Carts } from '@/modules/cart'
 import { StockMovements } from '@/modules/inventory'
-import { IdempotencyKeys, OrderEvents, Orders } from '@/modules/orders'
+import { IdempotencyKeys, orderEndpoints, OrderEvents, Orders } from '@/modules/orders'
 import { paymentEndpoints, reconcilePaymentsTask, Refunds, Transactions } from '@/modules/payments'
 import { Pincodes, Shipments, ShippingZones } from '@/modules/shipping'
-import { Counters, Invoices } from '@/modules/tax-invoicing'
+import { Counters, Invoices, registerTaxInvoicingEvents } from '@/modules/tax-invoicing'
 import {
   checkSubscriptionsTask,
   FeatureFlags,
@@ -59,6 +59,7 @@ const dirname = path.dirname(filename)
 
 // Modules seed their per-store data when a store is created (docs/01 events)
 registerContentEvents()
+registerTaxInvoicingEvents()
 
 /** A store's own data: its CMS screens only, and audited when our team changes it (docs/05). */
 const storeCollection = (collection: CollectionConfig) =>
@@ -196,6 +197,7 @@ export default buildConfig({
     ...catalogEndpoints,
     ...connectorEndpoints,
     ...paymentEndpoints,
+    ...orderEndpoints,
   ],
   jobs: {
     tasks: [checkSubscriptionsTask, reconcilePaymentsTask],

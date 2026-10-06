@@ -178,6 +178,13 @@ separately. The parcel's status is what the shopper is told about (docs/18):
   `codConfirmation.status = pending` until the shopper confirms on WhatsApp (docs/18); packing it
   earlier shows a warning.
 
+**As built (7 October 2026).** Parcel moves live in `src/modules/orders/services/parcels.ts`
+(`packParcel`, `moveParcel`, `rollUpFulfillment`), not in the shipping module, because they
+change orders and checkout already uses the shipping module. Staff can't mark a packed parcel
+delivered without shipping it first on the order screen; the service still accepts skipped
+steps for imports and Shiprocket. A parcel worth more than ₹50,000 needs its e-way bill number
+when packed.
+
 ## Events and side effects
 
 | Event | Handlers |

@@ -40,6 +40,17 @@ export const Orders: CollectionConfig = {
       'fulfillmentStatus',
     ],
     listSearchableFields: ['orderNumber', 'contact.email', 'contact.phone', 'contact.name'],
+    components: {
+      views: {
+        // docs/screens Orders and Order detail: our own screens, actions instead of a form
+        list: { Component: '@/modules/orders/admin/OrdersList#OrdersList' },
+        edit: {
+          default: { Component: '@/modules/orders/admin/OrderDetail#OrderDetail' },
+          api: { tab: { condition: () => false } },
+          versions: { tab: { condition: () => false } },
+        },
+      },
+    },
   },
   defaultSort: '-placedAt',
   access: {

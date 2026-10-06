@@ -99,7 +99,7 @@ const STORE_MENU: MenuSection[] = [
     key: 'sales',
     label: 'Sales',
     items: [
-      soonItem('orders', 'Orders', 'receipt', ENQUIRY_WORK),
+      collectionItem('orders', 'Orders', 'receipt'),
       soonItem('customers', 'Customers', 'staff', ENQUIRY_WORK),
       collectionItem('enquiries', 'Enquiries', 'enquiries', { badge: 'newEnquiries' }),
     ],

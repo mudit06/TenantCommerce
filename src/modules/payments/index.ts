@@ -11,3 +11,9 @@ export {
   type OnlinePaymentStart,
   type WebhookOutcome,
 } from './services/online'
+export {
+  refundOrder,
+  refundSchema,
+  settleRefundFromWebhook,
+  type RefundInput,
+} from './services/refunds'
