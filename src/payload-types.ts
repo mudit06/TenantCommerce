@@ -89,6 +89,10 @@ export interface Config {
     shipments: Shipment;
     carts: Cart;
     'stock-movements': StockMovement;
+    'notification-settings': NotificationSetting;
+    'notification-templates': NotificationTemplate;
+    'notification-logs': NotificationLog;
+    'contact-preferences': ContactPreference;
     'idempotency-keys': IdempotencyKey;
     pincodes: Pincode;
     counters: Counter;
@@ -134,6 +138,10 @@ export interface Config {
     shipments: ShipmentsSelect<false> | ShipmentsSelect<true>;
     carts: CartsSelect<false> | CartsSelect<true>;
     'stock-movements': StockMovementsSelect<false> | StockMovementsSelect<true>;
+    'notification-settings': NotificationSettingsSelect<false> | NotificationSettingsSelect<true>;
+    'notification-templates': NotificationTemplatesSelect<false> | NotificationTemplatesSelect<true>;
+    'notification-logs': NotificationLogsSelect<false> | NotificationLogsSelect<true>;
+    'contact-preferences': ContactPreferencesSelect<false> | ContactPreferencesSelect<true>;
     'idempotency-keys': IdempotencyKeysSelect<false> | IdempotencyKeysSelect<true>;
     pincodes: PincodesSelect<false> | PincodesSelect<true>;
     counters: CountersSelect<false> | CountersSelect<true>;
@@ -171,6 +179,8 @@ export interface Config {
       'tenancy-check-subscriptions': TaskTenancyCheckSubscriptions;
       'payments-reconcile': TaskPaymentsReconcile;
       'orders-retrack-parcels': TaskOrdersRetrackParcels;
+      'notifications-send': TaskNotificationsSend;
+      'notifications-cleanup': TaskNotificationsCleanup;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -2006,6 +2016,183 @@ export interface StockMovement {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notification-settings".
+ */
+export interface NotificationSetting {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  milestones?:
+    | {
+        key:
+          | 'order_confirmed'
+          | 'shipment_packed'
+          | 'shipment_shipped'
+          | 'shipment_in_transit'
+          | 'shipment_out_for_delivery'
+          | 'shipment_delivery_failed'
+          | 'shipment_delivered'
+          | 'order_cancelled'
+          | 'refund_processed'
+          | 'return_approved'
+          | 'return_rejected';
+        email?: ('on' | 'off') | null;
+        whatsapp?: ('on' | 'off') | null;
+        sms?: ('on' | 'fallback' | 'off') | null;
+        id?: string | null;
+      }[]
+    | null;
+  packedDelayMinutes?: number | null;
+  quietHours?: {
+    enabled?: boolean | null;
+    start?: string | null;
+    end?: string | null;
+  };
+  whatsappOptInDefault?: boolean | null;
+  staffAlertEmails?: string[] | null;
+  limits?: {
+    perRecipientPerDay?: number | null;
+    smsPerDay?: number | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notification-templates".
+ */
+export interface NotificationTemplate {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  milestone:
+    | 'order_confirmed'
+    | 'shipment_packed'
+    | 'shipment_shipped'
+    | 'shipment_in_transit'
+    | 'shipment_out_for_delivery'
+    | 'shipment_delivery_failed'
+    | 'shipment_delivered'
+    | 'order_cancelled'
+    | 'refund_processed'
+    | 'return_approved'
+    | 'return_rejected';
+  category?: ('utility' | 'marketing') | null;
+  variant?: ('default' | 'prepaid' | 'cod') | null;
+  channel: 'whatsapp' | 'sms';
+  locale?: string | null;
+  body: string;
+  variables?: string[] | null;
+  trackButton?: boolean | null;
+  whatsapp?: {
+    name?: string | null;
+    language?: string | null;
+    providerTemplateId?: string | null;
+  };
+  status?: ('draft' | 'submitted' | 'approved' | 'rejected' | 'paused' | 'disabled') | null;
+  rejectionReason?: string | null;
+  submittedAt?: string | null;
+  lastSyncedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notification-logs".
+ */
+export interface NotificationLog {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  direction?: ('out' | 'in') | null;
+  kind?: ('order' | 'offer' | 'test' | 'staff' | 'reply') | null;
+  milestone?: string | null;
+  variant?: string | null;
+  channel: 'email' | 'whatsapp' | 'sms';
+  provider?: ('resend' | 'meta' | 'dev-log') | null;
+  to?: string | null;
+  order?: (string | null) | Order;
+  shipment?: string | null;
+  refund?: string | null;
+  template?: string | null;
+  dedupeKey: string;
+  status: 'queued' | 'sent' | 'delivered' | 'read' | 'clicked' | 'failed' | 'skipped' | 'received';
+  skipReason?:
+    | (
+        | 'opted_out'
+        | 'no_whatsapp_opt_in'
+        | 'no_offer_consent'
+        | 'channel_off'
+        | 'not_connected'
+        | 'template_not_approved'
+        | 'cap_reached'
+        | 'frequency_cap'
+        | 'no_phone'
+        | 'no_email'
+        | 'stale'
+      )
+    | null;
+  providerMessageId?: string | null;
+  fallbackOf?: string | null;
+  resendOf?: string | null;
+  error?: {
+    code?: string | null;
+    message?: string | null;
+  };
+  attempts?: number | null;
+  sendAfter?: string | null;
+  sentAt?: string | null;
+  deliveredAt?: string | null;
+  readAt?: string | null;
+  failedAt?: string | null;
+  preview?: string | null;
+  text?: string | null;
+  sentBy?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-preferences".
+ */
+export interface ContactPreference {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  type: 'phone' | 'email';
+  value: string;
+  whatsapp?: {
+    optedIn?: boolean | null;
+    at?: string | null;
+    source?: ('checkout' | 'account' | 'reply' | 'tracking-page') | null;
+    wordingVersion?: string | null;
+    optedOutAt?: string | null;
+  };
+  sms?: {
+    optedOutAt?: string | null;
+  };
+  offers?: {
+    whatsapp?: {
+      optedIn?: boolean | null;
+      at?: string | null;
+      source?: ('checkout' | 'signup' | 'account' | 'affiliate') | null;
+      wordingVersion?: string | null;
+      optedOutAt?: string | null;
+    };
+    email?: {
+      optedIn?: boolean | null;
+      at?: string | null;
+      source?: ('checkout' | 'signup' | 'account' | 'affiliate') | null;
+      wordingVersion?: string | null;
+      optedOutAt?: string | null;
+    };
+  };
+  suppressed?: {
+    reason?: ('bounce' | 'complaint') | null;
+    at?: string | null;
+  };
+  lastAutoReplyAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "idempotency-keys".
  */
 export interface IdempotencyKey {
@@ -2406,6 +2593,8 @@ export interface PayloadJob {
           | 'tenancy-check-subscriptions'
           | 'payments-reconcile'
           | 'orders-retrack-parcels'
+          | 'notifications-send'
+          | 'notifications-cleanup'
           | 'schedulePublish';
         taskID: string;
         input?:
@@ -2440,7 +2629,15 @@ export interface PayloadJob {
       }[]
     | null;
   taskSlug?:
-    | ('inline' | 'tenancy-check-subscriptions' | 'payments-reconcile' | 'orders-retrack-parcels' | 'schedulePublish')
+    | (
+        | 'inline'
+        | 'tenancy-check-subscriptions'
+        | 'payments-reconcile'
+        | 'orders-retrack-parcels'
+        | 'notifications-send'
+        | 'notifications-cleanup'
+        | 'schedulePublish'
+      )
     | null;
   queue?: string | null;
   waitUntil?: string | null;
@@ -2551,6 +2748,22 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'stock-movements';
         value: string | StockMovement;
+      } | null)
+    | ({
+        relationTo: 'notification-settings';
+        value: string | NotificationSetting;
+      } | null)
+    | ({
+        relationTo: 'notification-templates';
+        value: string | NotificationTemplate;
+      } | null)
+    | ({
+        relationTo: 'notification-logs';
+        value: string | NotificationLog;
+      } | null)
+    | ({
+        relationTo: 'contact-preferences';
+        value: string | ContactPreference;
       } | null)
     | ({
         relationTo: 'idempotency-keys';
@@ -3709,6 +3922,163 @@ export interface StockMovementsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notification-settings_select".
+ */
+export interface NotificationSettingsSelect<T extends boolean = true> {
+  tenant?: T;
+  milestones?:
+    | T
+    | {
+        key?: T;
+        email?: T;
+        whatsapp?: T;
+        sms?: T;
+        id?: T;
+      };
+  packedDelayMinutes?: T;
+  quietHours?:
+    | T
+    | {
+        enabled?: T;
+        start?: T;
+        end?: T;
+      };
+  whatsappOptInDefault?: T;
+  staffAlertEmails?: T;
+  limits?:
+    | T
+    | {
+        perRecipientPerDay?: T;
+        smsPerDay?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notification-templates_select".
+ */
+export interface NotificationTemplatesSelect<T extends boolean = true> {
+  tenant?: T;
+  milestone?: T;
+  category?: T;
+  variant?: T;
+  channel?: T;
+  locale?: T;
+  body?: T;
+  variables?: T;
+  trackButton?: T;
+  whatsapp?:
+    | T
+    | {
+        name?: T;
+        language?: T;
+        providerTemplateId?: T;
+      };
+  status?: T;
+  rejectionReason?: T;
+  submittedAt?: T;
+  lastSyncedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notification-logs_select".
+ */
+export interface NotificationLogsSelect<T extends boolean = true> {
+  tenant?: T;
+  direction?: T;
+  kind?: T;
+  milestone?: T;
+  variant?: T;
+  channel?: T;
+  provider?: T;
+  to?: T;
+  order?: T;
+  shipment?: T;
+  refund?: T;
+  template?: T;
+  dedupeKey?: T;
+  status?: T;
+  skipReason?: T;
+  providerMessageId?: T;
+  fallbackOf?: T;
+  resendOf?: T;
+  error?:
+    | T
+    | {
+        code?: T;
+        message?: T;
+      };
+  attempts?: T;
+  sendAfter?: T;
+  sentAt?: T;
+  deliveredAt?: T;
+  readAt?: T;
+  failedAt?: T;
+  preview?: T;
+  text?: T;
+  sentBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-preferences_select".
+ */
+export interface ContactPreferencesSelect<T extends boolean = true> {
+  tenant?: T;
+  type?: T;
+  value?: T;
+  whatsapp?:
+    | T
+    | {
+        optedIn?: T;
+        at?: T;
+        source?: T;
+        wordingVersion?: T;
+        optedOutAt?: T;
+      };
+  sms?:
+    | T
+    | {
+        optedOutAt?: T;
+      };
+  offers?:
+    | T
+    | {
+        whatsapp?:
+          | T
+          | {
+              optedIn?: T;
+              at?: T;
+              source?: T;
+              wordingVersion?: T;
+              optedOutAt?: T;
+            };
+        email?:
+          | T
+          | {
+              optedIn?: T;
+              at?: T;
+              source?: T;
+              wordingVersion?: T;
+              optedOutAt?: T;
+            };
+      };
+  suppressed?:
+    | T
+    | {
+        reason?: T;
+        at?: T;
+      };
+  lastAutoReplyAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "idempotency-keys_select".
  */
 export interface IdempotencyKeysSelect<T extends boolean = true> {
@@ -4144,6 +4514,28 @@ export interface TaskOrdersRetrackParcels {
   output: {
     checked: number;
     moved: number;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskNotifications-send".
+ */
+export interface TaskNotificationsSend {
+  input: {
+    logId: string;
+  };
+  output: {
+    outcome: string;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskNotifications-cleanup".
+ */
+export interface TaskNotificationsCleanup {
+  input?: unknown;
+  output: {
+    deleted: number;
   };
 }
 /**

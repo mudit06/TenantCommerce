@@ -4,6 +4,7 @@ import { adminUrl } from '@/admin/paths'
 import { AdminScreen } from '@/admin/ui/AdminScreen'
 import { ButtonLink, Card, Empty, Notice, PageHeader, Pill, Row, Rows } from '@/admin/ui'
 import { formatDate, formatDateAndTime } from '@/lib/dates'
+import { TemplatesCard } from '@/modules/notifications/admin/TemplatesCard'
 
 import { connectorOverview } from '../core/service'
 import { ConnectorForm } from './ConnectorForm'
@@ -54,72 +55,82 @@ async function Messaging({ view }: { view: AdminViewServerProps }) {
         title="WhatsApp and SMS"
       />
       <div className="te-grid te-grid--2-1">
-        <Card title="WhatsApp Business">
-          {whatsapp.availability.allowed ? (
-            <div className="te-stack">
-              {whatsapp.connected ? (
-                <dl className="te-dl">
-                  <dt>Sending number</dt>
-                  <dd className="te-strong">
-                    {details.displayPhone ?? whatsapp.publicValues.displayPhone ?? '—'}
-                  </dd>
-                  <dt>Display name</dt>
-                  <dd>
-                    {details.verifiedName ?? '—'}
-                    {details.nameStatus ? (
-                      <span className="te-muted te-small">
-                        {' '}
-                        · {details.nameStatus.toLowerCase().replace(/_/g, ' ')}
-                      </span>
-                    ) : null}
-                  </dd>
-                  <dt>Quality rating</dt>
-                  <dd>{quality ? <Pill tone={quality.tone}>{quality.label}</Pill> : '—'}</dd>
-                  <dt>Messaging limit</dt>
-                  <dd>{details.messagingLimit ?? '—'}</dd>
-                  <dt>Set up</dt>
-                  <dd>
-                    {whatsapp.connectedByName ?? 'Your team'}
-                    {whatsapp.connectedAt ? `, ${formatDate(whatsapp.connectedAt)}` : ''}
-                  </dd>
-                </dl>
-              ) : (
-                <Notice tone="info">
-                  Your platform contact sets this up with you: a Meta business account, your
-                  WhatsApp number and a system user token. Then order updates go out from your own
-                  number.
-                </Notice>
-              )}
-              <ConnectorForm
-                canEdit={canEdit}
-                fields={whatsapp.provider.fields}
-                healthLine={healthLine(whatsapp)}
-                dashboardName="Meta"
-                label="WhatsApp"
-                mode={whatsapp.mode}
-                problem={problem}
-                providerKey="meta-whatsapp"
-                savedSecrets={whatsapp.savedSecrets}
-                status={connectorStatus(whatsapp)}
-                tenantId={store.id}
-                values={whatsapp.publicValues}
-                webhookEvents={whatsapp.provider.webhookEvents}
-                webhookToken={whatsapp.webhookToken}
-                webhookTokenLabel="Verify token for Meta’s webhook setup"
-                webhookUrl={whatsapp.webhookUrl}
-              />
-              <div className="te-switch-row te-switch-row--locked">
-                <span>Connect WhatsApp in one click</span>
-                <Pill>Phase 2</Pill>
+        <div className="te-stack">
+          <Card title="WhatsApp Business">
+            {whatsapp.availability.allowed ? (
+              <div className="te-stack">
+                {whatsapp.connected ? (
+                  <dl className="te-dl">
+                    <dt>Sending number</dt>
+                    <dd className="te-strong">
+                      {details.displayPhone ?? whatsapp.publicValues.displayPhone ?? '—'}
+                    </dd>
+                    <dt>Display name</dt>
+                    <dd>
+                      {details.verifiedName ?? '—'}
+                      {details.nameStatus ? (
+                        <span className="te-muted te-small">
+                          {' '}
+                          · {details.nameStatus.toLowerCase().replace(/_/g, ' ')}
+                        </span>
+                      ) : null}
+                    </dd>
+                    <dt>Quality rating</dt>
+                    <dd>{quality ? <Pill tone={quality.tone}>{quality.label}</Pill> : '—'}</dd>
+                    <dt>Messaging limit</dt>
+                    <dd>{details.messagingLimit ?? '—'}</dd>
+                    <dt>Set up</dt>
+                    <dd>
+                      {whatsapp.connectedByName ?? 'Your team'}
+                      {whatsapp.connectedAt ? `, ${formatDate(whatsapp.connectedAt)}` : ''}
+                    </dd>
+                  </dl>
+                ) : (
+                  <Notice tone="info">
+                    Your platform contact sets this up with you: a Meta business account, your
+                    WhatsApp number and a system user token. Then order updates go out from your own
+                    number.
+                  </Notice>
+                )}
+                <ConnectorForm
+                  canEdit={canEdit}
+                  fields={whatsapp.provider.fields}
+                  healthLine={healthLine(whatsapp)}
+                  dashboardName="Meta"
+                  label="WhatsApp"
+                  mode={whatsapp.mode}
+                  problem={problem}
+                  providerKey="meta-whatsapp"
+                  savedSecrets={whatsapp.savedSecrets}
+                  status={connectorStatus(whatsapp)}
+                  tenantId={store.id}
+                  values={whatsapp.publicValues}
+                  webhookEvents={whatsapp.provider.webhookEvents}
+                  webhookToken={whatsapp.webhookToken}
+                  webhookTokenLabel="Verify token for Meta’s webhook setup"
+                  webhookUrl={whatsapp.webhookUrl}
+                />
+                <div className="te-switch-row te-switch-row--locked">
+                  <span>Connect WhatsApp in one click</span>
+                  <Pill>Phase 2</Pill>
+                </div>
               </div>
-            </div>
-          ) : (
-            <Notice tone="info">
-              WhatsApp order updates aren’t switched on for this store. Your platform contact can
-              switch them on when your plan allows.
-            </Notice>
-          )}
-        </Card>
+            ) : (
+              <Notice tone="info">
+                WhatsApp order updates aren’t switched on for this store. Your platform contact can
+                switch them on when your plan allows.
+              </Notice>
+            )}
+          </Card>
+          {whatsapp.availability.allowed ? (
+            <TemplatesCard
+              canEdit={canEdit}
+              connected={whatsapp.connected}
+              payload={req.payload}
+              storeId={store.id}
+            />
+          ) : null}
+        </div>
         <div className="te-stack">
           <Card title="SMS">
             <p className="te-muted">

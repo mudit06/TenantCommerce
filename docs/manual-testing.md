@@ -180,9 +180,8 @@ Private window. Open the **Home Orbit** set-password link from section 0 (or the
       isn't live yet".
 - [ ] The menu is dark, with Home Orbit and "Store admin" at the top and the wireframe's groups:
       Dashboard, Catalog, Sales, Marketing, Content, Store, Insights, each entry with an icon and
-      a draft count on Pages. Screens not built yet (Import and export, Orders, Customers,
-      Shipping, Payments, WhatsApp and SMS, Order updates, Reports, and the Marketing entries
-      whose switch is on) are greyed with a **Soon** tag and do nothing. At the foot: Products
+      a draft count on Pages. Screens not built yet (Import and export, Customers, Reports, and
+      the Marketing entries whose switch is on) are greyed with a **Soon** tag and do nothing. At the foot: Products
       **110 / 500**, Starter plan. There is no Vendors or Plans: store staff never see the
       platform panel.
 - [ ] The white top bar has a search box (**Ctrl K** jumps to it), **View store**, a bell with the
@@ -351,6 +350,40 @@ As Home Orbit's owner (after `pnpm demo:selling home-orbit`, which adds two zone
 - [ ] Sign in as an order manager: Shipping isn't in the menu and `/admin/shipping` says only
       owners and managers see it. A manager sees the zones and can change them, but not the
       Shiprocket keys.
+
+### 2.10 Order updates (email and WhatsApp)
+
+Locally nothing is really sent: emails and WhatsApp messages are printed in the `pnpm dev`
+terminal (`[dev-log email]`, `[dev-log whatsapp]`) about a minute after they are queued (the job
+queue runs every minute).
+
+- [ ] Store → **Order updates**: WhatsApp "Not connected", SMS "Comes later", Email "Ready". The
+      steps table has an Email and a WhatsApp switch per step and "Not submitted" templates;
+      Return approved and rejected show "Comes with returns".
+- [ ] Preview: pick "Shipped · WhatsApp", then "Order confirmed (COD) · Email": the text uses a
+      sample order with the store's name. Type your email and **Send test to my email**: the
+      terminal prints it.
+- [ ] Switch **Packed** on for email, change the packed delay to 5 and add an alert email, then
+      **Save**: reload and the changes stay. Signed in as an order manager the switches are
+      greyed and there is no Save.
+- [ ] Store → **WhatsApp and SMS**: **Message templates** lists 14 templates in the store's name,
+      "0 of 14 approved". Submit to Meta needs WhatsApp connected (with real Meta details,
+      **Submit to Meta** then, a day later, **Sync templates** shows Approved or the reason).
+- [ ] After 3.6, the order's **Messages to the shopper** shows Order confirmed by email and
+      WhatsApp, "Sending" then "Sent (dev log)" after a minute, and "Opted in to WhatsApp at
+      checkout". The alert email address gets "New order …".
+- [ ] Mark it packed: "Packed" waits ("Goes out at …"); ship it straight away and the packed
+      message is dropped (Not sent: out of date) while "Shipped" goes out with the courier and
+      tracking number. After 21:00 messages wait until 09:00, except out for delivery and
+      delivery failed.
+- [ ] **Resend** on a sent message: refused for 10 minutes after it went out, then queued again.
+- [ ] Open the tracking link printed in the message (`http://home-orbit.localhost:3000/t/<code>`):
+      the journey, courier and AWB, the items, "Updates for +91 98xxx xx210". **Stop updates
+      for this number**: the next WhatsApp step on that order shows "The shopper stopped these
+      updates"; email still goes. A made-up code shows "We can't find this order".
+- [ ] With WhatsApp connected and templates approved (real Meta details): messages go from the
+      store's number; replies show on the order, STOP and START switch updates off and on, and
+      any other reply gets one automatic answer a day with the store's phone and email.
 
 ## 3. Storefront (what shoppers see)
 
@@ -572,7 +605,7 @@ Uploaded files stay in `media/`; delete that folder too for a completely clean s
 
 ## Not built yet (so don't test these)
 
-- Order emails and WhatsApp updates, the order tracking page, customer accounts (later milestones of stage B)
+- SMS updates (later), returns, customer accounts (later milestones of stage B)
 - Offers, coupons, reviews, wishlist, affiliates (stage C)
 - CSV import, the dealer locator page, the PWA "install app" and offline page
 - Two-step login (deferred)

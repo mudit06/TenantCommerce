@@ -196,6 +196,14 @@ Key `meta-whatsapp`, folder `messaging/whatsapp-meta/`. The vendor's own WhatsAp
 account, number and display name on Meta's Cloud API. No BSP in between, so no markup or monthly
 fee; Meta bills the vendor's own payment method.
 
+As built (7 October 2026): `sendTemplate` (body variables and the "Track order" URL button's
+suffix), `sendText` (automatic answers inside the 24-hour window), `listTemplates` and
+`createTemplate` (utility templates with sample values, on the business account ID),
+`verifySignature` (`X-Hub-Signature-256` with the vendor's app secret). The webhook
+`/api/webhooks/whatsapp/:tenantId` answers Meta's GET handshake with the connector's generated
+verify token, then takes receipts, replies and template status updates; a wrong signature answers
+401. Only the notifications module calls these (docs/18).
+
 | Setup mode | Phase | How credentials arrive | Webhook |
 |---|---|---|---|
 | `manual` | MVP | Platform team creates a system user token in the vendor's Meta Business portfolio and enters it | Vendor's Meta app -> `/api/webhooks/whatsapp/<tenantId>`, verified with that app's secret |

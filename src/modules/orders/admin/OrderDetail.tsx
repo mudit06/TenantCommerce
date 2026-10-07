@@ -3,11 +3,13 @@ import type { DocumentViewServerProps } from 'payload'
 import { idOf, storeSessionOf } from '@/access'
 import { adminUrl } from '@/admin/paths'
 import { storeRolesOf } from '@/admin/store'
-import { Card, Empty, Notice, Pill, Row, Rows, type Tone } from '@/admin/ui'
+import { ButtonLink, Card, Empty, Notice, Pill, Row, Rows, type Tone } from '@/admin/ui'
 import { loadConnector } from '@/connectors'
 import { formatDate, formatDateAndTime, formatTime } from '@/lib/dates'
 import { GST_STATES } from '@/lib/gst/gstin'
 import { formatINR } from '@/lib/money'
+import { orderMessageFootnote, orderMessages } from '@/modules/notifications'
+import { MessagesPanel } from '@/modules/notifications/admin/MessagesPanel'
 import { SHIPMENT_STATUSES } from '@/modules/shipping'
 
 import { label } from '../constants'
@@ -97,6 +99,8 @@ export async function OrderDetail({ initPageResult }: DocumentViewServerProps) {
     { docs: documents },
     history,
     shiprocket,
+    messages,
+    messageFootnote,
   ] = await Promise.all([
     req.payload.find({
       collection: 'order-events',
@@ -161,6 +165,8 @@ export async function OrderDetail({ initPageResult }: DocumentViewServerProps) {
         })
       : Promise.resolve({ totalDocs: 1 }),
     loadConnector(req.payload, tenantId, 'shiprocket').catch(() => null),
+    orderMessages(req.payload, tenantId, String(id)),
+    orderMessageFootnote(req.payload, tenantId, order),
   ])
 
   const totals = order.totals ?? {}
@@ -451,6 +457,22 @@ export async function OrderDetail({ initPageResult }: DocumentViewServerProps) {
               })}
             </ol>
             {canWrite ? <OrderNote orderId={String(id)} /> : null}
+          </Card>
+
+          <Card
+            actions={
+              <ButtonLink href={adminUrl.notifications} size="small" variant="ghost">
+                Settings
+              </ButtonLink>
+            }
+            title="Messages to the shopper"
+          >
+            <MessagesPanel
+              canResend={canWrite}
+              footnote={messageFootnote}
+              orderId={String(id)}
+              rows={messages.map((row) => ({ ...row, at: formatDateAndTime(row.at) }))}
+            />
           </Card>
         </div>
 

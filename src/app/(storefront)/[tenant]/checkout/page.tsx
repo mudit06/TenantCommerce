@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 
+import { loadSettings } from '@/modules/notifications'
 import { quoteCheckout } from '@/modules/orders'
 import { getStoreContext } from '@/storefront/context'
 import { CheckoutForm } from '@/storefront/kit/shop/CheckoutForm'
@@ -21,6 +22,8 @@ export default async function CheckoutPage({ params }: Props) {
     lines,
     pincode: cart?.pincode ?? null,
   })
+  // "Send me order updates on WhatsApp" is ticked unless the store chose otherwise (docs/18)
+  const { whatsappOptInDefault } = await loadSettings(payload, ctx.store.tenantId)
   return (
     <Container className="py-6 sm:py-10">
       <h1 className="mb-6 font-heading text-2xl font-bold">Checkout</h1>
@@ -29,7 +32,7 @@ export default async function CheckoutPage({ params }: Props) {
         initialPincode={cart?.pincode ?? ''}
         storeName={ctx.settings?.storeName ?? ctx.store.name}
         themeColor={ctx.settings?.themeColor || ctx.ui.theme.brand}
-        whatsappDefault
+        whatsappDefault={whatsappOptInDefault}
       />
     </Container>
   )

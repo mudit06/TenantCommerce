@@ -47,6 +47,17 @@ import {
   Orders,
   retrackParcelsTask,
 } from '@/modules/orders'
+import {
+  cleanupNotificationLogsTask,
+  ContactPreferences,
+  NotificationLogs,
+  NotificationSettings,
+  NotificationTemplates,
+  registerNotificationEvents,
+  sendNotificationTask,
+} from '@/modules/notifications'
+// Endpoints load env and connectors, like the shipping ones below
+import { notificationEndpoints } from '@/modules/notifications/endpoints'
 import { paymentEndpoints, reconcilePaymentsTask, Refunds, Transactions } from '@/modules/payments'
 import { Pincodes, Shipments, ShippingZones } from '@/modules/shipping'
 // Endpoints load env and connectors; kept out of the shipping index so its pure parts stay
@@ -69,6 +80,7 @@ const dirname = path.dirname(filename)
 // Modules seed their per-store data when a store is created (docs/01 events)
 registerContentEvents()
 registerTaxInvoicingEvents()
+registerNotificationEvents()
 
 /** A store's own data: its CMS screens only, and audited when our team changes it (docs/05). */
 const storeCollection = (collection: CollectionConfig) =>
@@ -153,6 +165,11 @@ export default buildConfig({
           path: '/shipping',
           meta: { title: 'Shipping zones' },
         },
+        orderUpdates: {
+          Component: '@/modules/notifications/admin/OrderUpdatesView#OrderUpdatesView',
+          path: '/order-updates',
+          meta: { title: 'Order updates' },
+        },
         messaging: {
           Component: '@/connectors/admin/MessagingView#MessagingView',
           path: '/messaging',
@@ -193,6 +210,11 @@ export default buildConfig({
     ...[Orders, OrderEvents, Transactions, Refunds, Invoices, Shipments, Carts, StockMovements].map(
       storeScreen,
     ),
+    // Order updates (docs/18): settings and templates through their own screens, logs and
+    // preferences written by the notifications module only
+    ...[NotificationSettings, NotificationTemplates, NotificationLogs, ContactPreferences].map(
+      storeScreen,
+    ),
     IdempotencyKeys,
     Pincodes,
     Counters,
@@ -213,18 +235,26 @@ export default buildConfig({
     ...paymentEndpoints,
     ...orderEndpoints,
     ...shippingEndpoints,
+    ...notificationEndpoints,
   ],
   jobs: {
-    tasks: [checkSubscriptionsTask, reconcilePaymentsTask, retrackParcelsTask],
+    tasks: [
+      checkSubscriptionsTask,
+      reconcilePaymentsTask,
+      retrackParcelsTask,
+      sendNotificationTask,
+      cleanupNotificationLogsTask,
+    ],
     // Long-running servers (local, Docker) run the queue themselves; on Vercel a cron hits
-    // /api/payload-jobs/run instead (docs/15)
-    // /api/payload-jobs/run instead (docs/15). `default` runs scheduled page publishing.
-    autoRun: process.env.VERCEL
-      ? undefined
-      : [
-          { cron: '0 */5 * * * *', queue: 'scheduled' },
-          { cron: '0 * * * * *', queue: 'default' },
-        ],
+    // /api/payload-jobs/run instead (docs/15). `default` runs scheduled page publishing and
+    // shopper messages. Tests run jobs by hand.
+    autoRun:
+      process.env.VERCEL || process.env.NODE_ENV === 'test'
+        ? undefined
+        : [
+            { cron: '0 */5 * * * *', queue: 'scheduled' },
+            { cron: '0 * * * * *', queue: 'default' },
+          ],
     jobsCollectionOverrides: ({ defaultJobsCollection }) => ({
       ...defaultJobsCollection,
       admin: { ...defaultJobsCollection.admin, group: false },
@@ -308,6 +338,10 @@ export default buildConfig({
         carts: {},
         'stock-movements': {},
         'idempotency-keys': {},
+        'notification-settings': { isGlobal: true },
+        'notification-templates': {},
+        'notification-logs': {},
+        'contact-preferences': {},
       },
       // Our team works across stores; support is read-only through access functions
       userHasAccessToAllTenants: (user) => isPlatformStaff(user),

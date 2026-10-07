@@ -9,6 +9,8 @@ export const LIMITS = {
   enquiry: { max: 5, windowMs: 10 * 60_000 },
   search: { max: 60, windowMs: 60_000 },
   checkout: { max: 10, windowMs: 10 * 60_000 },
+  // Tracking codes can't be guessed in bulk (docs/screens storefront `st-track`)
+  tracking: { max: 30, windowMs: 60_000 },
 } satisfies Record<string, Limit>
 
 /** Records a hit for `key` and says whether it is within `limit`. */

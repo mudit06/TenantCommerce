@@ -137,6 +137,11 @@ export default async function OrderPlacedPage({ params, searchParams }: Props) {
               Download invoice
             </a>
           ) : null}
+          {!cancelled && !awaitingPayment ? (
+            <Link className={buttonClass('dark')} href={`/t/${order.trackingCode}`}>
+              Track order
+            </Link>
+          ) : null}
           <Link className={buttonClass('outline')} href="/">
             Continue shopping
           </Link>

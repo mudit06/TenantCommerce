@@ -82,8 +82,8 @@ and `lines[].discountMinor`, all worked out by the server (docs/11).
 | POST | `/guest-orders/otp/send` | `{ orderNumber, email }` sends a 6-digit code to the order's email if they match (same response either way; rate limit 3/10 min) |
 | POST | `/guest-orders/otp/verify` | `{ orderNumber, email, code }` -> 30-minute `order_access` cookie for that order |
 | POST | `/payments/razorpay/verify` | `{ orderId, razorpay_payment_id, razorpay_order_id, razorpay_signature }` client-side confirmation; webhook remains source of truth |
-| GET | `/track/:code` | Parcel journey for the `https://<store>/t/<code>` link in every message and email: statuses, courier, tracking number; no address or contact details. No login. Rate limit 30/min |
-| PATCH | `/track/:code/preferences` | `{ whatsapp?: false, sms?: false }` stop updates for that order's phone (docs/18) |
+| GET | `/track/:code` | Parcel journey for the `https://<store>/t/<code>` link in every message and email: statuses, courier, tracking number; no address or contact details. No login. Rate limit 30/min. As built (7 October 2026): the `/t/<code>` page reads it on the server (`trackingView`), no JSON endpoint yet |
+| PATCH | `/track/:code/preferences` | `{ whatsapp?: false, sms?: false }` stop updates for that order's phone (docs/18). As built: the tracking page's server action `setTrackingWhatsApp(code, on)`, same rate limit |
 
 ### Customer auth
 | Method | Path | Purpose |
@@ -202,10 +202,11 @@ Guests keep the wishlist on the device; the kit stores product ids only and call
 | POST | `/returns/:id/pickup` | Book the reverse pickup for an approved return (Shiprocket return order) |
 | POST | `/shipments/:id/status` | Manual shipping only: move a parcel (docs/11) `{ status, carrier?, trackingNumber?, trackingUrl?, expectedDeliveryDate?, failureReason? }` |
 | POST | `/shipments/bulk-status` | Manual shipping only: CSV or JSON rows (order number, status, courier, tracking number); runs as a job, returns a result file |
-| POST | `/orders/:id/messages/:logId/resend` | Resend one shopper message (once per 10 min) |
-| POST | `/notifications/test` | `{ milestone, channel, to }` test message to a staff phone or email |
-| POST | `/notifications/templates/:id/submit` | Submit a WhatsApp template to Meta for approval |
-| POST | `/notifications/templates/sync` | Pull template approval status from the providers |
+| POST | `/orders/:id/messages/:logId/resend` | Resend one shopper message (once per 10 min; order roles) |
+| POST | `/notifications/settings` | `{ store, milestones[{ key, email, whatsapp }], packedDelayMinutes, quietHours { enabled, start, end }, whatsappOptInDefault, staffAlertEmails[] }` the Order updates screen (owner, manager) |
+| POST | `/notifications/test` | `{ store, milestone, variant, channel: 'email'|'whatsapp', to }` test message with a sample order to a staff phone or email, sent at once |
+| POST | `/notifications/templates/submit` | `{ store }` submit every draft or rejected WhatsApp template to Meta (as built: all at once rather than `/:id/submit`) |
+| POST | `/notifications/templates/sync` | `{ store }` pull template approval status from Meta |
 | POST | `/connectors/:provider/test` | Test credentials |
 | POST | `/staff/invites` | Owner or platform admin: `{ email, name?, roles[] }` creates an `invited` user and emails the set-password link (plan staff limit checked) |
 | POST | `/staff/invites/:userId/resend` | New link, old one revoked |

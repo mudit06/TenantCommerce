@@ -530,7 +530,9 @@ updates, `marketing` for offer messages; WhatsApp bills and approves them differ
 `buttons[]` (WhatsApp URL button: label, URL with the variable suffix),
 `whatsapp { name, language, category, providerTemplateId }`, `sms { msg91TemplateId, dltTemplateId, senderId }`,
 `status` (`draft|submitted|approved|rejected|paused|disabled`), `rejectionReason`, `lastSyncedAt`,
-`enabled`. Unique `(tenant, milestone, variant, channel, locale)`.
+`enabled`. Unique `(tenant, milestone, variant, channel, locale)`. As built (7 October 2026):
+WhatsApp rows only (email copy is in code), with `trackButton` and `submittedAt`; `status` `draft`
+until submitted.
 
 ### notification-logs
 `direction` (`out|in`), `kind` (`order|offer`), `milestone`, `channel`, `provider`, `to` (E.164 or
@@ -539,7 +541,12 @@ email), `order`, `shipment`, `cart`, `campaign` -> offer-campaigns, `template`, 
 `skipReason` (`opted_out|no_whatsapp_opt_in|no_offer_consent|channel_off|template_not_approved|cap_reached|frequency_cap|no_phone|stale`),
 `providerMessageId`, `fallbackOf` -> notification-logs, `error { code, message }`, `sendAfter`,
 `sentAt`, `deliveredAt`, `readAt`, `failedAt`. Inbound rows add `text` (first 500 characters) and
-`replyTo`. TTL 90 days.
+`replyTo`. TTL 90 days. As built (7 October 2026): `kind` also `test|staff|reply`, `status` also
+`received` (inbound), `skipReason` also `not_connected|no_email`, plus `variant`, `preview` (what
+went out), `attempts`, `resendOf`, `sentBy`; `template`, `fallbackOf`, `resendOf`, `sentBy`,
+`shipment` and `refund` are ids as text (only `order` is a relationship: Payload validates a new
+row's relationships in parallel, which can abort a MongoDB transaction); a nightly job
+deletes rows older than 90 days.
 
 ### contact-preferences
 One row per contact point, never a phone and an email in the same row: shoppers use different
@@ -549,7 +556,8 @@ lowercased email), `customer` (optional link when known). Phone rows: `whatsapp 
 and `sms { optedOutAt }` (order updates), `offers.whatsapp { optedIn, at, source (checkout|signup|account|affiliate), wordingVersion, optedOutAt }`.
 Email rows: `offers.email { ...same }`, `suppressed { reason (bounce|complaint), at }` (from the
 Resend webhook). Both: `unsubscribeTokenHash`, `lastOfferAt` and `offersThisWeek` (frequency cap,
-counted per contact point). Offer consent is a separate, unticked consent (docs/14). Unique
+counted per contact point). As built: phone rows also keep `lastAutoReplyAt` (one automatic
+WhatsApp answer a day), and `whatsapp.source` also takes `tracking-page`. Offer consent is a separate, unticked consent (docs/14). Unique
 `(tenant, type, value)`; works for guests. On account deletion `value` is replaced by a hash so
 opt-outs keep working.
 

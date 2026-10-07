@@ -155,7 +155,14 @@ const STORE_MENU: MenuSection[] = [
         icon: 'whatsapp',
         when: (ctx) => Boolean(ctx.canSeeKeys),
       },
-      soonItem('notifications', 'Order updates', 'bell', STORE_ADMIN),
+      {
+        key: 'notifications',
+        label: 'Order updates',
+        href: adminUrl.notifications,
+        icon: 'bell',
+        // Owners and managers change them; order managers look (docs/screens Order updates)
+        roles: [...STORE_ADMIN, 'order-manager', 'support'],
+      },
       collectionItem('site-settings', 'Settings', 'settings'),
       {
         key: 'staff',

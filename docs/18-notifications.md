@@ -35,6 +35,33 @@ The platform needs a sender of its own only for messages **to vendor staff** (ne
 failed, a channel broke), where the platform is the brand. MVP sends these by email; WhatsApp staff
 alerts from a platform number come in Phase 2.
 
+## As built (7 October 2026)
+
+Module `src/modules/notifications`: milestones and rules (`milestones.ts`, `rules.ts`), variables
+and the starter library, the engine (`services/engine.ts`, event handlers in `events.ts`), the
+send job (`notifications-send`, 4 retries with backoff) and a nightly clean-up of logs older than
+90 days (`notifications-cleanup`), Meta's webhook (`/api/webhooks/whatsapp/:tenantId`), the Order
+updates screen, the order's Messages panel, the templates card on WhatsApp and SMS, and the
+`/t/<code>` tracking page. Differences from the design above:
+
+- **Email and WhatsApp only.** SMS waits for MSG91 (mudit, 6 October 2026): the settings keep the
+  SMS column and its defaults, but nothing plans or sends SMS, and there is no SMS fallback yet.
+- **Email copy lives in code** (`starter-templates`, rendered by `src/emails/orderUpdate.ts`), not
+  React Email, and vendors don't edit it yet. Emails go from `EMAIL_FROM_ADDRESS` with the store's
+  name as the display name and the store's contact email as reply-to; per-vendor sending domains
+  come with the Resend onboarding steps.
+- **No `channel_off` logs.** A channel switched off for a step writes nothing; every other skip is
+  logged with its reason. Two reasons were added: `not_connected` (WhatsApp not set up, in
+  production) and `no_email`.
+- **Without WhatsApp connected, outside production**, WhatsApp messages go to the `dev-log`
+  provider (printed to the server log, no approval needed), so the whole journey can be seen
+  locally.
+- **Opt-in** is the order's checkout box, or a later START or tracking page switch after the order
+  was placed (`whatsappOptedInFor`), and never after STOP.
+- **Staff alerts** (new order, delivery failed, a shopper's WhatsApp reply) are email logs of kind
+  `staff` to `staffAlertEmails`; replies and automatic answers are kind `reply`.
+- The return steps are listed but nothing fires them until returns are built.
+
 ## Order journey milestones
 
 A milestone is a step the shopper is told about. The list is fixed in code (`MILESTONES` in
