@@ -63,6 +63,7 @@ import { NewPageView as NewPageView_970438bc583e023a0362552ff2082a19 } from '@/m
 import { NewVendorView as NewVendorView_0bb47f900a4c6f1a63052138bef3cd34 } from '@/modules/tenancy/admin/views/NewVendorView'
 import { TeamView as TeamView_db3d63515c7821c5d4463c3b81e815eb } from '@/modules/identity/admin/TeamView'
 import { PaymentsView as PaymentsView_9cf922f9aaabc96243c8a444d65cc044 } from '@/connectors/admin/PaymentsView'
+import { ShippingView as ShippingView_1c97e7621bc89f43ac663eacc2d9f813 } from '@/modules/shipping/admin/ShippingView'
 import { MessagingView as MessagingView_fbb1e382018bf44db2656bf42fa329e4 } from '@/connectors/admin/MessagingView'
 import { StoreStaffView as StoreStaffView_d5cb6a5a4bf4324566596fdc0e812fb1 } from '@/modules/identity/admin/StoreStaffView'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
@@ -135,6 +136,7 @@ export const importMap = {
   "@/modules/tenancy/admin/views/NewVendorView#NewVendorView": NewVendorView_0bb47f900a4c6f1a63052138bef3cd34,
   "@/modules/identity/admin/TeamView#TeamView": TeamView_db3d63515c7821c5d4463c3b81e815eb,
   "@/connectors/admin/PaymentsView#PaymentsView": PaymentsView_9cf922f9aaabc96243c8a444d65cc044,
+  "@/modules/shipping/admin/ShippingView#ShippingView": ShippingView_1c97e7621bc89f43ac663eacc2d9f813,
   "@/connectors/admin/MessagingView#MessagingView": MessagingView_fbb1e382018bf44db2656bf42fa329e4,
   "@/modules/identity/admin/StoreStaffView#StoreStaffView": StoreStaffView_d5cb6a5a4bf4324566596fdc0e812fb1,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,

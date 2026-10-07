@@ -121,6 +121,24 @@ export const CONNECTOR_PROVIDERS = [
         pattern: { source: '^[1-9][0-9]{5}$', message: 'Enter a 6-digit pincode' },
       },
       {
+        key: 'boxLengthMm',
+        label: 'Usual box length (mm)',
+        placeholder: '300',
+        pattern: { source: '^[1-9][0-9]{0,4}$', message: 'Millimetres, digits only' },
+      },
+      {
+        key: 'boxBreadthMm',
+        label: 'Usual box breadth (mm)',
+        placeholder: '200',
+        pattern: { source: '^[1-9][0-9]{0,4}$', message: 'Millimetres, digits only' },
+      },
+      {
+        key: 'boxHeightMm',
+        label: 'Usual box height (mm)',
+        placeholder: '100',
+        pattern: { source: '^[1-9][0-9]{0,4}$', message: 'Millimetres, digits only' },
+      },
+      {
         key: 'courierMode',
         label: 'Courier',
         options: [

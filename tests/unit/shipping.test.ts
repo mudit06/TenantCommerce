@@ -7,6 +7,7 @@ import {
   zoneForPincode,
   type ZoneLike,
 } from '@/modules/shipping/services/rateCard'
+import { etaText, zoneCoversText, zoneFeeText } from '@/modules/shipping/services/zones'
 
 // The rate card on the Shipping zones wireframe: Gujarat flat ₹99 free above ₹999; West and
 // South ₹149; North and East ₹149 up to 2 kg then ₹40 a kg, free above ₹1,999; remote pincodes
@@ -200,5 +201,33 @@ describe('stateFromPincodePrefix', () => {
   it('ignores what isn’t a pincode', () => {
     expect(stateFromPincodePrefix('012345')).toBeNull()
     expect(stateFromPincodePrefix('4110')).toBeNull()
+  })
+})
+
+describe('the zones table (docs/screens Shipping zones)', () => {
+  it('reads each zone as the wireframe does', () => {
+    expect(zoneFeeText(gujarat)).toBe('Flat ₹99')
+    expect(zoneFeeText(northEast)).toBe('₹149 up to 2 kg, then ₹40 per kg')
+    expect(zoneFeeText(remote)).toBe('Flat ₹299')
+    expect(zoneCoversText(westSouth)).toBe('4 states')
+    expect(zoneCoversText(remote)).toMatch(/pincode/)
+    expect(etaText(2, 3)).toBe('2 to 3 days')
+    expect(etaText(null, 4)).toBe('4 days')
+    expect(etaText(null, null)).toBe('')
+  })
+
+  it('reads order-value brackets and blocked zones', () => {
+    const brackets = zone({
+      id: 'v',
+      name: 'Value',
+      states: ['24'],
+      rateType: 'order-value',
+      fee: money(9_900),
+      valueBrackets: [{ from: money(50_000), bracketFee: money(4_900) }],
+    })
+    expect(zoneFeeText(brackets)).toBe('₹99 below ₹500, ₹49 from ₹500')
+    expect(zoneFeeText(zone({ id: 'x', name: 'Blocked', isServiceable: false }))).toBe(
+      'We don’t deliver',
+    )
   })
 })

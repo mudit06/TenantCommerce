@@ -38,6 +38,10 @@ export type ParcelView = {
   trackingUrl: string | null
   attempts: number
   provider: string
+  /** Shiprocket is connected and this packed parcel isn't booked yet */
+  canBook: boolean
+  labelUrl: string | null
+  pickup: string | null
   next: { to: string; label: string; primary?: boolean }[]
   events: { at: string; text: string }[]
 }
@@ -73,7 +77,19 @@ export function ParcelPanel({ parcel, canWrite }: { parcel: ParcelView; canWrite
     router.refresh()
   }
 
+  const book = async () => {
+    setBusy(true)
+    const result = await callApi<{ awb: string }>(`/admin/v1/shipments/${parcel.id}/book`, {
+      body: {},
+    })
+    setBusy(false)
+    if (!result.ok) return toast.error(result.error.message)
+    toast.success(`Booked with Shiprocket: AWB ${result.data.awb}`)
+    router.refresh()
+  }
+
   const packed = parcel.status === 'packed'
+  const booked = parcel.provider === 'shiprocket'
   return (
     <div className="te-parcel">
       <div className="te-parcel__head">
@@ -95,7 +111,39 @@ export function ParcelPanel({ parcel, canWrite }: { parcel: ParcelView; canWrite
           </span>
         ) : null}
       </div>
-      {canWrite && packed && parcel.provider === 'manual' ? (
+      {packed && booked ? (
+        <div className="te-notice te-notice--info" role="status">
+          Booked with Shiprocket: {parcel.carrier ?? 'courier'} · AWB{' '}
+          {parcel.trackingUrl ? (
+            <a className="te-link" href={parcel.trackingUrl} rel="noreferrer" target="_blank">
+              {parcel.trackingNumber}
+            </a>
+          ) : (
+            parcel.trackingNumber
+          )}
+          {parcel.pickup ? ` · pickup ${parcel.pickup}` : ''}. It moves to shipped when the courier
+          picks it up.
+          {parcel.labelUrl ? (
+            <>
+              {' '}
+              <a className="te-link" href={parcel.labelUrl} rel="noreferrer" target="_blank">
+                Print the label
+              </a>
+            </>
+          ) : null}
+        </div>
+      ) : null}
+      {canWrite && parcel.canBook ? (
+        <div className="te-button-row">
+          <Button disabled={busy} onClick={() => void book()} size="small">
+            Book with Shiprocket
+          </Button>
+          <span className="te-muted te-small">
+            AWB, label and pickup in one go. Or enter your own courier below.
+          </span>
+        </div>
+      ) : null}
+      {canWrite && packed && !booked ? (
         <div className="te-form-grid te-form-grid--3">
           <div>
             <label className="te-label" htmlFor={`carrier-${parcel.id}`}>
@@ -146,8 +194,9 @@ export function ParcelPanel({ parcel, canWrite }: { parcel: ParcelView; canWrite
       ) : null}
       {canWrite && parcel.next.length ? (
         <div className="te-button-row">
-          {packed && parcel.provider === 'manual' ? (
+          {packed && !booked ? (
             <Button
+              buttonStyle={parcel.canBook ? 'secondary' : 'primary'}
               disabled={busy}
               onClick={() =>
                 void move('shipped', { carrier, trackingNumber: tracking, trackingUrl: link })

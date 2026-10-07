@@ -40,9 +40,18 @@ import { Enquiries } from '@/modules/enquiries'
 import { identityEndpoints, Users } from '@/modules/identity'
 import { Carts } from '@/modules/cart'
 import { StockMovements } from '@/modules/inventory'
-import { IdempotencyKeys, orderEndpoints, OrderEvents, Orders } from '@/modules/orders'
+import {
+  IdempotencyKeys,
+  orderEndpoints,
+  OrderEvents,
+  Orders,
+  retrackParcelsTask,
+} from '@/modules/orders'
 import { paymentEndpoints, reconcilePaymentsTask, Refunds, Transactions } from '@/modules/payments'
 import { Pincodes, Shipments, ShippingZones } from '@/modules/shipping'
+// Endpoints load env and connectors; kept out of the shipping index so its pure parts stay
+// importable from unit-tested code (orders' parcel rules)
+import { shippingEndpoints } from '@/modules/shipping/endpoints'
 import { Counters, Invoices, registerTaxInvoicingEvents } from '@/modules/tax-invoicing'
 import {
   checkSubscriptionsTask,
@@ -139,6 +148,11 @@ export default buildConfig({
           path: '/payments',
           meta: { title: 'Payments' },
         },
+        shipping: {
+          Component: '@/modules/shipping/admin/ShippingView#ShippingView',
+          path: '/shipping',
+          meta: { title: 'Shipping zones' },
+        },
         messaging: {
           Component: '@/connectors/admin/MessagingView#MessagingView',
           path: '/messaging',
@@ -198,9 +212,10 @@ export default buildConfig({
     ...connectorEndpoints,
     ...paymentEndpoints,
     ...orderEndpoints,
+    ...shippingEndpoints,
   ],
   jobs: {
-    tasks: [checkSubscriptionsTask, reconcilePaymentsTask],
+    tasks: [checkSubscriptionsTask, reconcilePaymentsTask, retrackParcelsTask],
     // Long-running servers (local, Docker) run the queue themselves; on Vercel a cron hits
     // /api/payload-jobs/run instead (docs/15)
     // /api/payload-jobs/run instead (docs/15). `default` runs scheduled page publishing.

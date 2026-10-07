@@ -155,10 +155,16 @@ a token valid for 240 hours: cache it encrypted, refresh after 9 days or on a 40
 | Failed delivery (NDR) | "Action needed" list: re-attempt (new date, address line, phone) or return to the vendor | NDR action `re-attempt` or `return` |
 | Return pickup | An approved return books a reverse pickup from the shopper to the vendor | Return order |
 
-- **Shopper delivery charge** still comes from the vendor's own `shipping-rates` (flat, by weight
-  or value, free above an amount). Shiprocket's courier rates are used only when booking a parcel.
-  Shipping zones stay a vendor policy (block pincodes or COD) and the fallback when Shiprocket's API
-  is down: a pincode is serviceable only when both say yes.
+- **Shopper delivery charge** (changed 6 October 2026, mudit: live rates). With Shiprocket
+  connected, checkout charges the live rate of Shiprocket's recommended courier for the pincode,
+  weight band (half kilo) and COD, cached 24 hours (`shipping/shiprocket/rates.ts`,
+  `shiprocketRateSource`). The vendor's shipping zones stay its policy: a pincode they block or a
+  zone without COD wins, an order above the zone's free-delivery amount still ships free, and the
+  zones' rate card is the fee whenever Shiprocket isn't connected or can't answer.
+- **As built (7 October 2026).** Booking is a separate step after packing (**Book with Shiprocket**
+  on the parcel, `POST /api/admin/v1/shipments/:id/book`), so a vendor can still ship some parcels
+  by hand. Courier choice from a list, merged labels with invoices, NDR actions and return
+  pickups are not built yet.
 - **Units and money at the edge.** Shiprocket takes kg, cm and rupees; convert from our grams, mm
   and paise inside the connector only. The COD amount to collect is the order's grand total, and
   COD orders ship as one parcel in the MVP because Shiprocket collects COD per shipment.
@@ -178,7 +184,7 @@ a token valid for 240 hours: cache it encrypted, refresh after 9 days or on a 40
   delivered -> `rto_delivered`; cancelled; lost, damaged or destroyed -> `lost`. Pickup exceptions
   and reschedules keep the parcel `packed` and alert staff. Unknown statuses are logged and ignored.
 - **Missed webhooks.** Every 3 hours, parcels in flight with no update for 24 hours are re-tracked
-  by AWB.
+  by AWB (`retrackParcelsTask`, `src/modules/orders/jobs/retrack.ts`).
 - **Shiprocket's own buyer messages.** Shiprocket can message buyers itself under its own name
   (WhatsApp at about ₹0.99 per message + GST, plus SMS and email). A vendor may keep them on until
   its own WhatsApp and SMS are approved (docs/18), then switches them off so shoppers don't get

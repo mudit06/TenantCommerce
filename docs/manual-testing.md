@@ -325,6 +325,33 @@ Do this as the owner, or as the super admin with **Manage store** on Home Orbit.
 - [ ] Back in the super admin, the vendor's Connectors tab shows "Connected by", the mode, the
       masked key ID and "Encrypted, never shown" for each secret, never the secret itself.
 
+### 2.9 Shipping zones and Shiprocket
+
+As Home Orbit's owner (after `pnpm demo:selling home-orbit`, which adds two zones):
+
+- [ ] Store → **Shipping**: the zones table shows Home state (1 state, Flat ₹99, free above
+      ₹999, COD allowed, 2 to 3 days) and Rest of India (35 states, Flat ₹149).
+- [ ] **Test a pincode** `411045`: "Home state · Maharashtra", Delivery ₹99, free above ₹999,
+      cash on delivery allowed, 2 to 3 days, "From your zones". `110001` answers from Rest of
+      India; `12345` is refused with "Enter a 6-digit pincode".
+- [ ] **Add zone**: name Remote areas, pincodes `744101, 1941`, Fee based on **Weight**, fee ₹299,
+      covers up to 2 kg, ₹40 per extra kg, days 7 to 10, Allow cash on delivery off → **Add zone**.
+      The table shows "2 pincodes", "₹299 up to 2 kg, then ₹40 per kg", COD Not allowed. Test
+      `744101`: Remote areas, ₹299, cash on delivery not allowed. On the store, that pincode at
+      checkout offers no cash on delivery.
+- [ ] Pick Remote areas in the table, **Delete zone** → Yes, delete: it's gone.
+- [ ] A zone with no states and no pincodes is refused with "Pick at least one state or
+      pincode"; days 6 to 2 with "The first number of days must not be more than the second".
+- [ ] The **Shiprocket** card shows the API user email and password, pickup location and
+      pincode, usual box size, courier choice, the webhook address (it says `courier`, not
+      `shiprocket`: Shiprocket refuses its own name) and, once saved, the token to paste with it.
+      With real API user details (Shiprocket → Settings → API) **Test connection** turns the pill
+      green, the subtitle reads "Ships from <your pickup city>", and checkout charges Shiprocket's
+      live courier rate (the zones still decide COD and free delivery).
+- [ ] Sign in as an order manager: Shipping isn't in the menu and `/admin/shipping` says only
+      owners and managers see it. A manager sees the zones and can change them, but not the
+      Shiprocket keys.
+
 ## 3. Storefront (what shoppers see)
 
 http://home-orbit.localhost:3000 . Check it twice: on a normal desktop window, and as a phone
@@ -441,6 +468,10 @@ As Home Orbit's owner, or the super admin with **Manage store**:
       the invoice card lists a credit note `CN/26-27/00001`.
 - [ ] Place another COD order on the store, then **Cancel order** with a reason: stock goes
       back and the order reads Cancelled.
+- [ ] With Shiprocket connected (2.9, real API user): pack an order, then **Book with
+      Shiprocket** in the parcel. It shows the courier, AWB, pickup date and **Print the label**;
+      the parcel stays Packed until the courier picks it up, then moves by itself (Shiprocket's
+      webhook, or the 3-hourly re-track). Cancelling the order before pickup cancels the booking.
 - [ ] On the list, tick two orders and **Download invoices** (only invoiced ones print); try
       **Shipped from CSV** with a line `HOM-10003, Delhivery, 12345`; **Export CSV** downloads
       the list for accounts.
@@ -541,7 +572,7 @@ Uploaded files stay in `media/`; delete that folder too for a completely clean s
 
 ## Not built yet (so don't test these)
 
-- The CMS Orders and Shipping screens, invoices, order emails and WhatsApp, customer accounts (later milestones of stage B)
+- Order emails and WhatsApp updates, the order tracking page, customer accounts (later milestones of stage B)
 - Offers, coupons, reviews, wishlist, affiliates (stage C)
 - CSV import, the dealer locator page, the PWA "install app" and offline page
 - Two-step login (deferred)

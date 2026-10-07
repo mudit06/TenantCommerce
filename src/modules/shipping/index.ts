@@ -23,3 +23,13 @@ export {
   type DeliveryQuote,
   type ZoneLike,
 } from './services/rateCard'
+export {
+  checkPincode,
+  etaText,
+  saveZone,
+  zoneCoversText,
+  zoneFeeText,
+  zoneInputSchema,
+  type PincodeCheck,
+  type ZoneInput,
+} from './services/zones'

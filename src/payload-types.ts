@@ -170,6 +170,7 @@ export interface Config {
     tasks: {
       'tenancy-check-subscriptions': TaskTenancyCheckSubscriptions;
       'payments-reconcile': TaskPaymentsReconcile;
+      'orders-retrack-parcels': TaskOrdersRetrackParcels;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -2400,7 +2401,12 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'tenancy-check-subscriptions' | 'payments-reconcile' | 'schedulePublish';
+        taskSlug:
+          | 'inline'
+          | 'tenancy-check-subscriptions'
+          | 'payments-reconcile'
+          | 'orders-retrack-parcels'
+          | 'schedulePublish';
         taskID: string;
         input?:
           | {
@@ -2433,7 +2439,9 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'tenancy-check-subscriptions' | 'payments-reconcile' | 'schedulePublish') | null;
+  taskSlug?:
+    | ('inline' | 'tenancy-check-subscriptions' | 'payments-reconcile' | 'orders-retrack-parcels' | 'schedulePublish')
+    | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -4125,6 +4133,17 @@ export interface TaskPaymentsReconcile {
   output: {
     settled: number;
     cancelled: number;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskOrders-retrack-parcels".
+ */
+export interface TaskOrdersRetrackParcels {
+  input?: unknown;
+  output: {
+    checked: number;
+    moved: number;
   };
 }
 /**

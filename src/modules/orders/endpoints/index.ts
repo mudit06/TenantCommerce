@@ -19,6 +19,12 @@ import {
   PAYMENT_STATUSES,
 } from '../constants'
 import { moveParcel, packParcel } from '../services/parcels'
+import {
+  bookWithShiprocket,
+  cancelShiprocketBooking,
+  handleCourierWebhook,
+  type CourierWebhook,
+} from '../services/shiprocket'
 import { assertOrderAccess, orderFor } from '../services/permissions'
 import { addOrderEvent } from '../services/timeline'
 import { cancelOrder } from '../services/transition'
@@ -278,6 +284,44 @@ export const orderEndpoints: Endpoint[] = [
     }),
   },
   {
+    // "Book with Shiprocket" on a packed parcel (docs/screens Order detail)
+    path: '/admin/v1/shipments/:id/book',
+    method: 'post',
+    handler: apiHandler(async (req) => {
+      writer(req)
+      const id = routeParam(req, 'id')
+      await shipmentOrder(req, id, true)
+      const { courierId } = await readBody(req, z.object({ courierId: z.string().optional() }))
+      // No transaction around the Shiprocket calls; one save afterwards
+      const shipment = await bookWithShiprocket(req, id, { courierId })
+      return ok({ awb: shipment.awb, labelUrl: shipment.labelUrl })
+    }),
+  },
+  {
+    // Shiprocket tracking (docs/07): "courier", since Shiprocket refuses URLs with its name.
+    // Always 200 so Shiprocket keeps sending; a wrong token is logged and ignored.
+    path: '/webhooks/courier/:tenantId',
+    method: 'post',
+    handler: async (req) => {
+      const tenantId = String(req.routeParams?.tenantId ?? '')
+      let body: CourierWebhook = {}
+      try {
+        body = (req.json ? await req.json() : {}) as CourierWebhook
+      } catch {
+        body = {}
+      }
+      try {
+        const outcome = await withTransaction(req, () =>
+          handleCourierWebhook(req, tenantId, { token: req.headers.get('x-api-key'), body }),
+        )
+        return Response.json({ ok: true, outcome })
+      } catch (error) {
+        req.payload.logger.error({ err: error, msg: 'Courier webhook failed', tenantId })
+        return Response.json({ ok: true, outcome: 'error' })
+      }
+    },
+  },
+  {
     path: '/admin/v1/orders/:id/cancel',
     method: 'post',
     handler: apiHandler(async (req) => {
@@ -285,6 +329,21 @@ export const orderEndpoints: Endpoint[] = [
       const id = routeParam(req, 'id')
       await orderFor(req, id, true)
       const { reason } = await readBody(req, reasonSchema)
+      // Booked but not picked up: free the AWB on Shiprocket first, outside our transaction
+      const { docs: booked } = await req.payload.find({
+        collection: 'shipments',
+        where: {
+          and: [
+            { order: { equals: id } },
+            { status: { equals: 'packed' } },
+            { provider: { equals: 'shiprocket' } },
+          ],
+        },
+        depth: 0,
+        pagination: false,
+        overrideAccess: true,
+      })
+      for (const parcel of booked) await cancelShiprocketBooking(req, parcel)
       const order = await withTransaction(req, () => cancelOrder(req, id, { reason }))
       return ok({ status: order.status })
     }),

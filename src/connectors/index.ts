@@ -22,3 +22,6 @@ export {
 } from './core/service'
 export type { ConnectorContext, ConnectorMode, TestResult } from './core/types'
 export * as razorpayApi from './payment/razorpay'
+export * as shiprocketApi from './shipping/shiprocket'
+export { shiprocketRateSource } from './shipping/shiprocket/rates'
+export { mapShiprocketStatus } from './shipping/shiprocket/statusMap'

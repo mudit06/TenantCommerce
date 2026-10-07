@@ -2,7 +2,7 @@ import type { Payload, PayloadRequest } from 'payload'
 import { z } from 'zod'
 
 import { idOf } from '@/access'
-import { loadConnector } from '@/connectors'
+import { loadConnector, shiprocketRateSource } from '@/connectors'
 import { emit } from '@/lib/events'
 import { AppError } from '@/lib/errors'
 import { GST_STATES, isGstStateCode, parseGstin, type GstStateCode } from '@/lib/gst/gstin'
@@ -314,6 +314,8 @@ export async function quoteCheckout(
   }
 
   const now = input.now ?? new Date()
+  // Live Shiprocket rates when the store has it connected (undefined: look it up; null: none)
+  const live = input.live === undefined ? await shiprocketRateSource(payload, tenantId) : input.live
   const itemsMinor = buyable.reduce((sum, line) => sum + line.unitMinor * line.qty, 0)
   const promotions = await applyPromotions(
     payload,
@@ -354,7 +356,7 @@ export async function quoteCheckout(
             subtotalMinor,
             weightGrams,
           },
-          { live: input.live, cod: input.paymentMethod === 'cod' },
+          { live, cod: input.paymentMethod === 'cod' },
         )
       : null
   if (delivery && !delivery.serviceable) problems.push('We don’t deliver to this pincode yet.')

@@ -4,6 +4,7 @@ import { idOf, storeSessionOf } from '@/access'
 import { adminUrl } from '@/admin/paths'
 import { storeRolesOf } from '@/admin/store'
 import { Card, Empty, Notice, Pill, Row, Rows, type Tone } from '@/admin/ui'
+import { loadConnector } from '@/connectors'
 import { formatDate, formatDateAndTime, formatTime } from '@/lib/dates'
 import { GST_STATES } from '@/lib/gst/gstin'
 import { formatINR } from '@/lib/money'
@@ -95,6 +96,7 @@ export async function OrderDetail({ initPageResult }: DocumentViewServerProps) {
     { docs: refunds },
     { docs: documents },
     history,
+    shiprocket,
   ] = await Promise.all([
     req.payload.find({
       collection: 'order-events',
@@ -158,6 +160,7 @@ export async function OrderDetail({ initPageResult }: DocumentViewServerProps) {
           overrideAccess: true,
         })
       : Promise.resolve({ totalDocs: 1 }),
+    loadConnector(req.payload, tenantId, 'shiprocket').catch(() => null),
   ])
 
   const totals = order.totals ?? {}
@@ -225,6 +228,9 @@ export async function OrderDetail({ initPageResult }: DocumentViewServerProps) {
     trackingUrl: parcel.trackingUrl ?? null,
     attempts: parcel.attempts ?? 0,
     provider: parcel.provider ?? 'manual',
+    canBook: Boolean(shiprocket) && parcel.status === 'packed' && !parcel.awb,
+    labelUrl: parcel.labelUrl ?? null,
+    pickup: parcel.pickupScheduledFor ? formatDateAndTime(parcel.pickupScheduledFor) : null,
     next: NEXT_STEPS[parcel.status] ?? [],
     events: (parcel.events ?? []).map((event) => ({
       at: formatDateAndTime(event.at),

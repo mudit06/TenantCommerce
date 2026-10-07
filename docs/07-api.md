@@ -191,6 +191,10 @@ Guests keep the wishlist on the device; the kit stores product ids only and call
 | POST | `/orders/:id/refund` | Full/partial refund through the payment connector |
 | POST | `/orders/:id/invoice` | (Re)generate invoice PDF |
 | POST | `/orders/:id/shipments` | Pack a parcel: `{ items, package, ewayBillNo?, courierId? }`. With Shiprocket it also creates the Shiprocket order, assigns the AWB, generates the label and requests pickup; bulk packing runs as a job |
+| POST | `/shipments/:id/book` | As built (7 October 2026): book a packed parcel with Shiprocket `{ courierId? }`: Shiprocket order, AWB, pickup and label in one go; the parcel stays `packed` until the courier scans it. Packing itself stays `/orders/:id/pack` |
+| GET | `/shipping/check?store=&pincode=&subtotal=&cod=` | "Test a pincode" on the Shipping zones screen: the place, the zone and the quote shoppers get (Shiprocket's live rate when connected) |
+| POST | `/shipping/zones` | Owner or manager: `{ store, name, states[], pincodePrefixes[], rateType, feeMinor, freeAboveMinor, baseWeightGrams?, perExtraKgMinor?, valueBrackets[], codAllowed, isServiceable, etaMinDays, etaMaxDays }` |
+| PATCH / DELETE | `/shipping/zones/:id` | Owner or manager: change (same body) or delete (`{ store }`) a zone of that store |
 | GET | `/shipments/:id/couriers` | Shiprocket courier options for this parcel with price and ETA, when staff choose the courier |
 | POST | `/shipments/labels` | `{ shipmentIds[] }` one PDF of labels with our GST invoices, plus the pickup manifest |
 | POST | `/shipments/:id/cancel` | Cancel before pickup (cancels the Shiprocket order, frees the AWB) |

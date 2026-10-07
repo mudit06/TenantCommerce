@@ -1433,3 +1433,28 @@ html[data-theme='dark'] .te-seo-preview {
 .template-default__wrap:has(> .te-order) > .doc-header {
   display: none;
 }
+
+// ---- Shipping zones (docs/screens/vendor-cms.md `cms-shipping`) -------------------------------
+
+.te-table tr.te-row--selected td {
+  background: var(--te-brand-soft);
+}
+
+// An input with a button or a second input beside it, on one line even on phones
+.te-inline-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .te-input {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
+// The pincode test answer: a few short lines
+.te-quote {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}

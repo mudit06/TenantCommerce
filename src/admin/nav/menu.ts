@@ -133,7 +133,14 @@ const STORE_MENU: MenuSection[] = [
     label: 'Store',
     items: [
       collectionItem('dealers', 'Dealers', 'dealers'),
-      soonItem('shipping', 'Shipping', 'truck', STORE_ADMIN),
+      {
+        key: 'shipping',
+        label: 'Shipping',
+        href: adminUrl.shipping,
+        icon: 'truck',
+        // Owners and managers change zones; our team viewing as support looks
+        roles: [...STORE_ADMIN, 'support'],
+      },
       {
         key: 'payments',
         label: 'Payments',

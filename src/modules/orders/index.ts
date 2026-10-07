@@ -38,3 +38,9 @@ export {
 } from './services/parcels'
 export { orderEndpoints, ordersWhere } from './endpoints'
 export { assertOrderAccess, orderFor } from './services/permissions'
+export { retrackParcelsTask } from './jobs/retrack'
+export {
+  bookWithShiprocket,
+  handleCourierWebhook,
+  retrackQuietParcels,
+} from './services/shiprocket'
