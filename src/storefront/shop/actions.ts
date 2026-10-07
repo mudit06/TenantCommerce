@@ -12,6 +12,7 @@ import { withTransaction } from '@/lib/db/transaction'
 import { isAppError } from '@/lib/errors'
 import { allow, LIMITS } from '@/lib/rate-limit'
 import { changeLine, markCartConverted, saveCart } from '@/modules/cart'
+import { completeProfileFromOrder, rememberCheckoutAddress } from '@/modules/customers'
 import { placeOrder, placeOrderSchema, quoteCheckout, type PaymentMethod } from '@/modules/orders'
 import {
   completeOnlinePayment,
@@ -19,7 +20,9 @@ import {
   type OnlinePaymentStart,
 } from '@/modules/payments'
 import { PINCODE_PATTERN } from '@/modules/shipping'
+import { isFeatureEnabled } from '@/modules/tenancy'
 
+import { signedInShopper } from './account'
 import { canSeeOrder, grantOrderAccess, ORDER_COOKIE, ORDER_ACCESS_HOURS } from './orderAccess'
 import { cartToken, currentCart, currentStore, setCartCount, visitorMeta } from './server'
 import { arrivalText, summarize, type CheckoutSummary } from './summary'
@@ -192,10 +195,20 @@ const storeRequest = async (): Promise<PayloadRequest> =>
 export async function submitCheckout(input: {
   form: unknown
   idempotencyKey: string
+  /** Signed-in shoppers: keep the delivery address on the account */
+  saveAddress?: boolean
 }): Promise<ShopResult<PlacedOrder>> {
   try {
     const store = await currentStore()
     if (!store) return { ok: false, message: CLOSED }
+    const session = await signedInShopper(store.tenantId)
+    // Guest checkout is a feature switch (docs/08); without it, shoppers log in first
+    if (
+      !session &&
+      !(await isFeatureEnabled(await getPayloadClient(), store.tenantId, 'guest-checkout'))
+    ) {
+      return { ok: false, message: 'Please log in to place your order.' }
+    }
     const meta = await visitorMeta()
     if (!allow(`checkout:${store.tenantId}:${meta.ip ?? 'local'}`, LIMITS.checkout)) {
       return { ok: false, message: 'Too many attempts. Please wait a few minutes and try again.' }
@@ -226,14 +239,27 @@ export async function submitCheckout(input: {
     }
 
     const req = await storeRequest()
-    const { order } = await withTransaction(req, () =>
-      placeOrder(req, store.tenantId, {
+    const customerId = session ? String(session.customer.id) : null
+    const { order } = await withTransaction(req, async () => {
+      const placed = await placeOrder(req, store.tenantId, {
         lines,
         input: form,
         cartId: cart ? String(cart.id) : null,
         meta: { ...meta, source: 'web' },
-      }),
-    )
+        customerId,
+      })
+      if (customerId) {
+        await completeProfileFromOrder(req, store.tenantId, session!.customer, form.contact)
+        if (input.saveAddress) {
+          await rememberCheckoutAddress(req, store.tenantId, customerId, {
+            ...form.shippingAddress,
+            gstin: form.buyerGstin,
+            legalName: form.buyerLegalName,
+          })
+        }
+      }
+      return placed
+    })
     if (cart) await markCartConverted(payload, String(cart.id), String(order.id))
     await setCartCount(0)
     const jar = await cookies()

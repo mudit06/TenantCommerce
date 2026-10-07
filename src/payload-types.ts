@@ -93,6 +93,11 @@ export interface Config {
     'notification-templates': NotificationTemplate;
     'notification-logs': NotificationLog;
     'contact-preferences': ContactPreference;
+    customers: Customer;
+    addresses: Address;
+    'customer-sessions': CustomerSession;
+    'login-codes': LoginCode;
+    'privacy-requests': PrivacyRequest;
     'idempotency-keys': IdempotencyKey;
     pincodes: Pincode;
     counters: Counter;
@@ -142,6 +147,11 @@ export interface Config {
     'notification-templates': NotificationTemplatesSelect<false> | NotificationTemplatesSelect<true>;
     'notification-logs': NotificationLogsSelect<false> | NotificationLogsSelect<true>;
     'contact-preferences': ContactPreferencesSelect<false> | ContactPreferencesSelect<true>;
+    customers: CustomersSelect<false> | CustomersSelect<true>;
+    addresses: AddressesSelect<false> | AddressesSelect<true>;
+    'customer-sessions': CustomerSessionsSelect<false> | CustomerSessionsSelect<true>;
+    'login-codes': LoginCodesSelect<false> | LoginCodesSelect<true>;
+    'privacy-requests': PrivacyRequestsSelect<false> | PrivacyRequestsSelect<true>;
     'idempotency-keys': IdempotencyKeysSelect<false> | IdempotencyKeysSelect<true>;
     pincodes: PincodesSelect<false> | PincodesSelect<true>;
     counters: CountersSelect<false> | CountersSelect<true>;
@@ -181,6 +191,7 @@ export interface Config {
       'orders-retrack-parcels': TaskOrdersRetrackParcels;
       'notifications-send': TaskNotificationsSend;
       'notifications-cleanup': TaskNotificationsCleanup;
+      'customers-cleanup': TaskCustomersCleanup;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -1526,6 +1537,7 @@ export interface Order {
     | 'lost'
     | 'returned'
     | 'cancelled';
+  customer?: string | null;
   contact?: {
     name?: string | null;
     email?: string | null;
@@ -2193,6 +2205,169 @@ export interface ContactPreference {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "customers".
+ */
+export interface Customer {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  name?: string | null;
+  email: string;
+  /**
+   * +91 and 10 digits
+   */
+  phone?: string | null;
+  /**
+   * A blocked account can’t sign in; its orders stay
+   */
+  status: 'active' | 'blocked';
+  /**
+   * Every account can shop; roles add more
+   */
+  roles?: 'affiliate'[] | null;
+  emailVerified?: boolean | null;
+  marketingConsent?: {
+    email?: boolean | null;
+    whatsapp?: boolean | null;
+  };
+  ordersCount?: number | null;
+  totalSpentMinor?: number | null;
+  lastOrderAt?: string | null;
+  lastLoginAt?: string | null;
+  /**
+   * Staff only
+   */
+  notes?: string | null;
+  passwordHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "addresses".
+ */
+export interface Address {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  customer: string;
+  type?: ('home' | 'work' | 'site') | null;
+  isDefault?: boolean | null;
+  address?: {
+    name?: string | null;
+    /**
+     * +91 and 10 digits
+     */
+    phone?: string | null;
+    line1?: string | null;
+    line2?: string | null;
+    landmark?: string | null;
+    city?: string | null;
+    stateCode?:
+      | (
+          | '10'
+          | '11'
+          | '12'
+          | '13'
+          | '14'
+          | '15'
+          | '16'
+          | '17'
+          | '18'
+          | '19'
+          | '20'
+          | '21'
+          | '22'
+          | '23'
+          | '24'
+          | '26'
+          | '27'
+          | '29'
+          | '30'
+          | '31'
+          | '32'
+          | '33'
+          | '34'
+          | '35'
+          | '36'
+          | '37'
+          | '38'
+          | '97'
+          | '01'
+          | '02'
+          | '03'
+          | '04'
+          | '05'
+          | '06'
+          | '07'
+          | '08'
+          | '09'
+        )
+      | null;
+    pincode?: string | null;
+    country?: string | null;
+  };
+  gstin?: string | null;
+  legalName?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "customer-sessions".
+ */
+export interface CustomerSession {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  customer: string;
+  tokenHash: string;
+  userAgent?: string | null;
+  ip?: string | null;
+  expiresAt: string;
+  lastSeenAt?: string | null;
+  revokedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "login-codes".
+ */
+export interface LoginCode {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  email: string;
+  codeHash: string;
+  expiresAt: string;
+  attempts?: number | null;
+  usedAt?: string | null;
+  ip?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "privacy-requests".
+ */
+export interface PrivacyRequest {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  type: 'export' | 'correction' | 'deletion';
+  status: 'received' | 'in_progress' | 'done' | 'rejected';
+  customer?: string | null;
+  contact?: {
+    email?: string | null;
+    phone?: string | null;
+  };
+  receivedAt: string;
+  dueAt: string;
+  handledBy?: string | null;
+  handledByName?: string | null;
+  notes?: string | null;
+  completedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "idempotency-keys".
  */
 export interface IdempotencyKey {
@@ -2595,6 +2770,7 @@ export interface PayloadJob {
           | 'orders-retrack-parcels'
           | 'notifications-send'
           | 'notifications-cleanup'
+          | 'customers-cleanup'
           | 'schedulePublish';
         taskID: string;
         input?:
@@ -2636,6 +2812,7 @@ export interface PayloadJob {
         | 'orders-retrack-parcels'
         | 'notifications-send'
         | 'notifications-cleanup'
+        | 'customers-cleanup'
         | 'schedulePublish'
       )
     | null;
@@ -2764,6 +2941,26 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'contact-preferences';
         value: string | ContactPreference;
+      } | null)
+    | ({
+        relationTo: 'customers';
+        value: string | Customer;
+      } | null)
+    | ({
+        relationTo: 'addresses';
+        value: string | Address;
+      } | null)
+    | ({
+        relationTo: 'customer-sessions';
+        value: string | CustomerSession;
+      } | null)
+    | ({
+        relationTo: 'login-codes';
+        value: string | LoginCode;
+      } | null)
+    | ({
+        relationTo: 'privacy-requests';
+        value: string | PrivacyRequest;
       } | null)
     | ({
         relationTo: 'idempotency-keys';
@@ -3604,6 +3801,7 @@ export interface OrdersSelect<T extends boolean = true> {
   status?: T;
   paymentStatus?: T;
   fulfillmentStatus?: T;
+  customer?: T;
   contact?:
     | T
     | {
@@ -4079,6 +4277,115 @@ export interface ContactPreferencesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "customers_select".
+ */
+export interface CustomersSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  email?: T;
+  phone?: T;
+  status?: T;
+  roles?: T;
+  emailVerified?: T;
+  marketingConsent?:
+    | T
+    | {
+        email?: T;
+        whatsapp?: T;
+      };
+  ordersCount?: T;
+  totalSpentMinor?: T;
+  lastOrderAt?: T;
+  lastLoginAt?: T;
+  notes?: T;
+  passwordHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "addresses_select".
+ */
+export interface AddressesSelect<T extends boolean = true> {
+  tenant?: T;
+  customer?: T;
+  type?: T;
+  isDefault?: T;
+  address?:
+    | T
+    | {
+        name?: T;
+        phone?: T;
+        line1?: T;
+        line2?: T;
+        landmark?: T;
+        city?: T;
+        stateCode?: T;
+        pincode?: T;
+        country?: T;
+      };
+  gstin?: T;
+  legalName?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "customer-sessions_select".
+ */
+export interface CustomerSessionsSelect<T extends boolean = true> {
+  tenant?: T;
+  customer?: T;
+  tokenHash?: T;
+  userAgent?: T;
+  ip?: T;
+  expiresAt?: T;
+  lastSeenAt?: T;
+  revokedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "login-codes_select".
+ */
+export interface LoginCodesSelect<T extends boolean = true> {
+  tenant?: T;
+  email?: T;
+  codeHash?: T;
+  expiresAt?: T;
+  attempts?: T;
+  usedAt?: T;
+  ip?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "privacy-requests_select".
+ */
+export interface PrivacyRequestsSelect<T extends boolean = true> {
+  tenant?: T;
+  type?: T;
+  status?: T;
+  customer?: T;
+  contact?:
+    | T
+    | {
+        email?: T;
+        phone?: T;
+      };
+  receivedAt?: T;
+  dueAt?: T;
+  handledBy?: T;
+  handledByName?: T;
+  notes?: T;
+  completedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "idempotency-keys_select".
  */
 export interface IdempotencyKeysSelect<T extends boolean = true> {
@@ -4533,6 +4840,16 @@ export interface TaskNotificationsSend {
  * via the `definition` "TaskNotifications-cleanup".
  */
 export interface TaskNotificationsCleanup {
+  input?: unknown;
+  output: {
+    deleted: number;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskCustomers-cleanup".
+ */
+export interface TaskCustomersCleanup {
   input?: unknown;
   output: {
     deleted: number;

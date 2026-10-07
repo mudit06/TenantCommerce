@@ -442,10 +442,13 @@ export async function placeOrder(
     cartId,
     meta,
     live,
+    customerId,
   }: {
     lines: readonly CartLineInput[]
     input: PlaceOrderInput
     cartId?: string | null
+    /** The signed-in shopper's account (docs/05) */
+    customerId?: string | null
     meta?: { ip?: string | null; userAgent?: string | null; source?: 'web' | 'pwa' }
     live?: LiveRateSource | null
   },
@@ -506,6 +509,7 @@ export async function placeOrder(
       status: 'pending',
       paymentStatus: 'pending',
       fulfillmentStatus: 'unfulfilled',
+      customer: customerId ?? undefined,
       contact: input.contact,
       items: quote.lines.map((line) => {
         const priced = pricedByKey.get(line.key)!

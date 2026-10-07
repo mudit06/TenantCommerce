@@ -1,4 +1,4 @@
-import { CATALOG_WRITE, ENQUIRY_WORK, STORE_ADMIN, type TenantRole, type Workspace } from '@/access'
+import { CATALOG_WRITE, STORE_ADMIN, type TenantRole, type Workspace } from '@/access'
 import { adminUrl } from '@/admin/paths'
 import type { IconName } from '@/admin/ui/icons'
 
@@ -100,7 +100,7 @@ const STORE_MENU: MenuSection[] = [
     label: 'Sales',
     items: [
       collectionItem('orders', 'Orders', 'receipt'),
-      soonItem('customers', 'Customers', 'staff', ENQUIRY_WORK),
+      collectionItem('customers', 'Customers', 'staff'),
       collectionItem('enquiries', 'Enquiries', 'enquiries', { badge: 'newEnquiries' }),
     ],
   },

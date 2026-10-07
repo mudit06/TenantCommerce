@@ -35,6 +35,16 @@ import {
   registerContentEvents,
   SiteSettings,
 } from '@/modules/content'
+import {
+  Addresses,
+  cleanupCustomerAuthTask,
+  customerEndpoints,
+  Customers,
+  CustomerSessions,
+  LoginCodes,
+  PrivacyRequests,
+  registerCustomerEvents,
+} from '@/modules/customers'
 import { Dealers } from '@/modules/dealers'
 import { Enquiries } from '@/modules/enquiries'
 import { identityEndpoints, Users } from '@/modules/identity'
@@ -81,6 +91,7 @@ const dirname = path.dirname(filename)
 registerContentEvents()
 registerTaxInvoicingEvents()
 registerNotificationEvents()
+registerCustomerEvents()
 
 /** A store's own data: its CMS screens only, and audited when our team changes it (docs/05). */
 const storeCollection = (collection: CollectionConfig) =>
@@ -215,6 +226,10 @@ export default buildConfig({
     ...[NotificationSettings, NotificationTemplates, NotificationLogs, ContactPreferences].map(
       storeScreen,
     ),
+    // Shopper accounts (ADR 0003): staff add notes or block an account; the rest is written by
+    // the customers module from the storefront
+    storeCollection(Customers),
+    ...[Addresses, CustomerSessions, LoginCodes, PrivacyRequests].map(storeScreen),
     IdempotencyKeys,
     Pincodes,
     Counters,
@@ -236,6 +251,7 @@ export default buildConfig({
     ...orderEndpoints,
     ...shippingEndpoints,
     ...notificationEndpoints,
+    ...customerEndpoints,
   ],
   jobs: {
     tasks: [
@@ -244,6 +260,7 @@ export default buildConfig({
       retrackParcelsTask,
       sendNotificationTask,
       cleanupNotificationLogsTask,
+      cleanupCustomerAuthTask,
     ],
     // Long-running servers (local, Docker) run the queue themselves; on Vercel a cron hits
     // /api/payload-jobs/run instead (docs/15). `default` runs scheduled page publishing and
@@ -342,6 +359,11 @@ export default buildConfig({
         'notification-templates': {},
         'notification-logs': {},
         'contact-preferences': {},
+        customers: {},
+        addresses: {},
+        'customer-sessions': {},
+        'login-codes': {},
+        'privacy-requests': {},
       },
       // Our team works across stores; support is read-only through access functions
       userHasAccessToAllTenants: (user) => isPlatformStaff(user),

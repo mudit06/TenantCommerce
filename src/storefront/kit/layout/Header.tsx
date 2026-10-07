@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
 import type { StoreContext } from '../../context'
-import { MenuIcon, PhoneIcon, SearchIcon, WhatsAppIcon } from '../icons'
+import { MenuIcon, PhoneIcon, SearchIcon, UserIcon, WhatsAppIcon } from '../icons'
 import { linkHref } from '../links'
 import { Img } from '../media'
 import { CartLink } from '../shop/CartLink'
@@ -117,6 +117,13 @@ export function Header({ ctx }: { ctx: StoreContext }) {
                   ) : null}
                 </li>
               ))}
+              {ctx.selling.selling ? (
+                <li className="py-3">
+                  <Link className="text-sm" href="/account">
+                    My account
+                  </Link>
+                </li>
+              ) : null}
               <li className="py-3">
                 <Link className="text-sm" href="/contact">
                   Contact us
@@ -199,7 +206,16 @@ export function Header({ ctx }: { ctx: StoreContext }) {
             <SearchIcon />
           </Link>
           {ctx.selling.selling ? (
-            <CartLink />
+            <>
+              <Link
+                aria-label="My account"
+                className="hidden size-11 items-center sm:flex justify-center rounded-card border border-line hover:border-ink/40"
+                href="/account"
+              >
+                <UserIcon />
+              </Link>
+              <CartLink />
+            </>
           ) : (
             <span className="hidden sm:block">
               <Link className={buttonClass('primary')} href="/contact">

@@ -121,6 +121,13 @@ import from `src/access/roles.ts`.
 
 ## customers (shoppers)
 
+**As built (7 October 2026):** ADR 0003. Shoppers sign in on the store's own domain with an
+email code (which also creates the account) or an optional password; the session is a random
+token in an HTTP-only cookie, stored hashed per store, 30 days, revoked by "Log out" or "Log out
+of all devices". Guests reach an order's details by signing in with the order's email: the code
+brings their guest orders into the account, so there is no separate guest-order code. The
+sections below are the original design notes.
+
 ### Why a custom strategy
 
 Payload's local strategy makes `email` unique across the whole collection, but our shoppers are

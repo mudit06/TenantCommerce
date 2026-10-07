@@ -140,3 +140,19 @@ export const CashIcon = (p: P) => (
     <circle cx="12" cy="12" r="2.5" />
   </svg>
 )
+export const UserIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 21a8 8 0 0 1 16 0" />
+  </svg>
+)
+export const HeartIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M12 20s-7-4.4-9.2-9A5.2 5.2 0 0 1 12 6a5.2 5.2 0 0 1 9.2 5c-2.2 4.6-9.2 9-9.2 9Z" />
+  </svg>
+)
+export const StarIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9L12 3Z" />
+  </svg>
+)

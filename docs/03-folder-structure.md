@@ -70,6 +70,7 @@ Ecom/
    │  ├─ features.ts             # Feature registry: collects every module's feature.ts (docs/08)
    │  ├─ tenancy/
    │  ├─ identity/
+   │  ├─ customers/              # Shopper accounts, sign-in codes, sessions, addresses, privacy
    │  ├─ catalog/
    │  ├─ inventory/
    │  ├─ content/

@@ -16,7 +16,16 @@ export {
 } from './milestones'
 export { maskedPhone } from './rules'
 export { orderMessageFootnote, orderMessages, type MessageRow } from './services/messages'
+export {
+  offersAgreed,
+  preferenceFor,
+  setOfferConsent,
+  setWhatsAppUpdates,
+  whatsappStopped,
+  type OfferChannel,
+} from './services/preferences'
 export { loadSettings } from './services/settings'
+export { storeFacts, type StoreFacts } from './services/store'
 export {
   setTrackingUpdates,
   TRACKING_CODE,

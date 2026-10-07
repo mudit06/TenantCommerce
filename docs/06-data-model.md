@@ -225,6 +225,18 @@ From the official plugins, tenant-scoped.
 
 ## Customers (T)
 
+**As built (7 October 2026, ADR 0003):** the `customers` module owns `customers`, `addresses`,
+`customer-sessions`, `login-codes` and `privacy-requests`, all tenant-scoped through the
+multi-tenant plugin. `customers` is an ordinary collection (not a Payload auth collection) with a
+`passwordHash` field nobody can read or write through the API, `lastLoginAt`, and unique
+`(tenant, email)`. `orders.customer`, `addresses.customer`, `customer-sessions.customer` and
+`privacy-requests.customer` are plain ids, not relationships: orders and addresses are written
+inside transactions, where Payload validates tenant-scoped relationships in parallel.
+`login-codes { email, codeHash (HMAC), expiresAt, attempts, usedAt, ip }` and
+`customer-sessions { tokenHash (SHA-256), expiresAt, lastSeenAt, revokedAt, ip, userAgent }`
+are deleted nightly once old. Addresses keep the shopper address group under `address`, plus
+`gstin` and `legalName`.
+
 ### customers (auth, see 05)
 `email`, `phone`, `name`, `roles[]` (`affiliate`; Phase 2 `trade`; every customer can shop, docs/05),
 `status`, `emailVerified`, `phoneVerified`, `marketingConsent` (read-only mirror of the offer

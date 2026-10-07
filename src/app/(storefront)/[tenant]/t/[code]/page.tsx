@@ -9,6 +9,7 @@ import { getStoreContext } from '@/storefront/context'
 import { CheckIcon, LockIcon, TruckIcon } from '@/storefront/kit/icons'
 import { TrackingUpdates } from '@/storefront/kit/shop/TrackingUpdates'
 import { buttonClass, Container } from '@/storefront/kit/ui'
+import { loginHref } from '@/storefront/shop/account'
 
 export const metadata: Metadata = {
   title: 'Track your order',
@@ -143,10 +144,18 @@ export default async function TrackingPage({ params }: Props) {
               </li>
             ))}
           </ul>
-          <p className="flex items-start gap-2 border-t border-line px-4 py-3 text-xs text-ink-soft">
-            <LockIcon aria-hidden className="mt-0.5 shrink-0" height={14} width={14} />
-            Address and invoice are hidden on this page. They are in your order email.
-          </p>
+          <div className="flex flex-wrap items-center gap-3 border-t border-line px-4 py-3 text-xs text-ink-soft">
+            <LockIcon aria-hidden className="shrink-0" height={14} width={14} />
+            <span className="flex-1">Address and invoice are hidden on this page.</span>
+            {ctx.selling.selling ? (
+              <Link
+                className={buttonClass('outline', 'min-h-9 px-3 text-xs')}
+                href={loginHref(`/account/orders/${encodeURIComponent(view.orderNumber)}`)}
+              >
+                Log in to see more
+              </Link>
+            ) : null}
+          </div>
         </section>
 
         {view.phone && !view.cancelled ? (

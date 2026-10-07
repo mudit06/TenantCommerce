@@ -4,11 +4,13 @@ import { getPayloadClient } from '@/lib/data/payload'
 import { getStoreByHost } from '@/lib/data/store'
 import { renderInvoicesHtml } from '@/modules/tax-invoicing'
 import { STORE_HOST_HEADER } from '@/storefront/constants'
+import { signedInShopper } from '@/storefront/shop/account'
 import { canSeeOrder, ORDER_COOKIE } from '@/storefront/shop/orderAccess'
 
 /**
- * The shopper's GST invoice (docs/screens Order confirmed "Download invoice"), for the browser
- * that placed the order (signed cookie) only; the order number alone never opens it.
+ * The shopper's GST invoice (docs/screens Order confirmed "Download invoice", Order tracking),
+ * for the browser that placed the order (signed cookie) or the signed-in account that owns it;
+ * the order number alone never opens it.
  */
 export async function GET(request: Request) {
   const host = (await headers()).get(STORE_HOST_HEADER)
@@ -26,12 +28,13 @@ export async function GET(request: Request) {
     overrideAccess: true,
   })
   const order = docs[0]
-  if (
-    !order?.invoice ||
-    !canSeeOrder((await cookies()).get(ORDER_COOKIE)?.value, String(order.id))
-  ) {
-    return notFound()
-  }
+  if (!order?.invoice) return notFound()
+  const placedHere = canSeeOrder((await cookies()).get(ORDER_COOKIE)?.value, String(order.id))
+  const owner =
+    !placedHere && order.customer
+      ? (await signedInShopper(store.tenantId))?.customer.id === order.customer
+      : false
+  if (!placedHere && !owner) return notFound()
   const { docs: invoices } = await payload.find({
     collection: 'invoices',
     where: { and: [{ tenant: { equals: store.tenantId } }, { order: { equals: order.id } }] },

@@ -112,3 +112,47 @@ export async function markAutoReply(req: PayloadRequest, tenantId: string, phone
     req,
   })
 }
+
+export type OfferChannel = 'email' | 'whatsapp'
+
+/**
+ * Offers and new launches (docs/18 "Consent"): agreed to by the shopper only, by email or by
+ * WhatsApp, kept on the email or phone it goes to. Separate from order updates: turning offers
+ * off never stops them.
+ */
+export async function setOfferConsent(
+  req: PayloadRequest,
+  tenantId: string,
+  channel: OfferChannel,
+  value: string,
+  on: boolean,
+  source: 'checkout' | 'signup' | 'account' | 'affiliate',
+): Promise<ContactPreference> {
+  const type = channel === 'email' ? 'email' : 'phone'
+  const now = new Date().toISOString()
+  const existing = await preferenceFor(req.payload, tenantId, type, value, req)
+  const current = existing?.offers?.[channel]
+  const next = on
+    ? { optedIn: true, at: now, source, wordingVersion: `offers-${channel}-v1`, optedOutAt: null }
+    : { ...current, optedIn: false, optedOutAt: now }
+  const offers = { ...existing?.offers, [channel]: next }
+  if (existing) {
+    return req.payload.update({
+      collection: 'contact-preferences',
+      id: existing.id,
+      data: { offers },
+      overrideAccess: true,
+      req,
+    })
+  }
+  return req.payload.create({
+    collection: 'contact-preferences',
+    data: { tenant: tenantId, type, value, offers },
+    overrideAccess: true,
+    req,
+  })
+}
+
+/** Has this email or phone agreed to offers on the channel, and not withdrawn since */
+export const offersAgreed = (pref: ContactPreference | null, channel: OfferChannel) =>
+  Boolean(pref?.offers?.[channel]?.optedIn) && !pref?.suppressed?.reason

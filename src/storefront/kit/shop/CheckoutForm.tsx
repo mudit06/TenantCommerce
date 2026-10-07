@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState, useTransition } from 'react'
 
@@ -95,18 +96,40 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
  * needed. The pincode sets the state (place of supply), the delivery fee and whether COD is
  * offered; the server prices everything again when the order is placed.
  */
+export type CheckoutAccount = {
+  email: string
+  phone: string
+  name: string
+  /** The saved address checkout fills in (the default one) */
+  address: {
+    pincode: string
+    city: string
+    stateCode: string
+    name: string
+    line1: string
+    line2: string
+    landmark: string
+    gstin: string
+    legalName: string
+  } | null
+  savedAddresses: number
+}
+
 export function CheckoutForm({
   initial,
   initialPincode,
   storeName,
   themeColor,
   whatsappDefault,
+  account,
 }: {
   initial: CheckoutSummary
   initialPincode: string
   storeName: string
   themeColor: string
   whatsappDefault: boolean
+  /** The signed-in shopper: their details fill the form (docs/screens Checkout) */
+  account: CheckoutAccount | null
 }) {
   const router = useRouter()
   const [summary, setSummary] = useState(initial)
@@ -117,19 +140,27 @@ export function CheckoutForm({
   // One key per checkout page: a double press or a retried request places one order (docs/11)
   const idempotencyKey = useRef<string | null>(null)
 
-  const [contact, setContact] = useState({ phone: '', email: '' })
+  const saved = account?.address ?? null
+  const [contact, setContact] = useState({
+    phone: account?.phone.replace(/^\+91/, '') ?? '',
+    email: account?.email ?? '',
+  })
+  const [saveAddress, setSaveAddress] = useState(Boolean(account) && !saved)
   const [whatsappOptIn, setWhatsappOptIn] = useState(whatsappDefault)
   const [address, setAddress] = useState({
-    pincode: initialPincode,
-    city: '',
-    stateCode: initial.placeOfSupply?.stateCode ?? '',
-    name: '',
-    line1: '',
-    line2: '',
-    landmark: '',
+    pincode: saved?.pincode ?? initialPincode,
+    city: saved?.city ?? '',
+    stateCode: saved?.stateCode ?? initial.placeOfSupply?.stateCode ?? '',
+    name: saved?.name ?? account?.name ?? '',
+    line1: saved?.line1 ?? '',
+    line2: saved?.line2 ?? '',
+    landmark: saved?.landmark ?? '',
   })
-  const [business, setBusiness] = useState(false)
-  const [gstin, setGstin] = useState({ buyerGstin: '', buyerLegalName: '' })
+  const [business, setBusiness] = useState(Boolean(saved?.gstin))
+  const [gstin, setGstin] = useState({
+    buyerGstin: saved?.gstin ?? '',
+    buyerLegalName: saved?.legalName ?? '',
+  })
   const [method, setMethod] = useState<'razorpay' | 'cod' | null>(
     initial.payment.online.available ? 'razorpay' : initial.payment.cod.available ? 'cod' : null,
   )
@@ -204,6 +235,7 @@ export function CheckoutForm({
     idempotencyKey.current ??= crypto.randomUUID()
     const result = await submitCheckout({
       idempotencyKey: idempotencyKey.current,
+      saveAddress: Boolean(account) && saveAddress,
       form: {
         contact: { name: address.name, email: contact.email, phone: contact.phone },
         // One mobile number for the order: the courier calls the same one
@@ -248,6 +280,23 @@ export function CheckoutForm({
           </p>
         ) : null}
         <Step n={1} title="Contact">
+          {account ? (
+            <p className="text-sm text-ink-soft">
+              Logged in as <b className="text-ink">{account.email}</b>. This order goes to your
+              account.
+            </p>
+          ) : (
+            <p className="text-sm text-ink-soft">
+              Have an account?{' '}
+              <Link
+                className="font-semibold text-ink underline"
+                href="/account/login?next=%2Fcheckout"
+              >
+                Log in
+              </Link>{' '}
+              to fill this in.
+            </p>
+          )}
           <div className="grid gap-4 sm:grid-cols-2">
             <Field error={err('contact.phone')} id="co-phone" label="Mobile number" required>
               <input
@@ -390,6 +439,17 @@ export function CheckoutForm({
             />
             Add GSTIN for a business invoice
           </label>
+          {account ? (
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                checked={saveAddress}
+                className="size-4"
+                onChange={(event) => setSaveAddress(event.target.checked)}
+                type="checkbox"
+              />
+              Save this address to my account
+            </label>
+          ) : null}
           {business ? (
             <div className="grid gap-4 sm:grid-cols-2">
               <Field error={err('buyerGstin')} id="co-gstin" label="GSTIN" required>

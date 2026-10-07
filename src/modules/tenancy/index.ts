@@ -19,6 +19,7 @@ export {
 export {
   applyIndustryPreset,
   effectiveFeatures,
+  featureConfig,
   getTenantFeatures,
   isFeatureEnabled,
   requireFeature,

@@ -133,6 +133,24 @@ export async function isFeatureEnabled(
   return enabled.has(key)
 }
 
+/**
+ * A switched-on feature's settings (its defaults filled in), or null when the feature is off.
+ * Server code reads limits from here, never from the browser (docs/08).
+ */
+export async function featureConfig<T = Record<string, unknown>>(
+  payload: Payload,
+  tenantId: string,
+  key: FeatureKey,
+  req?: PayloadRequest,
+): Promise<T | null> {
+  const { states } = await getTenantFeatures(payload, tenantId, req)
+  const state = states.find((s) => s.key === key)
+  if (!state?.enabled) return null
+  const schema = getFeature(key).configSchema
+  const parsed = schema?.safeParse(state.config ?? {})
+  return (parsed?.success ? parsed.data : (state.config ?? {})) as T
+}
+
 /** For endpoints: a switched-off feature answers "not found" (docs/08). */
 export async function requireFeature(
   payload: Payload,

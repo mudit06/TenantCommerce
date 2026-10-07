@@ -5,9 +5,10 @@ import Link from 'next/link'
 import { GST_STATES } from '@/lib/gst/gstin'
 import { formatINR } from '@/lib/money'
 import { getStoreContext } from '@/storefront/context'
-import { CheckIcon } from '@/storefront/kit/icons'
+import { CheckIcon, UserIcon } from '@/storefront/kit/icons'
 import { RetryPayment } from '@/storefront/kit/shop/RetryPayment'
 import { buttonClass, Container } from '@/storefront/kit/ui'
+import { signedInShopper } from '@/storefront/shop/account'
 import { canSeeOrder, ORDER_COOKIE } from '@/storefront/shop/orderAccess'
 import { currentCart } from '@/storefront/shop/server'
 
@@ -65,6 +66,7 @@ export default async function OrderPlacedPage({ params, searchParams }: Props) {
     overrideAccess: true,
   })
   const paidBy = payments[0]?.methodDetail ?? null
+  const signedIn = Boolean(await signedInShopper(ctx.store.tenantId))
   const firstName = order.contact?.name?.split(' ')[0] ?? ''
   const address = order.shippingAddress
   const state = address?.stateCode ? GST_STATES[address.stateCode as keyof typeof GST_STATES] : ''
@@ -147,6 +149,22 @@ export default async function OrderPlacedPage({ params, searchParams }: Props) {
           </Link>
         </div>
       </div>
+
+      {!cancelled && !awaitingPayment && !signedIn && order.contact?.email ? (
+        <section className="mx-auto mt-8 flex max-w-5xl flex-wrap items-center gap-3 rounded-card border border-line bg-surface-alt p-4 text-sm">
+          <UserIcon aria-hidden height={18} width={18} />
+          <span className="flex-1">
+            Save your details for next time. Create an account with a one-time code: this order
+            joins it.
+          </span>
+          <Link
+            className={buttonClass('dark', 'min-h-9 px-3')}
+            href={`/account/login?email=${encodeURIComponent(order.contact.email)}&next=${encodeURIComponent('/account')}`}
+          >
+            Create account
+          </Link>
+        </section>
+      ) : null}
 
       <div className="mx-auto mt-10 grid max-w-5xl gap-5 md:grid-cols-2">
         <section className="rounded-card border border-line bg-white">

@@ -86,6 +86,19 @@ and `lines[].discountMinor`, all worked out by the server (docs/11).
 | PATCH | `/track/:code/preferences` | `{ whatsapp?: false, sms?: false }` stop updates for that order's phone (docs/18). As built: the tracking page's server action `setTrackingWhatsApp(code, on)`, same rate limit |
 
 ### Customer auth
+
+**As built (7 October 2026, ADR 0003):** the storefront's server actions in
+`src/storefront/shop/accountActions.ts`, not JSON routes: `sendCode(email)`, `verifyCode(email,
+code, next)` (creates the account and attaches guest orders with that email, so
+`/guest-orders/otp/*` isn't needed), `passwordLogin`, `logOut(everywhere)`, `saveProfile`,
+`changePassword`, `saveMyAddress`, `deleteMyAddress`, `setMyWhatsAppUpdates`, `setMyOffers`,
+`cancelMyOrder`, `buyAgain`. The store always comes from the request's host. The invoice route
+`/checkout/invoice?order=` also opens for the signed-in account that owns the order. Staff side:
+`GET /api/admin/v1/customers/export?store=`, `POST /api/admin/v1/privacy-requests?store=`,
+`POST /api/admin/v1/privacy-requests/:id?store=` `{ status }`, and
+`GET /api/admin/v1/privacy-requests/:id/export?store=` (JSON). The table below is the original
+plan.
+
 | Method | Path | Purpose |
 |---|---|---|
 | POST | `/auth/register` | email, password, name, phone? |

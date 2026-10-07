@@ -56,7 +56,9 @@ describe('admin menu per workspace', () => {
       'Store',
       'Insights',
     ])
-    expect(items.find((item) => item.key === 'customers')).toMatchObject({ soon: true, href: '' })
+    expect(items.find((item) => item.key === 'reviews')).toMatchObject({ soon: true, href: '' })
+    // Customers is built: it follows collection access like any other screen
+    expect(items.map((item) => item.key)).not.toContain('customers')
     expect(items.map((item) => item.key)).toContain('reviews')
     expect(items.map((item) => item.key)).not.toContain('coupons')
 

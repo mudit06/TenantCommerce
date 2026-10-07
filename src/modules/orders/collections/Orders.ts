@@ -66,6 +66,7 @@ export const Orders: CollectionConfig = {
     { fields: ['tenant', 'fulfillmentStatus', 'placedAt'] },
     { fields: ['tenant', 'contact.email'] },
     { fields: ['tenant', 'contact.phone'] },
+    { fields: ['tenant', 'customer', 'placedAt'] },
     { fields: ['status', 'expiresAt'] },
   ],
   fields: [
@@ -100,6 +101,14 @@ export const Orders: CollectionConfig = {
           admin: readOnly,
         },
       ],
+    },
+    {
+      // The shopper's account when signed in, or once a guest proves the email (docs/05). A
+      // plain id: the order is created inside a transaction (docs/06 "Transactions")
+      name: 'customer',
+      label: 'Account',
+      type: 'text',
+      admin: { ...readOnly, hidden: true },
     },
     {
       name: 'contact',

@@ -511,6 +511,42 @@ As Home Orbit's owner, or the super admin with **Manage store**:
 - [ ] Sign in as a catalog editor: Orders isn't in the menu. A store support login sees orders
       but no action buttons.
 
+### 3.8 Shopper accounts and Customers (after 3.6)
+
+On the store (http://home-orbit.localhost:3000), in a private window:
+
+- [ ] Open **/account**: it sends you to **Log in or create an account**. Type the email you
+      used at checkout in 3.6 and **Send code**. The code is printed in the `pnpm dev` terminal
+      ("Your code to log in to Home Orbit: 123456"). Type it (or paste all six digits into the
+      first box): you land on **My account**, "Hi Rahul".
+- [ ] **Your orders** lists the order from 3.6 (placed as a guest with this email). **Track
+      order** opens `/account/orders/HOM-…` with the journey, items, GST line, delivery
+      address, the WhatsApp updates switch, **Download invoice** once packed, and **Cancel
+      order** until it ships.
+- [ ] Wrong code five times: "Send a new one". Ask for another code straight away: "Resend
+      code in 0:2x". The message is the same for an email with no account (the code creates it).
+- [ ] **Saved address** → **+ Add address**, then **Profile**: add a mobile and **Set a
+      password**. Log out, then log in on the **Password** tab with it.
+- [ ] Add something to the cart and open **Checkout**: "Logged in as …", the contact and the
+      saved address are filled in, and "Save this address to my account" is offered. Place a
+      COD order: it shows on My account.
+- [ ] **Log out of all devices** from one window: another window signed in to the same account
+      is signed out on its next page. The same email on another store (for example
+      `demo.localhost:3000/account/login`) is a separate account.
+- [ ] On the order confirmation page as a guest: **Create account** fills the email in. On the
+      tracking page `/t/<code>`: **Log in to see more** goes to the order after signing in.
+
+In the CMS as the owner, **Sales → Customers**:
+
+- [ ] The account with its masked phone, orders (a link to its orders), spent, last order,
+      roles, offers and joined date; search by name, email or phone; **Export CSV**.
+- [ ] **Privacy requests → Record a request** (Data export, the shopper's email): it shows
+      "Due" in 30 days. **Download data** gives a JSON file with the account, addresses, orders
+      and preferences. Record a **Delete account** request, **Start**, then **Delete account**:
+      the account is gone from the list, its orders stay under Orders.
+- [ ] As an order manager or support login: Customers shows the list without the request
+      buttons.
+
 ## 4. Enquiries inbox (vendor CMS)
 
 Back in the owner's private window.
@@ -605,7 +641,7 @@ Uploaded files stay in `media/`; delete that folder too for a completely clean s
 
 ## Not built yet (so don't test these)
 
-- SMS updates (later), returns, customer accounts (later milestones of stage B)
+- SMS updates (later), returns
 - Offers, coupons, reviews, wishlist, affiliates (stage C)
 - CSV import, the dealer locator page, the PWA "install app" and offline page
 - Two-step login (deferred)
