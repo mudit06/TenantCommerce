@@ -78,6 +78,7 @@ import {
   Schemes,
   switchSchemesTask,
 } from '@/modules/promotions'
+import { reviewEndpoints, reviewRequestsTask, Reviews, Wishlists } from '@/modules/reviews'
 import { Pincodes, Shipments, ShippingZones } from '@/modules/shipping'
 // Endpoints load env and connectors; kept out of the shipping index so its pure parts stay
 // importable from unit-tested code (orders' parcel rules)
@@ -230,6 +231,8 @@ export default buildConfig({
     storeCollection(withStorefrontRevalidation(Schemes)),
     storeCollection(withStorefrontRevalidation(Coupons)),
     storeScreen(CouponRedemptions),
+    // Reviews are moderated through their own screen; wishlists belong to shoppers
+    ...[Reviews, Wishlists].map(storeScreen),
     // Selling (stage B): orders and their records are written by services only, so the store
     // session audit wrapper is for the screens staff edit directly (shipping zones)
     storeCollection(ShippingZones),
@@ -268,6 +271,7 @@ export default buildConfig({
     ...notificationEndpoints,
     ...customerEndpoints,
     ...promotionEndpoints,
+    ...reviewEndpoints,
   ],
   jobs: {
     tasks: [
@@ -279,6 +283,7 @@ export default buildConfig({
       cleanupCustomerAuthTask,
       switchSchemesTask,
       schemeStatsTask,
+      reviewRequestsTask,
     ],
     // Long-running servers (local, Docker) run the queue themselves; on Vercel a cron hits
     // /api/payload-jobs/run instead (docs/15). `default` runs scheduled page publishing and
@@ -385,6 +390,8 @@ export default buildConfig({
         schemes: {},
         coupons: {},
         'coupon-redemptions': {},
+        reviews: {},
+        wishlists: {},
       },
       // Our team works across stores; support is read-only through access functions
       userHasAccessToAllTenants: (user) => isPlatformStaff(user),

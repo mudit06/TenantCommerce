@@ -411,6 +411,24 @@ As Home Orbit's owner (the store needs a price on a few products: `pnpm demo:sel
       and **/offers/diwali-2026** says the offer has ended.
 - [ ] As an order manager: Schemes and Coupons show without any buttons.
 
+### 2.12 Reviews and wishlist
+
+- [ ] Deliver an order from 3.6 (order page: the parcel's **Delivered**). On the store, log in as
+      that shopper (3.8): My account shows **Write a review** on the order and "My reviews · 1 to
+      write" in the menu. Write one: pick 2 stars, a title and text, a photo, and "Show my name
+      as". It says the store checks reviews first.
+- [ ] CMS → Marketing → **Reviews**: it's under To approve with "Verified purchase" and the
+      low-rating note. Type a public reply and **Approve with reply**: the product page now shows
+      the rating by the title, the bars and the review with the store's reply; cards show the
+      stars. The reply email is printed in the `pnpm dev` terminal.
+- [ ] Try **Reject** without a reason: the button waits for one. Untick **Hold new reviews for
+      approval**, **Save settings**: the next review is published at once.
+- [ ] Review emails: an order delivered the set number of days ago gets one email the next
+      morning (the `review-requests` job, 05:00), never twice.
+- [ ] Tap the heart on a product card, then open **/wishlist**: the product with today's price
+      (the offer price while a scheme runs), **Move to cart** and **Remove** with Undo. As a
+      guest it says the list is on this device; log in and the list follows to another browser.
+
 ## 3. Storefront (what shoppers see)
 
 http://home-orbit.localhost:3000 . Check it twice: on a normal desktop window, and as a phone
@@ -668,7 +686,7 @@ Uploaded files stay in `media/`; delete that folder too for a completely clean s
 ## Not built yet (so don't test these)
 
 - SMS updates (later), returns
-- Reviews, wishlist, offer messages, abandoned carts, affiliates (stage C)
+- Offer messages, abandoned carts, affiliates (stage C)
 - CSV import, the dealer locator page, the PWA "install app" and offline page
 - Two-step login (deferred)
 - Real emails: locally they are printed in the `pnpm dev` terminal

@@ -445,6 +445,12 @@ payment; per-customer limits are checked against it.
 
 ## Reviews and wishlists (T, MVP, owned by the `reviews` module)
 
+**As built (7 October 2026):** `reviews` keeps snapshots (`productTitle`, `variantLabel`,
+`orderNumber`) and plain ids, plus `handledBy`; `photos` -> media (re-encoded WebP). Products have
+a hidden `rating { average, count }` written by the reviews module only. The review email's link
+is signed (HMAC of the order id and the day it was made, 90 days), so no token is stored.
+`wishlists.items[]` hold `product` and `variant` as ids.
+
 ### reviews
 `product`, `variant`, `order` and `orderItem` (verified purchase: only delivered order items can
 be reviewed), `customer` (or guest contact from the order), `displayName` ("Rahul K."), `city`

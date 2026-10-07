@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   // CLAUDE.md is the project's own AI instructions; `next dev` must not append to it
   agentRules: false,
+  experimental: {
+    // Review photos (up to 4, downsized in the browser first) come through a server action
+    serverActions: { bodySizeLimit: '8mb' },
+  },
 }
 
 export default withPayload(nextConfig, { devBundleServerPackages: false })

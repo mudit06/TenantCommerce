@@ -72,6 +72,7 @@ export type ProductCardData = Pick<
   | 'purchaseMode'
   | 'price'
   | 'compareAtPrice'
+  | 'rating'
 > & {
   primaryCategory: string | null
   /** Main category first, then "also show in": what a scheme on a category covers */
@@ -90,6 +91,7 @@ const CARD_SELECT = {
   purchaseMode: true,
   price: true,
   compareAtPrice: true,
+  rating: true,
   primaryCategory: true,
   categories: true,
 } as const
@@ -106,6 +108,7 @@ const toCard = (doc: Product): ProductCardData => ({
   purchaseMode: doc.purchaseMode,
   price: doc.price,
   compareAtPrice: doc.compareAtPrice,
+  rating: doc.rating,
   primaryCategory: idOf(doc.primaryCategory),
   categoryIds: [idOf(doc.primaryCategory), ...(doc.categories ?? []).map((c) => idOf(c))].filter(
     (id): id is string => Boolean(id),
@@ -275,4 +278,59 @@ export const getProductsFor = (
       select: CARD_SELECT,
     })
     return docs.map((doc) => toCard(doc as Product))
+  })
+
+export type PublicReview = {
+  id: string
+  rating: number
+  title: string | null
+  body: string | null
+  displayName: string
+  variantLabel: string | null
+  at: string
+  photos: { url: string; alt: string }[]
+  reply: string | null
+}
+
+/** A product's published reviews, newest first, with the bars (docs/screens Product page rule 11). */
+export const getProductReviews = (tenantId: string, productId: string) =>
+  cached(tenantId, ['reviews', productId], async () => {
+    const payload = await getPayloadClient()
+    const { docs } = await payload.find({
+      collection: 'reviews',
+      where: {
+        and: [
+          { tenant: { equals: tenantId } },
+          { product: { equals: productId } },
+          { status: { equals: 'published' } },
+        ],
+      },
+      sort: '-publishedAt',
+      depth: 1,
+      limit: 200,
+      pagination: false,
+      overrideAccess: true,
+    })
+    const bars = [5, 4, 3, 2, 1].map((stars) => ({
+      stars,
+      count: docs.filter((r) => r.rating === stars).length,
+    }))
+    const reviews: PublicReview[] = docs.map((r) => ({
+      id: String(r.id),
+      rating: r.rating,
+      title: r.title ?? null,
+      body: r.body ?? null,
+      displayName: r.displayName,
+      variantLabel: r.variantLabel ?? null,
+      at: r.publishedAt ?? r.createdAt,
+      photos: (r.photos ?? [])
+        .map((p) =>
+          typeof p === 'object' && p?.url
+            ? { url: p.sizes?.card?.url ?? p.url, alt: p.alt ?? '' }
+            : null,
+        )
+        .filter((p): p is { url: string; alt: string } => p !== null),
+      reply: r.reply?.text ?? null,
+    }))
+    return { reviews, bars, count: docs.length }
   })

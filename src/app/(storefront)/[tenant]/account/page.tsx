@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { formatINR } from '@/lib/money'
 import { customerAddresses, customerOrders, hasPassword } from '@/modules/customers'
 import { maskedPhone, offersAgreed, preferenceFor, whatsappStopped } from '@/modules/notifications'
+import { reviewableItems, reviewToken } from '@/modules/reviews'
 import { featureConfig } from '@/modules/tenancy'
 import { getStoreContext } from '@/storefront/context'
 import { AccountNav } from '@/storefront/kit/account/AccountNav'
@@ -77,8 +78,30 @@ export default async function AccountPage({ params }: Props) {
     legalName: a.legalName ?? '',
   }))
 
+  // Delivered orders with items still to review (docs/screens My account rule 7)
+  const reviewsOn = ctx.hasFeature('reviews')
+  const toReview = new Map<string, number>()
+  if (reviewsOn) {
+    for (const order of orders.filter((o) => o.fulfillmentStatus === 'delivered').slice(0, 10)) {
+      const items = await reviewableItems(payload, tenantId, order)
+      const open = items.filter((i) => !i.reviewed).length
+      if (open) toReview.set(String(order.id), open)
+    }
+  }
+  const reviewsToWrite = [...toReview.values()].reduce((a, b) => a + b, 0)
+  const firstToReview = orders.find((o) => toReview.has(String(o.id)))
+
   const nav = [
     { label: 'Orders', href: '/account' },
+    ...(ctx.hasFeature('wishlist') ? [{ label: 'Wishlist', href: '/wishlist' }] : []),
+    ...(reviewsOn && firstToReview
+      ? [
+          {
+            label: `My reviews · ${reviewsToWrite} to write`,
+            href: `/review/${reviewToken(String(firstToReview.id))}?from=account`,
+          },
+        ]
+      : []),
     { label: 'Addresses', href: '/account#addresses' },
     { label: 'Profile', href: '/account#profile' },
   ]
@@ -167,6 +190,14 @@ export default async function AccountPage({ params }: Props) {
                           View order
                         </Link>
                       )}
+                      {toReview.has(String(order.id)) ? (
+                        <Link
+                          className={buttonClass('outline', 'min-h-9 px-3')}
+                          href={`/review/${reviewToken(String(order.id))}?from=account`}
+                        >
+                          Write a review
+                        </Link>
+                      ) : null}
                       {delivered ? <BuyAgainButton orderNumber={order.orderNumber} /> : null}
                       {order.invoice ? (
                         <a

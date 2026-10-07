@@ -12,6 +12,7 @@ import { isMilestoneKey, MILESTONE_FOR_PARCEL, PARCEL_STEP, type MilestoneKey } 
 import { renderEmail, renderWhatsApp, sampleFacts, type TemplateText } from '../render'
 import type { Variant } from '../starter-templates'
 import type { MessageFacts, VariableKey } from '../variables'
+import { PREPARED_KINDS, sendPrepared, type PreparedKind } from './prepared'
 import { type StoreFacts, storeFacts } from './store'
 
 // The send job (docs/18): re-read the order and parcel, skip what went stale, render, send
@@ -120,6 +121,24 @@ export async function sendLog(
   let facts: MessageFacts
   let milestone = log.milestone ?? ''
   const variant = (log.variant ?? 'default') as Variant
+  if (PREPARED_KINDS.includes(log.kind as PreparedKind) && log.channel === 'email') {
+    // Review requests, offers and cart reminders arrive ready to send (./prepared.ts)
+    try {
+      return await sendPrepared(payload, log, tenantId, (data) => update(payload, logId, data))
+    } catch (error) {
+      return recordResult(
+        payload,
+        log,
+        {
+          ok: false,
+          code: 'send_error',
+          message: error instanceof Error ? error.message.slice(0, 200) : 'Sending failed',
+          retryable: true,
+        },
+        null,
+      )
+    }
+  }
   if (log.kind === 'test') {
     facts = sampleFacts(store, variant)
   } else if (log.kind === 'reply') {

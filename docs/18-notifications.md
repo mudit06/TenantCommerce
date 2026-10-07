@@ -426,3 +426,12 @@ emails carry the store's name and domain, staff emails the platform's.
   refuses it.
 
 Sources for the provider rules and prices above: the Sources list in `research/features.html`.
+
+## As built: prepared messages (7 October 2026)
+
+Review requests, review replies (and next, offer messages and cart reminders) are written by
+their own modules through `queuePreparedEmail` (`src/modules/notifications/services/prepared.ts`):
+the module prepares the subject, text and button, checks consent and limits, and the row goes
+through the same `notification-logs` dedupe and send job as order updates, rendered by
+`src/emails/storeMessage.ts` in the store's name (with a one-tap unsubscribe link for offers).
+Log kinds: `review`, `offer`, `cart`.

@@ -355,6 +355,17 @@ export const Products: CollectionConfig = {
       defaultValue: false,
       admin: { position: 'sidebar' },
     },
+    {
+      // Published reviews only, kept by the reviews module (docs/06 `reviews`); never edited here
+      name: 'rating',
+      type: 'group',
+      admin: { hidden: true },
+      access: { create: () => false, update: () => false },
+      fields: [
+        { name: 'average', type: 'number' },
+        { name: 'count', type: 'number', defaultValue: 0 },
+      ],
+    },
     lastEditedByField(),
   ],
   hooks: {

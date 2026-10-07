@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 
 import { idOf } from '@/access'
 import { getStoreOffers, offerForProduct } from '@/lib/data/offers'
-import { getProductBySlug, getProductsInCategories } from '@/lib/data/catalog'
+import { getProductBySlug, getProductReviews, getProductsInCategories } from '@/lib/data/catalog'
 import { variantAxes } from '@/modules/catalog'
 import { whatsappNumber } from '@/modules/enquiries'
 import { getStoreContext } from '@/storefront/context'
@@ -15,7 +15,10 @@ import { LegalDetails } from '@/storefront/kit/product/LegalDetails'
 import { ProductGrid } from '@/storefront/kit/product/ProductCard'
 import { ProductEnquiry } from '@/storefront/kit/product/ProductEnquiry'
 import { QuoteForm } from '@/storefront/kit/product/QuoteForm'
+import { ProductReviews } from '@/storefront/kit/reviews/ProductReviews'
+import { Stars } from '@/storefront/kit/reviews/Stars'
 import { BuyBox } from '@/storefront/kit/shop/BuyBox'
+import { HeartButton } from '@/storefront/kit/shop/HeartButton'
 import { SpecTable } from '@/storefront/kit/product/SpecTable'
 import { RichText } from '@/storefront/kit/RichText'
 import { Container, SectionHeading } from '@/storefront/kit/ui'
@@ -86,7 +89,12 @@ export default async function ProductPage({ params }: Props) {
     : []
   const pageUrl = `${ctx.origin}/products/${product.slug}`
   // A live scheme's price and badge; the cart and checkout price again on the server
-  const offers = buying ? await getStoreOffers(ctx.store.tenantId) : null
+  const storeFeatures = await getStoreOffers(ctx.store.tenantId)
+  const offers = buying ? storeFeatures : null
+  // Published reviews from buyers, when the store shows them (docs/screens Product page rule 11)
+  const reviews = storeFeatures.reviewsShown
+    ? await getProductReviews(ctx.store.tenantId, String(product.id))
+    : null
   const productCategories = [
     idOf(product.primaryCategory),
     ...(product.categories ?? []).map((c) => idOf(c)),
@@ -155,8 +163,27 @@ export default async function ProductPage({ params }: Props) {
           <h1 className="mt-1 font-heading text-2xl leading-tight font-bold sm:text-3xl">
             {product.title}
           </h1>
-          <p className="mt-2 text-sm text-ink-soft">
-            Model no. <span className="font-semibold text-ink">{product.modelNumber}</span>
+          <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-soft">
+            <span>
+              Model no. <span className="font-semibold text-ink">{product.modelNumber}</span>
+            </span>
+            {reviews?.count && product.rating?.average ? (
+              <a className="inline-flex items-center gap-1.5 hover:underline" href="#reviews">
+                <Stars value={product.rating.average} />
+                <span className="font-semibold text-ink">{product.rating.average.toFixed(1)}</span>
+                <span>
+                  {reviews.count} review{reviews.count === 1 ? '' : 's'}
+                </span>
+              </a>
+            ) : null}
+            {storeFeatures.wishlistOn ? (
+              <HeartButton
+                className="inline-flex items-center gap-1.5 rounded-card border border-line px-2.5 py-1 text-sm text-ink hover:border-ink/40"
+                label={product.title}
+                productId={String(product.id)}
+                withText
+              />
+            ) : null}
           </p>
           {product.shortDescription ? (
             <p className="mt-4 leading-relaxed text-ink-soft">{product.shortDescription}</p>
@@ -306,6 +333,14 @@ export default async function ProductPage({ params }: Props) {
         </div>
       </div>
 
+      {reviews?.count && product.rating?.average ? (
+        <ProductReviews
+          average={product.rating.average}
+          bars={reviews.bars}
+          count={reviews.count}
+          reviews={reviews.reviews}
+        />
+      ) : null}
       {related.length ? (
         <section className="mt-16">
           <SectionHeading>You may also like</SectionHeading>

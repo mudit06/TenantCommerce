@@ -49,6 +49,9 @@ export type StoreOffers = {
   couponsOn: boolean
   offerMessagesOn: boolean
   whatsappOffersOn: boolean
+  wishlistOn: boolean
+  /** Reviews on and shown on product pages (the store's setting) */
+  reviewsShown: boolean
   schemes: StoreScheme[]
   coupons: PublicCoupon[]
   /** Each category with the ones above it, for "covers Faucets" */
@@ -59,7 +62,9 @@ const load = (tenantId: string) =>
   unstable_cache(
     async (): Promise<StoreOffers> => {
       const payload = await getPayloadClient()
-      const { enabled } = await getTenantFeatures(payload, tenantId)
+      const { enabled, states } = await getTenantFeatures(payload, tenantId)
+      const reviewsConfig = states.find((f) => f.key === 'reviews')?.config as
+        { showOnProductPages?: boolean } | null | undefined
       const schemesOn = enabled.has('schemes')
       const couponsOn = enabled.has('coupons')
       const now = new Date().toISOString()
@@ -124,6 +129,8 @@ const load = (tenantId: string) =>
         couponsOn,
         offerMessagesOn: enabled.has('offer-messages'),
         whatsappOffersOn: enabled.has('whatsapp-offers'),
+        wishlistOn: enabled.has('wishlist'),
+        reviewsShown: enabled.has('reviews') && reviewsConfig?.showOnProductPages !== false,
         schemes: schemeDocs.docs.map((doc) => {
           // depth 1 for the landing page and banner; the rule wants plain ids
           const rule = schemeRule(doc)

@@ -24,6 +24,12 @@ export {
   whatsappStopped,
   type OfferChannel,
 } from './services/preferences'
+export {
+  PREPARED_KINDS,
+  queuePreparedEmail,
+  type PreparedEmail,
+  type PreparedKind,
+} from './services/prepared'
 export { loadSettings } from './services/settings'
 export { storeFacts, type StoreFacts } from './services/store'
 export {

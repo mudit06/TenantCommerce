@@ -113,7 +113,7 @@ const STORE_MENU: MenuSection[] = [
       soonItem('campaigns', 'Offer messages', 'mail', MARKETING, 'offer-messages'),
       soonItem('abandoned', 'Abandoned carts', 'cart', MARKETING, 'abandoned-cart'),
       soonItem('affiliates', 'Affiliates', 'link', MARKETING, 'affiliate'),
-      soonItem('reviews', 'Reviews', 'star', MARKETING, 'reviews'),
+      collectionItem('reviews', 'Reviews', 'star'),
     ],
   },
   {

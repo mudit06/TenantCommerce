@@ -83,6 +83,8 @@ export interface Config {
     schemes: Scheme;
     coupons: Coupon;
     'coupon-redemptions': CouponRedemption;
+    reviews: Review;
+    wishlists: Wishlist;
     'shipping-zones': ShippingZone;
     orders: Order;
     'order-events': OrderEvent;
@@ -140,6 +142,8 @@ export interface Config {
     schemes: SchemesSelect<false> | SchemesSelect<true>;
     coupons: CouponsSelect<false> | CouponsSelect<true>;
     'coupon-redemptions': CouponRedemptionsSelect<false> | CouponRedemptionsSelect<true>;
+    reviews: ReviewsSelect<false> | ReviewsSelect<true>;
+    wishlists: WishlistsSelect<false> | WishlistsSelect<true>;
     'shipping-zones': ShippingZonesSelect<false> | ShippingZonesSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
     'order-events': OrderEventsSelect<false> | OrderEventsSelect<true>;
@@ -200,6 +204,7 @@ export interface Config {
       'customers-cleanup': TaskCustomersCleanup;
       'switch-schemes': TaskSwitchSchemes;
       'scheme-stats': TaskSchemeStats;
+      'review-requests': TaskReviewRequests;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -986,6 +991,10 @@ export interface Product {
    */
   purchaseMode: 'buy' | 'enquire' | 'both';
   isFeatured?: boolean | null;
+  rating?: {
+    average?: number | null;
+    count?: number | null;
+  };
   lastEditedBy?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1606,6 +1615,59 @@ export interface CouponRedemption {
   };
   discountMinor?: number | null;
   status?: ('held' | 'used' | 'released') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reviews".
+ */
+export interface Review {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  product: string;
+  productTitle?: string | null;
+  variant?: string | null;
+  variantLabel?: string | null;
+  order: string;
+  orderNumber?: string | null;
+  orderItem: string;
+  customer?: string | null;
+  displayName: string;
+  city?: string | null;
+  rating: number;
+  title?: string | null;
+  body?: string | null;
+  photos?: (string | Media)[] | null;
+  status: 'pending' | 'published' | 'rejected';
+  rejectionReason?: ('abuse' | 'personal-data' | 'not-about-product' | 'spam' | 'duplicate') | null;
+  reply?: {
+    text?: string | null;
+    by?: string | null;
+    at?: string | null;
+  };
+  source?: ('account' | 'review-email') | null;
+  handledBy?: string | null;
+  publishedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wishlists".
+ */
+export interface Wishlist {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  customer: string;
+  items?:
+    | {
+        product: string;
+        variant?: string | null;
+        addedAt?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2287,7 +2349,7 @@ export interface NotificationLog {
   id: string;
   tenant?: (string | null) | Tenant;
   direction?: ('out' | 'in') | null;
-  kind?: ('order' | 'offer' | 'test' | 'staff' | 'reply') | null;
+  kind?: ('order' | 'offer' | 'test' | 'staff' | 'reply' | 'review' | 'cart') | null;
   milestone?: string | null;
   variant?: string | null;
   channel: 'email' | 'whatsapp' | 'sms';
@@ -2946,6 +3008,7 @@ export interface PayloadJob {
           | 'customers-cleanup'
           | 'switch-schemes'
           | 'scheme-stats'
+          | 'review-requests'
           | 'schedulePublish';
         taskID: string;
         input?:
@@ -2990,6 +3053,7 @@ export interface PayloadJob {
         | 'customers-cleanup'
         | 'switch-schemes'
         | 'scheme-stats'
+        | 'review-requests'
         | 'schedulePublish'
       )
     | null;
@@ -3078,6 +3142,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'coupon-redemptions';
         value: string | CouponRedemption;
+      } | null)
+    | ({
+        relationTo: 'reviews';
+        value: string | Review;
+      } | null)
+    | ({
+        relationTo: 'wishlists';
+        value: string | Wishlist;
       } | null)
     | ({
         relationTo: 'shipping-zones';
@@ -3405,6 +3477,12 @@ export interface ProductsSelect<T extends boolean = true> {
   status?: T;
   purchaseMode?: T;
   isFeatured?: T;
+  rating?:
+    | T
+    | {
+        average?: T;
+        count?: T;
+      };
   lastEditedBy?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -4098,6 +4176,59 @@ export interface CouponRedemptionsSelect<T extends boolean = true> {
       };
   discountMinor?: T;
   status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reviews_select".
+ */
+export interface ReviewsSelect<T extends boolean = true> {
+  tenant?: T;
+  product?: T;
+  productTitle?: T;
+  variant?: T;
+  variantLabel?: T;
+  order?: T;
+  orderNumber?: T;
+  orderItem?: T;
+  customer?: T;
+  displayName?: T;
+  city?: T;
+  rating?: T;
+  title?: T;
+  body?: T;
+  photos?: T;
+  status?: T;
+  rejectionReason?: T;
+  reply?:
+    | T
+    | {
+        text?: T;
+        by?: T;
+        at?: T;
+      };
+  source?: T;
+  handledBy?: T;
+  publishedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wishlists_select".
+ */
+export interface WishlistsSelect<T extends boolean = true> {
+  tenant?: T;
+  customer?: T;
+  items?:
+    | T
+    | {
+        product?: T;
+        variant?: T;
+        addedAt?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -5212,6 +5343,16 @@ export interface TaskSchemeStats {
   input?: unknown;
   output: {
     schemes: number;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskReview-requests".
+ */
+export interface TaskReviewRequests {
+  input?: unknown;
+  output: {
+    queued: number;
   };
 }
 /**

@@ -1765,3 +1765,54 @@ a.te-channel:hover {
     white-space: nowrap;
   }
 }
+
+// ---- Reviews ------------------------------------------------------------------------------
+
+.te-stars {
+  color: #c27803;
+  font-weight: 600;
+  letter-spacing: 1px;
+
+  &__off {
+    color: var(--te-line-strong);
+  }
+}
+
+.te-grow {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.te-review-body {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.te-review-photo {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--te-radius);
+  object-fit: cover;
+}
+
+.te-review-reply {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: var(--te-radius);
+  background: var(--te-subtle);
+  font-size: 13px;
+}
+
+.te-input--inline {
+  width: auto;
+  min-height: 32px;
+  padding: 4px 8px;
+}
+
+// Tabs that switch in place (Coupons, Reviews) look like the link tabs
+button.te-tab {
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
