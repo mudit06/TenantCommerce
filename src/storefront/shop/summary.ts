@@ -50,8 +50,12 @@ export type CheckoutSummary = {
     online: { available: boolean; testMode: boolean }
     cod: { available: boolean; reason: string | null; feeMinor: number }
   }
-  offers: { name: string; discountMinor: number }[]
+  offers: { name: string; discountMinor: number; kind: 'scheme' | 'coupon' }[]
+  /** The coupon on the cart, when it applies */
+  coupon: string | null
   couponProblem: string | null
+  /** Which of a scheme and the coupon was kept, when they don't combine */
+  offerNote: string | null
   problems: string[]
 }
 
@@ -114,10 +118,13 @@ export function summarize(quote: CheckoutQuote): CheckoutSummary {
       cod: quote.payment.cod,
     },
     offers: quote.promotions.appliedOffers.map((offer) => ({
-      name: offer.name,
+      name: offer.kind === 'coupon' ? `Coupon ${offer.code ?? offer.name}` : offer.name,
       discountMinor: offer.discountMinor,
+      kind: offer.kind,
     })),
+    coupon: quote.promotions.coupon?.code ?? null,
     couponProblem: quote.promotions.couponProblem,
+    offerNote: quote.promotions.note,
     problems: quote.problems,
   }
 }

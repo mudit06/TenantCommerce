@@ -4,6 +4,8 @@ import type { StoreContext } from '../../context'
 import { MenuIcon, PhoneIcon, SearchIcon, UserIcon, WhatsAppIcon } from '../icons'
 import { linkHref } from '../links'
 import { Img } from '../media'
+import { getStoreOffers, runningSchemes } from '@/lib/data/offers'
+
 import { CartLink } from '../shop/CartLink'
 import { buttonClass, Container } from '../ui'
 import { storeWhatsApp } from '../whatsapp'
@@ -30,24 +32,35 @@ function navItems(ctx: StoreContext): NavItem[] {
   }))
 }
 
-export function Header({ ctx }: { ctx: StoreContext }) {
+export async function Header({ ctx }: { ctx: StoreContext }) {
   const settings = ctx.settings
   const name = settings?.storeName ?? ctx.store.name
   const items = navItems(ctx)
   const phone = settings?.contact?.phone
   const whatsapp = storeWhatsApp(settings?.contact?.whatsapp, `Hello ${name}, I have a question.`)
-  const announcement = settings?.announcementBar?.enabled ? settings.announcementBar.text : null
+  // A live scheme's announcement comes first while it runs (docs/screens Scheme editor "On the
+  // store"), linking to its page; otherwise the store's own announcement bar
+  const offer = runningSchemes(await getStoreOffers(ctx.store.tenantId)).find(
+    (s) => s.announcementText,
+  )
+  const announcement = offer?.announcementText
+    ? offer.announcementText
+    : settings?.announcementBar?.enabled
+      ? settings.announcementBar.text
+      : null
+  const announcementHref = offer?.announcementText
+    ? offer.slug
+      ? `/offers/${offer.slug}`
+      : '/offers'
+    : settings?.announcementBar?.linkUrl
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-white/95 backdrop-blur">
       <div className="bg-dark text-xs text-white/90">
         <Container className="flex min-h-9 items-center justify-between gap-4">
           <p className="truncate">
             {announcement ? (
-              settings?.announcementBar?.linkUrl ? (
-                <a
-                  className="underline-offset-2 hover:underline"
-                  href={settings.announcementBar.linkUrl}
-                >
+              announcementHref ? (
+                <a className="underline-offset-2 hover:underline" href={announcementHref}>
                   {announcement}
                 </a>
               ) : (

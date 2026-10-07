@@ -392,6 +392,12 @@ field ([longitude, latitude], 2dsphere index) typed by staff until the pincode l
 
 ## Promotions (T, MVP, owned by the `promotions` module, rules in docs/11)
 
+**As built (7 October 2026):** `schemes` (versions on, for the editor's history; relationships to
+categories, products, banners and pages since they are edited in Payload's form), `coupons` and
+`coupon-redemptions` (plain ids for `scheme`, `affiliate`, `order` and `customer`: they are read
+and written inside the order's transaction). Coupons' `appliesTo` holds category or product ids
+as text. Merchandising collections (`appliesTo: collections`) are not built.
+
 ### schemes
 A time-bound offer that applies by itself, no code needed. `name` (L), `slug` (landing page
 `/offers/<slug>`), `occasion` (`diwali|holi|new-year|wedding-season|launch|custom`; Phase 2 adds

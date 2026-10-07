@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 
+import { getStoreOffers } from '@/lib/data/offers'
 import { quoteCheckout } from '@/modules/orders'
 import { getStoreContext } from '@/storefront/context'
 import { CartView } from '@/storefront/kit/shop/CartView'
@@ -18,10 +19,13 @@ export default async function CartPage({ params }: Props) {
   const quote = await quoteCheckout(payload, ctx.store.tenantId, {
     lines,
     pincode: cart?.pincode ?? null,
+    couponCode: cart?.couponCode ?? null,
   })
+  const offers = await getStoreOffers(ctx.store.tenantId)
   return (
     <Container className="py-6 sm:py-10">
       <CartView
+        coupons={offers.couponsOn ? offers.coupons : null}
         initialPincode={cart?.pincode ?? ''}
         selling={ctx.selling}
         summary={summarize(quote)}

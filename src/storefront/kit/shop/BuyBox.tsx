@@ -22,7 +22,11 @@ export type BuyVariant = {
   sku: string | null
   /** Pieces that can be bought now, or null when not tracked (backorders allowed) */
   available: number | null
+  /** A live scheme's price for one piece (docs/11 "Display") */
+  offerMinor?: number | null
 }
+
+export type BuyOffer = { badge: string | null; until: string | null; priceMinor: number | null }
 
 /**
  * The product page's buying block (docs/screens storefront `st-product`): finish and size with
@@ -39,6 +43,7 @@ export function BuyBox({
   pincodeCheck,
   quoteHref,
   whatsappHref,
+  offer,
 }: {
   productId: string
   axes: PickerAxis[]
@@ -49,6 +54,8 @@ export function BuyBox({
   pincodeCheck: boolean
   quoteHref: string | null
   whatsappHref: string | null
+  /** The product's live scheme: its badge and real end, and the price without a variant */
+  offer?: BuyOffer | null
 }) {
   const router = useRouter()
   const [chosen, setChosen] = useState<Record<string, string>>(() =>
@@ -70,8 +77,12 @@ export function BuyBox({
         : null,
     [variants, axes, chosen],
   )
-  const priceMinor = variant?.priceMinor ?? basePriceMinor
-  const mrpMinor = variant ? variant.mrpMinor : baseMrpMinor
+  const listMinor = variant?.priceMinor ?? basePriceMinor
+  const offerMinor = variants.length ? (variant?.offerMinor ?? null) : (offer?.priceMinor ?? null)
+  const priceMinor = offerMinor ?? listMinor
+  const listMrp = variant ? variant.mrpMinor : baseMrpMinor
+  // With an offer the struck price is the real MRP, else the usual price (docs/14)
+  const mrpMinor = offerMinor !== null ? (listMrp ?? listMinor) : listMrp
   const needsChoice = variants.length > 0 && !variant
   const available = variant?.available ?? null
   const soldOut = available === 0
@@ -83,7 +94,7 @@ export function BuyBox({
         v.options[axisCode] === value &&
         axes.every((a) => a.code === axisCode || v.options[a.code] === chosen[a.code]),
     )
-    return match?.priceMinor ?? null
+    return match ? (match.offerMinor ?? match.priceMinor) : null
   }
 
   const add = (thenCheckout: boolean) =>
@@ -118,6 +129,14 @@ export function BuyBox({
 
   return (
     <div className="space-y-5">
+      {offer?.badge ? (
+        <p className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="rounded-full bg-accent px-2.5 py-0.5 text-xs font-semibold text-white">
+            {offer.badge}
+          </span>
+          {offer.until ? <span className="text-ink-soft">Offer ends {offer.until}</span> : null}
+        </p>
+      ) : null}
       {priceMinor !== null ? (
         <Price amountMinor={priceMinor} mrpMinor={mrpMinor} showTaxNote size="lg" />
       ) : null}

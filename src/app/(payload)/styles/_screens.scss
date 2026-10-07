@@ -1582,3 +1582,186 @@ a.te-channel:hover {
 .te-messages--compact .te-messages__row {
   padding: 7px 0;
 }
+
+// ---- Schemes and coupons (stage C) -------------------------------------------------------
+
+.te-chip--button {
+  font: inherit;
+  font-size: 14px;
+  color: var(--te-text);
+
+  &:hover:not(:disabled) {
+    border-color: var(--te-brand);
+    background: var(--te-brand-soft);
+  }
+}
+
+.te-chip--locked {
+  cursor: default;
+  color: var(--te-text-3);
+  border-style: dashed;
+}
+
+.te-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  &__months,
+  &__row {
+    display: grid;
+    grid-template-columns: minmax(90px, 160px) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__months > div {
+    display: flex;
+    justify-content: space-between;
+    color: var(--te-text-3);
+    font-size: 12px;
+  }
+
+  &__months::after {
+    content: '';
+    width: 70px;
+  }
+
+  &__name {
+    overflow: hidden;
+    font-size: 13px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__track {
+    position: relative;
+    height: 14px;
+    border-radius: 999px;
+    background: var(--te-subtle);
+  }
+
+  &__bar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    border-radius: 999px;
+    background: var(--te-text-3);
+
+    &--live {
+      background: var(--te-success);
+    }
+
+    &--scheduled {
+      background: var(--te-warning);
+    }
+
+    &--paused {
+      background: var(--te-info);
+    }
+
+    &--draft {
+      background: repeating-linear-gradient(
+        45deg,
+        var(--te-text-3),
+        var(--te-text-3) 4px,
+        transparent 4px,
+        transparent 8px
+      );
+    }
+  }
+}
+
+.te-side-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 14px;
+  border: 1px solid var(--te-line);
+  border-radius: var(--style-radius-l);
+  background: var(--te-card);
+
+  &__title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--te-text-2);
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.te-preview-card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px;
+  border: 1px solid var(--te-line);
+  border-radius: var(--te-radius);
+
+  &__badge {
+    align-self: flex-start;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--te-warning-bg);
+    color: var(--te-warning);
+    font-size: 12px;
+    font-weight: 600;
+  }
+}
+
+.te-success-text {
+  color: var(--te-success);
+  font-weight: 600;
+}
+
+.te-history {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+
+  li + li {
+    margin-top: 6px;
+  }
+}
+
+.te-coupon-layout {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1fr);
+
+  @media (min-width: 1200px) {
+    grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+    align-items: start;
+  }
+}
+
+// Label and value on one line, wrapping long product names, in the narrow sidebar
+.te-side-card .te-dl {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+
+  > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  dt {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  dd {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+}

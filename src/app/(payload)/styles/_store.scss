@@ -15,6 +15,21 @@
   overflow: visible;
 }
 
+// On a phone a long breadcrumb (an edit page) gives way to the top bar instead of widening
+// the page
+@media (max-width: 640px) {
+  .app-header__controls-wrapper:has(.te-topbar) .app-header__step-nav-wrapper {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .app-header__controls-wrapper:has(.te-topbar) .step-nav {
+    width: auto;
+    min-width: 0;
+  }
+}
+
 .te-topbar {
   display: flex;
   align-items: center;

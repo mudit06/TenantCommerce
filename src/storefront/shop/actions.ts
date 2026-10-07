@@ -160,11 +160,13 @@ export async function previewCheckout(input: {
     if (!store) return { ok: false, message: CLOSED }
     const { payload, lines } = await currentCart(store.tenantId)
     const pincode = input.pincode && PINCODE_PATTERN.test(input.pincode) ? input.pincode : null
+    const { cart } = await currentCart(store.tenantId)
     const quote = await quoteCheckout(payload, store.tenantId, {
       lines,
       pincode,
       stateCode: input.stateCode ?? null,
       paymentMethod: input.paymentMethod ?? null,
+      couponCode: cart?.couponCode ?? null,
     })
     return { ok: true, data: summarize(quote) }
   } catch (error) {
@@ -213,8 +215,12 @@ export async function submitCheckout(input: {
     if (!allow(`checkout:${store.tenantId}:${meta.ip ?? 'local'}`, LIMITS.checkout)) {
       return { ok: false, message: 'Too many attempts. Please wait a few minutes and try again.' }
     }
-    const form = placeOrderSchema.parse(input.form)
     const { payload, lines, cart } = await currentCart(store.tenantId)
+    // The coupon comes from the cart (applied there), never from the browser's form
+    const form = placeOrderSchema.parse({
+      ...(input.form as object),
+      couponCode: cart?.couponCode || undefined,
+    })
     const key = String(input.idempotencyKey ?? '').slice(0, 80)
     const requestHash = createHash('sha256').update(JSON.stringify({ form, lines })).digest('hex')
 
@@ -378,6 +384,62 @@ export async function retryPayment(orderNumber: string): Promise<ShopResult<Plac
         },
       },
     }
+  } catch (error) {
+    return failure(error)
+  }
+}
+
+const COUPON_LIMIT = { max: 10, windowMs: 10 * 60_000 }
+
+/**
+ * "Apply" in the cart (docs/07 `POST /cart/coupon`): the server checks the code against this
+ * cart and keeps it only when it applies; otherwise it says why in plain words. Rate limited so
+ * codes can't be guessed.
+ */
+export async function applyCoupon(code: string): Promise<ShopResult<{ code: string }>> {
+  try {
+    const store = await currentStore()
+    if (!store) return { ok: false, message: CLOSED }
+    const { ip } = await visitorMeta()
+    if (!allow(`coupon:${store.tenantId}:${ip ?? 'local'}`, COUPON_LIMIT)) {
+      return { ok: false, message: 'Too many tries. Please wait a few minutes.' }
+    }
+    const typed = String(code ?? '')
+      .trim()
+      .slice(0, 40)
+    if (!typed) return { ok: false, message: 'Type a coupon code.' }
+    const { payload, lines, cart } = await currentCart(store.tenantId)
+    const token = await cartToken({ create: false })
+    if (!cart || !token || !lines.length)
+      return { ok: false, message: 'Add something to your cart first.' }
+    const quote = await quoteCheckout(payload, store.tenantId, {
+      lines,
+      pincode: cart.pincode ?? null,
+      couponCode: typed,
+    })
+    if (quote.promotions.couponProblem || !quote.promotions.coupon) {
+      return {
+        ok: false,
+        message: quote.promotions.couponProblem ?? 'This code isn’t valid in this store.',
+      }
+    }
+    await saveCart(payload, store.tenantId, token, lines, {
+      couponCode: quote.promotions.coupon.code,
+    })
+    return { ok: true, data: { code: quote.promotions.coupon.code } }
+  } catch (error) {
+    return failure(error)
+  }
+}
+
+export async function removeCoupon(): Promise<ShopResult<null>> {
+  try {
+    const store = await currentStore()
+    if (!store) return { ok: false, message: CLOSED }
+    const { payload, lines } = await currentCart(store.tenantId)
+    const token = await cartToken({ create: false })
+    if (token) await saveCart(payload, store.tenantId, token, lines, { couponCode: null })
+    return { ok: true, data: null }
   } catch (error) {
     return failure(error)
   }

@@ -69,6 +69,15 @@ import {
 // Endpoints load env and connectors, like the shipping ones below
 import { notificationEndpoints } from '@/modules/notifications/endpoints'
 import { paymentEndpoints, reconcilePaymentsTask, Refunds, Transactions } from '@/modules/payments'
+import {
+  CouponRedemptions,
+  Coupons,
+  promotionEndpoints,
+  registerPromotionEvents,
+  schemeStatsTask,
+  Schemes,
+  switchSchemesTask,
+} from '@/modules/promotions'
 import { Pincodes, Shipments, ShippingZones } from '@/modules/shipping'
 // Endpoints load env and connectors; kept out of the shipping index so its pure parts stay
 // importable from unit-tested code (orders' parcel rules)
@@ -92,6 +101,7 @@ registerContentEvents()
 registerTaxInvoicingEvents()
 registerNotificationEvents()
 registerCustomerEvents()
+registerPromotionEvents()
 
 /** A store's own data: its CMS screens only, and audited when our team changes it (docs/05). */
 const storeCollection = (collection: CollectionConfig) =>
@@ -215,6 +225,11 @@ export default buildConfig({
       Dealers,
     ].map((collection) => storeCollection(withStorefrontRevalidation(collection))),
     storeCollection(Enquiries),
+    // Growth (stage C): schemes are edited in Payload's form; coupons through their own screen.
+    // Both change store prices, so they clear the store's cached pages
+    storeCollection(withStorefrontRevalidation(Schemes)),
+    storeCollection(withStorefrontRevalidation(Coupons)),
+    storeScreen(CouponRedemptions),
     // Selling (stage B): orders and their records are written by services only, so the store
     // session audit wrapper is for the screens staff edit directly (shipping zones)
     storeCollection(ShippingZones),
@@ -252,6 +267,7 @@ export default buildConfig({
     ...shippingEndpoints,
     ...notificationEndpoints,
     ...customerEndpoints,
+    ...promotionEndpoints,
   ],
   jobs: {
     tasks: [
@@ -261,6 +277,8 @@ export default buildConfig({
       sendNotificationTask,
       cleanupNotificationLogsTask,
       cleanupCustomerAuthTask,
+      switchSchemesTask,
+      schemeStatsTask,
     ],
     // Long-running servers (local, Docker) run the queue themselves; on Vercel a cron hits
     // /api/payload-jobs/run instead (docs/15). `default` runs scheduled page publishing and
@@ -364,6 +382,9 @@ export default buildConfig({
         'customer-sessions': {},
         'login-codes': {},
         'privacy-requests': {},
+        schemes: {},
+        coupons: {},
+        'coupon-redemptions': {},
       },
       // Our team works across stores; support is read-only through access functions
       userHasAccessToAllTenants: (user) => isPlatformStaff(user),

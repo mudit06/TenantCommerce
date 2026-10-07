@@ -80,6 +80,9 @@ export interface Config {
     banners: Banner;
     dealers: Dealer;
     enquiries: Enquiry;
+    schemes: Scheme;
+    coupons: Coupon;
+    'coupon-redemptions': CouponRedemption;
     'shipping-zones': ShippingZone;
     orders: Order;
     'order-events': OrderEvent;
@@ -134,6 +137,9 @@ export interface Config {
     banners: BannersSelect<false> | BannersSelect<true>;
     dealers: DealersSelect<false> | DealersSelect<true>;
     enquiries: EnquiriesSelect<false> | EnquiriesSelect<true>;
+    schemes: SchemesSelect<false> | SchemesSelect<true>;
+    coupons: CouponsSelect<false> | CouponsSelect<true>;
+    'coupon-redemptions': CouponRedemptionsSelect<false> | CouponRedemptionsSelect<true>;
     'shipping-zones': ShippingZonesSelect<false> | ShippingZonesSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
     'order-events': OrderEventsSelect<false> | OrderEventsSelect<true>;
@@ -192,6 +198,8 @@ export interface Config {
       'notifications-send': TaskNotificationsSend;
       'notifications-cleanup': TaskNotificationsCleanup;
       'customers-cleanup': TaskCustomersCleanup;
+      'switch-schemes': TaskSwitchSchemes;
+      'scheme-stats': TaskSchemeStats;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -1433,6 +1441,171 @@ export interface Enquiry {
     utmMedium?: string | null;
     utmCampaign?: string | null;
   };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "schemes".
+ */
+export interface Scheme {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  name: string;
+  occasion?: ('diwali' | 'holi' | 'new-year' | 'wedding-season' | 'launch' | 'custom') | null;
+  startsAt: string;
+  endsAt: string;
+  /**
+   * The offer’s page is /offers/<this>. Times are India time.
+   */
+  slug?: string | null;
+  audience?: 'retail'[] | null;
+  offer: {
+    type: 'percent' | 'fixed' | 'tiered' | 'buy-x-get-y' | 'free-shipping' | 'special-price';
+    percent?: number | null;
+    amountMinor?: number | null;
+    buyQty?: number | null;
+    getQty?: number | null;
+    /**
+     * 100 means free
+     */
+    getDiscountPercent?: number | null;
+    tiers?:
+      | {
+          minOrderMinor?: number | null;
+          discountMinor?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * The MRP shown stays the product’s real MRP (docs/14).
+     */
+    specialPrices?:
+      | {
+          product: string | Product;
+          variant?: (string | null) | Variant;
+          priceMinor?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+    maxDiscountMinor?: number | null;
+    /**
+     * The cart’s value before discounts
+     */
+    minOrderMinor?: number | null;
+  };
+  /**
+   * Enquire-only products are always left out.
+   */
+  appliesTo?: {
+    mode?: ('all' | 'categories' | 'products') | null;
+    /**
+     * Subcategories are included
+     */
+    categories?: (string | Category)[] | null;
+    products?: (string | Product)[] | null;
+    excludeProducts?: (string | Product)[] | null;
+  };
+  rules?: {
+    combinesWithCoupons?: boolean | null;
+    prepaidOnly?: boolean | null;
+    /**
+     * Empty: no limit. Checked by phone and email.
+     */
+    perCustomerLimit?: number | null;
+    /**
+     * Breaks a tie when two schemes give the same price
+     */
+    priority?: number | null;
+  };
+  display?: {
+    badgeText?: string | null;
+    announcementText?: string | null;
+    banner?: (string | null) | Banner;
+    /**
+     * Or let the store list the products
+     */
+    landingPage?: (string | null) | Page;
+    showBeforeStart?: boolean | null;
+    showCountdown?: boolean | null;
+  };
+  /**
+   * An offer message to shoppers who agreed to offers, when it starts.
+   */
+  messages?: {
+    announceEmail?: boolean | null;
+    announceWhatsApp?: boolean | null;
+    campaign?: string | null;
+  };
+  status: 'draft' | 'scheduled' | 'live' | 'paused' | 'ended';
+  stats?: {
+    orders?: number | null;
+    salesMinor?: number | null;
+    discountMinor?: number | null;
+    updatedAt?: string | null;
+  };
+  endedAt?: string | null;
+  lastEditedBy?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coupons".
+ */
+export interface Coupon {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  code: string;
+  codeNormalized: string;
+  description?: string | null;
+  type: 'percent' | 'fixed' | 'free-shipping';
+  percent?: number | null;
+  amountMinor?: number | null;
+  minOrderMinor?: number | null;
+  maxDiscountMinor?: number | null;
+  appliesTo?: {
+    mode?: ('all' | 'categories' | 'products') | null;
+    categories?: string[] | null;
+    products?: string[] | null;
+  };
+  startsAt?: string | null;
+  endsAt?: string | null;
+  usageLimit?: number | null;
+  perCustomerLimit?: number | null;
+  usedCount?: number | null;
+  firstOrderOnly?: boolean | null;
+  paymentMethods?: ('razorpay' | 'cod')[] | null;
+  visibility?: ('public' | 'private') | null;
+  scheme?: string | null;
+  affiliate?: string | null;
+  batch?: {
+    id?: string | null;
+    prefix?: string | null;
+    count?: number | null;
+  };
+  status?: ('active' | 'paused' | 'expired') | null;
+  lastEditedBy?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coupon-redemptions".
+ */
+export interface CouponRedemption {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  coupon: string;
+  code?: string | null;
+  order: string;
+  customer?: string | null;
+  contact?: {
+    email?: string | null;
+    phone?: string | null;
+  };
+  discountMinor?: number | null;
+  status?: ('held' | 'used' | 'released') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2771,6 +2944,8 @@ export interface PayloadJob {
           | 'notifications-send'
           | 'notifications-cleanup'
           | 'customers-cleanup'
+          | 'switch-schemes'
+          | 'scheme-stats'
           | 'schedulePublish';
         taskID: string;
         input?:
@@ -2813,6 +2988,8 @@ export interface PayloadJob {
         | 'notifications-send'
         | 'notifications-cleanup'
         | 'customers-cleanup'
+        | 'switch-schemes'
+        | 'scheme-stats'
         | 'schedulePublish'
       )
     | null;
@@ -2889,6 +3066,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'enquiries';
         value: string | Enquiry;
+      } | null)
+    | ({
+        relationTo: 'schemes';
+        value: string | Scheme;
+      } | null)
+    | ({
+        relationTo: 'coupons';
+        value: string | Coupon;
+      } | null)
+    | ({
+        relationTo: 'coupon-redemptions';
+        value: string | CouponRedemption;
       } | null)
     | ({
         relationTo: 'shipping-zones';
@@ -3759,6 +3948,156 @@ export interface EnquiriesSelect<T extends boolean = true> {
         utmMedium?: T;
         utmCampaign?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "schemes_select".
+ */
+export interface SchemesSelect<T extends boolean = true> {
+  tenant?: T;
+  name?: T;
+  occasion?: T;
+  startsAt?: T;
+  endsAt?: T;
+  slug?: T;
+  audience?: T;
+  offer?:
+    | T
+    | {
+        type?: T;
+        percent?: T;
+        amountMinor?: T;
+        buyQty?: T;
+        getQty?: T;
+        getDiscountPercent?: T;
+        tiers?:
+          | T
+          | {
+              minOrderMinor?: T;
+              discountMinor?: T;
+              id?: T;
+            };
+        specialPrices?:
+          | T
+          | {
+              product?: T;
+              variant?: T;
+              priceMinor?: T;
+              id?: T;
+            };
+        maxDiscountMinor?: T;
+        minOrderMinor?: T;
+      };
+  appliesTo?:
+    | T
+    | {
+        mode?: T;
+        categories?: T;
+        products?: T;
+        excludeProducts?: T;
+      };
+  rules?:
+    | T
+    | {
+        combinesWithCoupons?: T;
+        prepaidOnly?: T;
+        perCustomerLimit?: T;
+        priority?: T;
+      };
+  display?:
+    | T
+    | {
+        badgeText?: T;
+        announcementText?: T;
+        banner?: T;
+        landingPage?: T;
+        showBeforeStart?: T;
+        showCountdown?: T;
+      };
+  messages?:
+    | T
+    | {
+        announceEmail?: T;
+        announceWhatsApp?: T;
+        campaign?: T;
+      };
+  status?: T;
+  stats?:
+    | T
+    | {
+        orders?: T;
+        salesMinor?: T;
+        discountMinor?: T;
+        updatedAt?: T;
+      };
+  endedAt?: T;
+  lastEditedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coupons_select".
+ */
+export interface CouponsSelect<T extends boolean = true> {
+  tenant?: T;
+  code?: T;
+  codeNormalized?: T;
+  description?: T;
+  type?: T;
+  percent?: T;
+  amountMinor?: T;
+  minOrderMinor?: T;
+  maxDiscountMinor?: T;
+  appliesTo?:
+    | T
+    | {
+        mode?: T;
+        categories?: T;
+        products?: T;
+      };
+  startsAt?: T;
+  endsAt?: T;
+  usageLimit?: T;
+  perCustomerLimit?: T;
+  usedCount?: T;
+  firstOrderOnly?: T;
+  paymentMethods?: T;
+  visibility?: T;
+  scheme?: T;
+  affiliate?: T;
+  batch?:
+    | T
+    | {
+        id?: T;
+        prefix?: T;
+        count?: T;
+      };
+  status?: T;
+  lastEditedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "coupon-redemptions_select".
+ */
+export interface CouponRedemptionsSelect<T extends boolean = true> {
+  tenant?: T;
+  coupon?: T;
+  code?: T;
+  order?: T;
+  customer?: T;
+  contact?:
+    | T
+    | {
+        email?: T;
+        phone?: T;
+      };
+  discountMinor?: T;
+  status?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -4853,6 +5192,26 @@ export interface TaskCustomersCleanup {
   input?: unknown;
   output: {
     deleted: number;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskSwitch-schemes".
+ */
+export interface TaskSwitchSchemes {
+  input?: unknown;
+  output: {
+    changed: number;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskScheme-stats".
+ */
+export interface TaskSchemeStats {
+  input?: unknown;
+  output: {
+    schemes: number;
   };
 }
 /**

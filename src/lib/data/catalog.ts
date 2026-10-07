@@ -74,6 +74,8 @@ export type ProductCardData = Pick<
   | 'compareAtPrice'
 > & {
   primaryCategory: string | null
+  /** Main category first, then "also show in": what a scheme on a category covers */
+  categoryIds: string[]
 }
 
 const CARD_SELECT = {
@@ -105,6 +107,9 @@ const toCard = (doc: Product): ProductCardData => ({
   price: doc.price,
   compareAtPrice: doc.compareAtPrice,
   primaryCategory: idOf(doc.primaryCategory),
+  categoryIds: [idOf(doc.primaryCategory), ...(doc.categories ?? []).map((c) => idOf(c))].filter(
+    (id): id is string => Boolean(id),
+  ),
 })
 
 /** Every live product in these categories (main or "also show in"), newest first. */
@@ -239,4 +244,35 @@ export const getDownloads = (tenantId: string, type?: string | null, limit = 24)
       overrideAccess: true,
     })
     return docs
+  })
+
+/** Live products by id or category, for an offer's landing page (docs/screens Offers page). */
+export const getProductsFor = (
+  tenantId: string,
+  filter: { productIds?: string[]; categoryIds?: string[]; excludeIds?: string[] },
+  limit = 48,
+) =>
+  cached(tenantId, ['for', filter, limit], async () => {
+    const payload = await getPayloadClient()
+    const and: Where[] = [{ purchaseMode: { not_equals: 'enquire' } }]
+    if (filter.productIds) and.push({ id: { in: filter.productIds } })
+    if (filter.categoryIds) {
+      and.push({
+        or: [
+          { primaryCategory: { in: filter.categoryIds } },
+          { categories: { in: filter.categoryIds } },
+        ],
+      })
+    }
+    if (filter.excludeIds?.length) and.push({ id: { not_in: filter.excludeIds } })
+    const { docs } = await payload.find({
+      collection: 'products',
+      where: liveProducts(tenantId, { and }),
+      depth: 1,
+      sort: '-createdAt',
+      limit,
+      overrideAccess: true,
+      select: CARD_SELECT,
+    })
+    return docs.map((doc) => toCard(doc as Product))
   })

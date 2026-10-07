@@ -88,6 +88,17 @@ Rules:
   badge and, when `showCountdown` is on, the real end time. Spend tiers and buy X get Y show as a
   label, since the price depends on the cart.
 
+**As built (7 October 2026):** `src/modules/promotions/rules.ts` (pure, `tests/unit/promotions.test.ts`)
+and `services/engine.ts`. Each line first gets the scheme that takes most off it; spend tiers
+and buy X get Y are then worked out again on the lines they won. A launch price is applied as a
+scheme discount on the line (unit price minus the launch price), which gives the same net and
+GST as replacing the unit price and keeps the scheme visible on the invoice. A scheme's minimum
+order is the cart's value before discounts; a coupon's is after schemes. When a scheme that
+doesn't combine with coupons is on the cart, the engine prices both ways and keeps the one that
+saves the shopper more, and the cart says which. The coupon comes from the cart at checkout,
+never from the browser's form; its use is counted with a conditional `$inc` inside the order's
+transaction and released on cancel (`coupon-redemptions`).
+
 ## Affiliate commissions (MVP)
 
 - **Attribution.** At checkout the order is referred when the shopper used an affiliate's coupon,

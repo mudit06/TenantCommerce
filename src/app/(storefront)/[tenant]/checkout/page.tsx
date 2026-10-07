@@ -24,6 +24,7 @@ export default async function CheckoutPage({ params }: Props) {
   const quote = await quoteCheckout(payload, ctx.store.tenantId, {
     lines,
     pincode: cart?.pincode ?? null,
+    couponCode: cart?.couponCode ?? null,
   })
   // "Send me order updates on WhatsApp" is ticked unless the store chose otherwise (docs/18)
   const { whatsappOptInDefault } = await loadSettings(payload, ctx.store.tenantId)

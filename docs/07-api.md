@@ -74,6 +74,15 @@ Cart identified by `cart_id` HTTP-only cookie (anonymous) or the logged-in custo
 Every cart response carries `appliedOffers[]` (scheme and coupon, with the amount each takes off)
 and `lines[].discountMinor`, all worked out by the server (docs/11).
 
+**As built (7 October 2026):** the cart's coupon box uses server actions `applyCoupon(code)` and
+`removeCoupon()` (`src/storefront/shop/actions.ts`, 10 tries per 10 minutes per IP); the code is
+kept on the cart and checkout reads it from there. Staff side: `POST /api/admin/v1/schemes/new`
+`{ occasion }`, `POST /api/admin/v1/schemes/:id/status` `{ action: schedule|pause|resume|end }`,
+`GET /api/admin/v1/schemes/:id/preview`, `POST /api/admin/v1/coupons` and `/coupons/:id`,
+`POST /api/admin/v1/coupons/:id/pause` `{ paused }`, `POST /api/admin/v1/coupons/bulk`
+`{ basedOn, prefix, count }`, `GET /api/admin/v1/coupons/batch/:batchId` (CSV); every one takes
+`?store=`.
+
 ### Checkout and payment
 | Method | Path | Purpose |
 |---|---|---|

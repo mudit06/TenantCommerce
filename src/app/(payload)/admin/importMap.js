@@ -34,6 +34,10 @@ import { TemplatePicker as TemplatePicker_c9fbc0d315486c6d3de274320b8f72e2 } fro
 import { PagesList as PagesList_5570c1b6487639aeea2bcd13f189e1c8 } from '@/modules/content/admin/PagesList'
 import { EnquiryReply as EnquiryReply_8f24c2d5a57c2425b5946afe706c8c83 } from '@/modules/enquiries/admin/EnquiryReply'
 import { EnquiryTabs as EnquiryTabs_9803cf84d1475965cbc1c1d1a58d99de } from '@/modules/enquiries/admin/EnquiryTabs'
+import { SchemeStatus as SchemeStatus_adc3f21dcc713be2c10b9efb9ce5c474 } from '@/modules/promotions/admin/SchemeStatus'
+import { SchemeSidebar as SchemeSidebar_3ed80a1ba27c82e0647c305f0f90be90 } from '@/modules/promotions/admin/SchemeSidebar'
+import { SchemesList as SchemesList_1e6be9fbde0fdcb134f9e55c83cd76da } from '@/modules/promotions/admin/SchemesList'
+import { CouponsView as CouponsView_d0dd40df76c41bcff97b15430c38f366 } from '@/modules/promotions/admin/CouponsView'
 import { OrderDetail as OrderDetail_856150d4a97bd8954bda8b0c2e915e8d } from '@/modules/orders/admin/OrderDetail'
 import { OrdersList as OrdersList_a257406c88338e4b8e903eb62a324497 } from '@/modules/orders/admin/OrdersList'
 import { CustomersList as CustomersList_afe24c569eec781c9581b0760684f917 } from '@/modules/customers/admin/CustomersList'
@@ -109,6 +113,10 @@ export const importMap = {
   "@/modules/content/admin/PagesList#PagesList": PagesList_5570c1b6487639aeea2bcd13f189e1c8,
   "@/modules/enquiries/admin/EnquiryReply#EnquiryReply": EnquiryReply_8f24c2d5a57c2425b5946afe706c8c83,
   "@/modules/enquiries/admin/EnquiryTabs#EnquiryTabs": EnquiryTabs_9803cf84d1475965cbc1c1d1a58d99de,
+  "@/modules/promotions/admin/SchemeStatus#SchemeStatus": SchemeStatus_adc3f21dcc713be2c10b9efb9ce5c474,
+  "@/modules/promotions/admin/SchemeSidebar#SchemeSidebar": SchemeSidebar_3ed80a1ba27c82e0647c305f0f90be90,
+  "@/modules/promotions/admin/SchemesList#SchemesList": SchemesList_1e6be9fbde0fdcb134f9e55c83cd76da,
+  "@/modules/promotions/admin/CouponsView#CouponsView": CouponsView_d0dd40df76c41bcff97b15430c38f366,
   "@/modules/orders/admin/OrderDetail#OrderDetail": OrderDetail_856150d4a97bd8954bda8b0c2e915e8d,
   "@/modules/orders/admin/OrdersList#OrdersList": OrdersList_a257406c88338e4b8e903eb62a324497,
   "@/modules/customers/admin/CustomersList#CustomersList": CustomersList_afe24c569eec781c9581b0760684f917,

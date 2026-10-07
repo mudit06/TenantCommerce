@@ -323,7 +323,10 @@ export async function quoteCheckout(
       key: line.key,
       productId: line.productId,
       variantId: line.variantId,
-      categoryIds: ((catalog.products.get(line.productId)?.categories ?? []) as unknown[])
+      categoryIds: [
+        catalog.products.get(line.productId)?.primaryCategory,
+        ...((catalog.products.get(line.productId)?.categories ?? []) as unknown[]),
+      ]
         .map((c) => idOf(c))
         .filter((c): c is string => Boolean(c)),
       qty: line.qty,

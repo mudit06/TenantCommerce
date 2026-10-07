@@ -17,6 +17,7 @@ export {
   customerOrders,
   deleteAddress,
   hasPassword,
+  indianMobile,
   loginWithPassword,
   passwordSchema,
   profileSchema,

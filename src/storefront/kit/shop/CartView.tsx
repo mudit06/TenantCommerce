@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 
+import type { PublicCoupon } from '@/lib/data/offers'
 import type { SellingInfo } from '@/lib/data/store'
 import { formatINR } from '@/lib/money'
 import { checkDelivery, updateCartLine } from '@/storefront/shop/actions'
@@ -12,6 +13,7 @@ import type { CheckoutSummary } from '@/storefront/shop/summary'
 import { TruckIcon } from '../icons'
 import { buttonClass } from '../ui'
 import { announceCartChange } from './CartLink'
+import { CouponBox } from './CouponBox'
 import { Price } from './Price'
 import { QtyStepper } from './QtyStepper'
 
@@ -84,10 +86,13 @@ export function CartView({
   summary,
   selling,
   initialPincode,
+  coupons,
 }: {
   summary: CheckoutSummary
   selling: SellingInfo
   initialPincode: string
+  /** Public codes when the store's coupons are on; null when it has none */
+  coupons: PublicCoupon[] | null
 }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
@@ -242,6 +247,17 @@ export function CartView({
             <p className="mt-3 text-sm text-red-700" role="alert">
               {error}
             </p>
+          ) : null}
+          {coupons ? (
+            <div className="mt-4 border-t border-line">
+              <CouponBox
+                applied={summary.coupon}
+                coupons={coupons}
+                note={summary.offerNote}
+                problem={summary.couponProblem}
+                subtotalMinor={summary.totals.itemsMinor - summary.totals.discountMinor}
+              />
+            </div>
           ) : null}
         </div>
 

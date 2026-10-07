@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
+import { idOf } from '@/access'
+import { getStoreOffers, offerForProduct } from '@/lib/data/offers'
 import { getProductBySlug, getProductsInCategories } from '@/lib/data/catalog'
 import { variantAxes } from '@/modules/catalog'
 import { whatsappNumber } from '@/modules/enquiries'
@@ -83,6 +85,20 @@ export default async function ProductPage({ params }: Props) {
         .slice(0, 4)
     : []
   const pageUrl = `${ctx.origin}/products/${product.slug}`
+  // A live scheme's price and badge; the cart and checkout price again on the server
+  const offers = buying ? await getStoreOffers(ctx.store.tenantId) : null
+  const productCategories = [
+    idOf(product.primaryCategory),
+    ...(product.categories ?? []).map((c) => idOf(c)),
+  ].filter((id): id is string => Boolean(id))
+  const productOffer = offers
+    ? offerForProduct(offers, {
+        id: product.id,
+        categoryIds: productCategories,
+        priceMinor: product.price?.amountMinor ?? null,
+        purchaseMode: product.purchaseMode,
+      })
+    : null
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -101,7 +117,7 @@ export default async function ProductPage({ params }: Props) {
             '@type': 'Offer',
             url: pageUrl,
             priceCurrency: 'INR',
-            price: (product.price.amountMinor / 100).toFixed(2),
+            price: ((productOffer?.priceMinor ?? product.price.amountMinor) / 100).toFixed(2),
             availability:
               variants.length === 0 ||
               variants.some((v) => v.allowBackorder || (v.stockQty ?? 0) - (v.reservedQty ?? 0) > 0)
@@ -170,6 +186,7 @@ export default async function ProductPage({ params }: Props) {
                 modelNumber={product.modelNumber}
                 pincodeCheck={ctx.hasFeature('pincode-check')}
                 productId={String(product.id)}
+                offer={productOffer}
                 quoteHref={
                   ctx.hasFeature('enquiries') && product.purchaseMode === 'both' ? '#quote' : null
                 }
@@ -188,6 +205,15 @@ export default async function ProductPage({ params }: Props) {
                   available: v.allowBackorder
                     ? null
                     : Math.max(0, (v.stockQty ?? 0) - (v.reservedQty ?? 0)),
+                  offerMinor: offers
+                    ? (offerForProduct(offers, {
+                        id: product.id,
+                        variantId: String(v.id),
+                        categoryIds: productCategories,
+                        priceMinor: v.price?.amountMinor ?? product.price?.amountMinor ?? null,
+                        purchaseMode: product.purchaseMode,
+                      })?.priceMinor ?? null)
+                    : null,
                 }))}
                 whatsappHref={
                   whatsappNumber(ctx.settings?.contact?.whatsapp)

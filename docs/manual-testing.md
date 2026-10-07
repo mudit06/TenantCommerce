@@ -385,6 +385,32 @@ queue runs every minute).
       store's number; replies show on the order, STOP and START switch updates off and on, and
       any other reply gets one automatic answer a day with the store's phone and email.
 
+### 2.11 Schemes, coupons and offers
+
+As Home Orbit's owner (the store needs a price on a few products: `pnpm demo:selling home-orbit`):
+
+- [ ] Marketing → **Schemes and offers**: press **Diwali** under "Start from an occasion". The
+      editor opens a draft "Diwali 2026" with its badge. Set **Starts** to a minute ago and
+      **Ends** to next week, Offer **Percent off** 10, Most off per order 1500, Covers **Whole
+      store**, an Announcement bar text, then **Save**. In the sidebar press **Schedule**: it
+      reads **Live**; Preview shows a product card at the offer price and a sample cart.
+- [ ] On the store: the top bar shows the announcement; product cards show the badge, the offer
+      price, the MRP struck through and "until <date>"; the product page says "Offer ends". Add
+      an item: the cart shows "Diwali 2026 − ₹…" under Discounts.
+- [ ] **Coupons → + New coupon**: `HOME200`, Amount off 200, Minimum order 1000, tick "Show at
+      the cart and on the Offers page", **Save**. In the cart, type `nope`: "This code isn’t
+      valid in this store." The HOME200 card says "Add ₹… more" until the cart passes ₹1,000;
+      then **Apply**. With the Diwali scheme live (not with coupons), the cart says which one it
+      kept and why. Remove the coupon.
+- [ ] **Make bulk codes** (prefix WED, 5, based on HOME200): a CSV downloads and the list shows
+      one "WED-••••••" row with "0 / 5".
+- [ ] Open **/offers** on the store: the live scheme with its end and time left, the HOME200
+      code with Copy, and the sign-up. Open **/offers/diwali-2026**: the products with offer
+      prices.
+- [ ] Back in the editor press **End now**: the store's prices go back, the announcement goes,
+      and **/offers/diwali-2026** says the offer has ended.
+- [ ] As an order manager: Schemes and Coupons show without any buttons.
+
 ## 3. Storefront (what shoppers see)
 
 http://home-orbit.localhost:3000 . Check it twice: on a normal desktop window, and as a phone
@@ -642,7 +668,7 @@ Uploaded files stay in `media/`; delete that folder too for a completely clean s
 ## Not built yet (so don't test these)
 
 - SMS updates (later), returns
-- Offers, coupons, reviews, wishlist, affiliates (stage C)
+- Reviews, wishlist, offer messages, abandoned carts, affiliates (stage C)
 - CSV import, the dealer locator page, the PWA "install app" and offline page
 - Two-step login (deferred)
 - Real emails: locally they are printed in the `pnpm dev` terminal
