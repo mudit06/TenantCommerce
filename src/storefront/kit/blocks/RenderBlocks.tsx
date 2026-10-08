@@ -349,7 +349,7 @@ async function renderBlock(block: Block, ctx: StoreContext, index: number) {
               </h2>
               {block.text ? <p className="mt-2 max-w-2xl text-white/80">{block.text}</p> : null}
             </div>
-            <ButtonLink href="/contact">{block.buttonLabel ?? 'Find a dealer'}</ButtonLink>
+            <ButtonLink href="/dealers">{block.buttonLabel ?? 'Find a dealer'}</ButtonLink>
           </Container>
         </section>
       )

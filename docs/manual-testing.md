@@ -646,6 +646,17 @@ In the CMS as the owner, **Sales → Customers**:
 - [ ] As an order manager or support login: Customers shows the list without the request
       buttons.
 
+### 3.9 Dealer locator and downloads
+
+- [ ] Add two or three dealers in CMS → Store → **Dealers** with a pincode and map position (from
+      Google Maps). Open **/dealers**, type a pincode and **Search**: the nearest come first with
+      km; **Use my location** asks the browser and sorts by your distance; the type chips filter;
+      **Call**, **WhatsApp** and **Directions** open the phone or Google Maps; **Map** shows the
+      chosen dealer. A city with no dealer says so and lists everyone.
+- [ ] Add documents in Catalog → **Documents** (PDF, kind, "Show on the Downloads page") and link
+      one to a product. Open **/downloads**: tabs by kind, search by the product's name or model
+      number, **Download** opens the PDF.
+
 ## 4. Enquiries inbox (vendor CMS)
 
 Back in the owner's private window.
@@ -743,7 +754,7 @@ Uploaded files stay in `media/`; delete that folder too for a completely clean s
 - SMS updates (later), returns
 - Affiliate statement PDFs (the statement is emailed as text)
 - WhatsApp offer messages and cart reminders (they need Meta-approved marketing templates)
-- CSV import, the dealer locator page, the PWA "install app" and offline page
+- CSV import, the PWA "install app" and offline page
 - Two-step login (deferred)
 - Real emails: locally they are printed in the `pnpm dev` terminal
 - Custom domains: locally every store is `<slug>.localhost:3000`

@@ -249,6 +249,70 @@ export const getDownloads = (tenantId: string, type?: string | null, limit = 24)
     return docs
   })
 
+export type DownloadRow = {
+  id: string
+  title: string
+  type: string
+  url: string
+  sizeBytes: number | null
+  updatedAt: string
+  /** Product names and model numbers it belongs to, for search */
+  products: string[]
+}
+
+/** Every document on the Downloads page, with the products it belongs to (`st-downloads`). */
+export const getDownloadsPage = (tenantId: string): Promise<DownloadRow[]> =>
+  cached(tenantId, ['downloads-page'], async () => {
+    const payload = await getPayloadClient()
+    const [{ docs }, { docs: products }] = await Promise.all([
+      payload.find({
+        collection: 'product-documents',
+        where: {
+          and: [{ tenant: { equals: tenantId } }, { showOnDownloadsPage: { not_equals: false } }],
+        },
+        sort: '-updatedAt',
+        depth: 1,
+        limit: 1000,
+        pagination: false,
+        overrideAccess: true,
+      }),
+      payload.find({
+        collection: 'products',
+        where: liveProducts(tenantId, { documents: { exists: true } }),
+        depth: 0,
+        limit: 5000,
+        pagination: false,
+        overrideAccess: true,
+        select: { title: true, modelNumber: true, documents: true },
+      }),
+    ])
+    const productsOf = new Map<string, string[]>()
+    for (const p of products) {
+      for (const d of p.documents ?? []) {
+        const id = String(idOf(d))
+        productsOf.set(id, [
+          ...(productsOf.get(id) ?? []),
+          [p.title, p.modelNumber].filter(Boolean).join(' '),
+        ])
+      }
+    }
+    return docs.flatMap((doc) => {
+      const file = typeof doc.file === 'object' ? doc.file : null
+      if (!file?.url) return []
+      return [
+        {
+          id: String(doc.id),
+          title: doc.title,
+          type: doc.type,
+          url: file.url,
+          sizeBytes: file.filesize ?? null,
+          updatedAt: file.updatedAt ?? doc.updatedAt,
+          products: productsOf.get(String(doc.id)) ?? [],
+        },
+      ]
+    })
+  })
+
 /** Live products by id or category, for an offer's landing page (docs/screens Offers page). */
 export const getProductsFor = (
   tenantId: string,
