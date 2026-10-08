@@ -14,6 +14,7 @@ import { fieldSuperAdminOnly, isPlatformStaff, TENANT_ROLE_LABELS, TENANT_ROLES 
 import { platformScreen, storeScreen } from '@/admin/workspace'
 import { ConnectorConfigs, connectorEndpoints } from '@/connectors'
 import { withStorefrontRevalidation } from '@/hooks/revalidateStorefront'
+import { categoryPath, pagePath, productPath, withSlugRedirects } from '@/hooks/slugRedirects'
 import { withStoreSessionAudit } from '@/hooks/storeSessionAudit'
 import { devLogEmailAdapter } from '@/lib/email/devLog'
 import { env } from '@/lib/env'
@@ -32,6 +33,7 @@ import {
   Media,
   Navigation,
   Pages,
+  Redirects,
   registerContentEvents,
   SiteSettings,
 } from '@/modules/content'
@@ -235,14 +237,15 @@ export default buildConfig({
     // Shown in a store's CMS only; our team opens them through a store session (docs/05).
     ...[
       SiteSettings,
-      Products,
+      withSlugRedirects(Products, productPath),
       Variants,
-      Categories,
+      withSlugRedirects(Categories, categoryPath),
       AttributeSets,
       Brands,
       ProductDocuments,
       Media,
-      Pages,
+      withSlugRedirects(Pages, pagePath),
+      Redirects,
       Navigation,
       Banners,
       Dealers,
@@ -394,6 +397,7 @@ export default buildConfig({
         'product-documents': {},
         media: {},
         pages: {},
+        redirects: {},
         banners: {},
         enquiries: {},
         dealers: {},

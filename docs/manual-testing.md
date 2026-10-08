@@ -277,6 +277,14 @@ Store → Store settings, tab **Contact**.
 - [ ] Content → Banners is empty for Home Orbit: its three banners (soap dispenser, towel rack,
       towel rings) sit on the home page as page blocks. Add a banner here to try the list.
 
+### 2.5a Redirects
+
+- [ ] Change a live product's slug (Product editor → slug) and save. Open the old address
+      `/products/<old-slug>`: it goes to the new one. Content → **Redirects** lists it.
+- [ ] Add a redirect by hand from `/old-site/catalogue.html` to `/c/<a category>` and open the old
+      address on the store: it lands on the category. An address with no page and no redirect
+      shows the 404 page.
+
 ### 2.6 Dealers
 
 - [ ] Store → Dealers: add a dealer (name, city, pincode, phone) and Save. The dashboard's

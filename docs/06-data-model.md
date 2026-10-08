@@ -223,6 +223,12 @@ production (local disk in development); the database stores metadata only (docs/
 ### redirects, forms, form-submissions
 From the official plugins, tenant-scoped.
 
+**As built (9 October 2026):** `redirects` is our own collection in the `content` module (no
+plugin): `from` and `to` (store paths, no trailing slash), `reason` (`manual` or `slug-change`),
+unique `(tenant, from)`. `src/hooks/slugRedirects.ts` adds one when a product, category (its
+breadcrumb address) or page changes address, collapsing chains. Forms are not built (enquiries
+cover them).
+
 ## Customers (T)
 
 **As built (7 October 2026, ADR 0003):** the `customers` module owns `customers`, `addresses`,

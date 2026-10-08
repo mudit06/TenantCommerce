@@ -18,6 +18,7 @@ import {
 import { Img } from '@/storefront/kit/media'
 import { ProductGrid } from '@/storefront/kit/product/ProductCard'
 import { Container } from '@/storefront/kit/ui'
+import { notFoundOrRedirect } from '@/storefront/notFoundOrRedirect'
 
 type Props = {
   params: Promise<{ tenant: string; slug: string[] }>
@@ -26,7 +27,10 @@ type Props = {
 
 async function findCategory(ctx: StoreContext, slugs: string[]) {
   const node = ctx.categories.all.find((category) => category.slug === slugs.at(-1))
-  if (!node) notFound()
+  if (!node) {
+    await notFoundOrRedirect(ctx.store.tenantId, `/c/${slugs.join('/')}`)
+    notFound()
+  }
   // Old or partial paths go to the category's current address (docs/13 clean URLs)
   if (node.path !== `/c/${slugs.join('/')}`) permanentRedirect(node.path)
   return node

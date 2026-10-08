@@ -3,6 +3,7 @@ export { Banners } from './collections/Banners'
 export { Media, storedBytes } from './collections/Media'
 export { Navigation } from './collections/Navigation'
 export { Pages } from './collections/Pages'
+export { Redirects } from './collections/Redirects'
 export { SiteSettings } from './collections/SiteSettings'
 export { registerContentEvents } from './events'
 export {

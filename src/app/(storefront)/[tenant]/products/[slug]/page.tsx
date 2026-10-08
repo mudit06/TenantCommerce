@@ -24,6 +24,7 @@ import { HeartButton } from '@/storefront/kit/shop/HeartButton'
 import { SpecTable } from '@/storefront/kit/product/SpecTable'
 import { RichText } from '@/storefront/kit/RichText'
 import { Container, SectionHeading } from '@/storefront/kit/ui'
+import { notFoundOrRedirect } from '@/storefront/notFoundOrRedirect'
 
 type Props = { params: Promise<{ tenant: string; slug: string }> }
 
@@ -55,7 +56,10 @@ export default async function ProductPage({ params }: Props) {
   const { tenant, slug } = await params
   const ctx = await getStoreContext(tenant)
   const data = await getProductBySlug(ctx.store.tenantId, slug)
-  if (!data) notFound()
+  if (!data) {
+    await notFoundOrRedirect(ctx.store.tenantId, `/products/${slug}`)
+    notFound()
+  }
   const { product, attributeSet, category, documents, variants } = data
   const attributes = attributeSet?.attributes ?? []
   const values = (product.attributes ?? {}) as Record<string, unknown>
