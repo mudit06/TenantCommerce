@@ -4,7 +4,7 @@ import { loadConnector, recordWebhookHealth, whatsappApi } from '@/connectors'
 
 import { isNewerStatus, indianMobile, replyIntent } from '../rules'
 import { queueStaffAlert, writeLog } from './engine'
-import { markAutoReply, preferenceFor, setWhatsAppUpdates } from './preferences'
+import { markAutoReply, preferenceFor, setOfferConsent, setWhatsAppUpdates } from './preferences'
 import { storeFacts } from './store'
 import { applyTemplateEvent } from './templates'
 
@@ -150,6 +150,8 @@ async function applyReceipt(req: PayloadRequest, tenantId: string, status: MetaS
 
 const STOP_TEXT = (store: string) =>
   `You won’t get order updates from ${store} on WhatsApp any more. Reply START to turn them back on.`
+const STOP_OFFERS_TEXT = (store: string) =>
+  `You won’t get offers from ${store} on WhatsApp any more. Updates about your orders still arrive.`
 const START_TEXT = (store: string) =>
   `Order updates from ${store} on WhatsApp are back on. Reply STOP to turn them off.`
 
@@ -192,9 +194,35 @@ async function applyReply(req: PayloadRequest, tenantId: string, message: MetaMe
   if (!inbound) return // already handled
 
   const store = await storeFacts(req.payload, tenantId, req)
-  const intent = replyIntent(text)
-  let answer: string | null = null
+  let intent = replyIntent(text)
+  // STOP after an offer or cart reminder stops offers, not order updates (docs/18 "Stop")
   if (intent === 'stop') {
+    const { docs: last } = await req.payload.find({
+      collection: 'notification-logs',
+      where: {
+        and: [
+          { tenant: { equals: tenantId } },
+          { to: { equals: phone } },
+          { channel: { equals: 'whatsapp' } },
+          { direction: { equals: 'out' } },
+          { status: { in: ['sent', 'delivered', 'read'] } },
+        ],
+      },
+      sort: '-sentAt',
+      limit: 1,
+      depth: 0,
+      pagination: false,
+      overrideAccess: true,
+      select: { kind: true },
+      req,
+    })
+    if (last[0]?.kind === 'offer' || last[0]?.kind === 'cart') intent = 'stop-offers'
+  }
+  let answer: string | null = null
+  if (intent === 'stop-offers') {
+    await setOfferConsent(req, tenantId, 'whatsapp', phone, false, 'account')
+    answer = STOP_OFFERS_TEXT(store.storeName)
+  } else if (intent === 'stop') {
     await setWhatsAppUpdates(req, tenantId, phone, false, 'reply')
     answer = STOP_TEXT(store.storeName)
   } else if (intent === 'start') {
@@ -229,7 +257,7 @@ async function applyReply(req: PayloadRequest, tenantId: string, message: MetaMe
       tenant: tenantId,
       direction: 'out',
       kind: 'reply',
-      milestone: intent ? `reply_${intent}` : 'auto_reply',
+      milestone: intent ? `reply_${intent.replace('-', '_')}` : 'auto_reply',
       channel: 'whatsapp',
       provider: 'meta',
       to: phone,

@@ -49,6 +49,10 @@ import { Dealers } from '@/modules/dealers'
 import { Enquiries } from '@/modules/enquiries'
 import { identityEndpoints, Users } from '@/modules/identity'
 import { Carts } from '@/modules/cart'
+// Endpoints load env; the job reads the orders module, which reads the cart module: both wired
+// here, not through the cart index
+import { cartEndpoints } from '@/modules/cart/endpoints'
+import { abandonedCartsTask } from '@/modules/cart/jobs/abandoned'
 import { StockMovements } from '@/modules/inventory'
 import {
   IdempotencyKeys,
@@ -63,7 +67,9 @@ import {
   NotificationLogs,
   NotificationSettings,
   NotificationTemplates,
+  OfferCampaigns,
   registerNotificationEvents,
+  sendCampaignsTask,
   sendNotificationTask,
 } from '@/modules/notifications'
 // Endpoints load env and connectors, like the shipping ones below
@@ -233,6 +239,7 @@ export default buildConfig({
     storeScreen(CouponRedemptions),
     // Reviews are moderated through their own screen; wishlists belong to shoppers
     ...[Reviews, Wishlists].map(storeScreen),
+    storeScreen(OfferCampaigns),
     // Selling (stage B): orders and their records are written by services only, so the store
     // session audit wrapper is for the screens staff edit directly (shipping zones)
     storeCollection(ShippingZones),
@@ -269,6 +276,7 @@ export default buildConfig({
     ...orderEndpoints,
     ...shippingEndpoints,
     ...notificationEndpoints,
+    ...cartEndpoints,
     ...customerEndpoints,
     ...promotionEndpoints,
     ...reviewEndpoints,
@@ -284,6 +292,8 @@ export default buildConfig({
       switchSchemesTask,
       schemeStatsTask,
       reviewRequestsTask,
+      sendCampaignsTask,
+      abandonedCartsTask,
     ],
     // Long-running servers (local, Docker) run the queue themselves; on Vercel a cron hits
     // /api/payload-jobs/run instead (docs/15). `default` runs scheduled page publishing and
@@ -392,6 +402,7 @@ export default buildConfig({
         'coupon-redemptions': {},
         reviews: {},
         wishlists: {},
+        'offer-campaigns': {},
       },
       // Our team works across stores; support is read-only through access functions
       userHasAccessToAllTenants: (user) => isPlatformStaff(user),

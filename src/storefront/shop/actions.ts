@@ -13,7 +13,14 @@ import { isAppError } from '@/lib/errors'
 import { allow, LIMITS } from '@/lib/rate-limit'
 import { changeLine, markCartConverted, saveCart } from '@/modules/cart'
 import { completeProfileFromOrder, rememberCheckoutAddress } from '@/modules/customers'
-import { placeOrder, placeOrderSchema, quoteCheckout, type PaymentMethod } from '@/modules/orders'
+import { setOfferConsent } from '@/modules/notifications'
+import {
+  normalizeIndianMobile,
+  placeOrder,
+  placeOrderSchema,
+  quoteCheckout,
+  type PaymentMethod,
+} from '@/modules/orders'
 import {
   completeOnlinePayment,
   startOnlinePayment,
@@ -73,7 +80,24 @@ export async function addToCart(input: LineInput): Promise<ShopResult<{ count: n
     if (!quoted) return { ok: false, message: 'This product isn’t available.' }
     if (quoted.problem) return { ok: false, message: quoted.problem }
     const token = (await cartToken({ create: true }))!
-    await saveCart(payload, store.tenantId, token, next)
+    // A signed-in shopper's cart carries their contact (a left cart can then be reminded)
+    const session = await signedInShopper(store.tenantId)
+    await saveCart(
+      payload,
+      store.tenantId,
+      token,
+      next,
+      session
+        ? {
+            customer: String(session.customer.id),
+            contact: {
+              name: session.customer.name ?? undefined,
+              email: session.customer.email,
+              phone: session.customer.phone ?? undefined,
+            },
+          }
+        : {},
+    )
     const count = next.reduce((sum, l) => sum + l.qty, 0)
     await setCartCount(count)
     return { ok: true, data: { count } }
@@ -199,6 +223,8 @@ export async function submitCheckout(input: {
   idempotencyKey: string
   /** Signed-in shoppers: keep the delivery address on the account */
   saveAddress?: boolean
+  /** The offer boxes the shopper ticked (unticked by default) */
+  offers?: { email?: boolean; whatsapp?: boolean }
 }): Promise<ShopResult<PlacedOrder>> {
   try {
     const store = await currentStore()
@@ -254,6 +280,7 @@ export async function submitCheckout(input: {
         meta: { ...meta, source: 'web' },
         customerId,
       })
+      await recordCheckoutOffers(req, store.tenantId, form.contact, input.offers)
       if (customerId) {
         await completeProfileFromOrder(req, store.tenantId, session!.customer, form.contact)
         if (input.saveAddress) {
@@ -439,6 +466,77 @@ export async function removeCoupon(): Promise<ShopResult<null>> {
     const { payload, lines } = await currentCart(store.tenantId)
     const token = await cartToken({ create: false })
     if (token) await saveCart(payload, store.tenantId, token, lines, { couponCode: null })
+    return { ok: true, data: null }
+  } catch (error) {
+    return failure(error)
+  }
+}
+
+/** Offers ticked at checkout (docs/18 "Consent"): only what the shopper ticked is recorded. */
+async function recordCheckoutOffers(
+  req: PayloadRequest,
+  tenantId: string,
+  contact: { email?: string | null; phone?: string | null },
+  offers: { email?: boolean; whatsapp?: boolean } | undefined,
+  { allowOff = false }: { allowOff?: boolean } = {},
+) {
+  if (!offers) return
+  const payload = req.payload
+  const email = contact.email?.trim().toLowerCase()
+  const phone = contact.phone ? normalizeIndianMobile(contact.phone) : null
+  if (email && (offers.email || allowOff) && offers.email !== undefined) {
+    if (await isFeatureEnabled(payload, tenantId, 'offer-messages')) {
+      await setOfferConsent(req, tenantId, 'email', email, Boolean(offers.email), 'checkout')
+    }
+  }
+  if (phone && (offers.whatsapp || allowOff) && offers.whatsapp !== undefined) {
+    if (await isFeatureEnabled(payload, tenantId, 'whatsapp-offers')) {
+      await setOfferConsent(req, tenantId, 'whatsapp', phone, Boolean(offers.whatsapp), 'checkout')
+    }
+  }
+}
+
+/**
+ * The checkout's contact step, kept on the cart as it is typed (docs/06 `carts.contact`), with
+ * the offer boxes when the shopper changes them. A cart with a contact can be reminded later,
+ * on the channels the shopper agreed to offers on.
+ */
+export async function saveCheckoutContact(input: {
+  name?: string
+  email?: string
+  phone?: string
+  offers?: { email?: boolean; whatsapp?: boolean }
+}): Promise<ShopResult<null>> {
+  try {
+    const store = await currentStore()
+    if (!store) return { ok: false, message: CLOSED }
+    const { payload, lines, cart } = await currentCart(store.tenantId)
+    const token = await cartToken({ create: false })
+    if (!cart || !token) return { ok: true, data: null }
+    const email = String(input.email ?? '')
+      .trim()
+      .toLowerCase()
+      .slice(0, 200)
+    const phone = normalizeIndianMobile(String(input.phone ?? ''))
+    const contact = {
+      name:
+        String(input.name ?? '')
+          .trim()
+          .slice(0, 80) ||
+        cart.contact?.name ||
+        undefined,
+      email: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)
+        ? email
+        : (cart.contact?.email ?? undefined),
+      phone: phone ?? cart.contact?.phone ?? undefined,
+    }
+    await saveCart(payload, store.tenantId, token, lines, { contact })
+    if (input.offers) {
+      const req = await storeRequest()
+      await withTransaction(req, () =>
+        recordCheckoutOffers(req, store.tenantId, contact, input.offers, { allowOff: true }),
+      )
+    }
     return { ok: true, data: null }
   } catch (error) {
     return failure(error)

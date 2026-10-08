@@ -4,13 +4,14 @@ import { z } from 'zod'
 import { idOf } from '@/access'
 import { editorName } from '@/fields/editedBy'
 import { AppError } from '@/lib/errors'
+import { cancelSchemeMessage, scheduleSchemeMessage } from '@/modules/notifications'
 import { featureConfig } from '@/modules/tenancy'
 import type { Scheme } from '@/payload-types'
 
 import { occasionOf, OCCASIONS } from '../occasions'
 import { categoryAncestors } from './load'
 import { schemeRule } from './load'
-import { computePromotions, schemeUnitPrice, type PromoLine } from '../rules'
+import { computePromotions, describeScheme, schemeUnitPrice, type PromoLine } from '../rules'
 
 // The Schemes screen's actions (docs/screens Schemes, Scheme editor): start a draft from an
 // occasion, schedule, pause, resume and end; and the preview, worked out by the same engine as
@@ -154,7 +155,7 @@ export async function changeSchemeStatus(
       )
     }
   }
-  return req.payload.update({
+  const updated = await req.payload.update({
     collection: 'schemes',
     id: scheme.id,
     data: {
@@ -166,6 +167,34 @@ export async function changeSchemeStatus(
     context: { schemeSwitch: true },
     req,
   })
+  // "Tell shoppers": an offer message for the start, through the notifications module
+  if (status === 'live' || status === 'scheduled') {
+    const channels = [
+      ...(scheme.messages?.announceEmail ? (['email'] as const) : []),
+      ...(scheme.messages?.announceWhatsApp ? (['whatsapp'] as const) : []),
+    ]
+    if (channels.length) {
+      const rule = schemeRule(scheme)
+      const ends = new Date(scheme.endsAt).toLocaleDateString('en-IN', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+        timeZone: 'Asia/Kolkata',
+      })
+      await scheduleSchemeMessage(req, tenantId, {
+        schemeId: String(scheme.id),
+        schemeName: scheme.name,
+        headline: describeScheme(rule),
+        detail: `Ends ${ends}.`,
+        linkPath: scheme.slug ? `offers/${scheme.slug}` : 'offers',
+        startsAt: scheme.startsAt,
+        channels: [...channels],
+      })
+    }
+  } else {
+    await cancelSchemeMessage(req, tenantId, String(scheme.id))
+  }
+  return updated
 }
 
 export type SchemePreview = {

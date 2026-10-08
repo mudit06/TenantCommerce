@@ -232,6 +232,8 @@ export async function createTemplate(
     /** Fixed part of the "Track order" link; Meta adds the variable suffix */
     trackUrlBase?: string | null
     trackSample?: string
+    /** The URL button's text: "Track order" for order updates, "Shop the offer" for offers */
+    buttonText?: string
   },
 ): Promise<{ ok: true; id: string; status: string } | { ok: false; message: string }> {
   const components: unknown[] = [
@@ -243,7 +245,7 @@ export async function createTemplate(
       buttons: [
         {
           type: 'URL',
-          text: 'Track order',
+          text: input.buttonText ?? 'Track order',
           url: `${input.trackUrlBase}{{1}}`,
           example: [`${input.trackUrlBase}${input.trackSample ?? 'K7Q2M9XW4P'}`],
         },

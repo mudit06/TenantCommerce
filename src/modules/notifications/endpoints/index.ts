@@ -5,6 +5,16 @@ import { withTransaction } from '@/lib/db/transaction'
 import { AppError } from '@/lib/errors'
 import { apiHandler, assertSameOrigin, ok, readBody, routeParam } from '@/lib/http/endpoint'
 
+import {
+  assertCampaignAccess,
+  campaignAudience,
+  campaignInputSchema,
+  offerSettingsSchema,
+  saveCampaign,
+  saveOfferSettings,
+  sendCampaignTest,
+  setCampaignStatus,
+} from '../services/campaigns'
 import { resendMessage, sendTest, testInputSchema } from '../services/messages'
 import { saveSettings, settingsInputSchema } from '../services/settings'
 import { submitTemplates, syncTemplates } from '../services/templates'
@@ -20,7 +30,106 @@ const writer = (req: PayloadRequest) => {
 
 const storeSchema = z.object({ store: z.string().min(1) })
 
+const storeOf = (req: PayloadRequest) => {
+  const store = new URL(req.url ?? 'http://x').searchParams.get('store') ?? ''
+  if (!store) throw new AppError('VALIDATION_FAILED', 'Which store?', 400)
+  return store
+}
+
+// Offer messages (docs/screens Offer messages)
+const campaignEndpoints: Endpoint[] = [
+  {
+    path: '/admin/v1/offer-campaigns/audience',
+    method: 'post',
+    handler: apiHandler(async (req) => {
+      writer(req)
+      const tenantId = storeOf(req)
+      await assertCampaignAccess(req, tenantId, 'read')
+      const body = await readBody(
+        req,
+        z.object({
+          channels: z.array(z.enum(['email', 'whatsapp'])),
+          audience: z.enum(['all', 'wishlist', 'lapsed']),
+          scheme: z.string().nullable().optional(),
+        }),
+      )
+      const { recipients, capped } = await campaignAudience(req, tenantId, body)
+      return ok({
+        email: recipients.filter((r) => r.channel === 'email').length,
+        whatsapp: recipients.filter((r) => r.channel === 'whatsapp').length,
+        capped,
+      })
+    }),
+  },
+  {
+    path: '/admin/v1/offer-campaigns/settings',
+    method: 'post',
+    handler: apiHandler(async (req) => {
+      writer(req)
+      const tenantId = storeOf(req)
+      await assertCampaignAccess(req, tenantId, 'settings')
+      const input = await readBody(req, offerSettingsSchema)
+      await withTransaction(req, () => saveOfferSettings(req, tenantId, input))
+      return ok({ saved: true })
+    }),
+  },
+  {
+    path: '/admin/v1/offer-campaigns',
+    method: 'post',
+    handler: apiHandler(async (req) => {
+      writer(req)
+      const tenantId = storeOf(req)
+      await assertCampaignAccess(req, tenantId, 'write')
+      const input = await readBody(req, campaignInputSchema)
+      const campaign = await withTransaction(req, () => saveCampaign(req, tenantId, input))
+      return ok({ id: campaign.id }, 201)
+    }),
+  },
+  {
+    path: '/admin/v1/offer-campaigns/:id',
+    method: 'post',
+    handler: apiHandler(async (req) => {
+      writer(req)
+      const tenantId = storeOf(req)
+      await assertCampaignAccess(req, tenantId, 'write')
+      const input = await readBody(req, campaignInputSchema)
+      const campaign = await withTransaction(req, () =>
+        saveCampaign(req, tenantId, input, routeParam(req, 'id')),
+      )
+      return ok({ id: campaign.id })
+    }),
+  },
+  {
+    path: '/admin/v1/offer-campaigns/:id/status',
+    method: 'post',
+    handler: apiHandler(async (req) => {
+      writer(req)
+      const tenantId = storeOf(req)
+      await assertCampaignAccess(req, tenantId, 'write')
+      const { action } = await readBody(req, z.object({ action: z.enum(['schedule', 'cancel']) }))
+      const campaign = await withTransaction(req, () =>
+        setCampaignStatus(req, tenantId, routeParam(req, 'id'), action),
+      )
+      return ok({ id: campaign.id, status: campaign.status, sendAt: campaign.sendAt })
+    }),
+  },
+  {
+    path: '/admin/v1/offer-campaigns/:id/test',
+    method: 'post',
+    handler: apiHandler(async (req) => {
+      writer(req)
+      const tenantId = storeOf(req)
+      await assertCampaignAccess(req, tenantId, 'write')
+      const to = String((req.user as { email?: string } | null)?.email ?? '')
+      if (!to) throw new AppError('VALIDATION_FAILED', 'Your account has no email', 400)
+      await withTransaction(req, () => sendCampaignTest(req, tenantId, routeParam(req, 'id'), to))
+      return ok({ to })
+    }),
+  },
+]
+
 export const notificationEndpoints: Endpoint[] = [
+  ...campaignEndpoints,
   {
     path: '/admin/v1/notifications/settings',
     method: 'post',

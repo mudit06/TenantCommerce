@@ -6,7 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { saveConnector } from '@/connectors'
 import { withTransaction } from '@/lib/db/transaction'
 import { saveCodRules } from '@/modules/content'
-import { setTrackingUpdates, trackingView } from '@/modules/notifications'
+import { setOfferConsent, setTrackingUpdates, trackingView } from '@/modules/notifications'
 import { queueMilestone } from '@/modules/notifications/services/engine'
 import { resendMessage, sendTest } from '@/modules/notifications/services/messages'
 import { sendLog } from '@/modules/notifications/services/send'
@@ -469,6 +469,38 @@ describe('order updates through the store’s own WhatsApp', () => {
       overrideAccess: true,
     })
     expect(again[0]!.whatsapp).toMatchObject({ optedIn: true, source: 'reply', optedOutAt: null })
+
+    // STOP after an offer stops offers on WhatsApp, and order updates keep coming
+    const consentReq = await reqAs(payload)
+    await withTransaction(consentReq, () =>
+      setOfferConsent(consentReq, shopA.tenantId, 'whatsapp', '+919988776655', true, 'checkout'),
+    )
+    await payload.create({
+      collection: 'notification-logs',
+      data: {
+        tenant: shopA.tenantId,
+        direction: 'out',
+        kind: 'offer',
+        milestone: 'offer_message',
+        channel: 'whatsapp',
+        provider: 'meta',
+        to: '+919988776655',
+        dedupeKey: 'offer:test:whatsapp:+919988776655',
+        status: 'sent',
+        sentAt: new Date().toISOString(),
+      },
+      overrideAccess: true,
+    })
+    await run(reply('wamid.in.4', 'STOP'))
+    const { docs: stopped } = await payload.find({
+      collection: 'contact-preferences',
+      where: {
+        and: [{ tenant: { equals: shopA.tenantId } }, { value: { equals: '+919988776655' } }],
+      },
+      overrideAccess: true,
+    })
+    expect(stopped[0]!.offers?.whatsapp?.optedIn).toBe(false)
+    expect(stopped[0]!.whatsapp?.optedIn).toBe(true)
   })
 
   it('updates a template from Meta’s template webhook', async () => {

@@ -367,6 +367,32 @@ Rules:
   (a separate stream from order emails, so complaints about offers don't affect order email
   delivery), with the store's address in the footer.
 
+**As built (8 October 2026):**
+
+- Keys in the log: `offer_message` (campaigns), `cart_reminder_1` and `cart_reminder_2`,
+  `review_request`; kinds `offer`, `cart`, `review`. Dedupe keys
+  `offer:<campaignId>:<channel>:<to>` and `cart:<cartId>:<step>:<channel>`. The weekly cap counts
+  queued and sent offer and cart messages to that email or phone in the last 7 days; a cart's
+  second reminder belongs to its first's series.
+- Each message stores what it says (the email, or the WhatsApp template and its values) and a
+  check: when the send job picks it up, offer consent on that channel and, for reminders, that the
+  cart is still active with items are checked again, so an unsubscribe or an order in between
+  skips it (`no_offer_consent`, `stale`).
+- WhatsApp marketing templates `offer_message` (body: name, the offer, its end; button "Shop the
+  offer" to a store page) and `cart_reminder` (name, the cart in a few words; button "Return to
+  your cart") are created with the order templates and submitted as category `MARKETING`. Without
+  WhatsApp connected locally they print to the `pnpm dev` terminal. Reply STOP (or "Stop offers")
+  after an offer or reminder stops WhatsApp offers; after an order update it stops order updates.
+- Unsubscribe links are `https://<store>/u/<token>` (HMAC of store, channel and address; no
+  storage): opening it shows `/unsubscribe/<token>` with one button, and a POST to it (the
+  `List-Unsubscribe-Post` one-click) stops offers at once.
+- Checkout's "Offers and new launches" boxes (email, and WhatsApp when switched on) start
+  unticked; the contact is kept on the cart as it is typed, so a left cart can be reminded.
+- A scheme with "Tell shoppers" schedules its own offer message when it is scheduled or goes live
+  and cancels it if the scheme ends first.
+- Jobs: `offer-campaigns` and `abandoned-carts` every 5 minutes (the `scheduled` queue); messages
+  go through the same `send-notification` job as order updates.
+
 ## Emails outside the order journey
 
 These aren't milestones (no channel choice, no WhatsApp or SMS), but they go through the same

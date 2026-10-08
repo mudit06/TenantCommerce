@@ -37,6 +37,11 @@ const STEP_LABEL: Record<string, string> = {
   auto_reply: 'Automatic answer',
   reply_stop: 'Stopped updates',
   reply_start: 'Started updates',
+  review_request: 'Review request',
+  review_reply: 'Reply to their review',
+  offer_message: 'Offer message',
+  cart_reminder_1: 'Cart reminder',
+  cart_reminder_2: 'Second cart reminder',
 }
 
 const stepLabel = (milestone: string | null | undefined) => {

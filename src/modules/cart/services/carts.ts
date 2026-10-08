@@ -59,7 +59,9 @@ export async function saveCart(
   tenantId: string,
   token: string,
   lines: readonly CartLine[],
-  extra: Partial<Pick<Cart, 'pincode' | 'contact' | 'couponCode' | 'shippingAddress'>> = {},
+  extra: Partial<
+    Pick<Cart, 'pincode' | 'contact' | 'couponCode' | 'shippingAddress' | 'customer'>
+  > = {},
 ): Promise<Cart> {
   const items = lines
     .filter((line) => line.qty > 0)
@@ -71,7 +73,14 @@ export async function saveCart(
       addedAt: new Date().toISOString(),
     }))
   const existing = await findCart(payload, tenantId, token)
-  const data = { items, ...extra, lastActivityAt: new Date().toISOString(), expiresAt: expiry() }
+  // Any change starts the reminder clock again; a cart that was left and comes back is active
+  const data = {
+    items,
+    ...extra,
+    lastActivityAt: new Date().toISOString(),
+    expiresAt: expiry(),
+    abandonedAt: null,
+  }
   if (existing) {
     return payload.update({ collection: 'carts', id: existing.id, data, overrideAccess: true })
   }
@@ -104,4 +113,44 @@ export async function markCartConverted(payload: Payload, cartId: string, orderI
     data: { status: 'converted', convertedOrder: orderId },
     overrideAccess: true,
   })
+}
+
+/**
+ * "Return to your cart" from a reminder (docs/screens Abandoned carts rule 3): the cart moves to
+ * this browser under a new token, so the link works on any device. Prices are worked out again
+ * when the cart opens, so an ended offer isn't honoured.
+ */
+export async function restoreCart(
+  payload: Payload,
+  tenantId: string,
+  cartId: string,
+): Promise<{ token: string; count: number } | null> {
+  const { docs } = await payload.find({
+    collection: 'carts',
+    where: {
+      and: [
+        { tenant: { equals: tenantId } },
+        { id: { equals: cartId } },
+        { status: { equals: 'active' } },
+      ],
+    },
+    limit: 1,
+    depth: 0,
+    pagination: false,
+    overrideAccess: true,
+  })
+  const cart = docs[0]
+  if (!cart || !(cart.items ?? []).length) return null
+  const token = newCartToken()
+  await payload.update({
+    collection: 'carts',
+    id: cart.id,
+    data: {
+      tokenHash: hashCartToken(token),
+      lastActivityAt: new Date().toISOString(),
+      expiresAt: expiry(),
+    },
+    overrideAccess: true,
+  })
+  return { token, count: (cart.items ?? []).reduce((sum, item) => sum + item.qty, 0) }
 }

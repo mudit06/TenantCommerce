@@ -121,10 +121,16 @@ export async function sendLog(
   let facts: MessageFacts
   let milestone = log.milestone ?? ''
   const variant = (log.variant ?? 'default') as Variant
-  if (PREPARED_KINDS.includes(log.kind as PreparedKind) && log.channel === 'email') {
+  if (PREPARED_KINDS.includes(log.kind as PreparedKind)) {
     // Review requests, offers and cart reminders arrive ready to send (./prepared.ts)
     try {
-      return await sendPrepared(payload, log, tenantId, (data) => update(payload, logId, data))
+      return await sendPrepared(
+        payload,
+        log,
+        tenantId,
+        (data) => update(payload, logId, data),
+        fetchImpl,
+      )
     } catch (error) {
       return recordResult(
         payload,

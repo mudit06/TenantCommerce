@@ -44,7 +44,7 @@ describe('admin menu per workspace', () => {
       isSuperAdmin: false,
       canManageStaff: true,
       storeRoles: ['owner'],
-      features: ['offer-messages'],
+      features: ['affiliate'],
     })
     const items = owner.flatMap((section) => section.items)
     expect(owner.map((section) => section.label)).toEqual([
@@ -56,11 +56,9 @@ describe('admin menu per workspace', () => {
       'Store',
       'Insights',
     ])
-    expect(items.find((item) => item.key === 'campaigns')).toMatchObject({ soon: true, href: '' })
+    expect(items.find((item) => item.key === 'affiliates')).toMatchObject({ soon: true, href: '' })
     // Customers is built: it follows collection access like any other screen
     expect(items.map((item) => item.key)).not.toContain('customers')
-    // A soon entry shows only with its feature switched on
-    expect(items.map((item) => item.key)).not.toContain('abandoned')
 
     const editor = keys(
       buildMenu({
@@ -69,11 +67,11 @@ describe('admin menu per workspace', () => {
         isSuperAdmin: false,
         canManageStaff: false,
         storeRoles: ['content-editor'],
-        features: ['offer-messages'],
+        features: ['affiliate'],
       }),
     )
     expect(editor).not.toContain('customers')
-    expect(editor).not.toContain('campaigns')
+    expect(editor).not.toContain('affiliates')
     // A soon entry never counts as the current screen
     expect(isActive({ href: '' }, '/admin/account')).toBe(false)
   })

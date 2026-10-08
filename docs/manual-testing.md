@@ -429,6 +429,26 @@ As Home Orbit's owner (the store needs a price on a few products: `pnpm demo:sel
       (the offer price while a scheme runs), **Move to cart** and **Remove** with Undo. As a
       guest it says the list is on this device; log in and the list follows to another browser.
 
+### 2.13 Offer messages and abandoned carts
+
+- [ ] On the store, add a product to the cart and open checkout. Type a phone and an email and
+      tick **Offers and new launches · By email** (it starts unticked). Leave without ordering.
+- [ ] CMS → Marketing → **Offer messages** → **+ New message**: pick a scheme (the subject,
+      headline and link fill in), keep **Everyone who agreed to offers** and **Email**. The blue
+      line says how many get it. **Send test to me**: within a minute the email is printed in the
+      `pnpm dev` terminal. **Schedule**: the time moves into the send window (10:00 to 20:00) if
+      it was outside it; at that time each opted-in shopper gets one email with an unsubscribe
+      link, and the row shows Sent with orders and sales over the next 7 days.
+- [ ] Abandoned cart: an hour after the cart was left (the store's **First reminder after**),
+      within 5 minutes the cart shows on Marketing → **Abandoned carts** with "1st sent · email",
+      and the reminder is printed in the terminal (inside the send window). Open its **Return to
+      your cart** link in another browser: the same cart opens there.
+- [ ] Open the **Unsubscribe** link from that email and press **Unsubscribe**: the next offer
+      message or second reminder to that address is skipped; order updates still arrive.
+- [ ] A cart whose shopper didn't tick the offers box shows "Not reminded: no offer consent".
+      On **Reminders**, tick **Send a second reminder**, pick a coupon code and **Save
+      reminders**; the second reminder carries the code.
+
 ## 3. Storefront (what shoppers see)
 
 http://home-orbit.localhost:3000 . Check it twice: on a normal desktop window, and as a phone
@@ -686,7 +706,8 @@ Uploaded files stay in `media/`; delete that folder too for a completely clean s
 ## Not built yet (so don't test these)
 
 - SMS updates (later), returns
-- Offer messages, abandoned carts, affiliates (stage C)
+- Affiliates (stage C)
+- WhatsApp offer messages and cart reminders (they need Meta-approved marketing templates)
 - CSV import, the dealer locator page, the PWA "install app" and offline page
 - Two-step login (deferred)
 - Real emails: locally they are printed in the `pnpm dev` terminal

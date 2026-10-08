@@ -1,4 +1,6 @@
 import type { TaskConfig } from 'payload'
+import { cancelSchemeMessage } from '@/modules/notifications'
+
 import { refreshSchemeStats } from '../services/stats'
 
 /**
@@ -24,6 +26,11 @@ export const switchSchemesTask: TaskConfig<'switch-schemes'> = {
         overrideAccess: true,
       })
       for (const doc of docs) {
+        // An ended scheme's offer message that hasn't gone out is cancelled
+        if (status === 'ended') {
+          const tenant = typeof doc.tenant === 'object' ? doc.tenant?.id : doc.tenant
+          if (tenant) await cancelSchemeMessage(req, String(tenant), String(doc.id))
+        }
         await req.payload.update({
           collection: 'schemes',
           id: doc.id,

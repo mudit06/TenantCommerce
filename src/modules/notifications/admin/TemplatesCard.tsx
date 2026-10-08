@@ -2,6 +2,7 @@ import type { Payload } from 'payload'
 
 import { Card, Pill, type Tone } from '@/admin/ui'
 
+import { isMarketingKey, MARKETING_KEYS, MARKETING_TEMPLATES } from '../marketing'
 import { MILESTONE_KEYS, milestoneOf, TEMPLATE_STATUSES } from '../milestones'
 import { storeTemplates } from '../services/templates'
 import { TemplateActions } from './TemplateActions'
@@ -31,7 +32,9 @@ export async function TemplatesCard({
   connected: boolean
 }) {
   const order = (t: { milestone: string; variant?: string | null }) =>
-    MILESTONE_KEYS.indexOf(t.milestone as never) * 10 + (t.variant === 'cod' ? 1 : 0)
+    isMarketingKey(t.milestone)
+      ? 1000 + MARKETING_KEYS.indexOf(t.milestone)
+      : MILESTONE_KEYS.indexOf(t.milestone as never) * 10 + (t.variant === 'cod' ? 1 : 0)
   const templates = (await storeTemplates(payload, storeId)).sort((a, b) => order(a) - order(b))
   const label = (value: string) => TEMPLATE_STATUSES.find((s) => s.value === value)?.label ?? value
   const approved = templates.filter((t) => t.status === 'approved').length
@@ -52,7 +55,9 @@ export async function TemplatesCard({
             <div className="te-messages__row" key={t.id}>
               <div className="te-messages__what">
                 <span className="te-strong">
-                  {milestoneOf(t.milestone).label}
+                  {isMarketingKey(t.milestone)
+                    ? `${MARKETING_TEMPLATES[t.milestone].label} (marketing)`
+                    : milestoneOf(t.milestone).label}
                   {t.variant && t.variant !== 'default'
                     ? ` (${t.variant === 'cod' ? 'COD' : 'prepaid'})`
                     : ''}

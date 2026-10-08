@@ -244,6 +244,8 @@ Guests keep the wishlist on the device; the kit stores product ids only and call
 | POST | `/offer-campaigns/:id/test` | Send the campaign to a staff email or phone |
 | POST | `/offer-campaigns/:id/schedule` | `{ sendAt }` within the send window; shows the eligible count first |
 | POST | `/offer-campaigns/:id/cancel` | Stop a scheduled or sending campaign |
+| POST | `/offer-campaigns/audience` | As built (8 October 2026): `{ channels, audience, scheme? }` the count by channel after consent, unsubscribes and the weekly cap. Also `POST /offer-campaigns` and `/offer-campaigns/:id` (save), `/:id/status` `{ action: 'schedule'|'cancel' }`, `/:id/test` (to the signed-in staff email), `/offer-campaigns/settings` `{ maxPerShopperPerWeek, sendWindow }`; all with `?store=` |
+| POST | `/carts/settings` | As built (8 October 2026): owners and managers, `?store=`: `{ firstAfterMinutes, secondAfterHours (null = off), channels, secondChannels, secondCoupon }` saved to the `abandoned-cart` feature config; the code must be an active coupon of the store |
 | POST | `/reviews/:id/moderate` | `{ action: 'publish'|'reject', reason? }` (reason required to reject; a low rating is never a reason) |
 | POST | `/reviews/:id/reply` | `{ text }` public vendor reply |
 | POST | `/affiliates/:id/status` | `{ action: 'approve'|'reject'|'pause'|'resume', commissionPercent? }` |

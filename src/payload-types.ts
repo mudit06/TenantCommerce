@@ -85,6 +85,7 @@ export interface Config {
     'coupon-redemptions': CouponRedemption;
     reviews: Review;
     wishlists: Wishlist;
+    'offer-campaigns': OfferCampaign;
     'shipping-zones': ShippingZone;
     orders: Order;
     'order-events': OrderEvent;
@@ -144,6 +145,7 @@ export interface Config {
     'coupon-redemptions': CouponRedemptionsSelect<false> | CouponRedemptionsSelect<true>;
     reviews: ReviewsSelect<false> | ReviewsSelect<true>;
     wishlists: WishlistsSelect<false> | WishlistsSelect<true>;
+    'offer-campaigns': OfferCampaignsSelect<false> | OfferCampaignsSelect<true>;
     'shipping-zones': ShippingZonesSelect<false> | ShippingZonesSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
     'order-events': OrderEventsSelect<false> | OrderEventsSelect<true>;
@@ -205,6 +207,8 @@ export interface Config {
       'switch-schemes': TaskSwitchSchemes;
       'scheme-stats': TaskSchemeStats;
       'review-requests': TaskReviewRequests;
+      'offer-campaigns-send': TaskOfferCampaignsSend;
+      'abandoned-carts': TaskAbandonedCarts;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -1673,6 +1677,35 @@ export interface Wishlist {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "offer-campaigns".
+ */
+export interface OfferCampaign {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  title: string;
+  scheme?: string | null;
+  schemeName?: string | null;
+  subject: string;
+  headline: string;
+  detail?: string | null;
+  buttonLabel?: string | null;
+  linkPath?: string | null;
+  audience?: ('all' | 'wishlist' | 'lapsed') | null;
+  channels?: ('email' | 'whatsapp')[] | null;
+  sendAt: string;
+  status: 'draft' | 'scheduled' | 'sending' | 'sent' | 'cancelled';
+  stats?: {
+    email?: number | null;
+    whatsapp?: number | null;
+    skipped?: number | null;
+  };
+  sentAt?: string | null;
+  createdBy?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "shipping-zones".
  */
 export interface ShippingZone {
@@ -2232,10 +2265,24 @@ export interface Cart {
     email?: string | null;
     phone?: string | null;
   };
+  customer?: string | null;
   pincode?: string | null;
   shippingAddress?: ShopperAddress;
   couponCode?: string | null;
   lastActivityAt?: string | null;
+  abandonedAt?: string | null;
+  leftSummary?: string | null;
+  leftValueMinor?: number | null;
+  reminders?:
+    | {
+        step?: number | null;
+        channel?: ('email' | 'whatsapp') | null;
+        to?: string | null;
+        at?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  reminderNote?: string | null;
   convertedOrder?: (string | null) | Order;
   /**
    * Removed 30 days after the last change
@@ -2321,7 +2368,9 @@ export interface NotificationTemplate {
     | 'order_cancelled'
     | 'refund_processed'
     | 'return_approved'
-    | 'return_rejected';
+    | 'return_rejected'
+    | 'offer_message'
+    | 'cart_reminder';
   category?: ('utility' | 'marketing') | null;
   variant?: ('default' | 'prepaid' | 'cod') | null;
   channel: 'whatsapp' | 'sms';
@@ -3009,6 +3058,8 @@ export interface PayloadJob {
           | 'switch-schemes'
           | 'scheme-stats'
           | 'review-requests'
+          | 'offer-campaigns-send'
+          | 'abandoned-carts'
           | 'schedulePublish';
         taskID: string;
         input?:
@@ -3054,6 +3105,8 @@ export interface PayloadJob {
         | 'switch-schemes'
         | 'scheme-stats'
         | 'review-requests'
+        | 'offer-campaigns-send'
+        | 'abandoned-carts'
         | 'schedulePublish'
       )
     | null;
@@ -3150,6 +3203,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'wishlists';
         value: string | Wishlist;
+      } | null)
+    | ({
+        relationTo: 'offer-campaigns';
+        value: string | OfferCampaign;
       } | null)
     | ({
         relationTo: 'shipping-zones';
@@ -4234,6 +4291,36 @@ export interface WishlistsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "offer-campaigns_select".
+ */
+export interface OfferCampaignsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  scheme?: T;
+  schemeName?: T;
+  subject?: T;
+  headline?: T;
+  detail?: T;
+  buttonLabel?: T;
+  linkPath?: T;
+  audience?: T;
+  channels?: T;
+  sendAt?: T;
+  status?: T;
+  stats?:
+    | T
+    | {
+        email?: T;
+        whatsapp?: T;
+        skipped?: T;
+      };
+  sentAt?: T;
+  createdBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "shipping-zones_select".
  */
 export interface ShippingZonesSelect<T extends boolean = true> {
@@ -4563,10 +4650,24 @@ export interface CartsSelect<T extends boolean = true> {
         email?: T;
         phone?: T;
       };
+  customer?: T;
   pincode?: T;
   shippingAddress?: T | ShopperAddressSelect<T>;
   couponCode?: T;
   lastActivityAt?: T;
+  abandonedAt?: T;
+  leftSummary?: T;
+  leftValueMinor?: T;
+  reminders?:
+    | T
+    | {
+        step?: T;
+        channel?: T;
+        to?: T;
+        at?: T;
+        id?: T;
+      };
+  reminderNote?: T;
   convertedOrder?: T;
   expiresAt?: T;
   updatedAt?: T;
@@ -5353,6 +5454,26 @@ export interface TaskReviewRequests {
   input?: unknown;
   output: {
     queued: number;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskOffer-campaigns-send".
+ */
+export interface TaskOfferCampaignsSend {
+  input?: unknown;
+  output: {
+    campaigns: number;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskAbandoned-carts".
+ */
+export interface TaskAbandonedCarts {
+  input?: unknown;
+  output: {
+    reminded: number;
   };
 }
 /**

@@ -137,11 +137,13 @@ export const isNewerStatus = (current: string, incoming: string) =>
   incoming === 'failed' ? current !== 'read' : (RANK[incoming] ?? 0) > (RANK[current] ?? 0)
 
 /** STOP and START replies (docs/18 "Opt-out") */
-export function replyIntent(text: string): 'stop' | 'start' | null {
+export function replyIntent(text: string): 'stop' | 'stop-offers' | 'start' | null {
   const word = text
     .trim()
     .toLowerCase()
     .replace(/[.!]+$/, '')
+  // The "Stop offers" button on marketing templates, or the words
+  if (['stop offers', 'stop promotions', 'no offers'].includes(word)) return 'stop-offers'
   if (['stop', 'stop updates', 'unsubscribe', 'band karo', 'band'].includes(word)) return 'stop'
   if (['start', 'start updates', 'resume'].includes(word)) return 'start'
   return null

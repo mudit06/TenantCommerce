@@ -271,6 +271,15 @@ signed-in customer, or saved from the checkout contact step), `shippingAddress`,
 reminder restores this cart on any device), `recoveredOrder` -> orders, `expiresAt` (TTL index,
 30 days), `lastActivityAt`.
 
+**As built (8 October 2026):** `customer` is a plain id (set when a signed-in shopper adds to the
+cart); `contact { name, email, phone }` is saved as the checkout contact is typed;
+`reminders[] { step, channel, to, at }`, `reminderNote` (why none went: no offer consent, the
+weekly series), `leftSummary` and `leftValueMinor` (what was in it and its value incl. GST when it
+was left, for the Abandoned carts screen). No `restoreTokenHash`: the restore link carries an
+HMAC-signed cart id valid 7 days (`restoreToken`), and opening it moves the cart to the new
+browser under a fresh cart token. Recovered is read from `convertedOrder` (an order within 7 days
+of the first reminder); there is no `recoveredOrder` field.
+
 ### orders (extends ecommerce plugin)
 `orderNumber` (`<site-settings.orderPrefix>-<counter>`, e.g. `AQV-10482`; sequential, so it is
 never enough on its own to open an order, docs/05), `customer` (nullable), `contact` (email, phone),
@@ -593,6 +602,13 @@ body from blocks; WhatsApp: an approved `marketing` template), `sendAt` (inside 
 `status` (`draft|scheduled|sending|sent|cancelled`), `counts { eligible, sent, delivered, read,
 clicked, failed, skipped, unsubscribed, orders, salesMinor }`, `createdBy`. Sending runs as a job
 in batches through the notifications engine, never a direct connector call.
+
+**As built (8 October 2026):** `title`, `scheme` and `schemeName`, `subject`, `headline`,
+`detail`, `buttonLabel`, `linkPath` (a page of the store), `audience` (`all`, `wishlist`,
+`lapsed`: no order in 90 days), `channels[]`, `sendAt`, `status`, `sentAt`,
+`stats { email, whatsapp, skipped }`, `createdBy`. Orders and sales are worked out on the screen
+from the orders placed by the people messaged within 7 days. The WhatsApp version always uses the
+store's `offer_message` marketing template.
 
 ## Adding a collection (checklist)
 

@@ -67,6 +67,10 @@ export default async function CheckoutPage({ params }: Props) {
       <h1 className="mb-6 font-heading text-2xl font-bold">Checkout</h1>
       <CheckoutForm
         account={account}
+        offerChoices={{
+          email: ctx.hasFeature('offer-messages'),
+          whatsapp: ctx.hasFeature('offer-messages') && ctx.hasFeature('whatsapp-offers'),
+        }}
         initial={summarize(quote)}
         initialPincode={cart?.pincode ?? ''}
         storeName={ctx.settings?.storeName ?? ctx.store.name}

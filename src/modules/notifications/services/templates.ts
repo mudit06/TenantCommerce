@@ -4,6 +4,7 @@ import { loadConnector, recordWebhookHealth, whatsappApi } from '@/connectors'
 import { AppError } from '@/lib/errors'
 import type { NotificationTemplate } from '@/payload-types'
 
+import { isMarketingKey, MARKETING_KEYS, MARKETING_TEMPLATES } from '../marketing'
 import { MILESTONES, type MilestoneKey } from '../milestones'
 import { sampleFacts } from '../render'
 import {
@@ -97,6 +98,30 @@ export async function ensureStarterTemplates(req: PayloadRequest, tenantId: stri
       created++
     }
   }
+  // Offers and cart reminders: marketing templates, separate from order updates (../marketing.ts)
+  for (const key of MARKETING_KEYS) {
+    if (have.has(`${key}:default`)) continue
+    const template = MARKETING_TEMPLATES[key]
+    await req.payload.create({
+      collection: 'notification-templates',
+      data: {
+        tenant: tenantId,
+        milestone: key,
+        variant: 'default',
+        channel: 'whatsapp',
+        category: 'marketing',
+        locale: LANGUAGE,
+        body: withStoreName(template.body, storeName),
+        variables: [...template.variables],
+        trackButton: true,
+        whatsapp: { name: key, language: LANGUAGE },
+        status: 'draft',
+      },
+      overrideAccess: true,
+      req,
+    })
+    created++
+  }
   return created
 }
 
@@ -127,16 +152,31 @@ export async function submitTemplates(
   const results: { name: string; ok: boolean; message?: string }[] = []
   for (const template of templates) {
     const variant = (template.variant ?? 'default') as Variant
+    const marketing = isMarketingKey(template.milestone)
+      ? MARKETING_TEMPLATES[template.milestone]
+      : null
     const values = messageVariables(sampleFacts(store, variant))
-    const samples = (template.variables ?? []).map((key) => values[key as keyof typeof values])
-    const name = template.whatsapp?.name || whatsappTemplateName(template.milestone, variant)
+    const samples = marketing
+      ? [...marketing.samples]
+      : (template.variables ?? []).map((key) => values[key as keyof typeof values])
+    const name =
+      template.whatsapp?.name ||
+      (marketing
+        ? template.milestone
+        : whatsappTemplateName(template.milestone as MilestoneKey, variant))
     const outcome = await whatsappApi.createTemplate(ctx, {
       name,
       language: template.whatsapp?.language || LANGUAGE,
-      category: 'UTILITY',
+      category: marketing ? 'MARKETING' : 'UTILITY',
       body: template.body,
       samples,
-      trackUrlBase: template.trackButton ? `${store.storeOrigin}/t/` : null,
+      trackUrlBase: marketing
+        ? `${store.storeOrigin}/`
+        : template.trackButton
+          ? `${store.storeOrigin}/t/`
+          : null,
+      trackSample: marketing?.buttonSample,
+      buttonText: marketing?.button,
     })
     await req.payload.update({
       collection: 'notification-templates',

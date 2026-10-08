@@ -241,7 +241,7 @@ describe('reviews', () => {
       overrideAccess: true,
     })
     expect(docs).toHaveLength(1)
-    expect(JSON.parse(docs[0]!.text!).button.url).toMatch(/\/review\//)
+    expect(JSON.parse(docs[0]!.text!).email.button.url).toMatch(/\/review\//)
   })
 })
 

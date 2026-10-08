@@ -194,6 +194,7 @@ describe('rules', () => {
     expect(isNewerStatus('read', 'failed')).toBe(false)
     expect(replyIntent(' STOP ')).toBe('stop')
     expect(replyIntent('Start.')).toBe('start')
+    expect(replyIntent('Stop offers')).toBe('stop-offers')
     expect(replyIntent('where is my order?')).toBeNull()
   })
 })

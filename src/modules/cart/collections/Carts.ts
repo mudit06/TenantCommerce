@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { nobody, STORE_ADMIN, tenantRoleOrPlatform } from '@/access'
 import { shopperAddressGroup } from '@/fields/shopperAddress'
+import { hiddenWithoutFeature } from '@/modules/tenancy'
 
 /**
  * A shopper's cart (docs/06 `carts`). Holds what was picked and the checkout details typed so far;
@@ -10,7 +11,17 @@ import { shopperAddressGroup } from '@/fields/shopperAddress'
  */
 export const Carts: CollectionConfig = {
   slug: 'carts',
-  admin: { hidden: true },
+  labels: { singular: 'Abandoned cart', plural: 'Abandoned carts' },
+  admin: {
+    group: 'Marketing',
+    hidden: hiddenWithoutFeature('abandoned-cart'),
+    components: {
+      views: {
+        // docs/screens Abandoned carts: our own screen; carts are never edited by hand
+        list: { Component: '@/modules/cart/admin/AbandonedCartsView#AbandonedCartsView' },
+      },
+    },
+  },
   access: {
     // Abandoned carts (stage C) are read by owners and managers; the storefront uses the server
     read: tenantRoleOrPlatform({ roles: STORE_ADMIN, supportCanAccess: true }),
@@ -21,6 +32,7 @@ export const Carts: CollectionConfig = {
   indexes: [
     { fields: ['tenant', 'tokenHash'], unique: true },
     { fields: ['tenant', 'status', 'lastActivityAt'] },
+    { fields: ['tenant', 'abandonedAt'] },
   ],
   fields: [
     { name: 'tokenHash', type: 'text', required: true },
@@ -50,10 +62,29 @@ export const Carts: CollectionConfig = {
         { name: 'phone', type: 'text' },
       ],
     },
+    // The signed-in shopper's account (a plain id, docs/06 "Transactions")
+    { name: 'customer', type: 'text' },
     { name: 'pincode', type: 'text' },
     shopperAddressGroup('shippingAddress'),
     { name: 'couponCode', type: 'text' },
     { name: 'lastActivityAt', type: 'date', index: true },
+    // Abandoned cart reminders (docs/18, docs/screens Abandoned carts)
+    { name: 'abandonedAt', type: 'date' },
+    /** What was in it and its value incl. GST when it was left, for the Abandoned carts screen */
+    { name: 'leftSummary', type: 'text' },
+    { name: 'leftValueMinor', type: 'number' },
+    {
+      name: 'reminders',
+      type: 'array',
+      fields: [
+        { name: 'step', type: 'number' },
+        { name: 'channel', type: 'select', options: ['email', 'whatsapp'] },
+        { name: 'to', type: 'text' },
+        { name: 'at', type: 'date' },
+      ],
+    },
+    /** Why no reminder went (no consent, the weekly series), for the Abandoned carts screen */
+    { name: 'reminderNote', type: 'text' },
     { name: 'convertedOrder', type: 'relationship', relationTo: 'orders' },
     {
       name: 'expiresAt',

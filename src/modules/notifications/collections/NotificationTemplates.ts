@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { nobody, ORDER_READ, STORE_ADMIN, tenantRoleOrPlatform } from '@/access'
 
+import { MARKETING_KEYS } from '../marketing'
 import { MILESTONE_KEYS, TEMPLATE_STATUSES } from '../milestones'
 
 /**
@@ -25,7 +26,13 @@ export const NotificationTemplates: CollectionConfig = {
     { fields: ['tenant', 'whatsapp.name'] },
   ],
   fields: [
-    { name: 'milestone', type: 'select', required: true, options: MILESTONE_KEYS },
+    {
+      // An order update step, or a marketing template (offers, cart reminders)
+      name: 'milestone',
+      type: 'select',
+      required: true,
+      options: [...MILESTONE_KEYS, ...MARKETING_KEYS],
+    },
     {
       name: 'category',
       type: 'select',

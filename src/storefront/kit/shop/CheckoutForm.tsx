@@ -9,6 +9,7 @@ import { formatINR } from '@/lib/money'
 import {
   confirmPayment,
   previewCheckout,
+  saveCheckoutContact,
   submitCheckout,
   type PlacedOrder,
 } from '@/storefront/shop/actions'
@@ -122,6 +123,7 @@ export function CheckoutForm({
   themeColor,
   whatsappDefault,
   account,
+  offerChoices,
 }: {
   initial: CheckoutSummary
   initialPincode: string
@@ -130,6 +132,8 @@ export function CheckoutForm({
   whatsappDefault: boolean
   /** The signed-in shopper: their details fill the form (docs/screens Checkout) */
   account: CheckoutAccount | null
+  /** Offer consent boxes, unticked, when the store sends offers (docs/18 "Consent") */
+  offerChoices: { email: boolean; whatsapp: boolean }
 }) {
   const router = useRouter()
   const [summary, setSummary] = useState(initial)
@@ -146,6 +150,18 @@ export function CheckoutForm({
     email: account?.email ?? '',
   })
   const [saveAddress, setSaveAddress] = useState(Boolean(account) && !saved)
+  const [offers, setOffers] = useState({ email: false, whatsapp: false })
+  // The contact and offer choices are kept on the cart as they are typed, so a cart left here
+  // can be reminded (abandoned carts, only with offer consent)
+  const keepContact = (next = offers, touched = false) => {
+    if (!contact.email.includes('@') && contact.phone.replace(/\D/g, '').length < 10) return
+    void saveCheckoutContact({
+      name: address.name,
+      email: contact.email,
+      phone: contact.phone,
+      ...(touched ? { offers: next } : {}),
+    })
+  }
   const [whatsappOptIn, setWhatsappOptIn] = useState(whatsappDefault)
   const [address, setAddress] = useState({
     pincode: saved?.pincode ?? initialPincode,
@@ -236,6 +252,7 @@ export function CheckoutForm({
     const result = await submitCheckout({
       idempotencyKey: idempotencyKey.current,
       saveAddress: Boolean(account) && saveAddress,
+      offers,
       form: {
         contact: { name: address.name, email: contact.email, phone: contact.phone },
         // One mobile number for the order: the courier calls the same one
@@ -305,6 +322,7 @@ export function CheckoutForm({
                 className={inputClass}
                 id="co-phone"
                 inputMode="tel"
+                onBlur={() => keepContact()}
                 onChange={(event) => setContact({ ...contact, phone: event.target.value })}
                 placeholder="98765 43210"
                 value={contact.phone}
@@ -317,6 +335,7 @@ export function CheckoutForm({
                 className={inputClass}
                 id="co-email"
                 inputMode="email"
+                onBlur={() => keepContact()}
                 onChange={(event) => setContact({ ...contact, email: event.target.value })}
                 type="email"
                 value={contact.email}
@@ -335,6 +354,41 @@ export function CheckoutForm({
             />
             Send me order updates from {storeName} on WhatsApp
           </label>
+          {offerChoices.email ? (
+            <div className="space-y-1 text-sm">
+              <p>Offers and new launches from {storeName}</p>
+              <div className="flex flex-wrap gap-4">
+                <label className="flex items-center gap-2">
+                  <input
+                    checked={offers.email}
+                    className="size-4"
+                    onChange={(event) => {
+                      const next = { ...offers, email: event.target.checked }
+                      setOffers(next)
+                      keepContact(next, true)
+                    }}
+                    type="checkbox"
+                  />
+                  By email
+                </label>
+                {offerChoices.whatsapp ? (
+                  <label className="flex items-center gap-2">
+                    <input
+                      checked={offers.whatsapp}
+                      className="size-4"
+                      onChange={(event) => {
+                        const next = { ...offers, whatsapp: event.target.checked }
+                        setOffers(next)
+                        keepContact(next, true)
+                      }}
+                      type="checkbox"
+                    />
+                    On WhatsApp
+                  </label>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
         </Step>
 
         <Step n={2} title="Delivery address">

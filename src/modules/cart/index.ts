@@ -6,12 +6,15 @@ export {
   cartLinesOf,
   changeLine,
   findCart,
+  hashCartToken,
   markCartConverted,
   MAX_QTY,
   newCartToken,
+  restoreCart,
   saveCart,
   type CartLine,
 } from './services/carts'
+export { readRestoreToken, RESTORE_DAYS, restoreToken } from './services/restore'
 export {
   priceCart,
   type PriceLineInput,

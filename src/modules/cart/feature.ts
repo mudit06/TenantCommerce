@@ -31,6 +31,11 @@ export const features = defineFeatures([
         .array(z.enum(['email', 'whatsapp']))
         .min(1)
         .default(['email', 'whatsapp']),
+      // The second reminder's channels (docs/screens Abandoned carts: email only by default)
+      secondChannels: z
+        .array(z.enum(['email', 'whatsapp']))
+        .min(1)
+        .default(['email']),
     }),
   },
 ])
