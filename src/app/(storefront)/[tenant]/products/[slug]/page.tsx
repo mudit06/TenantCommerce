@@ -17,6 +17,8 @@ import { ProductEnquiry } from '@/storefront/kit/product/ProductEnquiry'
 import { QuoteForm } from '@/storefront/kit/product/QuoteForm'
 import { ProductReviews } from '@/storefront/kit/reviews/ProductReviews'
 import { Stars } from '@/storefront/kit/reviews/Stars'
+import { formatINR } from '@/lib/money'
+import { RememberView } from '@/storefront/kit/pwa/RememberView'
 import { BuyBox } from '@/storefront/kit/shop/BuyBox'
 import { HeartButton } from '@/storefront/kit/shop/HeartButton'
 import { SpecTable } from '@/storefront/kit/product/SpecTable'
@@ -135,8 +137,19 @@ export default async function ProductPage({ params }: Props) {
         : undefined,
   }
 
+  const firstPhoto = photos.find((photo) => typeof photo === 'object')
   return (
     <Container className="py-6">
+      <RememberView
+        image={typeof firstPhoto === 'object' ? (mediaUrl(firstPhoto?.url) ?? null) : null}
+        path={`/products/${product.slug}`}
+        price={
+          buying && product.price?.amountMinor
+            ? formatINR(productOffer?.priceMinor ?? product.price.amountMinor)
+            : null
+        }
+        title={product.title}
+      />
       <Breadcrumbs items={crumbs} origin={ctx.origin} />
       <div className="mt-5 grid gap-8 lg:grid-cols-2 lg:gap-12">
         <Gallery

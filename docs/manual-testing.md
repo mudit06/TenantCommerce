@@ -657,6 +657,19 @@ In the CMS as the owner, **Sales → Customers**:
       one to a product. Open **/downloads**: tabs by kind, search by the product's name or model
       number, **Download** opens the PDF.
 
+### 3.10 Install and offline (production mode only)
+
+The service worker only runs in a production build (section 7). The store must be live, since a
+draft store shows "coming soon" in production.
+
+- [ ] Open the store, reload once, then open a product. In Chrome DevTools → Application: the
+      Manifest shows the store's name, colour and icons; Service workers shows `sw.js` running.
+- [ ] Stop the server (or tick Offline in DevTools → Network). The product you opened still
+      loads; a page you never opened shows "You're offline" with that product under Recently
+      viewed and **Try again**. Cart and checkout don't load offline.
+- [ ] Visit the store a second time on a phone: a banner offers **Install** (Android), or on an
+      iPhone says to tap Share, then Add to Home Screen. **Not now** hides it for good.
+
 ## 4. Enquiries inbox (vendor CMS)
 
 Back in the owner's private window.
@@ -754,7 +767,7 @@ Uploaded files stay in `media/`; delete that folder too for a completely clean s
 - SMS updates (later), returns
 - Affiliate statement PDFs (the statement is emailed as text)
 - WhatsApp offer messages and cart reminders (they need Meta-approved marketing templates)
-- CSV import, the PWA "install app" and offline page
+- CSV import
 - Two-step login (deferred)
 - Real emails: locally they are printed in the `pnpm dev` terminal
 - Custom domains: locally every store is `<slug>.localhost:3000`

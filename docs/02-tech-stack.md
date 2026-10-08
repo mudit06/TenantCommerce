@@ -43,7 +43,7 @@ Payload 4 is in canary (needs Node 24, Next 16.2.6+, TS 6). Stay on 3.x; plan th
 | Data fetching on client | TanStack Query for search autocomplete, cart, account pages |
 | Images | `next/image` with a CDN loader |
 | Carousel | Embla |
-| PWA | Serwist (`@serwist/next`) |
+| PWA | A hand-written service worker (`public/sw.js`, ADR 0007; Serwist's Next plugin needs webpack) |
 | Maps (dealer locator) | Leaflet + OpenStreetMap tiles (free) or Google Maps if a vendor pays |
 | Analytics | GA4 / Meta Pixel per tenant (IDs in tenant settings), loaded with consent |
 

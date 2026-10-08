@@ -8,6 +8,7 @@ import { Footer } from '@/storefront/kit/layout/Footer'
 import { Header } from '@/storefront/kit/layout/Header'
 import { StoreMessage } from '@/storefront/kit/layout/StoreMessage'
 import { WhatsAppFloat } from '@/storefront/kit/layout/WhatsAppFloat'
+import { PwaSetup } from '@/storefront/kit/pwa/PwaSetup'
 import { mediaUrl } from '@/storefront/kit/media'
 import { storeWhatsApp } from '@/storefront/kit/whatsapp'
 
@@ -30,7 +31,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: { default: ctx.ui.tagline ? `${name} · ${ctx.ui.tagline}` : name, template },
     description: `${name}: ${ctx.categories.roots.map((root) => root.name.toLowerCase()).join(', ') || 'products'}. Ask for a quote online.`,
     applicationName: name,
-    icons: favicon ? { icon: favicon } : undefined,
+    icons: { ...(favicon ? { icon: favicon } : {}), apple: '/app-icon/180' },
+    manifest: '/manifest.webmanifest',
+    appleWebApp: { capable: true, title: name, statusBarStyle: 'default' },
     openGraph: { siteName: name, type: 'website', images: ogImage ? [ogImage] : undefined },
     // Draft stores are previews: keep them out of search engines
     robots: ctx.store.status === 'active' ? undefined : { index: false, follow: false },
@@ -110,6 +113,7 @@ export default async function StoreLayout({ children, params }: Props) {
               {children}
             </main>
             <Footer ctx={ctx} />
+            <PwaSetup icon="/app-icon/192" storeName={name} />
             <WhatsAppFloat
               href={storeWhatsApp(
                 ctx.settings?.contact?.whatsapp,

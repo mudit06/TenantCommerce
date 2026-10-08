@@ -17,6 +17,16 @@
 - Service worker scope is per origin, and each tenant has its own origin, so caches never mix
   between stores. On the shared `*.platform` subdomains the origin still differs per tenant.
 - Install prompt: custom "Add to home screen" banner after 2 visits (respect dismissal).
+- **As built (9 October 2026, ADR 0007):** `public/sw.js` (hand-written, no Serwist) registered
+  from the storefront layout in production only. On install it saves `/offline` and the script
+  and style files that page needs. Pages are NetworkFirst (3 s) into a 50-page cache; an unsaved
+  page redirects to `/offline?from=<path>` (the app's router needs the address to match the
+  page). `/_next/static` and images are CacheFirst, matched ignoring `Vary` (the colour-scheme
+  hint). Private paths (`/api/` except media files, `/admin`, `/cart`, `/checkout`, `/account`,
+  `/wishlist`, `/affiliate`, `/review/`, `/r/`, `/u/`, `/unsubscribe`, `/t/`, `/preview`) always
+  use the network. Bump `VERSION` in the file when its rules change. The manifest is
+  `/manifest.webmanifest` and icons `/app-icon/180|192|512` (sharp, from the store's App icon or
+  logo, else its initials). Recently viewed products are kept on the device (`te_recent`).
 - Push notifications (Phase 2): Web Push with VAPID keys per platform; subscription stored per
   customer per tenant. Push is a fourth channel of the same notification engine (docs/18), so it
   follows the same milestones, dedupe and opt-outs, and offers over push need offer consent.
