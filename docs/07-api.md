@@ -174,6 +174,12 @@ Guests keep the wishlist on the device; the kit stores product ids only and call
 | GET | `/affiliate/payouts` | Payout statements with gross, TDS, net, UTR and the PDF |
 | PATCH | `/affiliate/me/payout` | `{ method, upiId? or accountNumber + ifsc + accountName, pan }` stored encrypted; changing it emails the affiliate |
 
+**As built (9 October 2026):** `/r/:code` is a route handler (the cookie is `te_ref`, httpOnly, for
+the program's days; not signed, since the code is checked against approved affiliates at
+checkout). Applying and payout details are the storefront's server actions `applyForAffiliate`
+and `saveMyPayoutDetails`; the dashboard reads the ledger on the server, so there are no
+`/affiliate/me`, `/referrals` or `/payouts` JSON endpoints yet.
+
 ### B2B trade accounts (Phase 2, requires `b2b` feature + approved trade account)
 | Method | Path | Purpose |
 |---|---|---|
@@ -251,6 +257,7 @@ Guests keep the wishlist on the device; the kit stores product ids only and call
 | POST | `/affiliates/:id/status` | `{ action: 'approve'|'reject'|'pause'|'resume', commissionPercent? }` |
 | POST | `/affiliate-payouts` | `{ affiliateId, periodEnd }` builds a draft statement from approved commissions (TDS worked out, docs/11) |
 | POST | `/affiliate-payouts/:id/paid` | Owner only: `{ paidOn, method, reference }` marks the statement paid and emails it |
+| POST | `/affiliates/...` | As built (9 October 2026), all `?store=`: `/affiliates/:id/status` `{ action, reason? }` (a reason to reject), `/affiliates/:id/rates` `{ commissionPercent, categoryRates[] }`, `/affiliates/:id/coupon` `{ coupon }`, `/affiliates/:id/payouts` (owner only) `{ paidOn, method, reference }` records a payout already made from the approved commission, and `/affiliates/program` the program settings. There is no draft statement step |
 | GET | `/reports/offers?from=&to=` | Per scheme and coupon: orders, sales, discount given, new customers |
 | GET | `/reports/affiliates?from=&to=` | Per affiliate: clicks, orders, sales, commission by status |
 | GET | `/reports/abandoned-carts?from=&to=` | Carts abandoned, reminded, recovered, recovered sales |

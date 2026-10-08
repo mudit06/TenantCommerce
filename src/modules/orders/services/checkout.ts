@@ -452,7 +452,13 @@ export async function placeOrder(
     cartId?: string | null
     /** The signed-in shopper's account (docs/05) */
     customerId?: string | null
-    meta?: { ip?: string | null; userAgent?: string | null; source?: 'web' | 'pwa' }
+    meta?: {
+      ip?: string | null
+      userAgent?: string | null
+      source?: 'web' | 'pwa'
+      /** The affiliate code from the referral cookie (docs/11 "Attribution") */
+      ref?: string | null
+    }
     live?: LiveRateSource | null
   },
 ): Promise<{ order: Order; quote: CheckoutQuote }> {
@@ -577,6 +583,7 @@ export async function placeOrder(
         : undefined,
       appliedOffers: quote.promotions.appliedOffers,
       couponCode: input.couponCode || undefined,
+      referral: meta?.ref ? { code: meta.ref.slice(0, 40) } : undefined,
       whatsappOptIn: input.whatsappOptIn,
       notes: input.notes || undefined,
       source: meta?.source ?? 'web',

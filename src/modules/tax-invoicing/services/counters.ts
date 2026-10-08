@@ -3,7 +3,8 @@ import type { PayloadRequest } from 'payload'
 import { atomicIncrement } from '@/lib/db/atomic'
 
 /** Counter keys in use; invoices and credit notes restart every financial year. */
-export type CounterKey = 'enquiry' | 'order' | `invoice:${string}` | `credit-note:${string}`
+export type CounterKey =
+  'enquiry' | 'order' | `invoice:${string}` | `credit-note:${string}` | `payout:${string}`
 
 /**
  * The next number for `key` in a store: 1, 2, 3… never repeated, even for two requests at the

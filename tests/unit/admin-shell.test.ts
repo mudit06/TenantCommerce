@@ -51,12 +51,12 @@ describe('admin menu per workspace', () => {
       undefined,
       'Catalog',
       'Sales',
-      'Marketing',
+      // Every Marketing screen is built now and follows collection access (none visible here)
       'Content',
       'Store',
       'Insights',
     ])
-    expect(items.find((item) => item.key === 'affiliates')).toMatchObject({ soon: true, href: '' })
+    expect(items.find((item) => item.key === 'import')).toMatchObject({ soon: true, href: '' })
     // Customers is built: it follows collection access like any other screen
     expect(items.map((item) => item.key)).not.toContain('customers')
 

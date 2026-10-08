@@ -64,8 +64,6 @@ const soonItem = (
   feature?: string,
 ): MenuItem => ({ key, label, icon, href: '', soon: true, roles, feature })
 
-const MARKETING: readonly TenantRole[] = ['owner', 'manager']
-
 // Grouped as the wireframe's vendor CMS menu (docs/wireframes #cms-dashboard, docs/screens
 // vendor-cms.md "Menu"), mudit 4 October 2026
 const STORE_MENU: MenuSection[] = [
@@ -112,7 +110,7 @@ const STORE_MENU: MenuSection[] = [
       collectionItem('coupons', 'Coupons', 'brands'),
       collectionItem('offer-campaigns', 'Offer messages', 'mail'),
       collectionItem('carts', 'Abandoned carts', 'cart'),
-      soonItem('affiliates', 'Affiliates', 'link', MARKETING, 'affiliate'),
+      collectionItem('affiliates', 'Affiliates', 'link'),
       collectionItem('reviews', 'Reviews', 'star'),
     ],
   },

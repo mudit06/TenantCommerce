@@ -85,6 +85,10 @@ export interface Config {
     'coupon-redemptions': CouponRedemption;
     reviews: Review;
     wishlists: Wishlist;
+    affiliates: Affiliate;
+    referrals: Referral;
+    'affiliate-payouts': AffiliatePayout;
+    'affiliate-clicks': AffiliateClick;
     'offer-campaigns': OfferCampaign;
     'shipping-zones': ShippingZone;
     orders: Order;
@@ -145,6 +149,10 @@ export interface Config {
     'coupon-redemptions': CouponRedemptionsSelect<false> | CouponRedemptionsSelect<true>;
     reviews: ReviewsSelect<false> | ReviewsSelect<true>;
     wishlists: WishlistsSelect<false> | WishlistsSelect<true>;
+    affiliates: AffiliatesSelect<false> | AffiliatesSelect<true>;
+    referrals: ReferralsSelect<false> | ReferralsSelect<true>;
+    'affiliate-payouts': AffiliatePayoutsSelect<false> | AffiliatePayoutsSelect<true>;
+    'affiliate-clicks': AffiliateClicksSelect<false> | AffiliateClicksSelect<true>;
     'offer-campaigns': OfferCampaignsSelect<false> | OfferCampaignsSelect<true>;
     'shipping-zones': ShippingZonesSelect<false> | ShippingZonesSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
@@ -207,6 +215,7 @@ export interface Config {
       'switch-schemes': TaskSwitchSchemes;
       'scheme-stats': TaskSchemeStats;
       'review-requests': TaskReviewRequests;
+      'approve-commission': TaskApproveCommission;
       'offer-campaigns-send': TaskOfferCampaignsSend;
       'abandoned-carts': TaskAbandonedCarts;
       schedulePublish: TaskSchedulePublish;
@@ -1677,6 +1686,116 @@ export interface Wishlist {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "affiliates".
+ */
+export interface Affiliate {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  customer: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  code: string;
+  coupon?: string | null;
+  status: 'applied' | 'approved' | 'paused' | 'rejected';
+  application?: {
+    promotesOn?: ('instagram' | 'youtube' | 'website' | 'whatsapp' | 'offline' | 'other') | null;
+    profileUrl?: string | null;
+    audienceNote?: string | null;
+    appliedAt?: string | null;
+    termsAcceptedAt?: string | null;
+  };
+  commissionPercent?: number | null;
+  categoryRates?:
+    | {
+        category: string;
+        categoryName?: string | null;
+        percent: number;
+        id?: string | null;
+      }[]
+    | null;
+  payoutSealed?: string | null;
+  payoutMasked?: string | null;
+  panSealed?: string | null;
+  panMasked?: string | null;
+  gstin?: string | null;
+  rejectReason?: string | null;
+  approvedBy?: string | null;
+  approvedAt?: string | null;
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "referrals".
+ */
+export interface Referral {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  affiliate: string;
+  order: string;
+  orderNumber?: string | null;
+  orderPlacedAt?: string | null;
+  via?: ('link' | 'coupon') | null;
+  baseMinor: number;
+  commissionPercent?: number | null;
+  rateNote?: string | null;
+  grossMinor: number;
+  commissionMinor: number;
+  status: 'pending' | 'approved' | 'paid' | 'reversed';
+  holdUntil?: string | null;
+  adjustments?:
+    | {
+        reason?: ('refund' | 'return' | 'cancel') | null;
+        amountMinor?: number | null;
+        at?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  approvedAt?: string | null;
+  payout?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "affiliate-payouts".
+ */
+export interface AffiliatePayout {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  number: string;
+  affiliate: string;
+  referrals?: string[] | null;
+  grossMinor: number;
+  tdsMinor: number;
+  tdsPercent?: number | null;
+  netMinor: number;
+  financialYear: string;
+  status?: ('draft' | 'paid') | null;
+  paidOn: string;
+  method?: ('upi' | 'neft' | 'imps') | null;
+  reference?: string | null;
+  recordedBy?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "affiliate-clicks".
+ */
+export interface AffiliateClick {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  affiliate: string;
+  date: string;
+  clicks?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "offer-campaigns".
  */
 export interface OfferCampaign {
@@ -1889,6 +2008,11 @@ export interface Order {
       }[]
     | null;
   couponCode?: string | null;
+  referral?: {
+    code?: string | null;
+    affiliate?: string | null;
+    via?: ('link' | 'coupon') | null;
+  };
   invoice?: (string | null) | Invoice;
   /**
    * The /t/<code> link in messages to the shopper
@@ -2398,7 +2522,7 @@ export interface NotificationLog {
   id: string;
   tenant?: (string | null) | Tenant;
   direction?: ('out' | 'in') | null;
-  kind?: ('order' | 'offer' | 'test' | 'staff' | 'reply' | 'review' | 'cart') | null;
+  kind?: ('order' | 'offer' | 'test' | 'staff' | 'reply' | 'review' | 'cart' | 'affiliate') | null;
   milestone?: string | null;
   variant?: string | null;
   channel: 'email' | 'whatsapp' | 'sms';
@@ -3058,6 +3182,7 @@ export interface PayloadJob {
           | 'switch-schemes'
           | 'scheme-stats'
           | 'review-requests'
+          | 'approve-commission'
           | 'offer-campaigns-send'
           | 'abandoned-carts'
           | 'schedulePublish';
@@ -3105,6 +3230,7 @@ export interface PayloadJob {
         | 'switch-schemes'
         | 'scheme-stats'
         | 'review-requests'
+        | 'approve-commission'
         | 'offer-campaigns-send'
         | 'abandoned-carts'
         | 'schedulePublish'
@@ -3203,6 +3329,22 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'wishlists';
         value: string | Wishlist;
+      } | null)
+    | ({
+        relationTo: 'affiliates';
+        value: string | Affiliate;
+      } | null)
+    | ({
+        relationTo: 'referrals';
+        value: string | Referral;
+      } | null)
+    | ({
+        relationTo: 'affiliate-payouts';
+        value: string | AffiliatePayout;
+      } | null)
+    | ({
+        relationTo: 'affiliate-clicks';
+        value: string | AffiliateClick;
       } | null)
     | ({
         relationTo: 'offer-campaigns';
@@ -4291,6 +4433,114 @@ export interface WishlistsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "affiliates_select".
+ */
+export interface AffiliatesSelect<T extends boolean = true> {
+  tenant?: T;
+  customer?: T;
+  name?: T;
+  email?: T;
+  phone?: T;
+  code?: T;
+  coupon?: T;
+  status?: T;
+  application?:
+    | T
+    | {
+        promotesOn?: T;
+        profileUrl?: T;
+        audienceNote?: T;
+        appliedAt?: T;
+        termsAcceptedAt?: T;
+      };
+  commissionPercent?: T;
+  categoryRates?:
+    | T
+    | {
+        category?: T;
+        categoryName?: T;
+        percent?: T;
+        id?: T;
+      };
+  payoutSealed?: T;
+  payoutMasked?: T;
+  panSealed?: T;
+  panMasked?: T;
+  gstin?: T;
+  rejectReason?: T;
+  approvedBy?: T;
+  approvedAt?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "referrals_select".
+ */
+export interface ReferralsSelect<T extends boolean = true> {
+  tenant?: T;
+  affiliate?: T;
+  order?: T;
+  orderNumber?: T;
+  orderPlacedAt?: T;
+  via?: T;
+  baseMinor?: T;
+  commissionPercent?: T;
+  rateNote?: T;
+  grossMinor?: T;
+  commissionMinor?: T;
+  status?: T;
+  holdUntil?: T;
+  adjustments?:
+    | T
+    | {
+        reason?: T;
+        amountMinor?: T;
+        at?: T;
+        id?: T;
+      };
+  approvedAt?: T;
+  payout?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "affiliate-payouts_select".
+ */
+export interface AffiliatePayoutsSelect<T extends boolean = true> {
+  tenant?: T;
+  number?: T;
+  affiliate?: T;
+  referrals?: T;
+  grossMinor?: T;
+  tdsMinor?: T;
+  tdsPercent?: T;
+  netMinor?: T;
+  financialYear?: T;
+  status?: T;
+  paidOn?: T;
+  method?: T;
+  reference?: T;
+  recordedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "affiliate-clicks_select".
+ */
+export interface AffiliateClicksSelect<T extends boolean = true> {
+  tenant?: T;
+  affiliate?: T;
+  date?: T;
+  clicks?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "offer-campaigns_select".
  */
 export interface OfferCampaignsSelect<T extends boolean = true> {
@@ -4437,6 +4687,13 @@ export interface OrdersSelect<T extends boolean = true> {
         id?: T;
       };
   couponCode?: T;
+  referral?:
+    | T
+    | {
+        code?: T;
+        affiliate?: T;
+        via?: T;
+      };
   invoice?: T;
   trackingCode?: T;
   whatsappOptIn?: T;
@@ -5454,6 +5711,16 @@ export interface TaskReviewRequests {
   input?: unknown;
   output: {
     queued: number;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskApprove-commission".
+ */
+export interface TaskApproveCommission {
+  input?: unknown;
+  output: {
+    approved: number;
   };
 }
 /**

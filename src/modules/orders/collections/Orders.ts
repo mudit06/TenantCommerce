@@ -298,6 +298,18 @@ export const Orders: CollectionConfig = {
       ],
     },
     { name: 'couponCode', type: 'text', admin: readOnly },
+    {
+      // Affiliate attribution (docs/11): the referral link's code from the shopper's cookie, and
+      // the affiliate credited (set by the affiliate module when the order is confirmed)
+      name: 'referral',
+      type: 'group',
+      admin: readOnly,
+      fields: [
+        { name: 'code', type: 'text' },
+        { name: 'affiliate', type: 'text' },
+        { name: 'via', type: 'select', options: ['link', 'coupon'] },
+      ],
+    },
     { name: 'invoice', type: 'relationship', relationTo: 'invoices', admin: readOnly },
     {
       name: 'trackingCode',

@@ -17,7 +17,7 @@ import { storeFacts } from './store'
 
 export type PreparedEmail = Omit<StoreMessageInput, 'storeName' | 'themeColor'>
 
-export const PREPARED_KINDS = ['review', 'offer', 'cart'] as const
+export const PREPARED_KINDS = ['review', 'offer', 'cart', 'affiliate'] as const
 export type PreparedKind = (typeof PREPARED_KINDS)[number]
 
 /** Checked again at send time */

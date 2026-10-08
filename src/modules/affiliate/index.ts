@@ -1,0 +1,16 @@
+// Public API of the affiliate module (docs/01): the program, the commission ledger and payouts.
+// The endpoints are imported by payload.config directly.
+export { AffiliateClicks } from './collections/AffiliateClicks'
+export { AffiliatePayouts } from './collections/AffiliatePayouts'
+export { Affiliates } from './collections/Affiliates'
+export { Referrals } from './collections/Referrals'
+export * from './constants'
+export { registerAffiliateEvents } from './events'
+export { approveCommissionTask } from './jobs/approve'
+export { affiliateOfCustomer, programConfig, type ProgramConfig } from './services/access'
+export { detailsSchema, savePayoutDetails } from './services/details'
+export { approveDueReferrals, attributeOrder, commissionFor } from './services/ledger'
+export { payoutPreview, recordPayout } from './services/payouts'
+export { financialYear, maskPan, maskPayout, payoutDetailsSchema, tdsFor } from './rules'
+export { applicationSchema, applyAsAffiliate, type ApplicationInput } from './services/program'
+export { affiliateFigures, rateText, recordClick, type AffiliateFigures } from './services/stats'

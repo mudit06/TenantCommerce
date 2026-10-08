@@ -39,6 +39,7 @@ import { SchemeSidebar as SchemeSidebar_3ed80a1ba27c82e0647c305f0f90be90 } from 
 import { SchemesList as SchemesList_1e6be9fbde0fdcb134f9e55c83cd76da } from '@/modules/promotions/admin/SchemesList'
 import { CouponsView as CouponsView_d0dd40df76c41bcff97b15430c38f366 } from '@/modules/promotions/admin/CouponsView'
 import { ReviewsView as ReviewsView_e8abdf1dd11f5b75ae660be09315527f } from '@/modules/reviews/admin/ReviewsView'
+import { AffiliatesView as AffiliatesView_93c78f45ed4aff1dc894ee89716e11e8 } from '@/modules/affiliate/admin/AffiliatesView'
 import { OfferMessagesView as OfferMessagesView_48e182cf7a2c1300810a2d47a5df1aa5 } from '@/modules/notifications/admin/OfferMessagesView'
 import { OrderDetail as OrderDetail_856150d4a97bd8954bda8b0c2e915e8d } from '@/modules/orders/admin/OrderDetail'
 import { OrdersList as OrdersList_a257406c88338e4b8e903eb62a324497 } from '@/modules/orders/admin/OrdersList'
@@ -121,6 +122,7 @@ export const importMap = {
   "@/modules/promotions/admin/SchemesList#SchemesList": SchemesList_1e6be9fbde0fdcb134f9e55c83cd76da,
   "@/modules/promotions/admin/CouponsView#CouponsView": CouponsView_d0dd40df76c41bcff97b15430c38f366,
   "@/modules/reviews/admin/ReviewsView#ReviewsView": ReviewsView_e8abdf1dd11f5b75ae660be09315527f,
+  "@/modules/affiliate/admin/AffiliatesView#AffiliatesView": AffiliatesView_93c78f45ed4aff1dc894ee89716e11e8,
   "@/modules/notifications/admin/OfferMessagesView#OfferMessagesView": OfferMessagesView_48e182cf7a2c1300810a2d47a5df1aa5,
   "@/modules/orders/admin/OrderDetail#OrderDetail": OrderDetail_856150d4a97bd8954bda8b0c2e915e8d,
   "@/modules/orders/admin/OrdersList#OrdersList": OrdersList_a257406c88338e4b8e903eb62a324497,

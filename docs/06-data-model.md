@@ -501,6 +501,18 @@ A statement the vendor pays outside the platform and records. `number` (`PAY/26-
 Daily counters, not one document per click: `affiliate`, `date`, `clicks`, `uniqueVisitors`
 (approximate, from a hashed cookie). Unique `(tenant, affiliate, date)`.
 
+**As built (9 October 2026, `src/modules/affiliate`):** plain ids for every link between these
+(`customer`, `coupon`, `affiliate`, `order`, `payout`), since they are written inside order
+transactions. `affiliates`: `payoutSealed`/`panSealed` (AES-GCM with the connector key) beside
+`payoutMasked`/`panMasked`; `application.termsAcceptedAt`; `rejectReason`; `categoryRates[]`
+carries `categoryName`; no stored `totals` (the screens sum the ledger when read).
+`referrals`: `orderNumber`, `orderPlacedAt`, `baseMinor`, `grossMinor` (at the order) and
+`commissionMinor` (now, after adjustments), `rateNote` (a category rate used), `holdUntil` empty
+until delivery. `affiliate-payouts`: no draft step (the owner records a payout already made),
+`financialYear`, `tdsPercent`. `affiliate-clicks`: `clicks` only (a click counts once per browser
+per 30 minutes). `orders.referral { code, affiliate, via }`: the cookie's code at checkout and the
+affiliate credited when the order is confirmed.
+
 ## Trade accounts (T, Phase 2, owned by the `b2b` module)
 
 - **trade-accounts**: `type` (`dealer|retailer|wholesaler|designer`), `companyName`, `gstin`,

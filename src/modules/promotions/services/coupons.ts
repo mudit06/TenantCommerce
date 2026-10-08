@@ -129,7 +129,8 @@ export async function saveCoupon(
     paymentMethods: data.paymentMethods,
     visibility: data.visibility,
     scheme: data.scheme || null,
-    affiliate: data.affiliate || null,
+    // Linked from the Affiliates screen; an edit here keeps the link unless it says otherwise
+    ...(data.affiliate !== undefined ? { affiliate: data.affiliate || null } : {}),
     lastEditedBy: editorName(req.user) ?? undefined,
     // An end date in the future brings an expired coupon back
     ...(existing?.status === 'expired' && !ended ? { status: 'active' as const } : {}),

@@ -85,6 +85,15 @@ import {
   switchSchemesTask,
 } from '@/modules/promotions'
 import { reviewEndpoints, reviewRequestsTask, Reviews, Wishlists } from '@/modules/reviews'
+import {
+  AffiliateClicks,
+  AffiliatePayouts,
+  Affiliates,
+  approveCommissionTask,
+  Referrals,
+  registerAffiliateEvents,
+} from '@/modules/affiliate'
+import { affiliateEndpoints } from '@/modules/affiliate/endpoints'
 import { Pincodes, Shipments, ShippingZones } from '@/modules/shipping'
 // Endpoints load env and connectors; kept out of the shipping index so its pure parts stay
 // importable from unit-tested code (orders' parcel rules)
@@ -109,6 +118,7 @@ registerTaxInvoicingEvents()
 registerNotificationEvents()
 registerCustomerEvents()
 registerPromotionEvents()
+registerAffiliateEvents()
 
 /** A store's own data: its CMS screens only, and audited when our team changes it (docs/05). */
 const storeCollection = (collection: CollectionConfig) =>
@@ -239,6 +249,8 @@ export default buildConfig({
     storeScreen(CouponRedemptions),
     // Reviews are moderated through their own screen; wishlists belong to shoppers
     ...[Reviews, Wishlists].map(storeScreen),
+    // Affiliates have their own screen; the ledger, payouts and clicks are read through it
+    ...[Affiliates, Referrals, AffiliatePayouts, AffiliateClicks].map(storeScreen),
     storeScreen(OfferCampaigns),
     // Selling (stage B): orders and their records are written by services only, so the store
     // session audit wrapper is for the screens staff edit directly (shipping zones)
@@ -280,6 +292,7 @@ export default buildConfig({
     ...customerEndpoints,
     ...promotionEndpoints,
     ...reviewEndpoints,
+    ...affiliateEndpoints,
   ],
   jobs: {
     tasks: [
@@ -292,6 +305,7 @@ export default buildConfig({
       switchSchemesTask,
       schemeStatsTask,
       reviewRequestsTask,
+      approveCommissionTask,
       sendCampaignsTask,
       abandonedCartsTask,
     ],
@@ -402,6 +416,10 @@ export default buildConfig({
         'coupon-redemptions': {},
         reviews: {},
         wishlists: {},
+        affiliates: {},
+        referrals: {},
+        'affiliate-payouts': {},
+        'affiliate-clicks': {},
         'offer-campaigns': {},
       },
       // Our team works across stores; support is read-only through access functions

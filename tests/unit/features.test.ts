@@ -27,6 +27,8 @@ describe('feature registry (docs/08)', () => {
       cookieDays: 30,
       minPayoutMinor: 50_000,
       autoApproveApplications: false,
+      holdDays: 7,
+      termsPath: 'pages/affiliate-terms',
     })
     expect(defaultFeatureConfig('offer-messages')).toMatchObject({
       maxPerShopperPerWeek: 2,

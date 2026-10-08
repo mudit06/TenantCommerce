@@ -1822,3 +1822,27 @@ button.te-tab {
   color: #111b21;
   font-size: 13px;
 }
+
+// A plain list of rows in a card (Affiliates applications, payout statements)
+.te-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.te-list__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  min-width: 0;
+
+  & + & {
+    border-top: 1px solid var(--te-line);
+  }
+
+  p {
+    margin: 6px 0 0;
+  }
+}

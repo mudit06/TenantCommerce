@@ -11,6 +11,7 @@ import { getPayloadClient } from '@/lib/data/payload'
 import { withTransaction } from '@/lib/db/transaction'
 import { isAppError } from '@/lib/errors'
 import { allow, LIMITS } from '@/lib/rate-limit'
+import { REF_COOKIE } from '@/modules/affiliate'
 import { changeLine, markCartConverted, saveCart } from '@/modules/cart'
 import { completeProfileFromOrder, rememberCheckoutAddress } from '@/modules/customers'
 import { setOfferConsent } from '@/modules/notifications'
@@ -277,7 +278,8 @@ export async function submitCheckout(input: {
         lines,
         input: form,
         cartId: cart ? String(cart.id) : null,
-        meta: { ...meta, source: 'web' },
+        // The affiliate's referral link, if one was clicked (docs/11 "Attribution")
+        meta: { ...meta, source: 'web', ref: (await cookies()).get(REF_COOKIE)?.value ?? null },
         customerId,
       })
       await recordCheckoutOffers(req, store.tenantId, form.contact, input.offers)

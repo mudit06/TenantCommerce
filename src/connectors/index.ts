@@ -20,6 +20,8 @@ export {
   type ConnectorAvailability,
   type ConnectorSummary,
 } from './core/service'
+// Also seals other private details at rest (affiliate payout details and PAN, docs/14)
+export { decryptSecret, encryptSecret } from './core/secrets'
 export type { ConnectorContext, ConnectorMode, TestResult } from './core/types'
 export * as razorpayApi from './payment/razorpay'
 export * as shiprocketApi from './shipping/shiprocket'

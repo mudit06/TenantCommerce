@@ -449,6 +449,30 @@ As Home Orbit's owner (the store needs a price on a few products: `pnpm demo:sel
       On **Reminders**, tick **Send a second reminder**, pick a coupon code and **Save
       reminders**; the second reminder carries the code.
 
+### 2.14 Affiliates
+
+Affiliates are in the Enterprise plan: in super admin switch the store's plan, then turn on
+**Affiliate program** under the vendor's features.
+
+- [ ] On the store open **/affiliate**: the rate, the steps and "Log in to apply". Log in (3.8),
+      fill the form; it won't send without ticking the terms. After sending it says we reply
+      within 3 working days.
+- [ ] CMS → Marketing → **Affiliates** → **Applications**: **Approve** (the welcome email with the
+      link is printed in the terminal), or **Reject** with a reason.
+- [ ] In another browser open `http://home-orbit.localhost:3000/r/<CODE>?to=/products/<slug>`:
+      it lands on the product. Order it by cash on delivery with a different email and phone.
+      The affiliate's row shows 1 order and the commission pending (5% of the order before GST
+      and delivery); their own orders never earn.
+- [ ] As the affiliate open **/affiliate/dashboard**: the figures, the link with Copy, "Link to
+      any page", the order as "Pending: not delivered yet" with no shopper details. Save a UPI ID
+      under Payouts: it shows masked and an email confirms the change.
+- [ ] Deliver the order (3.7: the parcel's **Delivered**): it shows "Pending until <date>"; the commission is approved by the
+      daily job once the days after delivery have passed. Cancelling an order reverses its
+      commission.
+- [ ] **Change rate**: a rate and a category rate; link a coupon as the personal coupon (orders
+      with it credit the affiliate). **Record payout** (owner only, once approved commission is
+      above the minimum): the UPI ID in full, TDS, **Mark paid and email statement**.
+
 ## 3. Storefront (what shoppers see)
 
 http://home-orbit.localhost:3000 . Check it twice: on a normal desktop window, and as a phone
@@ -706,7 +730,7 @@ Uploaded files stay in `media/`; delete that folder too for a completely clean s
 ## Not built yet (so don't test these)
 
 - SMS updates (later), returns
-- Affiliates (stage C)
+- Affiliate statement PDFs (the statement is emailed as text)
 - WhatsApp offer messages and cart reminders (they need Meta-approved marketing templates)
 - CSV import, the dealer locator page, the PWA "install app" and offline page
 - Two-step login (deferred)

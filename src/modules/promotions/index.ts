@@ -24,5 +24,5 @@ export {
   type PromotionLine,
   type PromotionsResult,
 } from './services/engine'
-export { couponRule, liveSchemeDocs, schemeRule } from './services/load'
+export { categoryAncestors, couponRule, liveSchemeDocs, schemeRule } from './services/load'
 export { refreshSchemeStats } from './services/stats'

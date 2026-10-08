@@ -121,6 +121,16 @@ transaction and released on cancel (`coupon-redemptions`).
   statement records their GSTIN.
 - Phase 2 extends the same ledger to interior designers' client referrals and other trade partners.
 
+**As built (9 October 2026):** the referral row is created when the order is confirmed (COD at
+once, prepaid when paid) as `pending` with no hold date; delivery sets `holdUntil` to delivery
+plus the program's hold days (default 7, the return window until returns are built); the
+`approve-commission` job (05:00 India time) approves rows past it. A cancelled order reverses
+pending and approved rows; a processed refund cuts the commission by the refunded share of the
+order total. Rows already paid are not clawed back. Category rates match the product's main
+category, its other categories and their parents. TDS on a payout =
+2% (20% without PAN) of the year's commission once it passes ₹20,000, less TDS already deducted
+that year, never more than the payout. Affiliates are in the Enterprise plan's features.
+
 ## Order lifecycle
 
 ```

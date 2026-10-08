@@ -32,7 +32,7 @@ export const NotificationLogs: CollectionConfig = {
       name: 'kind',
       type: 'select',
       defaultValue: 'order',
-      options: ['order', 'offer', 'test', 'staff', 'reply', 'review', 'cart'],
+      options: ['order', 'offer', 'test', 'staff', 'reply', 'review', 'cart', 'affiliate'],
     },
     { name: 'milestone', type: 'text' },
     { name: 'variant', type: 'text' },
