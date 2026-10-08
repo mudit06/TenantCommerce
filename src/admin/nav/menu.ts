@@ -174,7 +174,16 @@ const STORE_MENU: MenuSection[] = [
   {
     key: 'insights',
     label: 'Insights',
-    items: [soonItem('reports', 'Reports', 'chart', STORE_ADMIN)],
+    items: [
+      {
+        key: 'reports',
+        label: 'Reports',
+        href: adminUrl.reports,
+        icon: 'chart',
+        // Owners, managers and order managers (docs/screens Reports "Who"); our team as support
+        roles: [...STORE_ADMIN, 'order-manager', 'support'],
+      },
+    ],
   },
 ]
 

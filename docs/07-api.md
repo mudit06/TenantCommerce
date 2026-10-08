@@ -244,6 +244,7 @@ and `saveMyPayoutDetails`; the dashboard reads the ledger on the server, so ther
 | POST | `/privacy-requests/:id/export` | Build the shopper's data export (job) and attach an expiring link to the request |
 | POST | `/privacy-requests/:id/complete-deletion` | Anonymize the customer, keep tax records (docs/14) |
 | GET | `/reports/sales?from=&to=&groupBy=` | Sales, tax (GSTR-1 friendly export), top products |
+| GET | `/reports/orders.csv`, `/reports/hsn.csv` | As built (9 October 2026): `?store=&month=YYYY-MM`: the month's sold orders, and the HSN-wise summary in GSTR-1 table 12 columns. The Reports screen itself reads the same report on the server (`buildReport`), so there is no JSON endpoint yet |
 | POST | `/schemes/:id/preview` | Scheme prices for sample products and a sample cart, before it goes live |
 | POST | `/schemes/:id/status` | `{ action: 'schedule'|'pause'|'resume'|'end' }` (start and end times otherwise move it) |
 | POST | `/coupons/batches` | `{ prefix, count, couponTemplate }` bulk single-use codes (job), CSV of codes emailed to the requester |

@@ -94,6 +94,7 @@ import {
   registerAffiliateEvents,
 } from '@/modules/affiliate'
 import { affiliateEndpoints } from '@/modules/affiliate/endpoints'
+import { reportEndpoints } from '@/modules/reports/endpoints'
 import { Pincodes, Shipments, ShippingZones } from '@/modules/shipping'
 // Endpoints load env and connectors; kept out of the shipping index so its pure parts stay
 // importable from unit-tested code (orders' parcel rules)
@@ -208,6 +209,11 @@ export default buildConfig({
           path: '/order-updates',
           meta: { title: 'Order updates' },
         },
+        reports: {
+          Component: '@/modules/reports/admin/ReportsView#ReportsView',
+          path: '/reports',
+          meta: { title: 'Reports' },
+        },
         messaging: {
           Component: '@/connectors/admin/MessagingView#MessagingView',
           path: '/messaging',
@@ -293,6 +299,7 @@ export default buildConfig({
     ...promotionEndpoints,
     ...reviewEndpoints,
     ...affiliateEndpoints,
+    ...reportEndpoints,
   ],
   jobs: {
     tasks: [

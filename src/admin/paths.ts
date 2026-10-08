@@ -19,6 +19,7 @@ export const adminUrl = {
   messaging: `${ADMIN}/messaging`,
   shipping: `${ADMIN}/shipping`,
   notifications: `${ADMIN}/order-updates`,
+  reports: `${ADMIN}/reports`,
   /** Choose a page type before the editor opens (Pages "Create page") */
   newPage: `${ADMIN}/new-page`,
   pages: `${ADMIN}/collections/pages`,

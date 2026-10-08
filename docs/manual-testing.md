@@ -473,6 +473,17 @@ Affiliates are in the Enterprise plan: in super admin switch the store's plan, t
       with it credit the affiliate). **Record payout** (owner only, once approved commission is
       above the minimum): the UPI ID in full, TDS, **Mark paid and email statement**.
 
+### 2.15 Reports
+
+- [ ] Deliver a COD order (3.7) so its cash counts as collected, then open Insights →
+      **Reports**: the month's gross sales, orders, average, refunds and paid online share; the
+      day's bar in Daily sales; the product in Best sellers; any scheme or coupon in Offers.
+- [ ] **GST summary by HSN** lists each HSN and rate with taxable value and IGST or CGST and SGST.
+      Refund part of an order (3.7): its credit note lowers the row. **Export for GSTR-1 (CSV)**
+      downloads the table with two decimals; **Export orders CSV** lists the month's orders.
+- [ ] Pick last month in **Month**: the figures change; an order manager sees Reports, a content
+      editor doesn't.
+
 ## 3. Storefront (what shoppers see)
 
 http://home-orbit.localhost:3000 . Check it twice: on a normal desktop window, and as a phone
