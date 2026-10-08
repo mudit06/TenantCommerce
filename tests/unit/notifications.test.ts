@@ -54,6 +54,13 @@ describe('variables', () => {
       if (!value.startsWith('https://')) expect(value.length).toBeLessThanOrEqual(80)
       expect(value).not.toMatch(/\n/)
     }
+    // A return's pickup instructions and rejection reason, on one line
+    const ret = messageVariables({
+      ...facts,
+      return: { instructions: 'Courier picks it up Friday.\nKeep the box.', reason: null },
+    })
+    expect(ret['return.instructions']).toBe('Courier picks it up Friday. Keep the box.')
+    expect(ret['return.reason']).toBe('it doesn’t meet the return policy')
   })
 })
 

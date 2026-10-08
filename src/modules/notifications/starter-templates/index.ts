@@ -231,7 +231,10 @@ export const STARTER_TEMPLATES: Record<MilestoneKey, Partial<Record<Variant, Sta
       email: {
         subject: 'Return approved for order {order.number}',
         heading: 'Return approved',
-        paragraphs: ['Hi {customer.firstName}, your return for order {order.number} is approved.'],
+        paragraphs: [
+          'Hi {customer.firstName}, your return for order {order.number} is approved.',
+          '{return.instructions}',
+        ],
       },
     },
   },
@@ -245,7 +248,7 @@ export const STARTER_TEMPLATES: Record<MilestoneKey, Partial<Record<Variant, Sta
         subject: 'Return for order {order.number}',
         heading: 'We couldn’t accept the return',
         paragraphs: [
-          'Hi {customer.firstName}, we could not accept the return for order {order.number}. For help, contact {store.help}.',
+          'Hi {customer.firstName}, we could not accept the return for order {order.number}: {return.reason}. For help, contact {store.help}.',
         ],
       },
     },

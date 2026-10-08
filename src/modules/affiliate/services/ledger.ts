@@ -1,6 +1,7 @@
 import type { Payload, PayloadRequest } from 'payload'
 
 import { idOf } from '@/access'
+import { hasOpenReturn } from '@/modules/orders'
 import { categoryAncestors } from '@/modules/promotions'
 import { isFeatureEnabled } from '@/modules/tenancy'
 import type { Affiliate, Order, Referral } from '@/payload-types'
@@ -311,7 +312,11 @@ export async function approveDueReferrals(req: PayloadRequest, now = new Date())
     overrideAccess: true,
     req,
   })
+  let approved = 0
   for (const referral of docs) {
+    // A return being handled holds the commission until it is settled (docs/11)
+    if (await hasOpenReturn(req.payload, idOf(referral.tenant)!, referral.order)) continue
+    approved += 1
     await req.payload.update({
       collection: 'referrals',
       id: referral.id,
@@ -320,5 +325,5 @@ export async function approveDueReferrals(req: PayloadRequest, now = new Date())
       req,
     })
   }
-  return docs.length
+  return approved
 }

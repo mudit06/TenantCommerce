@@ -1881,3 +1881,12 @@ button.te-tab {
     color: var(--te-text);
   }
 }
+
+// A small photo (a return's photos)
+.te-thumb {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border: 1px solid var(--te-line);
+  border-radius: 8px;
+}

@@ -42,6 +42,7 @@ export const NotificationLogs: CollectionConfig = {
     { name: 'order', type: 'relationship', relationTo: 'orders', index: true },
     { name: 'shipment', type: 'text' },
     { name: 'refund', type: 'text' },
+    { name: 'returnRequest', type: 'text' },
     // Ids as text: only `order` is a relationship, because Payload checks every relationship of a
     // new row at once, and parallel queries inside one MongoDB transaction can abort it
     { name: 'template', type: 'text' },

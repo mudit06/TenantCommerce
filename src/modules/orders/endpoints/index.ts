@@ -27,6 +27,7 @@ import {
 } from '../services/shiprocket'
 import { assertOrderAccess, orderFor } from '../services/permissions'
 import { addOrderEvent } from '../services/timeline'
+import { decideReturn, decideSchema } from '../services/returns'
 import { cancelOrder } from '../services/transition'
 
 // Order screens' actions (docs/07 "Admin-side custom endpoints"). Every write checks the
@@ -110,7 +111,13 @@ export function ordersWhere(tenantId: string, params: URLSearchParams): Where {
     'out-for-delivery': { fulfillmentStatus: { in: ['out_for_delivery', 'delivery_failed'] } },
     delivered: { fulfillmentStatus: { equals: 'delivered' } },
     cancelled: { status: { equals: 'cancelled' } },
-    returns: { fulfillmentStatus: { in: ['rto', 'returned', 'lost'] } },
+    // Return requests being handled, and parcels that came back
+    returns: {
+      or: [
+        { returnStatus: { in: ['requested', 'approved', 'received'] } },
+        { fulfillmentStatus: { in: ['rto', 'returned', 'lost'] } },
+      ],
+    },
     unpaid: { and: [{ status: { equals: 'pending' } }] },
   }
   if (tab && TAB_WHERE[tab]) and.push(TAB_WHERE[tab])
@@ -346,6 +353,19 @@ export const orderEndpoints: Endpoint[] = [
       for (const parcel of booked) await cancelShiprocketBooking(req, parcel)
       const order = await withTransaction(req, () => cancelOrder(req, id, { reason }))
       return ok({ status: order.status })
+    }),
+  },
+  {
+    // A shopper's return: approve with pickup instructions, reject with a reason, or received
+    path: '/admin/v1/orders/:id/returns/:returnId',
+    method: 'post',
+    handler: apiHandler(async (req) => {
+      writer(req)
+      const input = await readBody(req, decideSchema)
+      const result = await withTransaction(req, () =>
+        decideReturn(req, routeParam(req, 'id'), routeParam(req, 'returnId'), input),
+      )
+      return ok({ status: result.status })
     }),
   },
   {

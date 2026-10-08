@@ -29,7 +29,7 @@ import {
   setOfferConsent,
   setWhatsAppUpdates,
 } from '@/modules/notifications'
-import { cancelOrder } from '@/modules/orders'
+import { cancelOrder, requestReturn, type ReturnPhoto } from '@/modules/orders'
 import { isFeatureEnabled } from '@/modules/tenancy'
 
 import { addToCart } from './actions'
@@ -295,6 +295,53 @@ export async function cancelMyOrder(orderNumber: string): Promise<AccountResult>
         reason: 'Cancelled by the shopper',
         byLabel: me.customer.name || me.customer.email,
       }),
+    )
+    return { ok: true, data: null }
+  } catch (error) {
+    return failure(error)
+  }
+}
+
+/** "Request return" on a delivered order inside the return window (docs/11 "Returns"). */
+export async function requestMyReturn(form: FormData): Promise<AccountResult> {
+  try {
+    const me = await shopper()
+    if ('error' in me) return me.error!
+    const order = await customerOrder(
+      me.payload,
+      me.store.tenantId,
+      String(me.customer.id),
+      String(form.get('orderNumber') ?? ''),
+    )
+    if (!order) return { ok: false, message: 'We can’t find this order in your account.' }
+    let items: { orderItemId: string; qty: number }[] = []
+    try {
+      items = JSON.parse(String(form.get('items') ?? '[]'))
+    } catch {
+      items = []
+    }
+    const photos: ReturnPhoto[] = []
+    for (const file of form.getAll('photos')) {
+      if (file instanceof File && file.size > 0) {
+        photos.push({
+          data: Buffer.from(await file.arrayBuffer()),
+          name: file.name,
+          mimetype: file.type,
+        })
+      }
+    }
+    await withTransaction(me.req, () =>
+      requestReturn(
+        me.req,
+        me.store.tenantId,
+        order,
+        {
+          items,
+          reason: String(form.get('reason') ?? ''),
+          note: String(form.get('note') ?? '') || undefined,
+        },
+        { photos, customerId: String(me.customer.id) },
+      ),
     )
     return { ok: true, data: null }
   } catch (error) {

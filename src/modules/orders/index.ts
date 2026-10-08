@@ -1,5 +1,7 @@
 // Public API of the orders module (docs/01): checkout, orders, their timeline, idempotency.
 export { IdempotencyKeys } from './collections/IdempotencyKeys'
+export { ReturnRequests } from './collections/ReturnRequests'
+export { registerOrderEvents } from './events'
 export { OrderEvents } from './collections/OrderEvents'
 export { Orders } from './collections/Orders'
 export * from './constants'
@@ -44,3 +46,14 @@ export {
   handleCourierWebhook,
   retrackQuietParcels,
 } from './services/shiprocket'
+export {
+  decideReturn,
+  decideSchema,
+  hasOpenReturn,
+  requestReturn,
+  returnInputSchema,
+  returnOptions,
+  returnsOf,
+  type ReturnOptions,
+  type ReturnPhoto,
+} from './services/returns'

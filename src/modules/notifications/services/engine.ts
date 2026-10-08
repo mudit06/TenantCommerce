@@ -92,6 +92,7 @@ export type MilestoneEvent = {
   orderId: string
   shipmentId?: string
   refundId?: string
+  returnId?: string
   attempt?: number
 }
 
@@ -137,7 +138,7 @@ export async function queueMilestone(req: PayloadRequest, event: MilestoneEvent)
     quietHours: settings.quietHours,
     timeZone,
   })
-  const subjectId = event.shipmentId ?? event.refundId ?? orderId
+  const subjectId = event.shipmentId ?? event.refundId ?? event.returnId ?? orderId
   const logs: NotificationLog[] = []
   for (const plan of plans) {
     const log = await writeLog(
@@ -154,6 +155,7 @@ export async function queueMilestone(req: PayloadRequest, event: MilestoneEvent)
         order: orderId,
         shipment: event.shipmentId ?? null,
         refund: event.refundId ?? null,
+        returnRequest: event.returnId ?? null,
         template: plan.channel === 'whatsapp' && template ? String(template.id) : null,
         dedupeKey: dedupeKey(key, subjectId, event.attempt ?? 0, plan.channel),
         status: plan.send ? 'queued' : 'skipped',

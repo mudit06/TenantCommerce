@@ -7,8 +7,10 @@ import { GST_STATES } from '@/lib/gst/gstin'
 import { formatINR } from '@/lib/money'
 import { customerOrder } from '@/modules/customers'
 import { maskedPhone, trackingView } from '@/modules/notifications'
+import { RETURN_STATUSES, returnOptions, returnsOf } from '@/modules/orders'
 import { getStoreContext } from '@/storefront/context'
 import { CancelOrderButton } from '@/storefront/kit/account/CancelOrderButton'
+import { ReturnForm } from '@/storefront/kit/account/ReturnForm'
 import { dayMonth, pillClass, shopperOrderStatus } from '@/storefront/kit/account/orderStatus'
 import { CheckIcon, TruckIcon, WhatsAppIcon } from '@/storefront/kit/icons'
 import { TrackingUpdates } from '@/storefront/kit/shop/TrackingUpdates'
@@ -74,6 +76,10 @@ export default async function AccountOrderPage({ params }: Props) {
   const returnDays = ctx.settings?.returns?.windowDays ?? 7
   const deliveredAt = order.fulfillmentStatus === 'delivered' ? order.completedAt : null
   const returnOpen = deliveredAt ? withinDays(deliveredAt, returnDays) : false
+  const [returnChoices, myReturns] = await Promise.all([
+    returnOptions(payload, ctx.store.tenantId, order),
+    returnsOf(payload, ctx.store.tenantId, String(order.id)),
+  ])
   const whatsapp = storeWhatsApp(
     ctx.settings?.contact?.whatsapp,
     `Hi, I need help with my order ${order.orderNumber}.`,
@@ -277,6 +283,25 @@ export default async function AccountOrderPage({ params }: Props) {
             ) : null}
           </div>
 
+          {myReturns.map((r) => (
+            <div className="rounded-card border border-line bg-white p-3 text-sm" key={r.id}>
+              <p className="font-semibold">
+                {RETURN_STATUSES.find((x) => x.value === r.status)?.label ?? r.status}
+              </p>
+              <p className="text-ink-soft">
+                {(r.items ?? []).map((i) => `${i.qty} × ${i.title}`).join(', ')}
+              </p>
+              {r.status === 'approved' && r.pickupNote ? (
+                <p className="mt-1">{r.pickupNote}</p>
+              ) : null}
+              {r.status === 'rejected' && r.rejectReason ? (
+                <p className="mt-1">We couldn’t accept it: {r.rejectReason}</p>
+              ) : null}
+              {r.status === 'received' ? (
+                <p className="mt-1">The store has it back; your refund is on its way.</p>
+              ) : null}
+            </div>
+          ))}
           {order.status === 'cancelled' ? (
             <p className="rounded-card bg-surface-alt p-3 text-sm">
               This order was cancelled{order.cancelReason ? `: ${order.cancelReason}` : ''}.
@@ -298,11 +323,22 @@ export default async function AccountOrderPage({ params }: Props) {
               delivery.
             </p>
           ) : deliveredAt ? (
-            <p className="rounded-card bg-surface-alt p-3 text-sm">
-              {returnOpen
-                ? `Delivered ${dayMonth(deliveredAt)}. To return an item, message the store within ${returnDays} days of delivery${whatsapp ? ' on WhatsApp' : ''}.`
-                : `Delivered ${dayMonth(deliveredAt)}. The return window closed ${dayMonth(new Date(new Date(deliveredAt).getTime() + returnDays * 86_400_000).toISOString())}.`}
-            </p>
+            <div className="rounded-card bg-surface-alt p-3 text-sm">
+              {returnChoices.open && returnChoices.closesAt ? (
+                <ReturnForm
+                  closes={dayMonth(returnChoices.closesAt)}
+                  items={returnChoices.items}
+                  orderNumber={order.orderNumber}
+                />
+              ) : (
+                <p>
+                  Delivered {dayMonth(deliveredAt)}.{' '}
+                  {returnOpen
+                    ? 'Everything on this order has a return request.'
+                    : `The return window closed ${dayMonth(new Date(new Date(deliveredAt).getTime() + returnDays * 86_400_000).toISOString())}.`}
+                </p>
+              )}
+            </div>
           ) : null}
         </div>
       </div>

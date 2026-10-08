@@ -12,10 +12,12 @@ import { orderMessageFootnote, orderMessages } from '@/modules/notifications'
 import { MessagesPanel } from '@/modules/notifications/admin/MessagesPanel'
 import { SHIPMENT_STATUSES } from '@/modules/shipping'
 
-import { label } from '../constants'
+import { label, RETURN_REASONS, RETURN_STATUSES } from '../constants'
+import { returnsOf } from '../services/returns'
 import { OrderActions } from './OrderActions'
 import { deliveryPill, orderPill, paymentPill } from './orderPills'
 import { OrderNote, ParcelPanel, type ParcelView } from './ParcelPanel'
+import { ReturnsPanel, type ReturnView } from './ReturnsPanel'
 
 const money = (minor: number | null | undefined) => formatINR(minor ?? 0, { decimals: 'always' })
 const state = (code: string | null | undefined) =>
@@ -196,6 +198,36 @@ export async function OrderDetail({ initPageResult }: DocumentViewServerProps) {
       )
     }
   }
+  // Returns asked for on the order, with their photos (docs/11 "Returns")
+  const returns = await returnsOf(req.payload, idOf(order.tenant)!, String(order.id))
+  const photoIds = returns.flatMap((r) => r.photos ?? [])
+  const { docs: photoDocs } = photoIds.length
+    ? await req.payload.find({
+        collection: 'media',
+        where: { id: { in: photoIds } },
+        depth: 0,
+        pagination: false,
+        overrideAccess: true,
+      })
+    : { docs: [] }
+  const returnViews: ReturnView[] = returns.map((r) => ({
+    id: String(r.id),
+    status: r.status,
+    statusLabel: label(RETURN_STATUSES, r.status),
+    at: formatDateAndTime(r.createdAt),
+    items: (r.items ?? [])
+      .map((i) => `${i.qty} × ${i.title}${i.options ? ` (${i.options})` : ''}`)
+      .join(', '),
+    value: formatINR((r.items ?? []).reduce((sum, i) => sum + (i.amountMinor ?? 0), 0)),
+    reason: label(RETURN_REASONS, r.reason),
+    note: r.note ?? null,
+    photos: (r.photos ?? []).flatMap((pid) => {
+      const media = photoDocs.find((m) => String(m.id) === pid)
+      return media?.url ? [{ url: media.url, alt: media.alt ?? 'Return photo' }] : []
+    }),
+    pickupNote: r.pickupNote ?? null,
+    rejectReason: r.rejectReason ?? null,
+  }))
   const captured = payments.find((p) => p.status !== 'created' && p.status !== 'failed')
   const invoice = documents.find((doc) => doc.type === 'tax-invoice')
   const creditNotes = documents.filter((doc) => doc.type === 'credit-note')
@@ -433,6 +465,12 @@ export async function OrderDetail({ initPageResult }: DocumentViewServerProps) {
               </p>
             ) : null}
           </Card>
+
+          {returnViews.length ? (
+            <Card title="Returns">
+              <ReturnsPanel canWrite={canWrite} orderId={String(order.id)} returns={returnViews} />
+            </Card>
+          ) : null}
 
           <Card title="Timeline">
             <ol className="te-timeline">

@@ -52,6 +52,7 @@ export const ORDER_EVENT_TYPES = [
   'invoice',
   'message_sent',
   'shopper_reply',
+  'return',
 ] as const
 export type OrderEventType = (typeof ORDER_EVENT_TYPES)[number]
 
@@ -62,3 +63,25 @@ export const label = <T extends string>(
   list: readonly { value: T; label: string }[],
   value: string | null | undefined,
 ) => list.find((item) => item.value === value)?.label ?? value ?? ''
+
+/** Returns (docs/11 "Returns and exchanges", docs/screens storefront `st-order`) */
+export const RETURN_REASONS = [
+  { value: 'damaged', label: 'Arrived damaged or broken' },
+  { value: 'wrong-item', label: 'Wrong item or finish' },
+  { value: 'not-as-described', label: 'Not as described' },
+  { value: 'size-fit', label: 'Size or fit' },
+  { value: 'changed-mind', label: 'Changed my mind' },
+  { value: 'other', label: 'Something else' },
+] as const
+
+export const RETURN_STATUSES = [
+  { value: 'requested', label: 'Return requested' },
+  { value: 'approved', label: 'Return approved' },
+  { value: 'rejected', label: 'Return rejected' },
+  { value: 'received', label: 'Returned to the store' },
+  { value: 'refunded', label: 'Refunded' },
+] as const
+export type ReturnStatus = (typeof RETURN_STATUSES)[number]['value']
+
+/** Statuses of a return still being handled */
+export const OPEN_RETURN: readonly ReturnStatus[] = ['requested', 'approved', 'received']

@@ -666,6 +666,18 @@ In the CMS as the owner, **Sales → Customers**:
 - [ ] As an order manager or support login: Customers shows the list without the request
       buttons.
 
+### 3.8a Returns
+
+- [ ] Deliver an order for a shopper with an account (3.7), log in as them (3.8) and open the
+      order: **Request return**. Pick the item, a reason, a note and a photo; send it. The page
+      shows "Return requested".
+- [ ] CMS → Orders → **Returns** tab lists the order. Open it: the Returns card has the photo.
+      **Approve** with pickup instructions: the shopper's page shows them, and a "Return
+      approved" email is queued (it goes out after 09:00 if it is night). **Mark received**,
+      then **Refund** the amount: the return reads Refunded.
+- [ ] On another order, **Reject** with a reason: the shopper sees why. After the return window
+      the order page says it closed.
+
 ### 3.9 Dealer locator and downloads
 
 - [ ] Add two or three dealers in CMS → Store → **Dealers** with a pincode and map position (from
@@ -784,7 +796,7 @@ Uploaded files stay in `media/`; delete that folder too for a completely clean s
 
 ## Not built yet (so don't test these)
 
-- SMS updates (later), returns
+- SMS updates (later); Shiprocket reverse pickup for returns (staff arrange it)
 - Affiliate statement PDFs (the statement is emailed as text)
 - WhatsApp offer messages and cart reminders (they need Meta-approved marketing templates)
 - CSV image and document links (photos are added in the CMS)

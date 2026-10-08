@@ -100,7 +100,6 @@ export const MILESTONES = [
     description: 'Pickup instructions',
     defaults: { email: 'on', whatsapp: 'on', sms: 'off' },
     variants: ['default'],
-    later: true,
   },
   {
     key: 'return_rejected',
@@ -108,7 +107,6 @@ export const MILESTONES = [
     description: 'Reason and help contact',
     defaults: { email: 'on', whatsapp: 'on', sms: 'off' },
     variants: ['default'],
-    later: true,
   },
 ] as const satisfies readonly MilestoneDefinition[]
 

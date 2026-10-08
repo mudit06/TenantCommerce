@@ -8,6 +8,7 @@ import {
   ORDER_STATUSES,
   PAYMENT_METHODS,
   PAYMENT_STATUSES,
+  RETURN_STATUSES,
 } from '../constants'
 
 const readOnly = { readOnly: true }
@@ -355,6 +356,13 @@ export const Orders: CollectionConfig = {
       admin: { ...readOnly, description: 'An unpaid online order is cancelled after this' },
     },
     { name: 'cancelReason', type: 'text', admin: readOnly },
+    {
+      // The latest return's status, for the Orders list's Returns tab (docs/11 "Returns")
+      name: 'returnStatus',
+      type: 'select',
+      options: [...RETURN_STATUSES],
+      admin: readOnly,
+    },
     {
       // Where the order's stock stands (docs/11 "Stock"): held while waiting for payment, sold
       // once confirmed, given back when cancelled. Moved only by the inventory service.

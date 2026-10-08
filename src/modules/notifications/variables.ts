@@ -28,6 +28,8 @@ export type MessageFacts = {
     codAmountMinor?: number | null
   }
   refund?: { amountMinor: number; reference?: string | null }
+  /** A return: how the item comes back, or why it couldn't be accepted */
+  return?: { instructions?: string | null; reason?: string | null }
 }
 
 export const VARIABLE_KEYS = [
@@ -43,6 +45,8 @@ export const VARIABLE_KEYS = [
   'shipment.failureReason',
   'refund.amount',
   'refund.reference',
+  'return.instructions',
+  'return.reason',
   'links.trackCode',
   'links.track',
   'store.help',
@@ -123,6 +127,14 @@ export function messageVariables(
     'shipment.failureReason': plain(failureText(facts.shipment?.failureReason), cap),
     'refund.amount': rupees(facts.refund?.amountMinor ?? 0, { sms }),
     'refund.reference': plain(facts.refund?.reference || 'shown in your bank statement', cap),
+    'return.instructions': plain(
+      facts.return?.instructions || 'We will share the pickup details shortly.',
+      sms ? cap : 300,
+    ),
+    'return.reason': plain(
+      facts.return?.reason || 'it doesn’t meet the return policy',
+      sms ? cap : 200,
+    ),
     'links.trackCode': facts.order.trackingCode,
     'links.track': `${facts.storeOrigin.replace(/\/$/, '')}/t/${facts.order.trackingCode}`,
     'store.help': plain(help || facts.storeName, 80),

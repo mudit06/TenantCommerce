@@ -92,6 +92,7 @@ export interface Config {
     'affiliate-clicks': AffiliateClick;
     'offer-campaigns': OfferCampaign;
     'import-jobs': ImportJob;
+    'return-requests': ReturnRequest;
     'shipping-zones': ShippingZone;
     orders: Order;
     'order-events': OrderEvent;
@@ -158,6 +159,7 @@ export interface Config {
     'affiliate-clicks': AffiliateClicksSelect<false> | AffiliateClicksSelect<true>;
     'offer-campaigns': OfferCampaignsSelect<false> | OfferCampaignsSelect<true>;
     'import-jobs': ImportJobsSelect<false> | ImportJobsSelect<true>;
+    'return-requests': ReturnRequestsSelect<false> | ReturnRequestsSelect<true>;
     'shipping-zones': ShippingZonesSelect<false> | ShippingZonesSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
     'order-events': OrderEventsSelect<false> | OrderEventsSelect<true>;
@@ -1890,6 +1892,37 @@ export interface ImportJob {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "return-requests".
+ */
+export interface ReturnRequest {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  order: string;
+  orderNumber: string;
+  customer?: string | null;
+  items: {
+    orderItemId: string;
+    title: string;
+    options?: string | null;
+    qty: number;
+    amountMinor?: number | null;
+    id?: string | null;
+  }[];
+  reason: 'damaged' | 'wrong-item' | 'not-as-described' | 'size-fit' | 'changed-mind' | 'other';
+  note?: string | null;
+  photos?: string[] | null;
+  status: 'requested' | 'approved' | 'rejected' | 'received' | 'refunded';
+  pickupNote?: string | null;
+  rejectReason?: string | null;
+  decidedBy?: string | null;
+  decidedAt?: string | null;
+  receivedAt?: string | null;
+  refund?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "shipping-zones".
  */
 export interface ShippingZone {
@@ -2098,6 +2131,7 @@ export interface Order {
    */
   expiresAt?: string | null;
   cancelReason?: string | null;
+  returnStatus?: ('requested' | 'approved' | 'rejected' | 'received' | 'refunded') | null;
   stockState?: ('none' | 'reserved' | 'sold' | 'released' | 'restocked') | null;
   ip?: string | null;
   userAgent?: string | null;
@@ -2249,7 +2283,8 @@ export interface OrderEvent {
     | 'refund'
     | 'invoice'
     | 'message_sent'
-    | 'shopper_reply';
+    | 'shopper_reply'
+    | 'return';
   text: string;
   from?: string | null;
   to?: string | null;
@@ -2596,6 +2631,7 @@ export interface NotificationLog {
   order?: (string | null) | Order;
   shipment?: string | null;
   refund?: string | null;
+  returnRequest?: string | null;
   template?: string | null;
   dedupeKey: string;
   status: 'queued' | 'sent' | 'delivered' | 'read' | 'clicked' | 'failed' | 'skipped' | 'received';
@@ -3424,6 +3460,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'import-jobs';
         value: string | ImportJob;
+      } | null)
+    | ({
+        relationTo: 'return-requests';
+        value: string | ReturnRequest;
       } | null)
     | ({
         relationTo: 'shipping-zones';
@@ -4678,6 +4718,38 @@ export interface ImportJobsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "return-requests_select".
+ */
+export interface ReturnRequestsSelect<T extends boolean = true> {
+  tenant?: T;
+  order?: T;
+  orderNumber?: T;
+  customer?: T;
+  items?:
+    | T
+    | {
+        orderItemId?: T;
+        title?: T;
+        options?: T;
+        qty?: T;
+        amountMinor?: T;
+        id?: T;
+      };
+  reason?: T;
+  note?: T;
+  photos?: T;
+  status?: T;
+  pickupNote?: T;
+  rejectReason?: T;
+  decidedBy?: T;
+  decidedAt?: T;
+  receivedAt?: T;
+  refund?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "shipping-zones_select".
  */
 export interface ShippingZonesSelect<T extends boolean = true> {
@@ -4815,6 +4887,7 @@ export interface OrdersSelect<T extends boolean = true> {
   cancelledAt?: T;
   expiresAt?: T;
   cancelReason?: T;
+  returnStatus?: T;
   stockState?: T;
   ip?: T;
   userAgent?: T;
@@ -5131,6 +5204,7 @@ export interface NotificationLogsSelect<T extends boolean = true> {
   order?: T;
   shipment?: T;
   refund?: T;
+  returnRequest?: T;
   template?: T;
   dedupeKey?: T;
   status?: T;

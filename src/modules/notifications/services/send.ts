@@ -57,6 +57,7 @@ export function factsFor(
     providerRefundId?: string | null
     reference?: string | null
   } | null,
+  returned: { pickupNote?: string | null; rejectReason?: string | null } | null = null,
 ): MessageFacts {
   return {
     storeName: store.storeName,
@@ -90,6 +91,9 @@ export function factsFor(
           amountMinor: refund.amountMinor ?? 0,
           reference: refund.providerRefundId || refund.reference,
         }
+      : undefined,
+    return: returned
+      ? { instructions: returned.pickupNote, reason: returned.rejectReason }
       : undefined,
   }
 }
@@ -171,11 +175,21 @@ export async function sendLog(
           .findByID({ collection: 'refunds', id: log.refund, depth: 0, overrideAccess: true })
           .catch(() => null)
       : null
+    const returned = log.returnRequest
+      ? await payload
+          .findByID({
+            collection: 'return-requests',
+            id: log.returnRequest,
+            depth: 0,
+            overrideAccess: true,
+          })
+          .catch(() => null)
+      : null
     if (!log.resendOf && isStale(milestone, order, shipment)) {
       await update(payload, logId, { status: 'skipped', skipReason: 'stale' })
       return 'skipped'
     }
-    facts = factsFor(store, order, shipment, refund)
+    facts = factsFor(store, order, shipment, refund, returned)
   }
   if (!isMilestoneKey(milestone)) milestone = 'order_confirmed'
   const key = milestone as MilestoneKey

@@ -276,3 +276,14 @@ reason + photos; staff approve; the reverse pickup is booked through Shiprocket 
 by staff for manual shipping. The return parcel is a `shipments` doc with `direction: return`, and
 its tracking moves the return to `picked` and `received`; then refund or exchange order. Exchange
 creates a new zero-value order linked to the original.
+
+**As built (9 October 2026):** `return-requests` (orders module): items with qty and the value
+paid, reason, note, up to 3 photos (re-encoded, location dropped), `status`
+`requested → approved | rejected`, `approved → received → refunded`. The shopper asks from
+My account → the order while `completedAt + returns.windowDays` (store settings, default 7) has
+not passed, for at most what was bought less what other open requests hold. Staff approve with
+pickup instructions or reject with a reason (`return_approved` / `return_rejected` messages with
+`{return.instructions}` / `{return.reason}`), mark it received, then refund from the order (a
+credit note); `refund.processed` closes a received return. `orders.returnStatus` feeds the Orders
+list's Returns tab. Affiliate commission isn't approved while a return is open. Not yet: the
+Shiprocket reverse pickup, exchange orders, guests asking without an account.

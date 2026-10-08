@@ -67,4 +67,20 @@ export function registerNotificationEvents(): void {
       () => {},
     ),
   )
+  on(
+    'return.approved',
+    'notifications:return-approved',
+    ({ tenantId, orderId, returnId }, { req }) =>
+      queueMilestone(req, { tenantId, orderId, returnId, milestone: 'return_approved' }).then(
+        () => {},
+      ),
+  )
+  on(
+    'return.rejected',
+    'notifications:return-rejected',
+    ({ tenantId, orderId, returnId }, { req }) =>
+      queueMilestone(req, { tenantId, orderId, returnId, milestone: 'return_rejected' }).then(
+        () => {},
+      ),
+  )
 }

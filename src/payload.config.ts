@@ -58,6 +58,8 @@ import { abandonedCartsTask } from '@/modules/cart/jobs/abandoned'
 import { StockMovements } from '@/modules/inventory'
 import {
   IdempotencyKeys,
+  registerOrderEvents,
+  ReturnRequests,
   orderEndpoints,
   OrderEvents,
   Orders,
@@ -124,6 +126,7 @@ registerNotificationEvents()
 registerCustomerEvents()
 registerPromotionEvents()
 registerAffiliateEvents()
+registerOrderEvents()
 
 /** A store's own data: its CMS screens only, and audited when our team changes it (docs/05). */
 const storeCollection = (collection: CollectionConfig) =>
@@ -269,6 +272,7 @@ export default buildConfig({
     ...[Affiliates, Referrals, AffiliatePayouts, AffiliateClicks].map(storeScreen),
     storeScreen(OfferCampaigns),
     storeScreen(ImportJobs),
+    storeScreen(ReturnRequests),
     // Selling (stage B): orders and their records are written by services only, so the store
     // session audit wrapper is for the screens staff edit directly (shipping zones)
     storeCollection(ShippingZones),
@@ -439,6 +443,7 @@ export default buildConfig({
         wishlists: {},
         affiliates: {},
         'import-jobs': {},
+        'return-requests': {},
         referrals: {},
         'affiliate-payouts': {},
         'affiliate-clicks': {},

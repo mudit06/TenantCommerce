@@ -26,6 +26,10 @@ export type PlatformEvents = {
     attempt: number
   }
   'refund.processed': { tenantId: string; orderId: string; refundId: string; amountMinor: number }
+  /** A shopper asked to return items; staff approve or reject it (docs/11 "Returns") */
+  'return.requested': { tenantId: string; orderId: string; returnId: string }
+  'return.approved': { tenantId: string; orderId: string; returnId: string }
+  'return.rejected': { tenantId: string; orderId: string; returnId: string }
 }
 
 export type EventName = keyof PlatformEvents
