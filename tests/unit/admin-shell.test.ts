@@ -37,7 +37,7 @@ describe('admin menu per workspace', () => {
     ).toContain('staff')
   })
 
-  it('greys out screens not built yet, for their roles and switched-on features only', () => {
+  it('shows each role its own screens, built ones following collection access', () => {
     const owner = buildMenu({
       workspace: 'store',
       visibleCollections: visible,
@@ -56,7 +56,8 @@ describe('admin menu per workspace', () => {
       'Store',
       'Insights',
     ])
-    expect(items.find((item) => item.key === 'import')).toMatchObject({ soon: true, href: '' })
+    expect(items.find((item) => item.key === 'import')).toMatchObject({ href: '/admin/import' })
+    expect(items.some((item) => item.soon)).toBe(false)
     // Customers is built: it follows collection access like any other screen
     expect(items.map((item) => item.key)).not.toContain('customers')
 

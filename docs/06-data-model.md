@@ -548,6 +548,10 @@ affiliate credited when the order is confirmed.
 - **import-jobs**: `type` (`products|variants|stock|prices|dealers`), `file`, `mapping`, `status`
   (`uploaded|validating|validated|importing|done|failed`), `totals { rows, created, updated, failed }`,
   `errorsFile` -> media, `dryRun`, `by`.
+  As built (9 October 2026): `kind` (`products|stock|dealers`), `filename`, `status`
+  (`checked|queued|running|done|failed|cancelled`), `uploadedBy`, `csv` (the file, cleared once
+  imported or cancelled), `stats`, `result`, `errors[] { row, column, message, value }`, no
+  column mapping (the template's column names are used).
 - **idempotency-keys**: `key`, `route`, `requestHash`, `responseStatus`, `responseBody`,
   `expiresAt` (TTL 24 h). Unique `(tenant, key)`. Used by `POST /checkout` and payment endpoints
   (docs/11).

@@ -74,6 +74,7 @@ import { TeamView as TeamView_db3d63515c7821c5d4463c3b81e815eb } from '@/modules
 import { PaymentsView as PaymentsView_9cf922f9aaabc96243c8a444d65cc044 } from '@/connectors/admin/PaymentsView'
 import { ShippingView as ShippingView_1c97e7621bc89f43ac663eacc2d9f813 } from '@/modules/shipping/admin/ShippingView'
 import { OrderUpdatesView as OrderUpdatesView_599c74f7e63d08d3e7e186af64e7cbd8 } from '@/modules/notifications/admin/OrderUpdatesView'
+import { ImportView as ImportView_43350676211206e7f160f6034da5d4df } from '@/modules/imports/admin/ImportView'
 import { ReportsView as ReportsView_a9e91d5eff51da084e696e603380529f } from '@/modules/reports/admin/ReportsView'
 import { MessagingView as MessagingView_fbb1e382018bf44db2656bf42fa329e4 } from '@/connectors/admin/MessagingView'
 import { StoreStaffView as StoreStaffView_d5cb6a5a4bf4324566596fdc0e812fb1 } from '@/modules/identity/admin/StoreStaffView'
@@ -158,6 +159,7 @@ export const importMap = {
   "@/connectors/admin/PaymentsView#PaymentsView": PaymentsView_9cf922f9aaabc96243c8a444d65cc044,
   "@/modules/shipping/admin/ShippingView#ShippingView": ShippingView_1c97e7621bc89f43ac663eacc2d9f813,
   "@/modules/notifications/admin/OrderUpdatesView#OrderUpdatesView": OrderUpdatesView_599c74f7e63d08d3e7e186af64e7cbd8,
+  "@/modules/imports/admin/ImportView#ImportView": ImportView_43350676211206e7f160f6034da5d4df,
   "@/modules/reports/admin/ReportsView#ReportsView": ReportsView_a9e91d5eff51da084e696e603380529f,
   "@/connectors/admin/MessagingView#MessagingView": MessagingView_fbb1e382018bf44db2656bf42fa329e4,
   "@/modules/identity/admin/StoreStaffView#StoreStaffView": StoreStaffView_d5cb6a5a4bf4324566596fdc0e812fb1,

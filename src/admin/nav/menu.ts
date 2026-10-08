@@ -56,14 +56,6 @@ const collectionItem = (
   extra: Partial<MenuItem> = {},
 ): MenuItem => ({ key, label, icon, href: adminUrl.collection(key), collection: key, ...extra })
 
-const soonItem = (
-  key: string,
-  label: string,
-  icon: IconName,
-  roles: readonly TenantRole[],
-  feature?: string,
-): MenuItem => ({ key, label, icon, href: '', soon: true, roles, feature })
-
 // Grouped as the wireframe's vendor CMS menu (docs/wireframes #cms-dashboard, docs/screens
 // vendor-cms.md "Menu"), mudit 4 October 2026
 const STORE_MENU: MenuSection[] = [
@@ -89,7 +81,13 @@ const STORE_MENU: MenuSection[] = [
       collectionItem('attribute-sets', 'Attribute sets', 'attributes'),
       collectionItem('brands', 'Brands', 'brands'),
       collectionItem('product-documents', 'Documents', 'documents'),
-      soonItem('import', 'Import and export', 'upload', CATALOG_WRITE),
+      {
+        key: 'import',
+        label: 'Import and export',
+        href: adminUrl.import,
+        icon: 'upload',
+        roles: CATALOG_WRITE,
+      },
       collectionItem('media', 'Media', 'media'),
     ],
   },

@@ -97,6 +97,8 @@ import {
 } from '@/modules/affiliate'
 import { affiliateEndpoints } from '@/modules/affiliate/endpoints'
 import { reportEndpoints } from '@/modules/reports/endpoints'
+import { ImportJobs, runImportTask } from '@/modules/imports'
+import { importEndpoints } from '@/modules/imports/endpoints'
 import { Pincodes, Shipments, ShippingZones } from '@/modules/shipping'
 // Endpoints load env and connectors; kept out of the shipping index so its pure parts stay
 // importable from unit-tested code (orders' parcel rules)
@@ -211,6 +213,11 @@ export default buildConfig({
           path: '/order-updates',
           meta: { title: 'Order updates' },
         },
+        import: {
+          Component: '@/modules/imports/admin/ImportView#ImportView',
+          path: '/import',
+          meta: { title: 'Import and export' },
+        },
         reports: {
           Component: '@/modules/reports/admin/ReportsView#ReportsView',
           path: '/reports',
@@ -261,6 +268,7 @@ export default buildConfig({
     // Affiliates have their own screen; the ledger, payouts and clicks are read through it
     ...[Affiliates, Referrals, AffiliatePayouts, AffiliateClicks].map(storeScreen),
     storeScreen(OfferCampaigns),
+    storeScreen(ImportJobs),
     // Selling (stage B): orders and their records are written by services only, so the store
     // session audit wrapper is for the screens staff edit directly (shipping zones)
     storeCollection(ShippingZones),
@@ -303,6 +311,7 @@ export default buildConfig({
     ...reviewEndpoints,
     ...affiliateEndpoints,
     ...reportEndpoints,
+    ...importEndpoints,
   ],
   jobs: {
     tasks: [
@@ -316,6 +325,7 @@ export default buildConfig({
       schemeStatsTask,
       reviewRequestsTask,
       approveCommissionTask,
+      runImportTask,
       sendCampaignsTask,
       abandonedCartsTask,
     ],
@@ -428,6 +438,7 @@ export default buildConfig({
         reviews: {},
         wishlists: {},
         affiliates: {},
+        'import-jobs': {},
         referrals: {},
         'affiliate-payouts': {},
         'affiliate-clicks': {},

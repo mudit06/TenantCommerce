@@ -19,3 +19,39 @@ export const csvResponse = (rows: unknown[][], filename: string) =>
       'Cache-Control': 'private, no-store',
     },
   })
+
+/**
+ * Reads a CSV file into rows of cells (RFC 4180: quoted cells may hold commas, quotes as "" and
+ * line breaks). Strips Excel's byte-order mark; blank lines are dropped.
+ */
+export function parseCsv(text: string): string[][] {
+  const input = text.replace(/^﻿/, '')
+  const rows: string[][] = []
+  let row: string[] = []
+  let cell = ''
+  let quoted = false
+  for (let i = 0; i < input.length; i += 1) {
+    const ch = input[i]!
+    if (quoted) {
+      if (ch === '"') {
+        if (input[i + 1] === '"') {
+          cell += '"'
+          i += 1
+        } else quoted = false
+      } else cell += ch
+    } else if (ch === '"' && cell === '') quoted = true
+    else if (ch === ',') {
+      row.push(cell)
+      cell = ''
+    } else if (ch === '\n' || ch === '\r') {
+      if (ch === '\r' && input[i + 1] === '\n') i += 1
+      row.push(cell)
+      if (row.some((c) => c.trim() !== '')) rows.push(row)
+      row = []
+      cell = ''
+    } else cell += ch
+  }
+  row.push(cell)
+  if (row.some((c) => c.trim() !== '')) rows.push(row)
+  return rows
+}

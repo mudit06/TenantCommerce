@@ -91,6 +91,7 @@ export interface Config {
     'affiliate-payouts': AffiliatePayout;
     'affiliate-clicks': AffiliateClick;
     'offer-campaigns': OfferCampaign;
+    'import-jobs': ImportJob;
     'shipping-zones': ShippingZone;
     orders: Order;
     'order-events': OrderEvent;
@@ -156,6 +157,7 @@ export interface Config {
     'affiliate-payouts': AffiliatePayoutsSelect<false> | AffiliatePayoutsSelect<true>;
     'affiliate-clicks': AffiliateClicksSelect<false> | AffiliateClicksSelect<true>;
     'offer-campaigns': OfferCampaignsSelect<false> | OfferCampaignsSelect<true>;
+    'import-jobs': ImportJobsSelect<false> | ImportJobsSelect<true>;
     'shipping-zones': ShippingZonesSelect<false> | ShippingZonesSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
     'order-events': OrderEventsSelect<false> | OrderEventsSelect<true>;
@@ -218,6 +220,7 @@ export interface Config {
       'scheme-stats': TaskSchemeStats;
       'review-requests': TaskReviewRequests;
       'approve-commission': TaskApproveCommission;
+      'run-import': TaskRunImport;
       'offer-campaigns-send': TaskOfferCampaignsSend;
       'abandoned-carts': TaskAbandonedCarts;
       schedulePublish: TaskSchedulePublish;
@@ -1842,6 +1845,51 @@ export interface OfferCampaign {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "import-jobs".
+ */
+export interface ImportJob {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  kind: 'products' | 'stock' | 'dealers';
+  filename: string;
+  status: 'checked' | 'queued' | 'running' | 'done' | 'failed' | 'cancelled';
+  uploadedBy?: string | null;
+  uploadedByName?: string | null;
+  csv?: string | null;
+  stats?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  result?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  errors?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  startedAt?: string | null;
+  finishedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "shipping-zones".
  */
 export interface ShippingZone {
@@ -3200,6 +3248,7 @@ export interface PayloadJob {
           | 'scheme-stats'
           | 'review-requests'
           | 'approve-commission'
+          | 'run-import'
           | 'offer-campaigns-send'
           | 'abandoned-carts'
           | 'schedulePublish';
@@ -3248,6 +3297,7 @@ export interface PayloadJob {
         | 'scheme-stats'
         | 'review-requests'
         | 'approve-commission'
+        | 'run-import'
         | 'offer-campaigns-send'
         | 'abandoned-carts'
         | 'schedulePublish'
@@ -3370,6 +3420,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'offer-campaigns';
         value: string | OfferCampaign;
+      } | null)
+    | ({
+        relationTo: 'import-jobs';
+        value: string | ImportJob;
       } | null)
     | ({
         relationTo: 'shipping-zones';
@@ -4604,6 +4658,26 @@ export interface OfferCampaignsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "import-jobs_select".
+ */
+export interface ImportJobsSelect<T extends boolean = true> {
+  tenant?: T;
+  kind?: T;
+  filename?: T;
+  status?: T;
+  uploadedBy?: T;
+  uploadedByName?: T;
+  csv?: T;
+  stats?: T;
+  result?: T;
+  errors?: T;
+  startedAt?: T;
+  finishedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "shipping-zones_select".
  */
 export interface ShippingZonesSelect<T extends boolean = true> {
@@ -5754,6 +5828,20 @@ export interface TaskApproveCommission {
   input?: unknown;
   output: {
     approved: number;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRun-import".
+ */
+export interface TaskRunImport {
+  input: {
+    importId: string;
+  };
+  output: {
+    created: number;
+    updated: number;
+    skipped: number;
   };
 }
 /**

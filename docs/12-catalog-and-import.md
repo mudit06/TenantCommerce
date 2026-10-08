@@ -61,6 +61,18 @@ Export: products, variants, stock, orders, customers to CSV (job, emailed link).
 
 Phase 2: Shopify/WooCommerce product CSV mapping presets; Google Sheets sync.
 
+**As built (9 October 2026, `src/modules/imports`):** three kinds: products, stock and prices
+(`sku`, `price`, `mrp`, `stock_qty`; a product without finishes by its model number), and dealers
+(matched on name and pincode). Products: rows grouped by `product_handle` (else the model
+number); `option.<axis>` columns take the axis's code or label and the option's label or value;
+a new product needs `title`, `model_number` and `category_path` on its first row and comes in as
+a **draft** (photos are added in the CMS before it goes live); its address is the handle. Prices
+are rupees incl. GST (`4250`, `4,250.50`, `₹1,12,400`). Not yet: `attr.<code>`, `image_urls`,
+`document_urls`, `description_html`, `status`. Limits for now: 5,000 rows and 5 MB a file; the
+file is kept on the `import-jobs` doc until it is imported or cancelled. The check runs while
+the vendor waits; the import is the `run-import` job, one product per transaction, so a row that
+fails skips only itself, and the uploader gets an email.
+
 ## Search (MongoDB Atlas Search)
 
 One search index on `products` (and one on `variants` for SKU) with:

@@ -248,6 +248,18 @@ Store → Store settings, tab **Contact**.
       try to make it Active. It is refused ("Products sold online need a selling price and an
       HSN code"). Put it back to "Request a quote only".
 
+### 2.4a CSV import
+
+- [ ] Catalog → **Import and export**: download the **Products template**, fill two rows for a
+      new product with two finishes of an existing attribute set, change one existing SKU's
+      price, and put `4,250/-` as a price on another row. Upload it: the figures, and the bad
+      row with "Price must be a number in rupees". Nothing has changed in Products yet.
+- [ ] **Download error report** gives those rows as a CSV. **Import N ready rows**: within a
+      minute it reads Imported, the email is printed in the `pnpm dev` terminal, and the new
+      product is a draft with both finishes; the existing SKU has its new price.
+- [ ] **Stock and prices only** with `sku,price,mrp,stock_qty`, and **Dealers** (owner or
+      manager, with the dealer locator) work the same way.
+
 ### 2.5 Media, pages, menus, banners
 
 - [ ] Content → Media: upload any photo. Saving without **alt text** is refused; add it and the
@@ -775,7 +787,7 @@ Uploaded files stay in `media/`; delete that folder too for a completely clean s
 - SMS updates (later), returns
 - Affiliate statement PDFs (the statement is emailed as text)
 - WhatsApp offer messages and cart reminders (they need Meta-approved marketing templates)
-- CSV import
+- CSV image and document links (photos are added in the CMS)
 - Two-step login (deferred)
 - Real emails: locally they are printed in the `pnpm dev` terminal
 - Custom domains: locally every store is `<slug>.localhost:3000`

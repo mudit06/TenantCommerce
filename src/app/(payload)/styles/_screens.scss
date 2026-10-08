@@ -1846,3 +1846,38 @@ button.te-tab {
     margin: 6px 0 0;
   }
 }
+
+// Upload → Check → Import (CSV import)
+.te-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+  font-size: 13px;
+  color: var(--te-text-3);
+
+  li {
+    counter-increment: step;
+
+    &::before {
+      content: counter(step) '. ';
+    }
+  }
+
+  &__done {
+    color: var(--te-text-2);
+
+    &::before {
+      content: '✓ ' !important;
+      color: var(--te-success);
+    }
+  }
+
+  &__now {
+    font-weight: 600;
+    color: var(--te-text);
+  }
+}
