@@ -21,6 +21,10 @@ export type StoreRef = {
   host: string
   primaryHost: string | null
   redirectToPrimary: boolean
+  /** For the footer's legal line (docs/14): the business behind the store */
+  legalName: string | null
+  gstin: string | null
+  city: string | null
 }
 
 /** The store a request host belongs to, or null for an unknown host (cached, docs/04). */
@@ -53,6 +57,9 @@ export const getStoreByHost = (host: string): Promise<StoreRef | null> =>
         host,
         primaryHost: primary[0]?.host ?? null,
         redirectToPrimary: Boolean(domain.redirectToPrimary) && primary[0]?.host !== host,
+        legalName: tenant.legalName || null,
+        gstin: tenant.gstin || null,
+        city: tenant.registeredAddress?.city || null,
       } satisfies StoreRef
     },
     ['store-by-host', host],

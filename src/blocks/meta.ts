@@ -137,6 +137,48 @@ export const BLOCK_META: Record<string, BlockMeta> = {
     description: 'A short form that lands in your Enquiries inbox',
     summary: field('heading'),
   },
+  offerStrip: {
+    label: 'Offer strip',
+    group: 'marketing',
+    icon: 'calendar',
+    description: 'The live scheme with its real end date; hides itself when none is live',
+    summary: field('buttonLabel'),
+  },
+  schemeProducts: {
+    label: 'Scheme products',
+    group: 'commerce',
+    icon: 'products',
+    description: 'The products a scheme covers, with their offer prices',
+    summary: field('heading'),
+  },
+  couponList: {
+    label: 'Coupon list',
+    group: 'commerce',
+    icon: 'brands',
+    description: 'Your public coupon codes with a Copy button',
+    summary: field('heading'),
+  },
+  reviews: {
+    label: 'Reviews',
+    group: 'marketing',
+    icon: 'star',
+    description: 'Published reviews from verified purchases, with their stars',
+    summary: field('heading'),
+  },
+  offersSignup: {
+    label: 'Offers sign-up',
+    group: 'utility',
+    icon: 'mail',
+    description: 'Shoppers agree to hear about offers by email or WhatsApp',
+    summary: field('heading'),
+  },
+  affiliateInvite: {
+    label: 'Affiliate invite',
+    group: 'marketing',
+    icon: 'link',
+    description: 'Invites shoppers and creators to your affiliate program',
+    summary: field('heading'),
+  },
 }
 
 /** Thumbnail shown in the "Add block" library (public/block-thumbnails, 3:2). */

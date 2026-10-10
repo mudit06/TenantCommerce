@@ -422,3 +422,191 @@ body {
     padding: 40px;
   }
 }
+
+// Our sign-in page (identity/admin/SignInView): step 1 password, step 2 the code
+.te-signin {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: min(380px, 100%);
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .te-button--block {
+      margin-top: 8px;
+    }
+
+    .te-link-button {
+      align-self: center;
+    }
+  }
+
+  &__title {
+    margin: 0 0 6px;
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  &__step {
+    margin: 0;
+    color: var(--te-brand);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 6px;
+  }
+
+  &__error {
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: var(--style-radius-m);
+    background: var(--te-danger-bg);
+    color: var(--te-danger);
+    font-size: 13px;
+  }
+}
+
+.te-input-group {
+  display: flex;
+
+  .te-input {
+    flex: 1;
+    min-width: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  &__button {
+    padding: 0 14px;
+    border: 1px solid var(--te-line);
+    border-left: 0;
+    border-radius: 0 var(--style-radius-m) var(--style-radius-m) 0;
+    background: var(--te-subtle);
+    color: var(--te-text-2);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
+}
+
+.te-button--block {
+  width: 100%;
+  justify-content: center;
+}
+
+// Six boxes for an authenticator code (admin/ui/CodeBoxes)
+.te-code {
+  display: flex;
+  gap: 8px;
+  margin: 6px 0;
+
+  &__box {
+    width: 46px;
+    height: 54px;
+    border: 1px solid var(--te-line);
+    border-radius: var(--style-radius-m);
+    background: var(--te-card);
+    color: var(--te-text);
+    font: inherit;
+    font-size: 22px;
+    font-weight: 600;
+    text-align: center;
+
+    &:focus {
+      outline: 2px solid var(--te-brand);
+      outline-offset: 1px;
+      border-color: var(--te-brand);
+    }
+  }
+
+  &--invalid .te-code__box {
+    border-color: var(--te-danger);
+  }
+}
+
+// Two-step setup our team must finish (identity/admin/TwoStepGate): covers the whole panel
+.te-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  overflow-y: auto;
+  padding: 24px 16px;
+  background:
+    radial-gradient(1200px 600px at 10% -10%, var(--te-brand-soft), transparent 60%), var(--te-page);
+
+  &__card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: min(520px, 100%);
+    padding: 36px;
+    border: 1px solid var(--te-line);
+    border-radius: 16px;
+    background: var(--te-card);
+    box-shadow: var(--te-shadow-lg);
+  }
+}
+
+.te-twostep {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+
+  &__steps {
+    margin: 0;
+    padding-left: 20px;
+    color: var(--te-text-2);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  &__scan {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+  }
+
+  &__qr {
+    width: 168px;
+    height: 168px;
+    padding: 8px;
+    border-radius: 10px;
+    // QR codes need a light background to scan, in both themes
+    background: #fff;
+
+    svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  &__key {
+    margin: 4px 0;
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    word-break: break-all;
+  }
+}
+
+// While the two-step gate shows, nothing else of the panel is on screen or read out
+body:has(.te-gate) {
+  .template-default__wrap,
+  .app-header {
+    display: none;
+  }
+}

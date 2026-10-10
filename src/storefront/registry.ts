@@ -7,6 +7,9 @@ const vendors: Record<string, () => Promise<{ default: Partial<VendorUI> }>> = {
   'home-orbit': () => import('./vendors/home-orbit'),
 }
 
+/** Whether a vendor has its own storefront folder (src/storefront/vendors/<slug>). */
+export const hasOwnVendorUI = (slug: string): boolean => slug !== 'default' && slug in vendors
+
 export async function getVendorUI(slug: string): Promise<VendorUI> {
   const base = (await vendors.default!()).default as VendorUI
   const own = vendors[slug] && slug !== 'default' ? (await vendors[slug]()).default : {}

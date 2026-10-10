@@ -18,5 +18,8 @@ export const Pincodes: CollectionConfig = {
     { name: 'city', type: 'text' },
     { name: 'district', type: 'text' },
     { name: 'stateCode', type: 'select', required: true, options: GST_STATE_OPTIONS },
+    // The post office's position when the directory has it: a new dealer's first map pin
+    { name: 'latitude', type: 'number' },
+    { name: 'longitude', type: 'number' },
   ],
 }

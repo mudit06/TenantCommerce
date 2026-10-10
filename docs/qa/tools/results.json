@@ -1,0 +1,275 @@
+{
+ "SA-01-001": {
+  "status": "Pass",
+  "actual": "Email, Password with Show, Forgot password?, Keep me signed in on this device and Sign in shown.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10"
+ },
+ "SA-01-002": {
+  "status": "Pass",
+  "actual": "\"The email or password provided is incorrect.\" shown; stayed on sign-in.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10",
+  "notes": "First try froze while the page was still loading; typing before hydration is lost (see guide)."
+ },
+ "SA-01-004": {
+  "status": "Pass",
+  "actual": "Browser asked to fill out the email field; nothing was sent.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10"
+ },
+ "SA-01-005": {
+  "status": "Pass",
+  "actual": "\"Step 2 of 2, Two-step verification\" with six boxes, Verify and continue, Use a different account and the lost-phone note.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10"
+ },
+ "SA-01-006": {
+  "status": "Pass",
+  "actual": "\"That code didn't work. Check the time on your phone and try the newest code.\"; boxes cleared.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10"
+ },
+ "SA-01-007": {
+  "status": "Pass",
+  "actual": "Typing the authenticator code submitted at the sixth digit and opened \"Good morning, Platform\".",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10",
+  "notes": "Paste into the first box is handled in code (CodeBoxes onPaste); a synthetic paste from the extension does not insert text, so paste needs a human check."
+ },
+ "SA-02-001": {
+  "status": "Pass",
+  "actual": "Live stores 2 (1 paying, 1 on trial), MRR ₹6,999 before GST, Past due 0, Orders today 1, GMV October ₹25,273.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10"
+ },
+ "SA-02-004": {
+  "status": "Pass",
+  "actual": "Top stores: Home Orbit, Door and furniture hardware, Home decor, 8 orders, ₹25,273, New.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10"
+ },
+ "SA-02-005": {
+  "status": "Pass",
+  "actual": "Home Orbit \"Store is still a draft\" and three owners who have not accepted their invite.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10"
+ },
+ "SA-02-007": {
+  "status": "Pass",
+  "actual": "Menu: Dashboard, All vendors, New vendor, Plans, Subscriptions, Team and access, Staff users; no store sections.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10"
+ },
+ "SA-03-001": {
+  "status": "Pass",
+  "actual": "\"3 stores · 2 live\", tabs All 3, Active 2, Draft 1, Suspended 0, Archived 0; columns as the wireframe.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10",
+  "defect": "DEF-001 (fixed and retested)"
+ },
+ "SA-03-002": {
+  "status": "Pass",
+  "actual": "\"orbit\" left only Home Orbit; tabs became All 1, Active 0, Draft 1; ?q=orbit in the address.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10",
+  "notes": "The extension's type action did not reach this search box; key presses and input events did. A human should type it once."
+ },
+ "SA-03-009": {
+  "status": "Pass",
+  "actual": "Home Orbit opened with Features, Connectors, Domains, Billing, Staff tabs.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10"
+ },
+ "SA-05-001": {
+  "status": "Pass",
+  "actual": "Store draft, Starter plan, home-orbit.localhost, View store, Go live, Manage store, View as support.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10"
+ },
+ "SA-05-005": {
+  "status": "Pass",
+  "actual": "Products 110 / 500, Staff users 1 / 3, Storage 0 GB / 5 GB, Orders this month 18 / 1,000 (after the DEF-002 fix).",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10",
+  "defect": "DEF-002 (fixed and retested)"
+ },
+ "SA-05-006": {
+  "status": "Pass",
+  "actual": "Store health: last order Today 00:13, Razorpay Not connected, primary domain home-orbit.localhost, design vendors/home-orbit.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10"
+ },
+ "_defects": [
+  {
+   "id": "DEF-001",
+   "case": "SA-03-001",
+   "portal": "Super Admin",
+   "module": "SA-01 · Sign in and two-step verification",
+   "description": "An admin link opened from outside the admin (email, chat, browser extension) bounced a signed-in person to the sign-in page, which then sent them to the dashboard instead of the page they asked for.",
+   "severity": "High",
+   "steps": "1. Sign in as super admin. 2. Open http://localhost:3000/admin/collections/tenants from outside the admin (a link in another site or the extension's navigate). 3. Watch where you land.",
+   "expected": "All vendors opens (signing in first only when actually signed out).",
+   "actual": "Payload ignores the session cookie on cross-site navigations (CSRF rule), redirects to /admin/login?redirect=…; our sign-in page saw the person was signed in and redirected to /admin, dropping the redirect.",
+   "status": "Closed",
+   "by": "Claude",
+   "date": "2026-10-10",
+   "remarks": "Fixed: SignInView now redirects a signed-in visitor to the requested /admin path (safeRedirect, unit tested; outside paths and the sign-in page fall back to the dashboard). Retested in Chrome: lands on the vendor page."
+  },
+  {
+   "id": "DEF-002",
+   "case": "SA-05-005",
+   "portal": "Super Admin",
+   "module": "SA-05 · Vendor overview and store status",
+   "description": "Plan usage always showed \"Orders this month 0\": nothing updated the tenant's ordersThisMonth counter, so the meter and the 90% limit warning never moved.",
+   "severity": "Medium",
+   "steps": "1. Have orders this month for Home Orbit (pnpm demo:orders home-orbit or a storefront order). 2. Open All vendors → Home Orbit → Plan usage.",
+   "expected": "Orders this month counts the orders placed this month.",
+   "actual": "0 / 1,000 while the dashboard showed 8 sold orders and 18 placed this month.",
+   "status": "Closed",
+   "by": "Claude",
+   "date": "2026-10-10",
+   "remarks": "Fixed: counted from the orders (reports ordersThisMonth / ordersPlacedByStore) on the vendor overview, the store's plan card and the dashboard's limit warnings. Retested: 18 / 1,000. Open question for the product: the monthly order limit is shown but never enforced at checkout."
+  }
+ ],
+ "SA-06-001": {
+  "status": "Pass",
+  "actual": "/admin/collections/pages without a store session: \"Nothing found … Back to Dashboard\".",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10"
+ },
+ "SA-06-003": {
+  "status": "Pass",
+  "actual": "Bar \"You are managing Home Orbit as platform admin (Platform Admin)\" with the reason and \"ends 13:29\"; menu became Home Orbit's (Catalog, Sales, Marketing, Content, Store, Insights).",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10",
+  "notes": "The extension's type action did not reach the reason box; it was filled with form input."
+ },
+ "SA-06-006": {
+  "status": "Pass",
+  "actual": "End session returned to the platform dashboard with the platform menu.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10"
+ },
+ "SA-07-001": {
+  "status": "Pass",
+  "actual": "Features tab: Starter plan, preset applied, Always on list, MVP and Growth tables with In plan and On columns.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10"
+ },
+ "SA-12-001": {
+  "status": "Pass",
+  "actual": "Starter ₹3,499/month plus GST, starting offer ₹9,999 for 3 months, 500 products, 3 staff, 5 GB, 1,000 orders; Enterprise ₹6,999, 10,000 products, 30 staff, 100 GB, no order limit.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10"
+ },
+ "SA-12-002": {
+  "status": "Pass",
+  "actual": "Features allowed table with Phase and a column per plan.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10",
+  "notes": "Ticks are icons; read from the page structure."
+ },
+ "SA-13-001": {
+  "status": "Pass",
+  "actual": "MRR ₹6,999, On trial 2, Past due 0, Renewing in 7 days 0; tabs All 3, Trialing 2, Active 1; amounts incl. GST ₹11,798.82 (₹9,999 offer) and ₹8,258.82.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10"
+ },
+ "SA-14-001": {
+  "status": "Pass",
+  "actual": "Platform Admin, Super admin, Two-step On, last sign-in Today 11:13; Security: two-step Required, 8 hours, 5 tries 15 min, 10+ characters.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10",
+  "notes": "Reset two-step is also offered on your own row; consider hiding it there."
+ },
+ "VC-02-001": {
+  "status": "Pass",
+  "actual": "\"Good morning, Platform\", Sat 10 Oct · Home Orbit, Import CSV, Add product, \"Your store isn't live yet…\"; figures Orders today 1, To ship 8, New enquiries 1.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10",
+  "notes": "Run as super admin with Manage store."
+ },
+ "VC-02-002": {
+  "status": "Pass",
+  "actual": "Menu: Dashboard; Catalog; Sales; Marketing; Content; Store; Insights; Products 110 / 500 Starter plan; no Vendors or Plans.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10"
+ },
+ "VC-04-001": {
+  "status": "Pass",
+  "actual": "\"110 products · 500 allowed on Starter\", Import, Export, Add product, tabs All 110 / Active 110 / Draft 0 / Archived 0, Category filter with subcategories.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10"
+ },
+ "VC-05-001": {
+  "status": "Pass",
+  "actual": "13 categories; tree with counts (Door hardware 50, Aldrops 18, Pull handles 8, Glass door handles 12, …).",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10"
+ },
+ "VC-10-001": {
+  "status": "Pass",
+  "actual": "Tabs All 23, To pack 4, Packed 4, Shipped 3, Out for delivery 0, Delivered 12, Awaiting payment 0, Cancelled 0, Returns 0; search, Placed, Payment and State filters; Mark packed, Shipped from CSV, Download invoices.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10"
+ },
+ "VC-20-001": {
+  "status": "Pass",
+  "actual": "Pages: All 7, Published 2, Unpublished changes 0, Drafts 5, Scheduled 0; search, Template and Changed by filters.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10"
+ },
+ "VC-24-001": {
+  "status": "Pass",
+  "actual": "Home state 1 state Flat ₹99 free above ₹999 COD Allowed 2 to 3 days; Rest of India 35 states Flat ₹149 free above ₹1,999 3 to 6 days.",
+  "by": "Claude (Claude in Chrome)",
+  "date": "2026-10-10"
+ },
+ "E2E-18-001": {
+  "status": "Pass",
+  "actual": "At 1280 px: menu on one line, search box, account, wishlist and cart icons; at 1024 px the search became an icon and the menu no longer overlapped.",
+  "by": "Claude (in-app browser)",
+  "date": "2026-10-10",
+  "notes": "Found and fixed in the same session (search box covered \"About us\" at 1024 px)."
+ },
+ "E2E-18-002": {
+  "status": "Pass",
+  "actual": "Phone: bottom bar Home, Shop, Dealers, Account, Cart; Shop opened /c; on a product page the sticky \"₹1,049 Add to cart\" bar replaced it.",
+  "by": "Claude (in-app browser)",
+  "date": "2026-10-10"
+ },
+ "E2E-18-003": {
+  "status": "Pass",
+  "actual": "Footer: Get our offers first, Shop (with Offers), Help (Track order, Contact us), Company (About us, Contact us, Find a dealer, Downloads), legal line with name and GSTIN, COD chip.",
+  "by": "Claude (in-app browser)",
+  "date": "2026-10-10",
+  "notes": "QA data has placeholder business details and no grievance officer or published policies, so those lines were not shown."
+ },
+ "E2E-18-004": {
+  "status": "Pass",
+  "actual": "\"610\" and \"hogdh610\" → HOGDH-610 first; \"key\" → key hangers and the Key hangers category; \"glas handel\" → glass door handles (after the swapped-letter fix).",
+  "by": "Claude (in-app browser)",
+  "date": "2026-10-10",
+  "notes": "Arrow keys and Recent searches were not exercised."
+ },
+ "E2E-18-005": {
+  "status": "Pass",
+  "actual": "Filter sheet opened over the page with Close, Price, Clear and \"Show 50 products\"; price 500–1000 gave 21 products, Price low to high cheapest first.",
+  "by": "Claude (in-app browser)",
+  "date": "2026-10-10"
+ },
+ "E2E-18-006": {
+  "status": "Pass",
+  "actual": "Move to wishlist removed the door stopper from the cart and the heart read \"1 saved\"; Complete the look listed 4 products with Add to cart.",
+  "by": "Claude (in-app browser)",
+  "date": "2026-10-10"
+ },
+ "E2E-03-003": {
+  "status": "Pass",
+  "actual": "Category card Add to cart: \"Added ✓\" and the cart count went from 2 to 3 without leaving the page.",
+  "by": "Claude (in-app browser)",
+  "date": "2026-10-10",
+  "notes": "Run on existing Home Orbit products, not a new QA product."
+ }
+}

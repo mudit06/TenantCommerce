@@ -3,6 +3,8 @@ import type { Payload } from 'payload'
 import { Card, Pill, UsageBar } from '@/admin/ui'
 import { labelOf, TENANT_STATUS_TONE } from '@/admin/ui/tones'
 
+import { ordersThisMonth } from '@/modules/reports'
+
 import { usageOf } from '../data'
 
 /**
@@ -10,16 +12,17 @@ import { usageOf } from '../data'
  * the same meters our team sees on the vendor overview.
  */
 export async function StorePlanCard({ payload, tenantId }: { payload: Payload; tenantId: string }) {
-  const [tenant, staff] = await Promise.all([
+  const [tenant, staff, orders] = await Promise.all([
     payload.findByID({ collection: 'tenants', id: tenantId, depth: 1, overrideAccess: true }),
     payload.count({
       collection: 'users',
       where: { 'tenants.tenant': { equals: tenantId } },
       overrideAccess: true,
     }),
+    ordersThisMonth(payload, tenantId),
   ])
   const plan = typeof tenant.plan === 'object' ? tenant.plan : null
-  const usage = usageOf(tenant, staff.totalDocs)
+  const usage = usageOf(tenant, staff.totalDocs, orders)
   return (
     <Card
       actions={<Pill tone={TENANT_STATUS_TONE[tenant.status]}>{labelOf(tenant.status)}</Pill>}

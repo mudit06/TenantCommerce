@@ -73,6 +73,12 @@ export const Media: CollectionConfig = {
     defaultColumns: ['filename', 'alt', 'mimeType', 'filesize', 'updatedAt'],
     listSearchableFields: ['filename', 'alt'],
     description: 'Photos and PDFs. Images are resized for phones and desktops automatically.',
+    components: {
+      views: {
+        // docs/screens Media library: the grid, file types, storage and the file's details
+        list: { Component: '@/modules/content/admin/MediaLibrary#MediaLibrary' },
+      },
+    },
   },
   access: {
     read: async (args) => {

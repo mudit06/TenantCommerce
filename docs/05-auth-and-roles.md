@@ -25,6 +25,18 @@ There are two separate auth collections with different security needs.
 - Two-step login (TOTP, authenticator app): Payload's built-in auth has none, so the Sprint 1 auth
   spike picks a Payload 3 plugin (for example `payload-totp`) or writes it; secrets encrypted with
   `CONNECTOR_ENC_KEY`'s scheme; platform admins can reset it, which writes an audit log entry.
+  **Two-step sign-in, as built (10 October 2026, mudit asked for the wireframes in full):** our
+  own TOTP (`src/lib/auth/totp.ts`, RFC 6238, 6 digits, 30 s, one step of drift either way) and
+  `src/modules/identity/services/twoStep.ts`. The secret is sealed with the connector key scheme
+  in `users.twoFactorSecret`, which no API can read or write. Our sign-in page
+  (`/admin/login`, replacing Payload's view) asks for the password, then the code; the Users
+  `beforeLogin` hook refuses an account with two-step on unless the code came with it, so
+  Payload's own `/api/users/login` can't skip it, and a password reset drops the session it
+  creates for such an account. Five wrong codes lock two-step for 15 minutes; a code is never
+  accepted twice. Our team (platform roles) must set it up: until they do, the admin shows only
+  the setup screen. Vendor staff turn it on or off from their own account page (off needs a
+  current code). Super admins reset it for a lost phone (Team and access, a vendor's Staff tab,
+  or the person's page), audited as `two_factor_reset`.
 - Password policy: min 10 chars (a `beforeOperation` hook on create, update and reset, since
   Payload's own minimum is 3), breached-password check (k-anonymity HIBP) optional, lockout after
   5 failed attempts for 15 minutes (`auth.maxLoginAttempts`, `lockTime`). Disabled accounts get the

@@ -1,0 +1,26 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "wireframes",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "4173", "--directory", "docs/wireframes"],
+      "port": 4173
+    },
+    {
+      "name": "app",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev:fresh"],
+      "port": 3000
+    },
+    {
+      "name": "app-qa",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev:fresh"],
+      "port": 3000,
+      "env": {
+        "DATABASE_URI": "mongodb://localhost:27017/tenantecom_qa?replicaSet=rs0&directConnection=true"
+      }
+    }
+  ]
+}

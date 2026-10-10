@@ -11,9 +11,13 @@ import {
   type Attribute,
 } from '@/modules/catalog/services/productAttributes'
 import {
+  applyExtraFilters,
   applyFilters,
+  extraFilterCount,
+  extraFilters,
   paginate,
   selectedFilters,
+  sortKey,
   sortProducts,
   toggleQuery,
 } from '@/storefront/kit/listing/listing'
@@ -177,11 +181,54 @@ describe('category listing', () => {
       'Beta',
       'Gamma 10',
     ])
-    expect(paginate([1, 2, 3, 4, 5], 9, 2)).toEqual({ items: [5], page: 3, pages: 3, total: 5 })
+    expect(paginate([1, 2, 3, 4, 5], 9, 2)).toEqual({
+      items: [5],
+      page: 3,
+      from: 3,
+      pages: 3,
+      total: 5,
+    })
+    // Load more: pages 1 to 2 together
+    expect(paginate([1, 2, 3, 4, 5], 2, 2, 1).items).toEqual([1, 2, 3, 4])
     expect(toggleQuery({ finish: 'chrome', page: '3' }, 'finish', 'antique')).toBe(
       '?finish=chrome%2Cantique',
     )
     expect(toggleQuery({ finish: 'chrome' }, 'finish', 'chrome')).toBe('?')
+  })
+
+  it('sorts by popularity and price, and filters by price, stock, offer and rating', () => {
+    const list = [
+      { id: 'a', title: 'A', createdAt: '2026-01-01', priceMinor: 50_000, available: 0 },
+      {
+        id: 'b',
+        title: 'B',
+        createdAt: '2026-01-02',
+        priceMinor: 20_000,
+        available: null,
+        onOffer: true,
+        rating: { average: 4.5, count: 3 },
+      },
+      { id: 'c', title: 'C', createdAt: '2026-01-03', priceMinor: null, isFeatured: true },
+      { id: 'd', title: 'D', createdAt: '2026-01-04', priceMinor: 90_000, available: 4 },
+    ]
+    expect(sortProducts(list, 'popular').map((p) => p.id)).toEqual(['c', 'b', 'd', 'a'])
+    expect(sortProducts(list, 'price-asc').map((p) => p.id)).toEqual(['b', 'a', 'd', 'c'])
+    expect(sortProducts(list, 'price-desc').map((p) => p.id)).toEqual(['d', 'a', 'b', 'c'])
+    expect(sortKey('price-asc')).toBe('price-asc')
+    expect(sortKey('cheapest')).toBe('popular')
+
+    const filters = extraFilters({ min: '₹300', max: '1000', stock: 'in' })
+    expect(filters).toEqual({
+      minRupees: 300,
+      maxRupees: 1000,
+      inStock: true,
+      onOffer: false,
+      minRating: null,
+    })
+    expect(applyExtraFilters(list, filters).map((p) => p.id)).toEqual(['d'])
+    expect(applyExtraFilters(list, extraFilters({ offer: '1' })).map((p) => p.id)).toEqual(['b'])
+    expect(applyExtraFilters(list, extraFilters({ rating: '4' })).map((p) => p.id)).toEqual(['b'])
+    expect(extraFilterCount(extraFilters({ min: '100', stock: 'in', rating: '9' }))).toBe(2)
   })
 })
 

@@ -5,8 +5,9 @@ import { adminUrl } from '@/admin/paths'
 import type { Tone } from '@/admin/ui'
 import type { IconName } from '@/admin/ui/icons'
 import { addDays, calendarDaysBetween, formatDate, formatDayMonth, startOfDay } from '@/lib/dates'
+import { soldOrders } from '@/modules/reports'
 import { effectiveStatus } from '@/modules/tenancy'
-import type { Enquiry, Variant } from '@/payload-types'
+import type { Enquiry, Order, Variant } from '@/payload-types'
 
 // Data for the store dashboard's wireframe cards (docs/screens/vendor-cms.md `cms-dashboard`):
 // enquiries, stock, and what needs the person's attention. Every read has an explicit tenant
@@ -372,4 +373,286 @@ export async function loadStoreAttention({
     })
   }
   return items
+}
+
+// ---- Sales and orders to ship (order roles) ---------------------------------------------
+
+/** Orders confirmed and not yet handed to a courier: the Orders screen's To pack and Packed. */
+const TO_SHIP: Where = {
+  and: [
+    { status: { in: ['confirmed', 'processing'] } },
+    { fulfillmentStatus: { in: ['unfulfilled', 'packed'] } },
+  ],
+}
+
+export type SalesSummary = {
+  ordersToday: number
+  /** Of today's orders, how many still wait for a courier */
+  ordersTodayToShip: number
+  salesTodayMinor: number
+  toShip: number
+  oldestToShip: string | null
+  /** Sales per day for the last 14 days on the IST calendar, oldest first */
+  daily: { label: string; salesMinor: number }[]
+  toShipRows: Order[]
+}
+
+export async function loadSalesSummary(
+  payload: Payload,
+  tenantId: string,
+  now: Date,
+): Promise<SalesSummary> {
+  const today = startOfDay(now)
+  const firstDay = addDays(today, -13)
+  const placedToday: Where = {
+    and: [
+      { placedAt: { greater_than_equal: today.toISOString() } },
+      { status: { not_equals: 'pending' } },
+    ],
+  }
+  const [ordersToday, ordersTodayToShip, toShip, oldest, rows, sold] = await Promise.all([
+    count(payload, 'orders', inStore(tenantId, placedToday)),
+    count(payload, 'orders', inStore(tenantId, placedToday, TO_SHIP)),
+    count(payload, 'orders', inStore(tenantId, TO_SHIP)),
+    payload.find({
+      collection: 'orders',
+      where: inStore(tenantId, TO_SHIP),
+      sort: 'placedAt',
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+      select: { placedAt: true },
+    }),
+    payload.find({
+      collection: 'orders',
+      where: inStore(tenantId, TO_SHIP),
+      sort: '-placedAt',
+      limit: 5,
+      depth: 0,
+      overrideAccess: true,
+      select: {
+        orderNumber: true,
+        contact: true,
+        totals: true,
+        paymentMethod: true,
+        paymentStatus: true,
+        placedAt: true,
+      },
+    }),
+    soldOrders(payload, tenantId, firstDay, addDays(today, 1)),
+  ])
+
+  const daily = Array.from({ length: 14 }, (_, i) => {
+    const day = addDays(firstDay, i)
+    return { key: dayKey(day), label: formatDayMonth(day), salesMinor: 0 }
+  })
+  const byKey = new Map(daily.map((day) => [day.key, day]))
+  for (const order of sold) {
+    const day = order.paidAt ? byKey.get(dayKey(order.paidAt)) : undefined
+    if (day) day.salesMinor += order.totals?.grandTotalMinor ?? 0
+  }
+
+  return {
+    ordersToday,
+    ordersTodayToShip,
+    salesTodayMinor: daily.at(-1)?.salesMinor ?? 0,
+    toShip,
+    oldestToShip: oldest.docs[0]?.placedAt ?? null,
+    daily: daily.map(({ label, salesMinor }) => ({ label, salesMinor })),
+    toShipRows: rows.docs as Order[],
+  }
+}
+
+// ---- Order updates sent today (docs/18) ---------------------------------------------------
+
+const SENT = new Set(['sent', 'delivered', 'read', 'clicked'])
+
+export type OrderUpdatesToday = {
+  channel: 'whatsapp' | 'sms' | 'email'
+  sent: number
+  failed: number
+  /** Failed messages that went again on another channel */
+  fellBack: number
+}[]
+
+export async function loadOrderUpdatesToday(
+  payload: Payload,
+  tenantId: string,
+  now: Date,
+): Promise<OrderUpdatesToday> {
+  const { docs } = await payload.find({
+    collection: 'notification-logs',
+    where: inStore(
+      tenantId,
+      { kind: { equals: 'order' } },
+      { direction: { equals: 'out' } },
+      { createdAt: { greater_than_equal: startOfDay(now).toISOString() } },
+    ),
+    depth: 0,
+    limit: 10_000,
+    pagination: false,
+    overrideAccess: true,
+    select: { channel: true, status: true, fallbackOf: true },
+  })
+  const fallbacks = new Set(docs.map((log) => log.fallbackOf).filter(Boolean))
+  return (['whatsapp', 'sms', 'email'] as const).map((channel) => {
+    const logs = docs.filter((log) => log.channel === channel)
+    const failed = logs.filter((log) => log.status === 'failed')
+    return {
+      channel,
+      sent: logs.filter((log) => SENT.has(log.status ?? '')).length,
+      failed: failed.length,
+      fellBack: failed.filter((log) => fallbacks.has(String(log.id))).length,
+    }
+  })
+}
+
+// ---- Offers and growth (switched-on features only) ---------------------------------------
+
+export type GrowthSummary = {
+  scheme?: {
+    live: { id: string; name: string; orders: number; discountMinor: number; endsAt: string } | null
+    next: { id: string; name: string; startsAt: string } | null
+  }
+  reviews?: { pending: number; oldest: string | null; averageThisMonth: number | null }
+  affiliates?: { applications: number; pendingMinor: number; approvedMinor: number }
+  carts?: { abandonedToday: number; recoveredToday: number; recoveredWeekMinor: number }
+}
+
+export async function loadGrowthSummary(
+  payload: Payload,
+  tenantId: string,
+  features: readonly string[],
+  now: Date,
+): Promise<GrowthSummary> {
+  const today = startOfDay(now)
+  const monthStart = addDays(today, 1 - Number(dayKey(today).slice(8, 10)))
+  const weekAgo = addDays(today, -6)
+  const on = (key: string) => features.includes(key)
+  const one = { limit: 1, depth: 0, overrideAccess: true } as const
+
+  const [scheme, reviews, affiliates, carts] = await Promise.all([
+    on('schemes')
+      ? Promise.all([
+          payload.find({
+            collection: 'schemes',
+            where: inStore(tenantId, { status: { equals: 'live' } }),
+            sort: 'endsAt',
+            ...one,
+            select: { name: true, endsAt: true, stats: true },
+          }),
+          payload.find({
+            collection: 'schemes',
+            where: inStore(tenantId, { status: { equals: 'scheduled' } }),
+            sort: 'startsAt',
+            ...one,
+            select: { name: true, startsAt: true },
+          }),
+        ]).then(([live, next]) => {
+          const l = live.docs[0]
+          const n = next.docs[0]
+          return {
+            live: l
+              ? {
+                  id: String(l.id),
+                  name: l.name,
+                  orders: l.stats?.orders ?? 0,
+                  discountMinor: l.stats?.discountMinor ?? 0,
+                  endsAt: l.endsAt,
+                }
+              : null,
+            next: n ? { id: String(n.id), name: n.name, startsAt: n.startsAt } : null,
+          }
+        })
+      : undefined,
+    on('reviews')
+      ? Promise.all([
+          count(payload, 'reviews', inStore(tenantId, { status: { equals: 'pending' } })),
+          payload.find({
+            collection: 'reviews',
+            where: inStore(tenantId, { status: { equals: 'pending' } }),
+            sort: 'createdAt',
+            ...one,
+            select: { createdAt: true },
+          }),
+          payload.find({
+            collection: 'reviews',
+            where: inStore(
+              tenantId,
+              { status: { equals: 'published' } },
+              { createdAt: { greater_than_equal: monthStart.toISOString() } },
+            ),
+            depth: 0,
+            limit: 10_000,
+            pagination: false,
+            overrideAccess: true,
+            select: { rating: true },
+          }),
+        ]).then(([pending, oldest, month]) => ({
+          pending,
+          oldest: oldest.docs[0]?.createdAt ?? null,
+          averageThisMonth: month.docs.length
+            ? Math.round(
+                (month.docs.reduce((s, r) => s + (r.rating ?? 0), 0) / month.docs.length) * 10,
+              ) / 10
+            : null,
+        }))
+      : undefined,
+    on('affiliate')
+      ? Promise.all([
+          count(payload, 'affiliates', inStore(tenantId, { status: { equals: 'applied' } })),
+          payload.find({
+            collection: 'referrals',
+            where: inStore(tenantId, { status: { in: ['pending', 'approved'] } }),
+            depth: 0,
+            limit: 50_000,
+            pagination: false,
+            overrideAccess: true,
+            select: { status: true, commissionMinor: true },
+          }),
+        ]).then(([applications, referrals]) => {
+          const sum = (status: string) =>
+            referrals.docs
+              .filter((r) => r.status === status)
+              .reduce((s, r) => s + (r.commissionMinor ?? 0), 0)
+          return { applications, pendingMinor: sum('pending'), approvedMinor: sum('approved') }
+        })
+      : undefined,
+    on('abandoned-cart')
+      ? payload
+          .find({
+            collection: 'carts',
+            where: inStore(tenantId, {
+              abandonedAt: { greater_than_equal: weekAgo.toISOString() },
+            }),
+            depth: 1,
+            limit: 10_000,
+            pagination: false,
+            overrideAccess: true,
+            select: { abandonedAt: true, reminders: true, convertedOrder: true },
+          })
+          .then(({ docs }) => {
+            const orderOf = (cart: (typeof docs)[number]) =>
+              typeof cart.convertedOrder === 'object' ? cart.convertedOrder : null
+            // Recovered: reminded, then ordered (and not cancelled), as Abandoned carts counts it
+            const recovered = docs.filter(
+              (cart) =>
+                (cart.reminders ?? []).length > 0 &&
+                orderOf(cart)?.status !== undefined &&
+                orderOf(cart)?.status !== 'cancelled',
+            )
+            const isToday = (cart: (typeof docs)[number]) =>
+              Boolean(cart.abandonedAt && new Date(cart.abandonedAt) >= today)
+            return {
+              abandonedToday: docs.filter(isToday).length,
+              recoveredToday: recovered.filter(isToday).length,
+              recoveredWeekMinor: recovered.reduce(
+                (s, cart) => s + (orderOf(cart)?.totals?.grandTotalMinor ?? 0),
+                0,
+              ),
+            }
+          })
+      : undefined,
+  ])
+  return { scheme, reviews, affiliates, carts }
 }

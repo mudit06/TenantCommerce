@@ -1,6 +1,10 @@
 import type { Endpoint, PayloadRequest } from 'payload'
 
-import { isSuperAdmin } from '@/access'
+import { isPlatformStaff, isSuperAdmin } from '@/access'
+import { labelOf } from '@/admin/ui/tones'
+import { csvResponse } from '@/lib/csv'
+import { isoDate } from '@/lib/dates'
+import { toRupeesString } from '@/lib/money'
 import { withTransaction } from '@/lib/db/transaction'
 import { AppError } from '@/lib/errors'
 import { apiHandler, assertSameOrigin, ok, readBody, routeParam } from '@/lib/http/endpoint'
@@ -23,6 +27,8 @@ import {
   recordSubscriptionPayment,
 } from '../services/subscriptions'
 import { changeTenantStatus } from '../services/tenantStatus'
+import { loadSubscriptionRows } from '../admin/subscriptionsData'
+import { loadVendorRows, vendorFiltersFrom } from '../admin/vendorsData'
 
 /** Platform endpoints are for super admins only, from our own admin origin (docs/07). */
 function guard(req: PayloadRequest) {
@@ -45,7 +51,89 @@ const statusEndpoint = (action: string, to: TenantStatus): Endpoint => ({
   }),
 })
 
+/** Reading platform-wide lists (exports): our team, support included. */
+function staffGuard(req: PayloadRequest) {
+  if (!req.user) throw new AppError('UNAUTHENTICATED', 'Sign in first', 401)
+  if (!isPlatformStaff(req.user)) throw new AppError('FORBIDDEN', 'Our team only', 403)
+}
+
 export const tenancyEndpoints: Endpoint[] = [
+  {
+    // Subscriptions "Export CSV" (docs/screens `sa-subscriptions`), for accounts
+    path: '/admin/v1/platform/subscriptions/export',
+    method: 'get',
+    handler: apiHandler(async (req) => {
+      staffGuard(req)
+      const tab = new URL(req.url ?? 'http://x').searchParams.get('tab') ?? 'all'
+      const { rows } = await loadSubscriptionRows(req.payload, tab)
+      return csvResponse(
+        [
+          [
+            'Vendor',
+            'Plan',
+            'Status',
+            'Billing',
+            'Period ends',
+            'Amount incl. GST',
+            'Last payment',
+          ],
+          ...rows.map((row) => [
+            row.vendor,
+            row.plan,
+            labelOf(row.status),
+            row.billingMode,
+            row.periodEnds,
+            row.dueMinor === null ? '' : toRupeesString(row.dueMinor),
+            row.lastPayment ?? '',
+          ]),
+        ],
+        `subscriptions-${isoDate()}.csv`,
+      )
+    }),
+  },
+  {
+    // All vendors "Export CSV": the list as filtered on screen (docs/screens `sa-vendors`)
+    path: '/admin/v1/platform/vendors/export',
+    method: 'get',
+    handler: apiHandler(async (req) => {
+      staffGuard(req)
+      const params = new URL(req.url ?? 'http://x').searchParams
+      const { rows } = await loadVendorRows(req.payload, vendorFiltersFrom(params))
+      return csvResponse(
+        [
+          [
+            'Vendor',
+            'Slug',
+            'Primary domain',
+            'GSTIN',
+            'Industry',
+            'Plan',
+            'Store',
+            'Subscription',
+            'Products',
+            'Product limit',
+            'Orders, 30 days',
+            'Created',
+          ],
+          ...rows.map((row) => [
+            row.name,
+            row.slug,
+            row.host,
+            row.gstin,
+            row.industry,
+            row.planName,
+            labelOf(row.status),
+            row.subscription ? labelOf(row.subscription) : '',
+            row.products,
+            row.maxProducts ?? '',
+            row.orders30,
+            row.createdAt.slice(0, 10),
+          ]),
+        ],
+        `vendors-${isoDate()}.csv`,
+      )
+    }),
+  },
   {
     path: '/admin/v1/platform/tenants',
     method: 'post',

@@ -2,7 +2,7 @@ import { DefaultTemplate } from '@payloadcms/next/templates'
 import type { AdminViewServerProps } from 'payload'
 
 import { isPlatformStaff, isSuperAdmin } from '@/access'
-import { Card, Notice, Row, Rows } from '@/admin/ui'
+import { Card, Notice, Pill, Row, Rows } from '@/admin/ui'
 import { requireSignedIn } from '@/admin/session/requireSignedIn'
 import { adminUrl } from '@/admin/paths'
 
@@ -59,7 +59,7 @@ export async function TeamView({ initPageResult, params, searchParams }: AdminVi
         ) : (
           <div className="te-grid te-grid--2-1">
             <Card title="People">
-              <StaffTable canManage={canManage} users={team} />
+              <StaffTable canManage={canManage} canResetTwoStep={canManage} users={team} />
             </Card>
             <div className="te-stack">
               {canManage ? (
@@ -70,9 +70,13 @@ export async function TeamView({ initPageResult, params, searchParams }: AdminVi
               <Card title="Security">
                 <Rows>
                   <Row
-                    aside={<span className="te-text--warning">Not yet</span>}
+                    aside={
+                      <span className="te-inline">
+                        <Pill tone="success">Required</Pill>
+                      </span>
+                    }
                     primary="Two-step verification"
-                    secondary="Deferred for now (mudit, 3 October 2026). Planned before real vendor data goes live."
+                    secondary="Every platform account signs in with an authenticator code. It can’t be switched off; a super admin resets it for a lost phone, and resets are logged."
                   />
                   <Row aside={`${SESSION_SECONDS / 3600} hours`} primary="Session length" />
                   <Row

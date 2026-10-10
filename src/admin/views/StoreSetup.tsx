@@ -51,23 +51,80 @@ export async function StoreSetup({
       count('pages', { and: [{ slug: { equals: 'home' } }, { _status: { equals: 'published' } }] }),
       has('dealer-locator') ? count('dealers') : Promise.resolve(0),
     ])
-  const menuItems = await payload
-    .find({
-      collection: 'navigation',
+  const [menuItems, tenant, connectors, shippingZones, templates] = await Promise.all([
+    payload
+      .find({
+        collection: 'navigation',
+        where: { tenant: { equals: tenantId } },
+        depth: 0,
+        limit: 1,
+        overrideAccess: true,
+      })
+      .then((result) => result.docs[0]?.header?.length ?? 0),
+    payload.findByID({
+      collection: 'tenants',
+      id: tenantId,
+      depth: 0,
+      overrideAccess: true,
+      select: { gstin: true, legalName: true },
+    }),
+    payload.find({
+      collection: 'connector-configs',
       where: { tenant: { equals: tenantId } },
       depth: 0,
-      limit: 1,
+      limit: 20,
       overrideAccess: true,
-    })
-    .then((result) => result.docs[0]?.header?.length ?? 0)
+      select: { provider: true, savedSecrets: true },
+    }),
+    count('shipping-zones'),
+    count('notification-templates', { channel: { equals: 'whatsapp' } }),
+  ])
+  const razorpay = connectors.docs.find((doc) => doc.provider === 'razorpay')
+  const whatsapp = connectors.docs.find((doc) => doc.provider === 'meta-whatsapp')
+  const approved = whatsapp
+    ? await count('notification-templates', {
+        and: [{ channel: { equals: 'whatsapp' } }, { status: { equals: 'approved' } }],
+      })
+    : 0
 
   const steps: Step[] = [
     {
-      label: 'Store settings',
+      label: 'Store name and logo',
       hint: 'Logo, contact numbers, grievance officer, invoice details',
       href: adminUrl.collection('site-settings'),
       done: Boolean(settings?.logo && settings?.contact?.phone && settings?.grievanceOfficer?.name),
     },
+    {
+      label: 'GST details',
+      hint: 'GSTIN and legal name, set by the platform team at onboarding',
+      href: adminUrl.collection('site-settings'),
+      done: Boolean(tenant?.gstin && tenant?.legalName),
+    },
+    {
+      label: 'Razorpay connected',
+      hint: 'Your own Razorpay keys, so shoppers pay you directly',
+      href: adminUrl.payments,
+      done: Boolean(razorpay?.savedSecrets?.includes('keySecret')),
+    },
+    {
+      label: 'Shipping zones',
+      hint: 'Where you deliver, the delivery fee and COD',
+      href: adminUrl.shipping,
+      done: shippingZones > 0,
+      count: shippingZones,
+    },
+    // Only once WhatsApp is connected: until then order updates go by email
+    ...(whatsapp
+      ? [
+          {
+            label: 'WhatsApp templates approved',
+            hint: 'Meta approves each order update template before it can be sent',
+            href: adminUrl.messaging,
+            done: templates > 0 && approved === templates,
+            count: approved,
+          },
+        ]
+      : []),
     {
       label: 'Attribute sets',
       hint: 'Specification fields and filters for each kind of product',

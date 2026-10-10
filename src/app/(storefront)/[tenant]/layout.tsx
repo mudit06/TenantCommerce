@@ -4,6 +4,7 @@ import type { CSSProperties, ReactNode } from 'react'
 
 import { PREVIEW_PAGE_HEADER } from '@/storefront/constants'
 import { getStoreContext } from '@/storefront/context'
+import { BottomNav } from '@/storefront/kit/layout/BottomNav'
 import { Footer } from '@/storefront/kit/layout/Footer'
 import { Header } from '@/storefront/kit/layout/Header'
 import { StoreMessage } from '@/storefront/kit/layout/StoreMessage'
@@ -29,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     metadataBase: new URL(ctx.origin),
     title: { default: ctx.ui.tagline ? `${name} · ${ctx.ui.tagline}` : name, template },
-    description: `${name}: ${ctx.categories.roots.map((root) => root.name.toLowerCase()).join(', ') || 'products'}. Ask for a quote online.`,
+    description: `${name}: ${ctx.categories.roots.map((root) => root.name.toLowerCase()).join(', ') || 'products'}. ${ctx.selling.selling ? 'Buy online with prices including GST.' : 'Ask for a quote online.'}`,
     applicationName: name,
     icons: { ...(favicon ? { icon: favicon } : {}), apple: '/app-icon/180' },
     manifest: '/manifest.webmanifest',
@@ -113,6 +114,7 @@ export default async function StoreLayout({ children, params }: Props) {
               {children}
             </main>
             <Footer ctx={ctx} />
+            <BottomNav dealers={ctx.hasFeature('dealer-locator')} selling={ctx.selling.selling} />
             <PwaSetup icon="/app-icon/192" storeName={name} />
             <WhatsAppFloat
               href={storeWhatsApp(

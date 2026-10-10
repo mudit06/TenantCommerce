@@ -3,10 +3,12 @@ import Link from 'next/link'
 import type { StoreContext } from '../../context'
 import { MenuIcon, PhoneIcon, SearchIcon, UserIcon, WhatsAppIcon } from '../icons'
 import { linkHref } from '../links'
+import { SearchBox } from '../listing/SearchBox'
 import { Img } from '../media'
 import { getStoreOffers, runningSchemes } from '@/lib/data/offers'
 
 import { CartLink } from '../shop/CartLink'
+import { WishlistLink } from '../shop/WishlistLink'
 import { buttonClass, Container } from '../ui'
 import { storeWhatsApp } from '../whatsapp'
 
@@ -92,7 +94,7 @@ export async function Header({ ctx }: { ctx: StoreContext }) {
           </div>
         </Container>
       </div>
-      <Container className="flex h-16 items-center gap-4 lg:h-20">
+      <Container className="flex h-16 items-center gap-2 sm:gap-4 lg:h-20">
         <details className="group relative lg:hidden">
           <summary
             aria-label="Menu"
@@ -150,7 +152,7 @@ export async function Header({ ctx }: { ctx: StoreContext }) {
           {settings?.logo && typeof settings.logo === 'object' ? (
             <Img
               alt={name}
-              className="h-9 w-auto lg:h-12"
+              className="h-9 w-auto max-w-[9.5rem] object-contain sm:max-w-none lg:h-12"
               media={settings.logo}
               priority
               sizes="240px"
@@ -160,19 +162,21 @@ export async function Header({ ctx }: { ctx: StoreContext }) {
           )}
         </Link>
 
-        <nav aria-label="Main" className="ml-6 hidden flex-1 lg:block">
-          <ul className="flex items-center gap-1">
+        <nav aria-label="Main" className="ml-2 hidden min-w-0 flex-1 lg:block xl:ml-6">
+          <ul className="flex items-center gap-0.5 xl:gap-1">
             {items.map((item) => (
               <li className="group relative" key={item.label}>
                 {item.href ? (
                   <Link
-                    className="block rounded-card px-3 py-2 text-sm font-semibold text-ink hover:text-accent"
+                    className="block rounded-card px-2 py-2 text-sm font-semibold whitespace-nowrap text-ink hover:text-accent xl:px-3"
                     href={item.href}
                   >
                     {item.label}
                   </Link>
                 ) : (
-                  <span className="block px-3 py-2 text-sm font-semibold">{item.label}</span>
+                  <span className="block px-2 py-2 text-sm font-semibold whitespace-nowrap xl:px-3">
+                    {item.label}
+                  </span>
                 )}
                 {item.children.length > 0 ? (
                   <div className="invisible absolute left-0 top-full min-w-56 translate-y-1 rounded-card border border-line bg-white p-2 opacity-0 shadow-lg transition group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
@@ -195,25 +199,14 @@ export async function Header({ ctx }: { ctx: StoreContext }) {
           </ul>
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
-          <form action="/search" className="hidden md:block" role="search">
-            <label className="sr-only" htmlFor="header-search">
-              Search products
-            </label>
-            <div className="flex items-center rounded-card border border-line bg-surface-alt px-3 focus-within:border-ink/40">
-              <SearchIcon className="text-ink-soft" />
-              <input
-                className="h-10 w-44 bg-transparent px-2 text-sm outline-none placeholder:text-ink-soft xl:w-56"
-                id="header-search"
-                name="q"
-                placeholder="Search or model no."
-                type="search"
-              />
-            </div>
-          </form>
+        <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
+          {/* Full box on tablets and wide screens; an icon where the menu needs the room */}
+          <div className="hidden md:block lg:hidden xl:block">
+            <SearchBox />
+          </div>
           <Link
             aria-label="Search"
-            className="flex size-11 items-center justify-center rounded-card border border-line md:hidden"
+            className="flex size-11 items-center justify-center rounded-card border border-line md:hidden lg:flex xl:hidden"
             href="/search"
           >
             <SearchIcon />
@@ -227,6 +220,7 @@ export async function Header({ ctx }: { ctx: StoreContext }) {
               >
                 <UserIcon />
               </Link>
+              {ctx.hasFeature('wishlist') ? <WishlistLink className="hidden sm:flex" /> : null}
               <CartLink />
             </>
           ) : (

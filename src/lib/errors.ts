@@ -16,6 +16,10 @@ export type AppErrorCode =
   | 'FEATURE_DEPENDENCY'
   | 'PLAN_LIMIT_REACHED'
   | 'INVALID_TRANSITION'
+  // Staff two-step sign-in (identity/services/twoStep)
+  | 'TWO_STEP_REQUIRED'
+  | 'INVALID_CODE'
+  | 'LOCKED'
 
 export class AppError extends APIError {
   readonly code: AppErrorCode

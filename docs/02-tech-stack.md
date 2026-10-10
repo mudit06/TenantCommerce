@@ -29,7 +29,8 @@ Payload 4 is in canary (needs Node 24, Next 16.2.6+, TS 6). Stay on 3.x; plan th
 | `@payloadcms/plugin-sentry` | Error tracking |
 | `@payloadcms/storage-s3` (or Cloudinary adapter) | Media in object storage behind a CDN |
 | `@payloadcms/richtext-lexical` | Rich text |
-| Two-step login plugin (TOTP) | Payload has none built in. Pick one in the Sprint 1 auth spike (for example `payload-totp`), or write it (docs/05) |
+| Two-step login (TOTP) | Our own (10 October 2026): RFC 6238 with `node:crypto` in `src/lib/auth/totp.ts`, no plugin (docs/05 "Two-step sign-in, as built"). `qrcode` (MIT) draws the setup QR code as an SVG on the server |
+| `leaflet` (BSD-2) | Dealer maps in the vendor CMS (Dealers list, a dealer's draggable pin) with OpenStreetMap tiles: no API key, attribution shown. Admin only; the storefront's dealer locator links to Google Maps |
 
 ## Frontend
 

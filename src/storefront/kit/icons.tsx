@@ -156,3 +156,29 @@ export const StarIcon = (p: P) => (
     <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9L12 3Z" />
   </svg>
 )
+export const HomeIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M3 11 12 4l9 7" />
+    <path d="M5 10v10h14V10" />
+  </svg>
+)
+export const GridIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <rect height="7" rx="1.5" width="7" x="3.5" y="3.5" />
+    <rect height="7" rx="1.5" width="7" x="13.5" y="3.5" />
+    <rect height="7" rx="1.5" width="7" x="3.5" y="13.5" />
+    <rect height="7" rx="1.5" width="7" x="13.5" y="13.5" />
+  </svg>
+)
+export const PlayIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="m10 8.5 5.5 3.5-5.5 3.5Z" />
+  </svg>
+)
+export const TagIcon = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M3 12V4h8l10 10-8 8L3 12Z" />
+    <circle cx="7.5" cy="8.5" r="1.3" />
+  </svg>
+)

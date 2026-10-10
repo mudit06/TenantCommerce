@@ -7,3 +7,4 @@ export {
   type DealerQuery,
   type RankedDealer,
 } from './rules'
+export { positionForPincode, type Position } from './services/position'

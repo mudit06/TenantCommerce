@@ -2,13 +2,13 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 import { idOf } from '@/access'
-import { getStoreOffers, offerForProduct } from '@/lib/data/offers'
+import { getStoreOffers, offerForProduct, offersForProduct } from '@/lib/data/offers'
 import { getProductBySlug, getProductReviews, getProductsInCategories } from '@/lib/data/catalog'
 import { variantAxes } from '@/modules/catalog'
 import { whatsappNumber } from '@/modules/enquiries'
 import { getStoreContext } from '@/storefront/context'
 import { Breadcrumbs } from '@/storefront/kit/Breadcrumbs'
-import { FileIcon } from '@/storefront/kit/icons'
+import { BadgeIcon, FileIcon, ReturnIcon, TagIcon, TruckIcon } from '@/storefront/kit/icons'
 import { mediaUrl, Img } from '@/storefront/kit/media'
 import { Gallery } from '@/storefront/kit/product/Gallery'
 import { LegalDetails } from '@/storefront/kit/product/LegalDetails'
@@ -20,13 +20,27 @@ import { Stars } from '@/storefront/kit/reviews/Stars'
 import { formatINR } from '@/lib/money'
 import { RememberView } from '@/storefront/kit/pwa/RememberView'
 import { BuyBox } from '@/storefront/kit/shop/BuyBox'
+import { CopyCode } from '@/storefront/kit/shop/CopyCode'
 import { HeartButton } from '@/storefront/kit/shop/HeartButton'
 import { SpecTable } from '@/storefront/kit/product/SpecTable'
 import { RichText } from '@/storefront/kit/RichText'
 import { Container, SectionHeading } from '@/storefront/kit/ui'
+import type { Product } from '@/payload-types'
 import { notFoundOrRedirect } from '@/storefront/notFoundOrRedirect'
 
 type Props = { params: Promise<{ tenant: string; slug: string }> }
+
+/** The YouTube video id from a watch or youtu.be link (the editor accepts only those). */
+const youtubeId = (url: string) =>
+  url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{6,})/)?.[1] ?? null
+
+const startDate = (iso: string) =>
+  new Date(iso).toLocaleDateString('en-IN', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'Asia/Kolkata',
+  })
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { tenant, slug } = await params
@@ -88,11 +102,24 @@ export default async function ProductPage({ params }: Props) {
     })),
     { label: product.title, href: `/products/${product.slug}` },
   ]
-  const related = node
-    ? (await getProductsInCategories(ctx.store.tenantId, [String(node.id)]))
-        .filter((p) => p.id !== product.id)
-        .slice(0, 4)
+  // "Goes well with": the vendor's own picks, else more from the same category
+  const picked = (product.relatedProducts ?? [])
+    .map((p) => idOf(p))
+    .filter((id): id is string => Boolean(id))
+  const sameCategory = node
+    ? await getProductsInCategories(ctx.store.tenantId, [String(node.id)])
     : []
+  const pickedCards = picked.length
+    ? (
+        await getProductsInCategories(
+          ctx.store.tenantId,
+          ctx.categories.all.map((c) => String(c.id)),
+        )
+      ).filter((p) => picked.includes(String(p.id)))
+    : []
+  const related = (pickedCards.length ? pickedCards : sameCategory)
+    .filter((p) => p.id !== product.id)
+    .slice(0, 4)
   const pageUrl = `${ctx.origin}/products/${product.slug}`
   // A live scheme's price and badge; the cart and checkout price again on the server
   const storeFeatures = await getStoreOffers(ctx.store.tenantId)
@@ -140,6 +167,33 @@ export default async function ProductPage({ params }: Props) {
           }
         : undefined,
   }
+
+  const forYou = buying
+    ? offersForProduct(storeFeatures, { id: product.id, categoryIds: productCategories })
+    : { coupons: [], nextScheme: null }
+  // The promises under the buy box (wireframe: "5-year warranty · 7-day returns · GST invoice")
+  const warranty = typeof values.warranty === 'string' ? values.warranty : null
+  const returnDays = ctx.settings?.returns?.windowDays
+  const promises = buying
+    ? [
+        warranty ? { icon: BadgeIcon, text: `${warranty} warranty` } : null,
+        returnDays
+          ? {
+              icon: ReturnIcon,
+              text: ctx.settings?.returns?.exchangeOnly
+                ? `${returnDays}-day exchange`
+                : `${returnDays}-day returns`,
+            }
+          : null,
+        { icon: FileIcon, text: 'GST invoice' },
+        ctx.selling.cod ? { icon: TruckIcon, text: 'Cash on delivery' } : null,
+      ].filter((p) => p !== null)
+    : []
+  const videos = ctx.hasFeature('product-videos')
+    ? ((product.videos ?? []) as NonNullable<Product['videos']>)
+        .map((video) => ({ ...video, videoId: youtubeId(video.url) }))
+        .filter((video) => video.videoId)
+    : []
 
   const firstPhoto = photos.find((photo) => typeof photo === 'object')
   return (
@@ -266,6 +320,57 @@ export default async function ProductPage({ params }: Props) {
                 }
               />
             ) : null}
+            {forYou.coupons.length || forYou.nextScheme ? (
+              <section
+                aria-labelledby="offers-for-you"
+                className="mt-6 rounded-card border border-dashed border-accent/50 p-4"
+              >
+                <h2 className="flex items-center gap-2 text-sm font-semibold" id="offers-for-you">
+                  <TagIcon className="text-accent" height={16} width={16} /> Offers for you
+                </h2>
+                <ul className="mt-2 space-y-2 text-sm">
+                  {forYou.coupons.map((coupon) => (
+                    <li className="flex flex-wrap items-center gap-2" key={coupon.code}>
+                      <span className="rounded border border-line bg-surface-alt px-2 py-0.5 font-mono text-xs font-semibold">
+                        {coupon.code}
+                      </span>
+                      <span className="flex-1 text-ink-soft">
+                        {coupon.gives}
+                        {coupon.minOrderMinor
+                          ? ` on orders above ${formatINR(coupon.minOrderMinor)}`
+                          : ''}
+                        {coupon.onlineOnly ? ' · pay online' : ''}
+                      </span>
+                      <CopyCode code={coupon.code} />
+                    </li>
+                  ))}
+                  {forYou.nextScheme ? (
+                    <li className="text-ink-soft">
+                      <span className="font-semibold text-ink">{forYou.nextScheme.name}</span>
+                      {`: ${forYou.nextScheme.description}, from ${startDate(forYou.nextScheme.startsAt)}. `}
+                      <a
+                        className="font-semibold text-accent underline"
+                        href={
+                          forYou.nextScheme.slug ? `/offers/${forYou.nextScheme.slug}` : '/offers'
+                        }
+                      >
+                        Details
+                      </a>
+                    </li>
+                  ) : null}
+                </ul>
+                <p className="mt-2 text-xs text-ink-soft">Codes are applied in the cart.</p>
+              </section>
+            ) : null}
+            {promises.length ? (
+              <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-soft">
+                {promises.map(({ icon: Icon, text }) => (
+                  <li className="flex items-center gap-1.5" key={text}>
+                    <Icon className="text-accent" height={16} width={16} /> {text}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
             {buying &&
             !(ctx.hasFeature('enquiries') && product.purchaseMode === 'both') ? null : buying ? (
               <section
@@ -343,6 +448,29 @@ export default async function ProductPage({ params }: Props) {
               </ul>
             </section>
           ) : null}
+          {videos.length ? (
+            <section>
+              <SectionHeading>
+                {videos[0]!.type === 'installation' ? 'Installation video' : 'Videos'}
+              </SectionHeading>
+              <ul className="space-y-4">
+                {videos.map((video) => (
+                  <li key={video.videoId}>
+                    <div className="aspect-video overflow-hidden rounded-card border border-line bg-surface-alt">
+                      <iframe
+                        allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="size-full"
+                        loading="lazy"
+                        src={`https://www.youtube-nocookie.com/embed/${video.videoId}`}
+                        title={`${product.title}: ${video.type === 'installation' ? 'installation' : 'video'}`}
+                      />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
           <section>
             <SectionHeading>Product details</SectionHeading>
             <LegalDetails legal={product.legal} />
@@ -360,7 +488,7 @@ export default async function ProductPage({ params }: Props) {
       ) : null}
       {related.length ? (
         <section className="mt-16">
-          <SectionHeading>You may also like</SectionHeading>
+          <SectionHeading>{pickedCards.length ? 'Goes well with' : 'You may also like'}</SectionHeading>
           <ProductGrid products={related} />
         </section>
       ) : null}

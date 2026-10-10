@@ -8,6 +8,7 @@ export { schemeStatsTask, switchSchemesTask } from './jobs/schemes'
 export { COUPON_STATUSES, OCCASIONS, SCHEME_STATUSES, occasionOf } from './occasions'
 export {
   COUPON_TYPES,
+  covers,
   describeCoupon,
   describeScheme,
   normalizeCode,

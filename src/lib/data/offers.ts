@@ -6,6 +6,7 @@ import { storefrontTag } from '@/hooks/revalidateStorefront'
 import { tenantTag } from '@/lib/cache'
 import {
   couponRule,
+  covers,
   describeCoupon,
   describeScheme,
   schemeRule,
@@ -42,6 +43,8 @@ export type PublicCoupon = {
   onlineOnly: boolean
   firstOrderOnly: boolean
   perCustomerLimit: number | null
+  /** What the code applies to, for "Offers for you" on a product page */
+  covers: SchemeRule['covers']
 }
 
 export type StoreOffers = {
@@ -155,6 +158,7 @@ const load = (tenantId: string) =>
           .map((c) => ({
             code: c.code,
             gives: describeCoupon(couponRule(c)),
+            covers: couponRule(c).covers,
             minOrderMinor: c.minOrderMinor ?? null,
             endsAt: c.endsAt ?? null,
             onlineOnly: c.paymentMethods?.length === 1 && c.paymentMethods[0] === 'razorpay',
@@ -278,3 +282,29 @@ export const getSchemeBySlug = (tenantId: string, slug: string) =>
     ['scheme', tenantId, slug],
     { tags: [storefrontTag(tenantId)], revalidate: 300 },
   )()
+
+/**
+ * "Offers for you" on a product page (docs/screens storefront `st-product` rule 10): public codes
+ * that cover this product, and the next scheme covering it that shows before it starts.
+ */
+export function offersForProduct(
+  offers: StoreOffers,
+  product: { id: string | number; categoryIds: string[] },
+  at = new Date(),
+): { coupons: PublicCoupon[]; nextScheme: StoreScheme | null } {
+  const line = {
+    productId: String(product.id),
+    categoryIds: [...new Set(product.categoryIds.flatMap((id) => offers.ancestors[id] ?? [id]))],
+  }
+  const now = at.toISOString()
+  return {
+    coupons: offers.couponsOn
+      ? offers.coupons.filter((coupon) => covers(coupon.covers, line)).slice(0, 3)
+      : [],
+    nextScheme: offers.schemesOn
+      ? (offers.schemes.find(
+          (scheme) => scheme.startsAt > now && scheme.showBeforeStart && covers(scheme.covers, line),
+        ) ?? null)
+      : null,
+  }
+}

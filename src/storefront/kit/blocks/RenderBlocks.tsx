@@ -11,7 +11,15 @@ import { Img, mediaUrl } from '../media'
 import { ProductGrid } from '../product/ProductCard'
 import { QuoteForm } from '../product/QuoteForm'
 import { RichText } from '../RichText'
-import { ButtonLink, Container, SectionHeading } from '../ui'
+import {
+  AffiliateInvite,
+  CouponList,
+  OfferStrip,
+  OffersSignupSection,
+  SchemeProducts,
+  StoreReviews,
+} from './GrowthBlocks'
+import { buttonClass, ButtonLink, Container, SectionHeading } from '../ui'
 
 type Block = NonNullable<Page['layout']>[number]
 
@@ -349,7 +357,21 @@ async function renderBlock(block: Block, ctx: StoreContext, index: number) {
               </h2>
               {block.text ? <p className="mt-2 max-w-2xl text-white/80">{block.text}</p> : null}
             </div>
-            <ButtonLink href="/dealers">{block.buttonLabel ?? 'Find a dealer'}</ButtonLink>
+            <form action="/dealers" className="flex w-full max-w-md gap-2 md:w-auto">
+              <label className="sr-only" htmlFor={`dealer-near-${key}`}>
+                Your pincode or city
+              </label>
+              <input
+                autoComplete="postal-code"
+                className="h-11 min-w-0 flex-1 rounded-card border border-white/20 bg-white/10 px-3 text-white placeholder:text-white/60 md:w-48"
+                id={`dealer-near-${key}`}
+                name="near"
+                placeholder="Your pincode or city"
+              />
+              <button className={buttonClass('primary')} type="submit">
+                {block.buttonLabel ?? 'Find a dealer'}
+              </button>
+            </form>
           </Container>
         </section>
       )
@@ -399,6 +421,19 @@ async function renderBlock(block: Block, ctx: StoreContext, index: number) {
           </Container>
         </section>
       )
+    // Growth blocks: each checks its own feature (GrowthBlocks.tsx)
+    case 'offerStrip':
+      return <OfferStrip block={block} ctx={ctx} key={key} />
+    case 'schemeProducts':
+      return <SchemeProducts block={block} ctx={ctx} key={key} />
+    case 'couponList':
+      return <CouponList block={block} ctx={ctx} key={key} />
+    case 'reviews':
+      return <StoreReviews block={block} ctx={ctx} key={key} />
+    case 'offersSignup':
+      return <OffersSignupSection block={block} ctx={ctx} key={key} />
+    case 'affiliateInvite':
+      return <AffiliateInvite block={block} ctx={ctx} key={key} />
     default:
       return null
   }

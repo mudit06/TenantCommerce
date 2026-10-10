@@ -62,6 +62,7 @@ messaging (WhatsApp, SMS, email) providers are connectors behind one interface e
 | docs/screens/vendor-cms.md | building any vendor CMS screen, or the shared admin theme: per-screen spec |
 | docs/screens/storefront.md | building any storefront page: per-screen spec, mobile and desktop rules |
 | docs/wireframes/ | seeing a screen (clickable wireframes the docs/screens specs are generated from) |
+| docs/qa/README.md | regression testing: module-wise scripts, the Excel test workbook, how to run them with Claude in Chrome (add cases there when you add a flow) |
 
 ## Hard rules (never break these)
 

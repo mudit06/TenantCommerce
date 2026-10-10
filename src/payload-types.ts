@@ -438,13 +438,7 @@ export interface Tenant {
    * Visible to our team only. For example: prefers WhatsApp, renewal call in March.
    */
   notes?: string | null;
-  /**
-   * Changed with Go live, Suspend and Resume above
-   */
   status: 'draft' | 'active' | 'suspended' | 'archived';
-  /**
-   * Changed from the Billing tab
-   */
   plan: string | Plan;
   usage?: {
     productsCount?: number | null;
@@ -648,6 +642,13 @@ export interface User {
   platformRole?: ('super-admin' | 'support') | null;
   status: 'invited' | 'active' | 'disabled';
   lastLoginAt?: string | null;
+  twoFactorEnabled?: boolean | null;
+  twoFactorEnabledAt?: string | null;
+  twoFactorSecret?: string | null;
+  twoFactorPending?: string | null;
+  twoFactorFailures?: number | null;
+  twoFactorLastStep?: number | null;
+  twoFactorLockedUntil?: string | null;
   invitedBy?: (string | null) | User;
   invitedAt?: string | null;
   storeSession?: {
@@ -758,15 +759,21 @@ export interface Page {
         | BenefitsBlock
         | TestimonialsBlock
         | BrandStoryBlock
+        | OfferStripBlock
+        | ReviewsBlock
+        | AffiliateInviteBlock
         | ProductGridBlock
         | CategoryTilesBlock
         | DownloadsBlock
+        | SchemeProductsBlock
+        | CouponListBlock
         | RichTextBlock
         | ImageTextBlock
         | VideoBlock
         | FaqBlock
         | DealerFinderBlock
         | EnquiryFormBlock
+        | OffersSignupBlock
       )[]
     | null;
   seo?: Seo;
@@ -826,6 +833,10 @@ export interface Category {
   tenant?: (string | null) | Tenant;
   name: string;
   /**
+   * Empty for a top-level category
+   */
+  parent?: (string | null) | Category;
+  /**
    * Filled from the name. Store address: /c/<parent>/<slug>
    */
   slug?: string | null;
@@ -843,10 +854,6 @@ export interface Category {
   isVisible?: boolean | null;
   sortOrder?: number | null;
   seo?: Seo;
-  /**
-   * Empty for a top-level category
-   */
-  parent?: (string | null) | Category;
   breadcrumbs?:
     | {
         doc?: (string | null) | Category;
@@ -979,21 +986,6 @@ export interface Product {
   compareAtPrice?: Money;
   gstRate?: ('0' | '0.25' | '3' | '5' | '18' | '40') | null;
   hsnCode?: string | null;
-  weightGrams?: number | null;
-  dimensions?: {
-    lengthMm?: number | null;
-    widthMm?: number | null;
-    heightMm?: number | null;
-  };
-  legal?: {
-    genericName?: string | null;
-    netQuantity?: string | null;
-    countryOfOrigin?: string | null;
-    madeBy?: ('manufacturer' | 'packer' | 'importer') | null;
-    madeByName?: string | null;
-    madeByAddress?: string | null;
-    consumerCare?: string | null;
-  };
   documents?: (string | ProductDocument)[] | null;
   relatedProducts?: (string | Product)[] | null;
   /**
@@ -1007,9 +999,27 @@ export interface Product {
   seo?: Seo;
   status: 'draft' | 'active' | 'archived';
   /**
-   * Online checkout arrives in stage B; until then every product shows “Request a quote”.
+   * Request a quote only suits project items; Both shows the price and a quote button.
    */
   purchaseMode: 'buy' | 'enquire' | 'both';
+  /**
+   * Legal Metrology details shown on the product page. Maker details default from Store settings.
+   */
+  legal?: {
+    genericName?: string | null;
+    netQuantity?: string | null;
+    countryOfOrigin?: string | null;
+    madeBy?: ('manufacturer' | 'packer' | 'importer') | null;
+    madeByName?: string | null;
+    madeByAddress?: string | null;
+    consumerCare?: string | null;
+  };
+  weightGrams?: number | null;
+  dimensions?: {
+    lengthMm?: number | null;
+    widthMm?: number | null;
+    heightMm?: number | null;
+  };
   isFeatured?: boolean | null;
   rating?: {
     average?: number | null;
@@ -1172,6 +1182,177 @@ export interface BrandStoryBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "OfferStripBlock".
+ */
+export interface OfferStripBlock {
+  /**
+   * Empty: whichever scheme is live. The strip hides itself while no scheme is live.
+   */
+  scheme?: (string | null) | Scheme;
+  buttonLabel?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'offerStrip';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "schemes".
+ */
+export interface Scheme {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  name: string;
+  occasion?: ('diwali' | 'holi' | 'new-year' | 'wedding-season' | 'launch' | 'custom') | null;
+  startsAt: string;
+  endsAt: string;
+  /**
+   * The offer’s page is /offers/<this>. Times are India time.
+   */
+  slug?: string | null;
+  audience?: 'retail'[] | null;
+  offer: {
+    type: 'percent' | 'fixed' | 'tiered' | 'buy-x-get-y' | 'free-shipping' | 'special-price';
+    percent?: number | null;
+    amountMinor?: number | null;
+    buyQty?: number | null;
+    getQty?: number | null;
+    /**
+     * 100 means free
+     */
+    getDiscountPercent?: number | null;
+    tiers?:
+      | {
+          minOrderMinor?: number | null;
+          discountMinor?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * The MRP shown stays the product’s real MRP (docs/14).
+     */
+    specialPrices?:
+      | {
+          product: string | Product;
+          variant?: (string | null) | Variant;
+          priceMinor?: number | null;
+          id?: string | null;
+        }[]
+      | null;
+    maxDiscountMinor?: number | null;
+    /**
+     * The cart’s value before discounts
+     */
+    minOrderMinor?: number | null;
+  };
+  /**
+   * Enquire-only products are always left out.
+   */
+  appliesTo?: {
+    mode?: ('all' | 'categories' | 'products') | null;
+    /**
+     * Subcategories are included
+     */
+    categories?: (string | Category)[] | null;
+    products?: (string | Product)[] | null;
+    excludeProducts?: (string | Product)[] | null;
+  };
+  rules?: {
+    combinesWithCoupons?: boolean | null;
+    prepaidOnly?: boolean | null;
+    /**
+     * Empty: no limit. Checked by phone and email.
+     */
+    perCustomerLimit?: number | null;
+    /**
+     * Breaks a tie when two schemes give the same price
+     */
+    priority?: number | null;
+  };
+  display?: {
+    badgeText?: string | null;
+    announcementText?: string | null;
+    banner?: (string | null) | Banner;
+    /**
+     * Or let the store list the products
+     */
+    landingPage?: (string | null) | Page;
+    showBeforeStart?: boolean | null;
+    showCountdown?: boolean | null;
+  };
+  /**
+   * An offer message to shoppers who agreed to offers, when it starts.
+   */
+  messages?: {
+    announceEmail?: boolean | null;
+    announceWhatsApp?: boolean | null;
+    campaign?: string | null;
+  };
+  status: 'draft' | 'scheduled' | 'live' | 'paused' | 'ended';
+  stats?: {
+    orders?: number | null;
+    salesMinor?: number | null;
+    discountMinor?: number | null;
+    updatedAt?: string | null;
+  };
+  endedAt?: string | null;
+  lastEditedBy?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "banners".
+ */
+export interface Banner {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  /**
+   * For staff only
+   */
+  title: string;
+  placement: 'home-hero' | 'category-top' | 'announcement' | 'popup';
+  image: string | Media;
+  mobileImage?: (string | null) | Media;
+  link?: Link;
+  startsAt?: string | null;
+  endsAt?: string | null;
+  /**
+   * Higher shows first
+   */
+  priority?: number | null;
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ReviewsBlock".
+ */
+export interface ReviewsBlock {
+  heading?: string | null;
+  /**
+   * Published reviews only, from verified purchases. Never edited by the store.
+   */
+  minRating?: ('4' | '5' | '1') | null;
+  limit?: number | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'reviews';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AffiliateInviteBlock".
+ */
+export interface AffiliateInviteBlock {
+  heading?: string | null;
+  text?: string | null;
+  buttonLabel?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'affiliateInvite';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ProductGridBlock".
  */
 export interface ProductGridBlock {
@@ -1207,6 +1388,35 @@ export interface DownloadsBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'downloads';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SchemeProductsBlock".
+ */
+export interface SchemeProductsBlock {
+  heading?: string | null;
+  /**
+   * Shows the products this scheme covers, with their offer prices
+   */
+  scheme: string | Scheme;
+  limit?: number | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'schemeProducts';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CouponListBlock".
+ */
+export interface CouponListBlock {
+  heading?: string | null;
+  /**
+   * Coupons set to show on the Offers page, newest first
+   */
+  limit?: number | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'couponList';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1315,6 +1525,17 @@ export interface EnquiryFormBlock {
   blockType: 'enquiryForm';
 }
 /**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "OffersSignupBlock".
+ */
+export interface OffersSignupBlock {
+  heading?: string | null;
+  text?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'offersSignup';
+}
+/**
  * Shoppers and search engines opening the old address go to the new one (permanent, 308).
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1389,31 +1610,6 @@ export interface Navigation {
   createdAt: string;
 }
 /**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "banners".
- */
-export interface Banner {
-  id: string;
-  tenant?: (string | null) | Tenant;
-  /**
-   * For staff only
-   */
-  title: string;
-  placement: 'home-hero' | 'category-top' | 'announcement' | 'popup';
-  image: string | Media;
-  mobileImage?: (string | null) | Media;
-  link?: Link;
-  startsAt?: string | null;
-  endsAt?: string | null;
-  /**
-   * Higher shows first
-   */
-  priority?: number | null;
-  isActive?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
  * Only dealers marked “Show on store” appear on the dealer locator.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1430,7 +1626,7 @@ export interface Dealer {
   state: string;
   pincode: string;
   /**
-   * In Google Maps, right-click the shop to copy its latitude and longitude, then enter each in its own box. Dealers without a position are listed but not pinned on the map.
+   * Filled from the pincode. Drag the pin on the map to the shop, or type the latitude and longitude. Dealers without a position are listed but not pinned.
    *
    * @minItems 2
    * @maxItems 2
@@ -1485,111 +1681,6 @@ export interface Enquiry {
     utmMedium?: string | null;
     utmCampaign?: string | null;
   };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "schemes".
- */
-export interface Scheme {
-  id: string;
-  tenant?: (string | null) | Tenant;
-  name: string;
-  occasion?: ('diwali' | 'holi' | 'new-year' | 'wedding-season' | 'launch' | 'custom') | null;
-  startsAt: string;
-  endsAt: string;
-  /**
-   * The offer’s page is /offers/<this>. Times are India time.
-   */
-  slug?: string | null;
-  audience?: 'retail'[] | null;
-  offer: {
-    type: 'percent' | 'fixed' | 'tiered' | 'buy-x-get-y' | 'free-shipping' | 'special-price';
-    percent?: number | null;
-    amountMinor?: number | null;
-    buyQty?: number | null;
-    getQty?: number | null;
-    /**
-     * 100 means free
-     */
-    getDiscountPercent?: number | null;
-    tiers?:
-      | {
-          minOrderMinor?: number | null;
-          discountMinor?: number | null;
-          id?: string | null;
-        }[]
-      | null;
-    /**
-     * The MRP shown stays the product’s real MRP (docs/14).
-     */
-    specialPrices?:
-      | {
-          product: string | Product;
-          variant?: (string | null) | Variant;
-          priceMinor?: number | null;
-          id?: string | null;
-        }[]
-      | null;
-    maxDiscountMinor?: number | null;
-    /**
-     * The cart’s value before discounts
-     */
-    minOrderMinor?: number | null;
-  };
-  /**
-   * Enquire-only products are always left out.
-   */
-  appliesTo?: {
-    mode?: ('all' | 'categories' | 'products') | null;
-    /**
-     * Subcategories are included
-     */
-    categories?: (string | Category)[] | null;
-    products?: (string | Product)[] | null;
-    excludeProducts?: (string | Product)[] | null;
-  };
-  rules?: {
-    combinesWithCoupons?: boolean | null;
-    prepaidOnly?: boolean | null;
-    /**
-     * Empty: no limit. Checked by phone and email.
-     */
-    perCustomerLimit?: number | null;
-    /**
-     * Breaks a tie when two schemes give the same price
-     */
-    priority?: number | null;
-  };
-  display?: {
-    badgeText?: string | null;
-    announcementText?: string | null;
-    banner?: (string | null) | Banner;
-    /**
-     * Or let the store list the products
-     */
-    landingPage?: (string | null) | Page;
-    showBeforeStart?: boolean | null;
-    showCountdown?: boolean | null;
-  };
-  /**
-   * An offer message to shoppers who agreed to offers, when it starts.
-   */
-  messages?: {
-    announceEmail?: boolean | null;
-    announceWhatsApp?: boolean | null;
-    campaign?: string | null;
-  };
-  status: 'draft' | 'scheduled' | 'live' | 'paused' | 'ended';
-  stats?: {
-    orders?: number | null;
-    salesMinor?: number | null;
-    discountMinor?: number | null;
-    updatedAt?: string | null;
-  };
-  endedAt?: string | null;
-  lastEditedBy?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2946,6 +3037,8 @@ export interface Pincode {
     | '07'
     | '08'
     | '09';
+  latitude?: number | null;
+  longitude?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -3175,6 +3268,7 @@ export interface AuditLog {
     | 'staff_invited'
     | 'staff_changed'
     | 'two_factor_reset'
+    | 'two_factor_changed'
     | 'domain_changed'
     | 'price_changed'
     | 'refund'
@@ -3764,14 +3858,13 @@ export interface ProductsSelect<T extends boolean = true> {
   compareAtPrice?: T | MoneySelect<T>;
   gstRate?: T;
   hsnCode?: T;
-  weightGrams?: T;
-  dimensions?:
-    | T
-    | {
-        lengthMm?: T;
-        widthMm?: T;
-        heightMm?: T;
-      };
+  documents?: T;
+  relatedProducts?: T;
+  slug?: T;
+  searchKeywords?: T;
+  seo?: T | SeoSelect<T>;
+  status?: T;
+  purchaseMode?: T;
   legal?:
     | T
     | {
@@ -3783,13 +3876,14 @@ export interface ProductsSelect<T extends boolean = true> {
         madeByAddress?: T;
         consumerCare?: T;
       };
-  documents?: T;
-  relatedProducts?: T;
-  slug?: T;
-  searchKeywords?: T;
-  seo?: T | SeoSelect<T>;
-  status?: T;
-  purchaseMode?: T;
+  weightGrams?: T;
+  dimensions?:
+    | T
+    | {
+        lengthMm?: T;
+        widthMm?: T;
+        heightMm?: T;
+      };
   isFeatured?: T;
   rating?:
     | T
@@ -3841,6 +3935,7 @@ export interface VariantsSelect<T extends boolean = true> {
 export interface CategoriesSelect<T extends boolean = true> {
   tenant?: T;
   name?: T;
+  parent?: T;
   slug?: T;
   attributeSet?: T;
   image?: T;
@@ -3850,7 +3945,6 @@ export interface CategoriesSelect<T extends boolean = true> {
   isVisible?: T;
   sortOrder?: T;
   seo?: T | SeoSelect<T>;
-  parent?: T;
   breadcrumbs?:
     | T
     | {
@@ -3991,15 +4085,21 @@ export interface PagesSelect<T extends boolean = true> {
         benefits?: T | BenefitsBlockSelect<T>;
         testimonials?: T | TestimonialsBlockSelect<T>;
         brandStory?: T | BrandStoryBlockSelect<T>;
+        offerStrip?: T | OfferStripBlockSelect<T>;
+        reviews?: T | ReviewsBlockSelect<T>;
+        affiliateInvite?: T | AffiliateInviteBlockSelect<T>;
         productGrid?: T | ProductGridBlockSelect<T>;
         categoryTiles?: T | CategoryTilesBlockSelect<T>;
         downloads?: T | DownloadsBlockSelect<T>;
+        schemeProducts?: T | SchemeProductsBlockSelect<T>;
+        couponList?: T | CouponListBlockSelect<T>;
         richText?: T | RichTextBlockSelect<T>;
         imageText?: T | ImageTextBlockSelect<T>;
         video?: T | VideoBlockSelect<T>;
         faq?: T | FaqBlockSelect<T>;
         dealerFinder?: T | DealerFinderBlockSelect<T>;
         enquiryForm?: T | EnquiryFormBlockSelect<T>;
+        offersSignup?: T | OffersSignupBlockSelect<T>;
       };
   seo?: T | SeoSelect<T>;
   template?: T;
@@ -4107,6 +4207,38 @@ export interface BrandStoryBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "OfferStripBlock_select".
+ */
+export interface OfferStripBlockSelect<T extends boolean = true> {
+  scheme?: T;
+  buttonLabel?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ReviewsBlock_select".
+ */
+export interface ReviewsBlockSelect<T extends boolean = true> {
+  heading?: T;
+  minRating?: T;
+  limit?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "AffiliateInviteBlock_select".
+ */
+export interface AffiliateInviteBlockSelect<T extends boolean = true> {
+  heading?: T;
+  text?: T;
+  buttonLabel?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ProductGridBlock_select".
  */
 export interface ProductGridBlockSelect<T extends boolean = true> {
@@ -4136,6 +4268,27 @@ export interface CategoryTilesBlockSelect<T extends boolean = true> {
 export interface DownloadsBlockSelect<T extends boolean = true> {
   heading?: T;
   documentType?: T;
+  limit?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SchemeProductsBlock_select".
+ */
+export interface SchemeProductsBlockSelect<T extends boolean = true> {
+  heading?: T;
+  scheme?: T;
+  limit?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CouponListBlock_select".
+ */
+export interface CouponListBlockSelect<T extends boolean = true> {
+  heading?: T;
   limit?: T;
   id?: T;
   blockName?: T;
@@ -4209,6 +4362,16 @@ export interface EnquiryFormBlockSelect<T extends boolean = true> {
   heading?: T;
   text?: T;
   enquiryType?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "OffersSignupBlock_select".
+ */
+export interface OffersSignupBlockSelect<T extends boolean = true> {
+  heading?: T;
+  text?: T;
   id?: T;
   blockName?: T;
 }
@@ -5417,6 +5580,8 @@ export interface PincodesSelect<T extends boolean = true> {
   city?: T;
   district?: T;
   stateCode?: T;
+  latitude?: T;
+  longitude?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -5632,6 +5797,13 @@ export interface UsersSelect<T extends boolean = true> {
   platformRole?: T;
   status?: T;
   lastLoginAt?: T;
+  twoFactorEnabled?: T;
+  twoFactorEnabledAt?: T;
+  twoFactorSecret?: T;
+  twoFactorPending?: T;
+  twoFactorFailures?: T;
+  twoFactorLastStep?: T;
+  twoFactorLockedUntil?: T;
   invitedBy?: T;
   invitedAt?: T;
   storeSession?:

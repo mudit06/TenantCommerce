@@ -382,7 +382,7 @@ try {
     photo(`banner-towelRings`),
     'Hexagon stainless steel towel rings',
   )
-  await ensurePage('home', {
+  const home = await ensurePage('home', {
     title: 'Home',
     template: 'landing',
     seo: {
@@ -485,6 +485,68 @@ try {
     ],
   })
   console.log('· pages: About us, Home (published)')
+
+  // 6b. The wireframe's home sections (docs/screens storefront `st-home`, 10 October 2026), added
+  // to a home page made before them: the live offer under the hero, then a dealer finder,
+  // reviews, the offers sign-up and questions before the enquiry form. Each block shows only
+  // while its feature is on and it has something real to show (a live scheme, published reviews).
+  const layout = (home.layout ?? []) as NonNullable<Page['layout']>
+  if (!layout.some((block) => block.blockType === 'offerStrip')) {
+    const closing: NonNullable<Page['layout']> = [
+      {
+        blockType: 'dealerFinder',
+        heading: 'See it before you buy',
+        text: 'Visit a Home Orbit dealer near you to see the finishes in person.',
+        buttonLabel: 'Find a dealer',
+      },
+      { blockType: 'reviews', heading: 'What buyers say', minRating: '4', limit: 6 },
+      {
+        blockType: 'offersSignup',
+        heading: 'Get our offers first',
+        text: 'New designs and festival offers from Home Orbit. At most 2 messages a week.',
+      },
+      {
+        blockType: 'faq',
+        heading: 'Questions',
+        items: [
+          {
+            question: 'Do you deliver to my pincode?',
+            answer:
+              'Enter your pincode on any product page or in the cart to see whether we deliver there, the delivery date and the delivery charge.',
+          },
+          {
+            question: 'Is cash on delivery available?',
+            answer:
+              'The pincode check on each product page shows whether cash on delivery is available for your address and order.',
+          },
+          {
+            question: 'Do prices include GST?',
+            answer: 'Yes. Every price on the store includes GST, and each order comes with a GST invoice.',
+          },
+          {
+            question: 'Can I order in bulk or as a dealer?',
+            answer:
+              'Yes. Use the bulk and dealer enquiry form below, or Request a bulk quote on a product page, and we will send prices and availability.',
+          },
+        ],
+      },
+    ]
+    const next: NonNullable<Page['layout']> = []
+    for (const block of layout) {
+      if (block.blockType === 'enquiryForm') next.push(...closing)
+      next.push(block)
+      if (block.blockType === 'hero') next.push({ blockType: 'offerStrip', buttonLabel: 'Shop the offer' })
+    }
+    if (!layout.some((block) => block.blockType === 'enquiryForm')) next.push(...closing)
+    await payload.update({
+      collection: 'pages',
+      id: home.id,
+      data: { layout: next, _status: 'published' },
+      overrideAccess: true,
+      req,
+    })
+    console.log('+ home: offer strip, dealer finder, reviews, offers sign-up, questions')
+  }
 
   // 7. Menus
   const nav = (

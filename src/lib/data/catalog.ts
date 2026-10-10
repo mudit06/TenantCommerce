@@ -1,10 +1,12 @@
 import { unstable_cache } from 'next/cache'
-import type { Where } from 'payload'
+import type { Payload, Where } from 'payload'
 
 import { idOf } from '@/access'
 import { storefrontTag } from '@/hooks/revalidateStorefront'
 import { attributeSetForCategory } from '@/modules/catalog'
 import type { AttributeSet, Category, Product, ProductDocument, Variant } from '@/payload-types'
+
+import { rankSearch } from '@/lib/search'
 
 import { getPayloadClient } from './payload'
 
@@ -77,6 +79,11 @@ export type ProductCardData = Pick<
   primaryCategory: string | null
   /** Main category first, then "also show in": what a scheme on a category covers */
   categoryIds: string[]
+  /**
+   * For the card's Add to cart and the stock filter: how many finishes or sizes it is sold in,
+   * the one variant when there is only one, and pieces left (null when stock isn't tracked)
+   */
+  buy: { options: number; variantId: string | null; available: number | null }
 }
 
 const CARD_SELECT = {
@@ -96,7 +103,7 @@ const CARD_SELECT = {
   categories: true,
 } as const
 
-const toCard = (doc: Product): ProductCardData => ({
+const toCard = (doc: Product, buy?: ProductCardData['buy']): ProductCardData => ({
   id: doc.id,
   title: doc.title,
   slug: doc.slug,
@@ -113,7 +120,41 @@ const toCard = (doc: Product): ProductCardData => ({
   categoryIds: [idOf(doc.primaryCategory), ...(doc.categories ?? []).map((c) => idOf(c))].filter(
     (id): id is string => Boolean(id),
   ),
+  buy: buy ?? { options: 0, variantId: null, available: null },
 })
+
+/** Cards with their variants' stock (one query for the whole list). */
+async function toCards(payload: Payload, tenantId: string, docs: Product[]) {
+  if (docs.length === 0) return []
+  const { docs: variants } = await payload.find({
+    collection: 'variants',
+    where: {
+      and: [
+        { tenant: { equals: tenantId } },
+        { product: { in: docs.map((doc) => doc.id) } },
+        { status: { equals: 'active' } },
+      ],
+    },
+    depth: 0,
+    pagination: false,
+    overrideAccess: true,
+    select: { product: true, stockQty: true, reservedQty: true, allowBackorder: true },
+  })
+  const byProduct = new Map<string, ProductCardData['buy']>()
+  for (const variant of variants) {
+    const productId = idOf(variant.product)!
+    const current = byProduct.get(productId) ?? { options: 0, variantId: null, available: 0 }
+    const left = variant.allowBackorder
+      ? null
+      : Math.max(0, (variant.stockQty ?? 0) - (variant.reservedQty ?? 0))
+    byProduct.set(productId, {
+      options: current.options + 1,
+      variantId: current.options === 0 ? String(variant.id) : null,
+      available: current.available === null || left === null ? null : current.available + left,
+    })
+  }
+  return docs.map((doc) => toCard(doc, byProduct.get(String(doc.id))))
+}
 
 /** Every live product in these categories (main or "also show in"), newest first. */
 export const getProductsInCategories = (tenantId: string, categoryIds: string[]) =>
@@ -130,7 +171,7 @@ export const getProductsInCategories = (tenantId: string, categoryIds: string[])
       overrideAccess: true,
       select: CARD_SELECT,
     })
-    return docs.map((doc) => toCard(doc as Product))
+    return toCards(payload, tenantId, docs as Product[])
   })
 
 export const getProductList = (
@@ -157,31 +198,38 @@ export const getProductList = (
       overrideAccess: true,
       select: CARD_SELECT,
     })
-    return docs.map((doc) => toCard(doc as Product))
+    return toCards(payload, tenantId, docs as Product[])
   })
 
-/** Search by title, model number or keywords (Atlas Search replaces this, docs/12). */
-export const searchProducts = (tenantId: string, query: string, limit = 48) =>
-  cached(tenantId, ['search', query.toLowerCase(), limit], async () => {
-    const term = query.trim().slice(0, 80)
-    if (term.length < 2) return []
+/**
+ * Every live product with its search fields, for search and suggestions (ranked in memory by
+ * `rankSearch`; Atlas Search replaces this when catalogues grow, docs/12).
+ */
+export const getSearchList = (tenantId: string) =>
+  cached(tenantId, ['search-list'], async () => {
     const payload = await getPayloadClient()
     const { docs } = await payload.find({
       collection: 'products',
-      where: liveProducts(tenantId, {
-        or: [
-          { title: { like: term } },
-          { modelNumber: { like: term } },
-          { searchKeywords: { like: term } },
-        ],
-      }),
+      where: liveProducts(tenantId),
       depth: 1,
-      limit,
+      sort: '-isFeatured,-createdAt',
+      pagination: false,
       overrideAccess: true,
-      select: CARD_SELECT,
+      select: { ...CARD_SELECT, searchKeywords: true },
     })
-    return docs.map((doc) => toCard(doc as Product))
+    const cards = await toCards(payload, tenantId, docs as Product[])
+    return cards.map((card, i) => ({
+      ...card,
+      searchKeywords: (docs[i] as Product).searchKeywords ?? null,
+    }))
   })
+
+/** Search by model number, title or keywords, best match first, small typos allowed. */
+export const searchProducts = async (tenantId: string, query: string, limit = 48) => {
+  const term = query.trim().slice(0, 80)
+  if (term.length < 2) return []
+  return rankSearch(await getSearchList(tenantId), term).slice(0, limit)
+}
 
 export type ProductPageData = {
   product: Product
@@ -341,7 +389,7 @@ export const getProductsFor = (
       overrideAccess: true,
       select: CARD_SELECT,
     })
-    return docs.map((doc) => toCard(doc as Product))
+    return toCards(payload, tenantId, docs as Product[])
   })
 
 export type PublicReview = {
@@ -397,4 +445,48 @@ export const getProductReviews = (tenantId: string, productId: string) =>
       reply: r.reply?.text ?? null,
     }))
     return { reviews, bars, count: docs.length }
+  })
+
+export type StoreReview = PublicReview & { productTitle: string; productSlug: string | null }
+
+/** The store's latest published reviews at or above a rating, for the Reviews block. */
+export const getStoreReviews = (tenantId: string, minRating: number, limit: number) =>
+  cached(tenantId, ['store-reviews', minRating, limit], async () => {
+    const payload = await getPayloadClient()
+    const { docs } = await payload.find({
+      collection: 'reviews',
+      where: {
+        and: [
+          { tenant: { equals: tenantId } },
+          { status: { equals: 'published' } },
+          { rating: { greater_than_equal: minRating } },
+        ],
+      },
+      sort: '-publishedAt',
+      depth: 0,
+      limit,
+      overrideAccess: true,
+    })
+    const { docs: products } = await payload.find({
+      collection: 'products',
+      where: liveProducts(tenantId, { id: { in: docs.map((r) => r.product) } }),
+      depth: 0,
+      pagination: false,
+      overrideAccess: true,
+      select: { slug: true, title: true },
+    })
+    const productOf = new Map(products.map((p) => [String(p.id), p]))
+    return docs.map((r): StoreReview => ({
+      id: String(r.id),
+      rating: r.rating,
+      title: r.title ?? null,
+      body: r.body ?? null,
+      displayName: r.displayName,
+      variantLabel: r.variantLabel ?? null,
+      at: r.publishedAt ?? r.createdAt,
+      photos: [],
+      reply: r.reply?.text ?? null,
+      productTitle: r.productTitle ?? productOf.get(r.product)?.title ?? '',
+      productSlug: productOf.get(r.product)?.slug ?? null,
+    }))
   })

@@ -3,7 +3,16 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { idOf } from '@/access'
 import { withTransaction } from '@/lib/db/transaction'
+import { totpCode, totpStep } from '@/lib/auth/totp'
 import { endStoreSession, inviteStaff, startStoreSession } from '@/modules/identity'
+import {
+  confirmTwoStepSetup,
+  mustSetUpTwoStep,
+  resetTwoStep,
+  signInStaff,
+  startTwoStepSetup,
+  turnOffTwoStep,
+} from '@/modules/identity/services/twoStep'
 import {
   changeSubscriptionPlan,
   changeTenantStatus,
@@ -17,6 +26,7 @@ import {
 import type { Plan, Tenant } from '@/payload-types'
 
 import {
+  asUser,
   createPlatformUser,
   onboardingInput,
   reqAs,
@@ -514,6 +524,129 @@ describe('staff invites', () => {
         overrideAccess: true,
       }),
     ).rejects.toThrow(/10 characters/)
+  })
+})
+
+describe('two-step sign-in (docs/05, sa-login)', () => {
+  const password = 'Platform-Pass-2026'
+  // As the sign-in page does; `payload.login` alone is Payload's own endpoint (no code)
+  const login = async (email: string, code?: string) => {
+    if (code === undefined) return payload.login({ collection: 'users', data: { email, password } })
+    const result = await signInStaff(await reqAs(payload), { email, password, code })
+    if ('twoStepRequired' in result)
+      throw Object.assign(new Error('two-step'), { code: 'TWO_STEP_REQUIRED' })
+    return result
+  }
+  // The secret as the app holds it: the setup key without its spaces
+  const codeFor = (setupKey: string, offsetSteps = 0) =>
+    totpCode(setupKey.replace(/\s/g, ''), totpStep() + offsetSteps)
+
+  let teammate: TestUser
+  let setupKey: string
+
+  beforeAll(async () => {
+    teammate = await createPlatformUser(payload, 'twostep@platform.test', 'super-admin')
+  })
+
+  it('our team must set it up before using the panel; until then the password alone signs in', async () => {
+    expect(mustSetUpTwoStep(teammate)).toBe(true)
+    expect(mustSetUpTwoStep(ownerA)).toBe(false)
+    await expect(login(teammate.email)).resolves.toHaveProperty('token')
+  })
+
+  it('turns on only with a correct code from the new secret, never readable through the API', async () => {
+    const req = await reqAs(payload, teammate)
+    const setup = await startTwoStepSetup(req)
+    setupKey = setup.setupKey
+    expect(setup.qrSvg).toContain('<svg')
+    await expect(withTransaction(req, () => confirmTwoStepSetup(req, '000000'))).rejects.toThrow(
+      /didn’t work/,
+    )
+    await withTransaction(req, () => confirmTwoStepSetup(req, codeFor(setupKey)))
+    // Read as a super admin through normal access: the sealed secret never comes back
+    const read = await payload.findByID({
+      collection: 'users',
+      id: teammate.id,
+      overrideAccess: false,
+      user: admin,
+    })
+    expect(read.twoFactorEnabled).toBe(true)
+    expect(read).not.toHaveProperty('twoFactorSecret')
+    expect(read).not.toHaveProperty('twoFactorPending')
+    teammate = asUser(read)
+    expect(mustSetUpTwoStep(teammate)).toBe(false)
+  })
+
+  it('asks for the code after the password, on every way in', async () => {
+    // Payload's own login endpoint passes no code: refused, so it can't skip the second step
+    await expect(login(teammate.email)).rejects.toMatchObject({ code: 'TWO_STEP_REQUIRED' })
+    await expect(login(teammate.email, '123456')).rejects.toMatchObject({ code: 'INVALID_CODE' })
+    // A wrong password still fails as a wrong password, whatever the code
+    await expect(
+      signInStaff(await reqAs(payload), {
+        email: teammate.email,
+        password: 'Wrong-Pass-2026',
+        code: codeFor(setupKey),
+      }),
+    ).rejects.toThrow(/incorrect/)
+  })
+
+  it('accepts a code from the next step once, and never the same or an older code again', async () => {
+    // The setup used the current step, so the next step's code is the first new one
+    const next = codeFor(setupKey, 1)
+    await expect(login(teammate.email, next)).resolves.toHaveProperty('token')
+    await expect(login(teammate.email, next)).rejects.toMatchObject({ code: 'INVALID_CODE' })
+    await expect(login(teammate.email, codeFor(setupKey))).rejects.toMatchObject({
+      code: 'INVALID_CODE',
+    })
+  })
+
+  it('our team can’t turn it off; a super admin resets it, which is logged', async () => {
+    const own = await reqAs(payload, teammate)
+    await expect(turnOffTwoStep(own, codeFor(setupKey))).rejects.toThrow(/required/)
+    const bySupport = await reqAs(payload, support)
+    await expect(resetTwoStep(bySupport, String(teammate.id))).rejects.toThrow(/Super admins/)
+    const byAdmin = await reqAs(payload, admin)
+    await withTransaction(byAdmin, () => resetTwoStep(byAdmin, String(teammate.id)))
+    const read = await payload.findByID({
+      collection: 'users',
+      id: teammate.id,
+      overrideAccess: true,
+    })
+    expect(read.twoFactorEnabled).toBe(false)
+    await expect(login(teammate.email)).resolves.toHaveProperty('token')
+    const { totalDocs } = await payload.count({
+      collection: 'audit-logs',
+      where: {
+        and: [
+          { action: { equals: 'two_factor_reset' } },
+          { docId: { equals: String(teammate.id) } },
+        ],
+      },
+      overrideAccess: true,
+    })
+    expect(totalDocs).toBe(1)
+  })
+
+  it('locks after five wrong codes', async () => {
+    const req = await reqAs(payload, ownerA)
+    const setup = await startTwoStepSetup(req)
+    await withTransaction(req, () => confirmTwoStepSetup(req, codeFor(setup.setupKey)))
+    await payload.update({
+      collection: 'users',
+      id: ownerA.id,
+      data: { password },
+      overrideAccess: true,
+    })
+    for (let i = 0; i < 5; i += 1) {
+      await expect(login(ownerA.email, '000000')).rejects.toMatchObject({ code: 'INVALID_CODE' })
+    }
+    await expect(login(ownerA.email, codeFor(setup.setupKey, 1))).rejects.toMatchObject({
+      code: 'LOCKED',
+    })
+    // Vendor staff may turn it off themselves, with a current code (after the lock clears)
+    const byAdmin = await reqAs(payload, admin)
+    await withTransaction(byAdmin, () => resetTwoStep(byAdmin, String(ownerA.id)))
   })
 })
 

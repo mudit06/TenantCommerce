@@ -30,11 +30,14 @@ const COPY: Record<Mode, { label: string; consequence: string; placeholder: stri
 export function StoreAccessActions({
   tenantId,
   canManage,
+  inline = false,
 }: {
   tenantId: string
   canManage: boolean
+  /** The "Manage this store" card: the reason field and Manage store, always shown */
+  inline?: boolean
 }) {
-  const [mode, setMode] = useState<Mode | null>(null)
+  const [mode, setMode] = useState<Mode | null>(inline ? 'manage' : null)
   const [reason, setReason] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -60,6 +63,40 @@ export function StoreAccessActions({
   }
 
   const modes: Mode[] = canManage ? ['manage', 'view'] : ['view']
+  if (inline) {
+    return (
+      <div className="te-store-access te-store-access--inline">
+        <div className="te-inline-field">
+          <label className="te-visually-hidden" htmlFor="te-manage-reason">
+            Reason
+          </label>
+          <input
+            aria-describedby="te-manage-reason-hint"
+            aria-invalid={Boolean(error)}
+            className="te-input"
+            id="te-manage-reason"
+            maxLength={300}
+            onChange={(event) => setReason(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault()
+                void open()
+              }
+            }}
+            placeholder="Reason, for example: vendor asked us to set up the Diwali scheme"
+            value={reason}
+          />
+          <Button buttonStyle="primary" disabled={busy} onClick={() => void open()} size="small">
+            {busy ? 'Opening…' : 'Manage store'}
+          </Button>
+        </div>
+        {error ? <p className="te-field-error">{error}</p> : null}
+        <p className="te-muted te-small" id="te-manage-reason-hint">
+          Full edit for 2 hours. Every change is logged with your name and this reason.
+        </p>
+      </div>
+    )
+  }
   return (
     <div className="te-store-access">
       <div className="te-store-access__buttons">

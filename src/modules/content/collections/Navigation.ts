@@ -34,6 +34,24 @@ export const Navigation: CollectionConfig = {
       hooks: { afterRead: [({ value }) => value || 'Menus'] },
     },
     {
+      // The header menu as the wireframe draws it, live from the editor below
+      name: 'outline',
+      type: 'ui',
+      admin: {
+        components: { Field: '@/modules/content/admin/MenuOutline#MenuOutline' },
+        disableListColumn: true,
+      },
+    },
+    {
+      name: 'sideSummary',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: { Field: '@/modules/content/admin/MenuOutline#MenuSideSummary' },
+        disableListColumn: true,
+      },
+    },
+    {
       name: 'header',
       label: 'Header menu',
       type: 'array',
@@ -60,6 +78,7 @@ export const Navigation: CollectionConfig = {
       label: 'Footer columns',
       type: 'array',
       maxRows: 5,
+      admin: { position: 'sidebar', initCollapsed: true },
       fields: [{ name: 'heading', type: 'text', required: true }, linkRow(10)],
     },
     {
@@ -67,14 +86,14 @@ export const Navigation: CollectionConfig = {
       label: 'Phone menu same as header menu',
       type: 'checkbox',
       defaultValue: true,
-      admin: { description: 'Switch off to set a shorter menu for phones.' },
+      admin: { position: 'sidebar', description: 'Switch off to set a shorter menu for phones.' },
     },
     {
       name: 'mobile',
       label: 'Phone menu',
       type: 'array',
       maxRows: 12,
-      admin: { condition: (data) => data?.mobileSameAsHeader === false },
+      admin: { position: 'sidebar', condition: (data) => data?.mobileSameAsHeader === false },
       fields: [{ name: 'label', type: 'text', required: true }, linkField()],
     },
   ],

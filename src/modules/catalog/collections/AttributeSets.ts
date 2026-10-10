@@ -20,6 +20,12 @@ export const AttributeSets: CollectionConfig = {
     defaultColumns: ['name', 'updatedAt'],
     description:
       'Specification fields per kind of product. “Filter” adds it to the store’s filters; “Variant option” makes each value its own SKU.',
+    components: {
+      views: {
+        // docs/screens Attribute sets: the sets beside the chosen set's fields
+        list: { Component: '@/modules/catalog/admin/AttributeSetsNav#AttributeSetsList' },
+      },
+    },
   },
   access: {
     read: tenantRoleOrPlatform({ roles: CATALOG_READ, supportCanAccess: true }),
@@ -29,6 +35,25 @@ export const AttributeSets: CollectionConfig = {
   },
   indexes: [{ fields: ['tenant', 'name'], unique: true }],
   fields: [
+    {
+      // The store's sets beside this one (styles put this column on the left)
+      name: 'sets',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: { Field: '@/modules/catalog/admin/AttributeSetsNav#AttributeSetsNav' },
+        disableListColumn: true,
+      },
+    },
+    {
+      // The wireframe's fields table and options, live from the form below
+      name: 'summary',
+      type: 'ui',
+      admin: {
+        components: { Field: '@/modules/catalog/admin/AttributeTable#AttributeTable' },
+        disableListColumn: true,
+      },
+    },
     { name: 'name', type: 'text', required: true, admin: { placeholder: 'Faucets' } },
     {
       name: 'attributes',

@@ -1,7 +1,7 @@
 import type { CollectionConfig, TextField } from 'payload'
 
-import { ANY_STORE_ROLE, CONTENT_WRITE, tenantRoleOrPlatform } from '@/access'
-import { PAGE_BLOCKS } from '@/blocks'
+import { ANY_STORE_ROLE, CONTENT_WRITE, idOf, tenantRoleOrPlatform } from '@/access'
+import { BLOCK_FEATURE, PAGE_BLOCKS } from '@/blocks'
 import {
   lastEditedByField,
   publishedAtField,
@@ -10,6 +10,7 @@ import {
 } from '@/fields/editedBy'
 import { seoFields } from '@/fields/seo'
 import { fillSlugFrom, slugField } from '@/fields/slug'
+import { getTenantFeatures } from '@/modules/tenancy'
 
 import { pagePreviewUrl } from '../services/preview'
 
@@ -91,6 +92,26 @@ export const Pages: CollectionConfig = {
               labels: { singular: 'Block', plural: 'Blocks' },
               type: 'blocks',
               blocks: PAGE_BLOCKS,
+              // A compact list of blocks, one opened at a time for its settings (wireframe)
+              admin: { initCollapsed: true },
+              // Blocks of optional features only while the feature is on; ones already on the
+              // page stay valid (the store hides them while their feature is off)
+              filterOptions: async ({ data, req, siblingData }) => {
+                const tenantId = idOf(data?.tenant)
+                if (!tenantId) return true
+                const { enabled } = await getTenantFeatures(req.payload, tenantId)
+                const present = new Set(
+                  (
+                    ((siblingData as { layout?: unknown } | undefined)?.layout ?? []) as {
+                      blockType?: string
+                    }[]
+                  ).map((b) => b.blockType),
+                )
+                return PAGE_BLOCKS.map((block) => block.slug).filter((slug) => {
+                  const feature = BLOCK_FEATURE[slug]
+                  return !feature || enabled.has(feature as never) || present.has(slug)
+                })
+              },
             },
           ],
         },

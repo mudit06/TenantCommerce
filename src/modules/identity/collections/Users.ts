@@ -22,6 +22,7 @@ import {
   MIN_PASSWORD_LENGTH,
   SESSION_SECONDS,
 } from '../constants'
+import { checkTwoStepAtSignIn } from '../services/twoStep'
 
 /** Staff and platform admins (docs/05). Shoppers are `customers`, a separate auth collection. */
 export const Users: CollectionConfig = {
@@ -95,6 +96,49 @@ export const Users: CollectionConfig = {
       admin: { position: 'sidebar', readOnly: true, date: { pickerAppearance: 'dayAndTime' } },
       access: { create: () => false, update: () => false },
     },
+    // ---- Two-step sign-in (docs/05). Written only by identity/services/twoStep ---------------
+    {
+      name: 'twoStepPanel',
+      type: 'ui',
+      admin: {
+        components: { Field: '@/modules/identity/admin/TwoStepField#TwoStepField' },
+        disableListColumn: true,
+      },
+    },
+    {
+      name: 'twoFactorEnabled',
+      label: 'Two-step sign-in',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { position: 'sidebar', readOnly: true },
+      access: { create: () => false, update: () => false },
+    },
+    {
+      name: 'twoFactorEnabledAt',
+      type: 'date',
+      admin: { hidden: true },
+      access: { create: () => false, update: () => false },
+    },
+    // The authenticator secret (sealed like connector keys), the one being set up, wrong-code
+    // count, lock and the last step used. No API can read or write these.
+    ...(['twoFactorSecret', 'twoFactorPending'] as const).map((name) => ({
+      name,
+      type: 'text' as const,
+      admin: { hidden: true },
+      access: { read: () => false, create: () => false, update: () => false },
+    })),
+    ...(['twoFactorFailures', 'twoFactorLastStep'] as const).map((name) => ({
+      name,
+      type: 'number' as const,
+      admin: { hidden: true },
+      access: { read: () => false, create: () => false, update: () => false },
+    })),
+    {
+      name: 'twoFactorLockedUntil',
+      type: 'date',
+      admin: { hidden: true },
+      access: { read: () => false, create: () => false, update: () => false },
+    },
     {
       name: 'invitedBy',
       type: 'relationship',
@@ -157,6 +201,9 @@ export const Users: CollectionConfig = {
           throw new APIError('The email or password provided is incorrect.', 401, undefined, true)
         }
       },
+      // After the password matched: the authenticator code, on every way in (our sign-in page
+      // passes it in the context; Payload's own login endpoint can't, so it is refused)
+      ({ req, user }) => checkTwoStepAtSignIn(req, user),
     ],
     afterLogin: [
       async ({ req, user }) => {
@@ -177,8 +224,21 @@ export const Users: CollectionConfig = {
       // Setting a password from the invite link activates the account
       async ({ operation, req, result }) => {
         if (operation !== 'resetPassword') return result
-        const user = (result as { user?: { id: string | number; status?: string } } | undefined)
-          ?.user
+        const user = (
+          result as
+            | { user?: { id: string | number; status?: string; twoFactorEnabled?: boolean | null } }
+            | undefined
+        )?.user
+        if (user?.twoFactorEnabled) {
+          // A password reset signs the person in; with two-step on, that session is dropped so
+          // they sign in again with their code (no way around the second step)
+          await req.payload.db.updateOne({
+            collection: 'users',
+            where: { id: { equals: user.id } },
+            data: { sessions: [] },
+            req,
+          })
+        }
         if (user?.status === 'invited') {
           await req.payload.update({
             collection: 'users',

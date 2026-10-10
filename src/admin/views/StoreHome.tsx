@@ -4,9 +4,17 @@ import { Suspense } from 'react'
 import { idOf, storeSessionOf, type TenantRole } from '@/access'
 import { adminUrl } from '@/admin/paths'
 import { currentStore, storeRolesOf } from '@/admin/store'
-import { ButtonLink, Card, EmptyState, Notice, PageHeader, Skeleton } from '@/admin/ui'
+import { ButtonLink, Card, EmptyState, Notice, PageHeader, Pill, Skeleton } from '@/admin/ui'
+import { BarChart } from '@/admin/ui/BarChart'
 import { Icon, type IconName } from '@/admin/ui/icons'
-import { formatDateAndTime, formatDateWithWeekday, formatRelative, greetingFor } from '@/lib/dates'
+import {
+  formatDateAndTime,
+  formatDateWithWeekday,
+  formatDayMonth,
+  formatRelative,
+  greetingFor,
+} from '@/lib/dates'
+import { formatINR, formatINRCompact } from '@/lib/money'
 import { pageAddress, storePageOverview, type PageRow } from '@/modules/content'
 import { ENQUIRY_TYPES } from '@/modules/enquiries'
 import { StorePlanCard } from '@/modules/tenancy/admin'
@@ -15,9 +23,14 @@ import { StoreSetup } from './StoreSetup'
 import {
   type AttentionItem,
   type EnquirySummary,
+  type GrowthSummary,
   loadCatalogSummary,
   loadEnquirySummary,
+  loadGrowthSummary,
+  loadOrderUpdatesToday,
+  loadSalesSummary,
   loadStoreAttention,
+  type OrderUpdatesToday,
 } from './storeHomeData'
 
 type Can = (collection: string, action?: 'read' | 'create' | 'update') => boolean
@@ -291,40 +304,6 @@ const ENQUIRY_TYPE_LABEL = new Map<string, string>(
   ENQUIRY_TYPES.map((type) => [type.value, type.label]),
 )
 
-/** Enquiries per day for two weeks (the wireframe's sales chart, until orders exist). */
-function EnquiryChart({ days }: { days: EnquirySummary['daily'] }) {
-  const total = days.reduce((sum, day) => sum + day.count, 0)
-  const top = Math.ceil(Math.max(4, ...days.map((day) => day.count)) / 2) * 2
-  return (
-    <figure
-      aria-label={`${total} enquiries in the last 14 days, ${days.at(-1)?.count ?? 0} today`}
-      className="te-chart"
-      role="img"
-    >
-      <div aria-hidden className="te-chart__y">
-        <span>{top}</span>
-        <span>{top / 2}</span>
-        <span>0</span>
-      </div>
-      <div aria-hidden className="te-chart__plot">
-        {days.map((day, index) => (
-          <div className="te-chart__col" key={day.label} title={`${day.label}: ${day.count}`}>
-            <i
-              className={index === days.length - 1 ? 'te-chart__bar--today' : undefined}
-              style={{ height: `${(day.count / top) * 100}%` }}
-            />
-          </div>
-        ))}
-      </div>
-      <figcaption aria-hidden className="te-chart__x">
-        <span>{days[0]?.label}</span>
-        <span>{total} in 14 days</span>
-        <span>Today</span>
-      </figcaption>
-    </figure>
-  )
-}
-
 function NewEnquiries({ summary, now }: { summary: EnquirySummary; now: Date }) {
   if (summary.latest.length === 0) {
     return (
@@ -394,14 +373,127 @@ function AttentionList({ items }: { items: AttentionItem[] }) {
   )
 }
 
-const GROWTH = [
-  { feature: 'schemes', label: 'Schemes and offers', icon: 'calendar' },
-  { feature: 'reviews', label: 'Reviews to approve', icon: 'star' },
-  { feature: 'affiliate', label: 'Affiliates', icon: 'link' },
-  { feature: 'abandoned-cart', label: 'Abandoned carts', icon: 'cart' },
-  { feature: 'coupons', label: 'Coupons', icon: 'brands' },
-  { feature: 'offer-messages', label: 'Offer messages', icon: 'mail' },
-] as const satisfies readonly { feature: string; label: string; icon: IconName }[]
+/** "2 days" or "5 h": how long the oldest order has waited to ship */
+function formatAge(at: string, now: Date): string {
+  const hours = Math.max(0, Math.floor((now.getTime() - Date.parse(at)) / 3_600_000))
+  if (hours < 24) return `${hours} h`
+  const days = Math.floor(hours / 24)
+  return `${days} day${days === 1 ? '' : 's'}`
+}
+
+const CHANNEL: Record<OrderUpdatesToday[number]['channel'], { label: string; icon: IconName }> = {
+  whatsapp: { label: 'WhatsApp', icon: 'whatsapp' },
+  sms: { label: 'SMS', icon: 'phone' },
+  email: { label: 'Email', icon: 'mail' },
+}
+
+/** Order updates sent today by channel (cms-dashboard rule 4). SMS shows once it is used. */
+function OrderUpdates({ rows }: { rows: OrderUpdatesToday }) {
+  const shown = rows.filter((row) => row.channel !== 'sms' || row.sent || row.failed)
+  return (
+    <ul className="te-rows">
+      {shown.map((row) => (
+        <li className="te-rows__item te-rows__item--static" key={row.channel}>
+          <span className="te-inline">
+            <Icon name={CHANNEL[row.channel].icon} size={15} />
+            {CHANNEL[row.channel].label}
+          </span>
+          <span className="te-rows__aside">
+            <b>{row.sent.toLocaleString('en-IN')} sent</b>
+            {row.failed ? (
+              <span className="te-muted te-small">
+                {' · '}
+                {row.failed} failed
+                {row.fellBack ? `, ${row.fellBack} sent another way` : ''}
+              </span>
+            ) : null}
+          </span>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+const hasGrowth = (growth: GrowthSummary) =>
+  Boolean(growth.scheme || growth.reviews || growth.affiliates || growth.carts)
+
+/** The live scheme, reviews, affiliates and carts at a glance (cms-dashboard rule 5). */
+function GrowthTiles({ growth, now }: { growth: GrowthSummary; now: Date }) {
+  const { scheme, reviews, affiliates, carts } = growth
+  return (
+    <div className="te-growth">
+      {scheme ? (
+        <a className="te-growth__tile" href={adminUrl.collection('schemes')}>
+          <span className="te-growth__label">
+            <Icon name="calendar" size={15} />
+            Live scheme
+          </span>
+          <b>{scheme.live?.name ?? 'None live'}</b>
+          {scheme.live ? (
+            <span className="te-muted te-small">
+              {scheme.live.orders.toLocaleString('en-IN')} orders ·{' '}
+              {formatINR(scheme.live.discountMinor, { decimals: 'never' })} off · ends{' '}
+              {formatDayMonth(scheme.live.endsAt)}
+            </span>
+          ) : null}
+          {scheme.next ? (
+            <span className="te-small">
+              Next: {scheme.next.name}, starts {formatDayMonth(scheme.next.startsAt)}
+            </span>
+          ) : null}
+        </a>
+      ) : null}
+      {reviews ? (
+        <a className="te-growth__tile" href={adminUrl.collection('reviews')}>
+          <span className="te-growth__label">
+            <Icon name="star" size={15} />
+            Reviews to approve
+          </span>
+          <b>{reviews.pending}</b>
+          <span className="te-muted te-small">
+            {[
+              reviews.oldest ? `oldest ${formatAge(reviews.oldest, now)}` : null,
+              reviews.averageThisMonth !== null
+                ? `average this month ${reviews.averageThisMonth}`
+                : null,
+            ]
+              .filter(Boolean)
+              .join(' · ') || 'Nothing waiting'}
+          </span>
+        </a>
+      ) : null}
+      {affiliates ? (
+        <a className="te-growth__tile" href={adminUrl.collection('affiliates')}>
+          <span className="te-growth__label">
+            <Icon name="link" size={15} />
+            Affiliates
+          </span>
+          <b>
+            {affiliates.applications} application{affiliates.applications === 1 ? '' : 's'}
+          </b>
+          <span className="te-muted te-small">
+            {formatINR(affiliates.pendingMinor, { decimals: 'never' })} commission pending ·{' '}
+            {formatINR(affiliates.approvedMinor, { decimals: 'never' })} approved
+          </span>
+        </a>
+      ) : null}
+      {carts ? (
+        <a className="te-growth__tile" href={adminUrl.collection('carts')}>
+          <span className="te-growth__label">
+            <Icon name="cart" size={15} />
+            Abandoned carts today
+          </span>
+          <b>
+            {carts.abandonedToday} · {carts.recoveredToday} recovered
+          </b>
+          <span className="te-muted te-small">
+            {formatINR(carts.recoveredWeekMinor, { decimals: 'never' })} recovered this week
+          </span>
+        </a>
+      ) : null}
+    </div>
+  )
+}
 
 /**
  * The store dashboard (docs/screens `cms-dashboard`, laid out as the wireframe's Design view):
@@ -458,9 +550,12 @@ export async function StoreHome({
   const isAdmin = hasRole(['owner', 'manager'])
   const canManageStaff = session ? session.mode === 'manage' : roles.includes('owner')
 
-  const [enquiries, catalog] = await Promise.all([
+  const [enquiries, catalog, sales, updates, growth] = await Promise.all([
     seesEnquiries ? loadEnquirySummary(payload, store.id, userId, now) : null,
     can('products') ? loadCatalogSummary(payload, store.id) : null,
+    seesOrders && can('orders') ? loadSalesSummary(payload, store.id, now) : null,
+    seesOrders && can('orders') ? loadOrderUpdatesToday(payload, store.id, now) : null,
+    isAdmin ? loadGrowthSummary(payload, store.id, enabledFeatures, now) : null,
   ])
   const storeAttention = await loadStoreAttention({
     payload,
@@ -496,14 +591,17 @@ export async function StoreHome({
   const attention = [...storeAttention, ...pageAttention].sort(
     (a, b) => (TONE_RANK[a.tone] ?? 9) - (TONE_RANK[b.tone] ?? 9),
   )
-  const growth = isAdmin ? GROWTH.filter((item) => enabledFeatures.includes(item.feature)) : []
 
   return (
     <div className="te-page te-dash">
       <PageHeader
         actions={
           <>
-            {store.storeUrl ? (
+            {can('products', 'create') && can('import-jobs') ? (
+              <ButtonLink href={adminUrl.import} icon="upload">
+                Import CSV
+              </ButtonLink>
+            ) : store.storeUrl ? (
               <ButtonLink external href={store.storeUrl} icon="external">
                 View store
               </ButtonLink>
@@ -544,17 +642,36 @@ export async function StoreHome({
       ) : null}
 
       <div className="te-stats">
-        {seesOrders ? (
-          <div className="te-stat te-stat--static">
-            <span aria-hidden className="te-stat__icon">
-              <Icon name="receipt" size={18} />
-            </span>
-            <span className="te-stat__label">Orders today</span>
-            <span className="te-stat__value">—</span>
-            <span className="te-stat__hint">Starts with online selling</span>
-          </div>
-        ) : null}
-        {catalog ? (
+        {sales ? (
+          <>
+            <Stat
+              href={adminUrl.collection('orders')}
+              icon="receipt"
+              label="Orders today"
+              value={sales.ordersToday.toLocaleString('en-IN')}
+              hint={`${sales.ordersTodayToShip} still to ship`}
+            />
+            <Stat
+              href={adminUrl.reports}
+              icon="chart"
+              label="Sales today"
+              value={formatINR(sales.salesTodayMinor, { decimals: 'never' })}
+              hint="incl. GST"
+            />
+            <Stat
+              href={`${adminUrl.collection('orders')}?tab=to-pack`}
+              icon="truck"
+              label="To ship"
+              tone={sales.toShip ? 'warning' : 'neutral'}
+              value={sales.toShip}
+              hint={
+                sales.oldestToShip
+                  ? `oldest ${formatAge(sales.oldestToShip, now)}`
+                  : 'Nothing waiting'
+              }
+            />
+          </>
+        ) : catalog ? (
           <Stat
             href={adminUrl.filtered('products', 'status', 'active')}
             icon="products"
@@ -570,10 +687,10 @@ export async function StoreHome({
             label="New enquiries"
             tone={enquiries.newCount ? 'warning' : 'neutral'}
             value={enquiries.newCount}
-            hint={`${enquiries.newQuotes} quote ${enquiries.newQuotes === 1 ? 'request' : 'requests'} · ${enquiries.inProgress} in progress`}
+            hint={`${enquiries.newQuotes} quote ${enquiries.newQuotes === 1 ? 'request' : 'requests'}`}
           />
         ) : null}
-        {can('pages') ? (
+        {!sales && can('pages') ? (
           <Stat
             href={`${adminUrl.pages}?status=draft`}
             icon="draft"
@@ -598,61 +715,122 @@ export async function StoreHome({
         ) : null}
       </div>
 
-      {enquiries ? (
+      {sales || enquiries ? (
         <div className="te-grid te-grid--2-1">
-          <Card title="Enquiries, last 14 days">
-            <EnquiryChart days={enquiries.daily} />
-          </Card>
-          <Card
-            actions={
-              <a className="te-link" href={adminUrl.collection('enquiries')}>
-                All
-              </a>
-            }
-            title="New enquiries"
-          >
-            <NewEnquiries now={now} summary={enquiries} />
-          </Card>
+          {sales ? (
+            <Card title="Sales, last 14 days">
+              <BarChart
+                bars={sales.daily.map((day) => ({
+                  key: day.label,
+                  title: day.label,
+                  value: day.salesMinor,
+                }))}
+                format={formatINRCompact}
+                highlightLast
+                label={`Sales each day for the last 14 days, ${formatINR(sales.salesTodayMinor)} today`}
+                minTop={10_000_00}
+                xLabels={[sales.daily[0]?.label ?? '', '', 'Today']}
+              />
+            </Card>
+          ) : enquiries ? (
+            <Card title="Enquiries, last 14 days">
+              <BarChart
+                bars={enquiries.daily.map((day) => ({
+                  key: day.label,
+                  title: day.label,
+                  value: day.count,
+                }))}
+                highlightLast
+                label={`${enquiries.daily.reduce((s, d) => s + d.count, 0)} enquiries in the last 14 days`}
+                xLabels={[enquiries.daily[0]?.label ?? '', '', 'Today']}
+              />
+            </Card>
+          ) : null}
+          <div className="te-stack">
+            {enquiries ? (
+              <Card
+                actions={
+                  <a className="te-link" href={adminUrl.collection('enquiries')}>
+                    All
+                  </a>
+                }
+                title="New enquiries"
+              >
+                <NewEnquiries now={now} summary={enquiries} />
+              </Card>
+            ) : null}
+            {updates ? (
+              <Card
+                actions={
+                  <a className="te-link" href={adminUrl.notifications}>
+                    Settings
+                  </a>
+                }
+                title="Order updates today"
+              >
+                <OrderUpdates rows={updates} />
+              </Card>
+            ) : null}
+          </div>
         </div>
       ) : null}
 
-      <div className="te-grid te-grid--2-1">
-        <Card title="Needs your attention">
-          {attention.length ? (
-            <AttentionList items={attention} />
-          ) : (
-            <EmptyState icon="checkCircle" title="All clear">
-              Nothing needs you right now.
-            </EmptyState>
-          )}
-        </Card>
-        <QuickActions can={can} canManageStaff={canManageStaff} features={enabledFeatures} />
-      </div>
-
-      {growth.length ? (
+      {growth && hasGrowth(growth) ? (
         <Card title="Offers and growth">
-          <div className="te-growth">
-            {growth.map((item) => (
-              <div className="te-growth__tile" key={item.feature}>
-                <span className="te-growth__label">
-                  <Icon name={item.icon} size={15} />
-                  {item.label}
-                </span>
-                <b>—</b>
-                <span className="te-muted te-small">Switched on · screen coming soon</span>
-              </div>
-            ))}
-          </div>
+          <GrowthTiles growth={growth} now={now} />
         </Card>
       ) : null}
 
-      <div className="te-grid te-grid--2-1">
-        <Card title="Recent activity">
-          <Suspense fallback={<Skeleton label="Loading recent activity" lines={5} />}>
-            <RecentActivity can={can} pages={pages} payload={payload} tenantId={store.id} />
-          </Suspense>
-        </Card>
-        <div className="te-stack">
+      {sales || (catalog && catalog.lowStock.length) ? (
+        <div className="te-grid te-grid--halves">
+          {sales ? (
+            <Card
+              actions={
+                <a className="te-link" href={`${adminUrl.collection('orders')}?tab=to-pack`}>
+                  All
+                </a>
+              }
+              className="te-card--flush"
+              title="Orders to ship"
+            >
+              {sales.toShipRows.length ? (
+                <table className="te-table">
+                  <thead>
+                    <tr>
+                      <th>Order</th>
+                      <th>Customer</th>
+                      <th className="te-num">Total</th>
+                      <th>Payment</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sales.toShipRows.map((order) => (
+                      <tr key={order.id}>
+                        <td>
+                          <a className="te-link te-mono" href={adminUrl.doc('orders', order.id)}>
+                            {order.orderNumber}
+                          </a>
+                        </td>
+                        <td>{order.contact?.name ?? '—'}</td>
+                        <td className="te-num">{formatINR(order.totals?.grandTotalMinor ?? 0)}</td>
+                        <td>
+                          {order.paymentMethod === 'cod' ? (
+                            <Pill tone="warning">COD</Pill>
+                          ) : (
+                            <Pill tone="success">Paid</Pill>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <EmptyState icon="checkCircle" title="Nothing to ship">
+                  Confirmed orders waiting for a courier show here.
+                </EmptyState>
+              )}
+            </Card>
+          ) : null}
           {catalog && catalog.lowStock.length ? (
             <Card className="te-card--flush" title="Low stock">
               <table className="te-table">
@@ -681,6 +859,29 @@ export async function StoreHome({
               </table>
             </Card>
           ) : null}
+        </div>
+      ) : null}
+
+      <div className="te-grid te-grid--2-1">
+        <Card title="Needs your attention">
+          {attention.length ? (
+            <AttentionList items={attention} />
+          ) : (
+            <EmptyState icon="checkCircle" title="All clear">
+              Nothing needs you right now.
+            </EmptyState>
+          )}
+        </Card>
+        <QuickActions can={can} canManageStaff={canManageStaff} features={enabledFeatures} />
+      </div>
+
+      <div className="te-grid te-grid--2-1">
+        <Card title="Recent activity">
+          <Suspense fallback={<Skeleton label="Loading recent activity" lines={5} />}>
+            <RecentActivity can={can} pages={pages} payload={payload} tenantId={store.id} />
+          </Suspense>
+        </Card>
+        <div className="te-stack">
           {catalog && can('products', 'create') && catalog.drafts.length ? (
             <Card
               actions={

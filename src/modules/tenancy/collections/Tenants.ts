@@ -56,8 +56,9 @@ export const Tenants: CollectionConfig = {
     listSearchableFields: ['name', 'slug', 'gstin', 'legalName'],
     group: 'Vendors',
     components: {
-      beforeListTable: [`${TENANT_VIEWS}/VendorListActions#VendorListActions`],
       views: {
+        // docs/screens All vendors: our own list (plan, subscription, products used, orders)
+        list: { Component: `${TENANT_VIEWS}/VendorsList#VendorsList` },
         edit: {
           default: { tab: { label: 'Overview', order: 0 } },
           features: {
@@ -104,9 +105,18 @@ export const Tenants: CollectionConfig = {
       },
     },
     {
+      name: 'businessSummary',
+      type: 'ui',
+      admin: {
+        components: { Field: `${TENANT_VIEWS}/BusinessSummary#BusinessSummary` },
+        disableListColumn: true,
+      },
+    },
+    {
       type: 'collapsible',
       label: 'Business details',
-      admin: { description: 'Legal details used on GST invoices.' },
+      // Opened by Edit on the read-only card above (BusinessSummary)
+      admin: { description: 'Legal details used on GST invoices.', className: 'te-vendor-edit' },
       fields: [
         {
           type: 'row',
@@ -155,6 +165,7 @@ export const Tenants: CollectionConfig = {
     {
       type: 'collapsible',
       label: 'Store',
+      admin: { className: 'te-vendor-edit' },
       fields: [
         {
           type: 'row',
@@ -209,6 +220,14 @@ export const Tenants: CollectionConfig = {
       ],
     },
     {
+      name: 'manageStore',
+      type: 'ui',
+      admin: {
+        components: { Field: `${TENANT_VIEWS}/ManageStoreCard#ManageStoreCard` },
+        disableListColumn: true,
+      },
+    },
+    {
       name: 'notes',
       label: 'Internal notes',
       type: 'textarea',
@@ -217,6 +236,14 @@ export const Tenants: CollectionConfig = {
           'Visible to our team only. For example: prefers WhatsApp, renewal call in March.',
       },
       access: { read: fieldPlatformStaffOnly },
+    },
+    {
+      name: 'recentChanges',
+      type: 'ui',
+      admin: {
+        components: { Field: `${TENANT_VIEWS}/RecentChanges#RecentChanges` },
+        disableListColumn: true,
+      },
     },
     // ---- Sidebar --------------------------------------------------------------------------
     {
@@ -228,18 +255,16 @@ export const Tenants: CollectionConfig = {
         value,
         label: value.charAt(0).toUpperCase() + value.slice(1),
       })),
-      admin: {
-        position: 'sidebar',
-        readOnly: true,
-        description: 'Changed with Go live, Suspend and Resume above',
-      },
+      // Shown as the header's pill; changed with Go live, Suspend and Resume
+      admin: { position: 'sidebar', readOnly: true, hidden: true },
     },
     {
       name: 'plan',
       type: 'relationship',
       relationTo: 'plans',
       required: true,
-      admin: { position: 'sidebar', readOnly: true, description: 'Changed from the Billing tab' },
+      // Shown as the header's pill; changed from the Billing tab
+      admin: { position: 'sidebar', readOnly: true, hidden: true },
     },
     {
       name: 'usagePanel',
@@ -251,11 +276,11 @@ export const Tenants: CollectionConfig = {
       },
     },
     {
-      name: 'recentChanges',
+      name: 'storeHealth',
       type: 'ui',
       admin: {
         position: 'sidebar',
-        components: { Field: `${TENANT_VIEWS}/RecentChanges#RecentChanges` },
+        components: { Field: `${TENANT_VIEWS}/StoreHealth#StoreHealth` },
         disableListColumn: true,
       },
     },

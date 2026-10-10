@@ -1306,6 +1306,16 @@ html[data-theme='dark'] .te-seo-preview {
   justify-content: space-between;
   align-items: center;
   margin-top: 12px;
+
+  &__buttons {
+    display: flex;
+    gap: 8px;
+  }
+
+  [data-disabled] {
+    opacity: 0.45;
+    pointer-events: none;
+  }
 }
 
 .te-order {
@@ -1889,4 +1899,667 @@ button.te-tab {
   object-fit: cover;
   border: 1px solid var(--te-line);
   border-radius: 8px;
+}
+
+// A whole table row opens its record (the first link in the row stretches over it)
+.te-table--clickable {
+  tbody tr {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .te-table__primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  // Buttons and other links in the row stay clickable above the stretched link
+  tbody :is(button, select, input, a:not(.te-table__primary)) {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// Used against a plan limit, in a table cell (All vendors "Products")
+.te-usage-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 120px;
+
+  &__track {
+    display: block;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--te-neutral-bg);
+    overflow: hidden;
+
+    i {
+      display: block;
+      height: 100%;
+      background: var(--te-brand);
+    }
+
+    &--warning i {
+      background: var(--te-warning);
+    }
+  }
+}
+
+// Plans (sa-plans): one card per plan
+.te-plan-cards {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+
+  &__price {
+    font-size: 22px;
+  }
+
+  &__limits {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px 12px;
+    margin: 0;
+    font-size: 13px;
+
+    dt {
+      color: var(--te-text-2);
+    }
+
+    dd {
+      margin: 0;
+      font-weight: 600;
+      text-align: right;
+    }
+  }
+
+  &__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid var(--te-line);
+  }
+}
+
+// Staff meter with Invite staff beside it (sa-vendor-staff, cms-staff)
+.te-staff-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  &__usage {
+    width: min(280px, 100%);
+  }
+}
+
+.te-invite-toggle {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+
+  &__panel {
+    width: min(420px, 100vw - 32px);
+    text-align: left;
+  }
+}
+
+// Products list (cms-products)
+.te-bulkbar--active {
+  background: var(--te-brand-soft);
+}
+
+.te-col-check {
+  width: 36px;
+  padding-right: 0 !important;
+
+  input {
+    position: relative;
+    z-index: 1;
+    accent-color: var(--te-brand);
+  }
+}
+
+.te-product-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 240px;
+
+  &__thumb {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--te-line);
+    border-radius: 8px;
+    background: var(--te-subtle) center / cover no-repeat;
+  }
+}
+
+// Categories (cms-categories): the tree, on the list and beside a category's form
+.te-grid--1-2 {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(260px, 1fr) 2fr;
+  align-items: start;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.te-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &--busy {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__node {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 14px;
+
+    &:hover {
+      background: var(--te-subtle);
+    }
+
+    &--current {
+      background: var(--te-brand-soft);
+      box-shadow: inset 0 0 0 1px var(--te-brand);
+
+      .te-tree__name {
+        font-weight: 600;
+      }
+    }
+
+    &--dragging {
+      opacity: 0.4;
+    }
+
+    &--drop-inside {
+      box-shadow: inset 0 0 0 2px var(--te-brand);
+    }
+
+    &--drop-before::before,
+    &--drop-after::after {
+      content: '';
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      height: 2px;
+      background: var(--te-brand);
+    }
+
+    &--drop-before::before {
+      top: -1px;
+    }
+
+    &--drop-after::after {
+      bottom: -1px;
+    }
+  }
+
+  &__handle {
+    color: var(--te-text-3);
+    cursor: grab;
+    letter-spacing: -2px;
+    font-size: 12px;
+  }
+
+  &__toggle {
+    display: inline-grid;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--te-text-2);
+    cursor: pointer;
+  }
+
+  &__name {
+    flex: 1;
+    min-width: 0;
+    color: inherit;
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--te-brand);
+    }
+  }
+
+  &__count {
+    color: var(--te-text-3);
+    font-size: 12px;
+  }
+}
+
+// A category's edit page: the tree column on the left, the form on the right
+.collection-edit--categories .document-fields--has-sidebar {
+  .document-fields__sidebar-wrap {
+    order: -1;
+    border-left: 0;
+    border-right: 1px solid var(--te-line);
+  }
+}
+
+.te-category-store-link {
+  margin: 8px 0 0;
+}
+
+// Attribute sets (cms-attributes): sets on the left, the set's fields table on the right
+.te-grid--sets {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 230px minmax(0, 1fr);
+  align-items: start;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.collection-edit--attribute-sets .document-fields--has-sidebar {
+  .document-fields__sidebar-wrap {
+    order: -1;
+    border-left: 0;
+    border-right: 1px solid var(--te-line);
+  }
+}
+
+.te-sets {
+  list-style: none;
+  margin: 0 -8px;
+  padding: 0;
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    padding: 9px 8px;
+    border-radius: 6px;
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      background: var(--te-subtle);
+    }
+
+    &--current {
+      background: var(--te-brand-soft);
+    }
+  }
+}
+
+.te-attr {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  &__below {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    align-items: start;
+  }
+
+  &__callout {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+}
+
+// Media library (cms-media): tabs and storage, the grid, the chosen file beside it
+.te-media-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px 24px;
+
+  &__storage {
+    width: min(240px, 100%);
+    margin-bottom: 8px;
+  }
+}
+
+.te-grid--3-1 {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 3fr) minmax(280px, 1fr);
+  align-items: start;
+
+  @media (max-width: 1000px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.te-media-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.te-media-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: inherit;
+  text-decoration: none;
+
+  &__image,
+  &__doc {
+    aspect-ratio: 1 / 1;
+    border: 1px solid var(--te-line);
+    border-radius: 10px;
+    background: var(--te-subtle) center / cover no-repeat;
+  }
+
+  &__doc {
+    display: grid;
+    place-items: center;
+    color: var(--te-text-2);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  &__name {
+    overflow: hidden;
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__flag {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: var(--te-warning-bg);
+    color: var(--te-warning);
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  &:hover &__image,
+  &:hover &__doc,
+  &:focus-visible &__image {
+    border-color: var(--te-brand);
+  }
+
+  &--selected {
+    .te-media-tile__image,
+    .te-media-tile__doc {
+      outline: 2px solid var(--te-brand);
+      outline-offset: 2px;
+    }
+
+    .te-media-tile__name {
+      font-weight: 600;
+    }
+  }
+}
+
+.te-media-detail {
+  position: sticky;
+  top: 16px;
+
+  &__preview {
+    display: block;
+    aspect-ratio: 1 / 1;
+    border-radius: 10px;
+    background: var(--te-subtle) center / contain no-repeat;
+  }
+
+  &__doc {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 3;
+    border-radius: 10px;
+    background: var(--te-subtle);
+    color: var(--te-text-2);
+    font-weight: 700;
+  }
+}
+
+.te-plain-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li + li {
+    margin-top: 2px;
+  }
+}
+
+// Enquiries inbox (cms-enquiries): cards on the left, the open enquiry on the right
+.te-inbox {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 12px;
+    border: 1px solid var(--te-line);
+    border-radius: var(--style-radius-l);
+    background: var(--te-card);
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      border-color: var(--te-brand);
+    }
+
+    &--open {
+      border-color: var(--te-brand);
+      box-shadow: inset 0 0 0 1px var(--te-brand);
+    }
+  }
+
+  &__top {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+}
+
+.te-enquiry-product {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: inherit;
+  text-decoration: none;
+
+  > span:nth-child(2) {
+    flex: 1;
+  }
+}
+
+.te-quote-text {
+  margin: 0;
+  padding: 0 0 0 12px;
+  border-left: 3px solid var(--te-line);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.te-enquiry-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--te-line);
+
+  .te-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+
+    .te-input {
+      width: 100%;
+    }
+  }
+}
+
+// Maps (admin/ui/DealerMap): Dealers list and a dealer's position
+.te-map {
+  width: 100%;
+  border-radius: 0 0 var(--style-radius-l) var(--style-radius-l);
+  background: var(--te-subtle);
+  z-index: 0;
+}
+
+.te-dealer-map .te-map {
+  margin-bottom: 10px;
+  border: 1px solid var(--te-line);
+  border-radius: var(--style-radius-m);
+}
+
+.te-map-note {
+  margin: 0;
+  padding: 8px 16px 12px;
+}
+
+.te-map-pin {
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--te-brand);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+
+  &--selected {
+    background: var(--te-danger);
+    transform: scale(1.25);
+  }
+}
+
+// A row table in a narrower column (Dealers beside its map)
+.te-table--compact {
+  min-width: 0;
+}
+
+// Menus (cms-navigation): the header menu's outline
+.te-menu-outline {
+  margin-bottom: 24px;
+}
+
+.te-menu-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+
+  ol {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    list-style: none;
+    margin: 5px 0 0 18px;
+    padding: 0;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border: 1px solid var(--te-line);
+    border-radius: 6px;
+    font-size: 14px;
+  }
+
+  &__kind {
+    margin-left: auto;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--te-neutral-bg);
+    color: var(--te-text-2);
+    font-size: 12px;
+  }
+
+  &__heading {
+    margin-top: 4px;
+    color: var(--te-text-3);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+}
+
+.te-footer-cols {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+}
+
+// Store settings (cms-settings): links to each section of the one page
+.te-section-nav {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 20px;
+  padding: 8px 0;
+  background: var(--te-page);
+
+  &__link {
+    padding: 5px 12px;
+    border: 1px solid var(--te-line);
+    border-radius: 999px;
+    background: var(--te-card);
+    color: var(--te-text-2);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      border-color: var(--te-brand);
+      color: var(--te-brand);
+    }
+  }
+}
+
+.collection-edit--site-settings .collapsible {
+  scroll-margin-top: 64px;
 }

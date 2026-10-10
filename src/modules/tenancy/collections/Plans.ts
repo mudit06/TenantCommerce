@@ -21,6 +21,12 @@ export const Plans: CollectionConfig = {
     group: 'Billing',
     description:
       'A plan is a ceiling, not a switch: features in a plan stay off until switched on per vendor.',
+    components: {
+      views: {
+        // docs/screens Plans: cards with prices and limits, and what each plan allows
+        list: { Component: '@/modules/tenancy/admin/views/PlansList#PlansList' },
+      },
+    },
   },
   access: {
     read: ({ req }) => Boolean(req.user),

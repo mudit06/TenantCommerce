@@ -17,14 +17,17 @@ export function Card({
   actions,
   children,
   className,
+  id,
 }: {
   title?: ReactNode
   actions?: ReactNode
   children: ReactNode
   className?: string
+  /** For a link straight to this card (for example #record-payment) */
+  id?: string
 }) {
   return (
-    <section className={['te-card', className].filter(Boolean).join(' ')}>
+    <section className={['te-card', className].filter(Boolean).join(' ')} id={id}>
       {title || actions ? (
         <header className="te-card__header">
           {title ? <h3 className="te-card__title">{title}</h3> : <span />}
@@ -41,18 +44,28 @@ export function Figure({
   value,
   hint,
   tone,
+  href,
 }: {
   label: string
   value: ReactNode
   hint?: ReactNode
   tone?: Tone
+  href?: string
 }) {
-  return (
-    <div className={`te-figure${tone ? ` te-figure--${tone}` : ''}`}>
+  const className = `te-figure${tone ? ` te-figure--${tone}` : ''}${href ? ' te-figure--link' : ''}`
+  const body = (
+    <>
       <div className="te-figure__label">{label}</div>
       <div className="te-figure__value">{value}</div>
       {hint ? <div className="te-figure__hint">{hint}</div> : null}
-    </div>
+    </>
+  )
+  return href ? (
+    <a className={className} href={href}>
+      {body}
+    </a>
+  ) : (
+    <div className={className}>{body}</div>
   )
 }
 
@@ -120,7 +133,7 @@ export function Row({
     </>
   )
   return (
-    <li className="te-rows__item">
+    <li className={`te-rows__item${href ? '' : ' te-rows__item--static'}`}>
       {href ? (
         <a className="te-rows__link" href={href}>
           {body}

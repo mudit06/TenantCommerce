@@ -103,13 +103,37 @@ export async function readHiddenField(
   return doc?.[input.field]
 }
 
+/** Several hidden fields of one document at once (same rules as readHiddenField). */
+export async function readHiddenFields(
+  payload: PayloadRequest['payload'],
+  input: { collection: CollectionSlug; id: string | number; fields: string[] },
+): Promise<Record<string, unknown>> {
+  const model = (payload.db as unknown as MongooseAdapter).collections[input.collection]
+  if (!model) throw new Error(`No database model for "${input.collection}"`)
+  const doc = (await model
+    .findById(input.id, Object.fromEntries(input.fields.map((field) => [field, 1])))
+    .lean()
+    .exec()) as Record<string, unknown> | null
+  return doc ?? {}
+}
+
 /** Writes fields that no API may write (sealed connector secrets), inside the caller's transaction. */
 export async function writeHiddenFields(
   req: PayloadRequest,
-  input: { collection: CollectionSlug; id: string | number; set: Record<string, unknown> },
+  input: {
+    collection: CollectionSlug
+    id: string | number
+    set: Record<string, unknown>
+    /** Kept even if the caller's transaction rolls back (a wrong sign-in code is still counted) */
+    outsideTransaction?: boolean
+  },
 ): Promise<void> {
   await modelFor(req, input.collection)
-    .updateOne({ _id: input.id }, { $set: input.set }, { session: await sessionFor(req) })
+    .updateOne(
+      { _id: input.id },
+      { $set: input.set },
+      { session: input.outsideTransaction ? undefined : await sessionFor(req) },
+    )
     .exec()
 }
 

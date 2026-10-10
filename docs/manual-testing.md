@@ -41,6 +41,10 @@ pnpm dev                                                  # keep this terminal o
 - [ ] `pnpm dev` shows `Ready`. The first page you open takes 10 to 30 seconds to compile; later
       pages are fast.
 
+**Switching databases.** Pages keep store data in Next.js's cache under `.next/dev`. After pointing
+`DATABASE_URI` at another database (or running a seed while the app is stopped), start with
+`pnpm dev:fresh`: it empties that cache first, so pages don't show the other database's stores.
+
 **Two people in one browser.** The super admin and the store owner both sign in at
 `localhost:3000/admin`, and one browser holds one sign-in. Use a normal window for the super
 admin and a **private (incognito) window** for the store owner, or two different browsers.
@@ -49,17 +53,35 @@ admin and a **private (incognito) window** for the store owner, or two different
 
 Normal window: http://localhost:3000/admin
 
-### 1.1 Sign in
+### 1.1 Sign in and two-step sign-in
+
+You need an authenticator app on your phone (Google Authenticator, Microsoft Authenticator,
+1Password or similar): two-step sign-in is required for our team (10 October 2026).
 
 - [ ] Type the right email with a wrong password. Expect "The email or password provided is
       incorrect."
-- [ ] Sign in with the right password. You land on the platform dashboard: "Good morning/
+- [ ] Sign in with the right password. The first time, the whole panel is covered by **Set up
+      two-step sign-in**: press it, scan the QR code with the app (or type the setup key), and
+      type the 6-digit code. The cover goes and the platform dashboard shows: "Good morning/
       afternoon/evening, Platform".
+- [ ] Sign out and sign in again: after the password the page asks **Step 2 of 2, Two-step
+      verification** with six boxes. Type a wrong code: "That code didn't work". Type the app's
+      code (pasting all six digits into the first box works too): you are in.
+- [ ] Tick **Keep me signed in on this device** to keep the session after the browser closes
+      (still 8 hours at most).
+- [ ] Lost phone: another super admin uses **Reset two-step** on Team and access; you set it up
+      again at the next sign-in.
 
 ### 1.2 Dashboard
 
-- [ ] Tiles: **Live stores 2** (1 paying, 1 on trial), **MRR ₹6,999** before GST, **Past due 0**,
-      **On trial 2**.
+To see sales here, give Home Orbit sample orders first: `pnpm demo:selling home-orbit`, then
+`pnpm demo:orders home-orbit` (24 cash-on-delivery orders over 14 days, the older ones delivered
+and so counted as sales).
+
+- [ ] Tiles, as the wireframe: **Live stores**, **MRR ₹6,999** before GST, **Past due**,
+      **Orders today** across all stores, **GMV** for this month (paid orders incl. GST).
+- [ ] **Sales across all stores**: one bar per day of the month. **Top stores this month**:
+      vendor, industry, orders, GMV and the change against last month to the same day.
 - [ ] **Needs attention** lists Home Orbit ("Store is still a draft") and three owners who have
       not accepted their invite.
 - [ ] **Recently onboarded** lists Home Orbit (Draft), Demo Clothing and Demo Sanitary (Active).
@@ -69,15 +91,21 @@ Normal window: http://localhost:3000/admin
 
 ### 1.3 Plans
 
-- [ ] Vendors → Plans: **Starter ₹3,499 / month**, introductory offer **₹9,999 for 3 months**,
-      500 products. **Enterprise ₹6,999 / month**, 10,000 products.
-- [ ] Open Starter, change nothing, press Save. It saves without errors.
+- [ ] Billing → Plans: one card per plan. **Starter ₹3,499 / month** with the starting offer
+      **₹9,999 for 3 months**, 500 products, 3 staff, 5 GB, 1,000 orders a month, and how many
+      vendors are on it. **Enterprise ₹6,999 / month**, 10,000 products.
+- [ ] **Features allowed** and **Connectors allowed**: a row per feature (or group) with a tick
+      per plan; Phase 2 rows are marked P2.
+- [ ] **Edit plan** on Starter, change nothing, press Save. It saves without errors.
 
 ### 1.4 All vendors
 
-- [ ] Vendors → All vendors: three stores. Tabs show **All 3, Draft 1, Active 2**.
-- [ ] Type `orbit` in the search box: only Home Orbit stays.
-- [ ] Click the Draft tab: only Home Orbit.
+- [ ] Vendors → All vendors: three stores with industry, plan, store and subscription status,
+      products used against the plan (with a bar; "94% used" at 90% or more), orders in the last
+      30 days and the date created. Tabs show **All 3, Active 2, Draft 1**.
+- [ ] Type `orbit` in the search box: only Home Orbit stays. The Plan, Industry and Subscription
+      filters narrow the list the same way, and the tab counts follow them.
+- [ ] Click the Draft tab: only Home Orbit. **Export CSV** downloads the list as shown.
 
 ### 1.5 Vendor overview (Home Orbit)
 
@@ -86,9 +114,11 @@ Click Home Orbit.
 - [ ] Tabs across the top: **Overview, Features, Connectors, Domains, Billing, Staff**.
 - [ ] The header shows "Store draft", "Starter plan", `home-orbit.localhost`, and the buttons
       **View store** and **Go live**. Don't press Go live yet (section 5 does).
-- [ ] **Plan usage**: Products **110 / 500**, Staff users 1 / 3.
-- [ ] Type in the GSTIN field `27AAPFU0939F1ZV`: PAN and State fill in by themselves
-      (Maharashtra 27).
+- [ ] **Business details** show read-only. **Plan usage**: Products **110 / 500**, Staff users
+      1 / 3. **Store health**: last order, Razorpay's state, the primary domain and the
+      storefront design (`vendors/home-orbit`).
+- [ ] Press **Edit** on Business details: the form opens. Type in the GSTIN field
+      `27AAPFU0939F1ZV`: PAN and State fill in by themselves (Maharashtra 27).
 - [ ] Add a line under **Internal notes** and Save. **Recent changes** at the bottom lists your
       edit.
 - [ ] The menu on the left has only platform sections (Vendors, Billing, Platform). Typing
@@ -125,7 +155,9 @@ Click Home Orbit.
       **Record payment**, **Change plan** and **Pause or cancel**. Record a test payment of
       ₹9,999: the paid period moves ahead (the first payment covers the offer's 3 months) and the
       payment shows in the history.
-- [ ] **Staff**: the owner `owner@homeorbit.example`, invite pending. Press **Resend invite**:
+- [ ] **Staff**: the staff meter and **+ Invite staff** above a table with roles, **Two-step** (On
+      or Off) and last sign-in. The owner `owner@homeorbit.example`, invite pending. Press
+      **Resend invite**:
       the `pnpm dev` terminal prints an email starting `[dev-log email] To:
       owner@homeorbit.example` with a fresh set-password link. Local emails are printed there,
       never sent.
@@ -153,8 +185,16 @@ right. This makes a throw-away test store; reset the database afterwards if you 
 
 ### 1.8 Team and access
 
-- [ ] Shortcuts → Team and access: you are listed as Super admin. Invite a teammate as
-      **Support**. The invite email prints in the terminal.
+- [ ] Platform → Team and access: you are listed as Super admin with Two-step **On**. Invite a
+      teammate as **Support**. The invite email prints in the terminal. **Security** says two-step
+      is Required.
+
+### 1.8a Subscriptions
+
+- [ ] Billing → Subscriptions: MRR, On trial, Past due and Renewing in 7 days; tabs by status;
+      a row per vendor with plan, billing, period end, the next amount incl. GST and the last
+      payment. A past-due row has **Record payment**, which opens its Billing card. **Export
+      CSV** downloads the tab shown.
 
 ### 1.9 Lockout after 5 wrong passwords
 
@@ -187,11 +227,15 @@ Private window. Open the **Home Orbit** set-password link from section 0 (or the
 - [ ] The white top bar has a search box (**Ctrl K** jumps to it), **View store**, a bell with the
       number of new enquiries, and "your name · Owner". Type `soap` and press Enter: Products
       opens filtered to soap dishes; the arrow keys pick Enquiries or Pages instead.
-- [ ] **Launch checklist · 6 of 9 done**, as ticked boxes. Done: Attribute sets (6), Categories
-      (13), Media library (115), Products live (110), Home page published, Menus. To do, each
-      with **Open**: Store settings, Policy pages published, Dealers.
-- [ ] Figures: Orders today "—" (starts with online selling), Products live 110, New enquiries 0,
-      Draft pages 5, Low stock 0. Each opens the matching list.
+- [ ] **Launch checklist**, as ticked boxes, with the wireframe's steps: Store name and logo, GST
+      details, Razorpay connected, Shipping zones, then the catalogue and content steps (and
+      WhatsApp templates approved once WhatsApp is connected). Each step to do has **Open**.
+- [ ] Figures, as the wireframe: Orders today (and how many still to ship), Sales today incl.
+      GST, To ship (with the oldest), New enquiries, Low stock. Each opens the matching list. With
+      `pnpm demo:orders home-orbit` run, **Sales, last 14 days** has bars, **Orders to ship** lists
+      the newest waiting orders with Paid or COD, and **Order updates today** counts WhatsApp and
+      email sent. **Offers and growth** shows the live scheme and the next, reviews to approve,
+      affiliates and abandoned carts (only the switched-on ones).
 - [ ] **Needs your attention** says the 5 policy pages are still drafts. **Quick actions** has Add
       product, Create page, Landing page, Upload media, Add category, Log an enquiry, Add dealer,
       Invite staff, Store settings.
@@ -202,7 +246,9 @@ Private window. Open the **Home Orbit** set-password link from section 0 (or the
 
 ### 2.2 Store settings (contact details reach the storefront)
 
-Store → Store settings, tab **Contact**.
+Store → Store settings: one page of sections with links to each at the top (Branding, Contact,
+Grievance officer and labels, GST and invoices, Checkout and returns, Announcement bar, Policies,
+Search and analytics, Store status). Press **Contact**: the page scrolls to it.
 
 - [ ] Phone `+91 98765 43210`, WhatsApp number `98765 43210`, email `care@homeorbit.example`.
       Save. Expect "Updated successfully."
@@ -211,28 +257,42 @@ Store → Store settings, tab **Contact**.
       so the 91 country code was added for you.
 - [ ] http://home-orbit.localhost:3000/contact now shows the phone, "Chat on WhatsApp" and the
       email.
-- [ ] Tab **Grievance officer and labels**: fill in a name, designation, email and phone, then
+- [ ] Section **Grievance officer and labels**: fill in a name, designation, email and phone, then
       Save. The contact page and the footer show the grievance officer.
 - [ ] Back on the dashboard, the Store settings step is ticked (7 of 9).
-- [ ] Tab **Store status**: tick **Maintenance mode** and Save. A yellow bar "Maintenance mode is
+- [ ] Section **Store status**: tick **Maintenance mode** and Save. A yellow bar "Maintenance mode is
       on" shows on every page of the CMS and in Needs your attention. Untick it again.
 
 ### 2.3 Attribute sets and categories
 
-- [ ] Catalog → Attribute sets: six sets (Aldrops, Door handles, Door stoppers, Key hangers,
-      Curtain brackets, Bathroom accessories). Open **Aldrops**: fields such as Size and Finish
-      (variant options, with swatch colours) and Material.
-- [ ] Catalog → Categories: 13 categories. Open **Aldrops**: its parent is Door hardware and its
-      attribute set is Aldrops.
+- [ ] Catalog → Attribute sets: the sets on the left with "N fields · M categories". Open
+      **Aldrops**: the sets stay on the left; on the right a table of its fields (label, code,
+      type, unit, ticks for Filter, Finish option, Compare and Required, group), **Options for
+      Finish** with swatches, and the "Other industries" note. Change a field below: the table
+      follows as you type.
+- [ ] Catalog → Categories: the tree with product counts (Door hardware 50 = its four
+      subcategories). Drag **Towel racks** above **Towel rings**: the order sticks after a reload
+      and is the order of menus and tiles. Drop a category onto another to nest it (three levels
+      at most). With the keyboard: focus a name and press Alt + arrow keys.
+- [ ] Open **Aldrops**: the tree on the left with Aldrops highlighted, the form on the right
+      (parent Door hardware, attribute set Aldrops) and **View on store**.
 - [ ] Create a category with only the name `Test category` and Save: the slug fills itself
       (`test-category`).
 
 ### 2.4 Products and variants
 
-- [ ] Catalog → Products: 110 products. Search `HOPH-504`: one result, "Feather stainless steel
-      pull handle HOPH-504", Active.
-- [ ] Open it. Tabs: Basics, Photos and videos, Specifications, Finishes and sizes, Price and
-      GST, Label details, Documents and related, Search engines.
+- [ ] Catalog → Products: "110 products · 500 allowed on Starter", tabs All, Active, Draft,
+      Archived with counts, Category and Stock filters, and a row per product with its photo,
+      model number, category, finishes, price (or the range across finishes), stock (Low, Out of
+      stock) and status. Search `HOPH-504`: one result. An exact SKU finds its product too.
+- [ ] Tick two products: **Publish**, **Archive**, **Change category** and **Export selected**
+      act on them; one that can't change (no photo) is listed with the reason. **Export** gives the
+      list as shown in the import template's columns, ready to edit and import again.
+- [ ] Open HOPH-504: one page of sections (Basics, Photos and videos, Specifications, Finishes,
+      prices and stock, Price and GST, Documents, Spare parts and related products, Search
+      engines) and, on the right, Status, How shoppers buy, Legal details, weight and box size,
+      Featured and **Offers and reviews** (the schemes covering it and its rating). Under Price
+      and GST: "For ₹1,849.00 the taxable value is … and GST is …".
 - [ ] **Specifications**: Size offered in 8, 10, 12 inch; Finish offered in Antique, Stainless
       steel, Chrome plated, Black matt, Rose gold; Material.
 - [ ] Untick **Black matt** and Save. On the storefront product page, Black matt is gone from the
@@ -262,8 +322,12 @@ Store → Store settings, tab **Contact**.
 
 ### 2.5 Media, pages, menus, banners
 
-- [ ] Content → Media: upload any photo. Saving without **alt text** is refused; add it and the
-      photo saves. The dashboard's media storage goes up.
+- [ ] Catalog → Media: a grid with tabs All, Images, Documents, Videos (product YouTube links),
+      search and the storage meter. Click a photo: its preview, **Alt text** (edit and Save in
+      place), type and size, versions made and where it is used (products, categories, banners),
+      with Replace and Delete.
+- [ ] **Upload** any photo. Saving without **alt text** is refused; add it and the photo saves.
+      The storage meter goes up.
 - [ ] Content → Pages: tabs All 7 · Published 2 · Drafts 5. **About us** (Default) and **Home**
       (Landing) are published; the five policy pages are drafts. Each row shows the template, the
       status, when and by whom it was changed, and when it was published.
@@ -297,10 +361,31 @@ Store → Store settings, tab **Contact**.
       address on the store: it lands on the category. An address with no page and no redirect
       shows the 404 page.
 
+### 2.5b Menus
+
+- [ ] Content → Navigation: **Header menu** drawn as the store shows it (each item, "Dropdown,
+      N columns" and the links under it, what each goes to), with the editor below; **Footer**
+      columns and the phone menu on the right. Rename an item below: the outline follows.
+
+### 2.5c Page builder growth blocks
+
+- [ ] Open the Home page, **Add block**: Marketing has **Offer strip**, **Reviews** and
+      **Affiliate invite**; Commerce has **Scheme products** and **Coupon list**; Utility has
+      **Offers sign-up**. Each appears only while its feature is on (switch Affiliate off in the
+      platform's Features tab: Affiliate invite leaves the library). Blocks start folded; open
+      one for its settings.
+- [ ] Add **Offer strip** and save: on the store it shows while a scheme is live, with its real
+      end date, and is gone when none is.
+
 ### 2.6 Dealers
 
-- [ ] Store → Dealers: add a dealer (name, city, pincode, phone) and Save. The dashboard's
-      Dealers step turns Done. The dealer locator page itself is not built yet.
+- [ ] Store → Dealers: the list (name with the phone partly hidden, type, city, pincode and a
+      **Shown** switch) beside a map of every shown dealer. Click a dealer: its pin turns red and
+      its address, latitude and longitude show under the map.
+- [ ] **Add dealer** (name, city, pincode `411045`, phone): under Map position, press **Fill from
+      the pincode** (it uses the pincode directory, or this store's other dealers there), then drag
+      the pin onto the shop or click the map. Save. The dashboard's Dealers step turns Done.
+- [ ] Switch **Shown** off on a row: the dealer leaves the map and the store's dealer locator.
 
 ### 2.7 Staff and roles
 
@@ -515,10 +600,23 @@ http://home-orbit.localhost:3000 . Check it twice: on a normal desktop window, a
       don't list it." It shows only while the store is a draft.
 - [ ] Home Orbit's logo, orange and charcoal colours, uppercase headings, the hero "Right choice
       for the home".
-- [ ] Then: benefits, category tiles, featured products, banners, the brand story and an
-      enquiry form.
+- [ ] Then: benefits, category tiles, featured products, banners, the brand story, **See it
+      before you buy** (a pincode box that opens the dealer locator), **Get our offers first**,
+      **Questions**, and the enquiry form. (A home page made before 10 October 2026 gets these from
+      `pnpm seed:home-orbit`.) The offer strip under the hero appears only while a scheme is live,
+      and **What buyers say** only once there are published reviews (2.11, 2.12).
 - [ ] Header menu: hover (desktop) or tap the menu button (phone) to see the categories. Nothing
-      runs off the side of the phone screen.
+      runs off the side of the phone screen, at 1024 px wide either (the search box becomes an icon).
+- [ ] Desktop header (store selling, see 3.6): account, **wishlist with a count** and cart icons.
+- [ ] Phone: a **bottom bar** with Home, Shop, Dealers, Account and Cart (the cart shows its count).
+      **Shop** opens `/c` with every category. On a product page, the cart and checkout the bar
+      gives way to the page's own sticky button. A store that doesn't sell shows Search and Contact
+      in place of Account and Cart.
+- [ ] Footer: logo, phone and WhatsApp (after 2.2), **Get our offers first** (email box, "By email"
+      unticked), then Shop (with **Offers**), Help (**Track order**, the published policies,
+      Contact us) and Company (About us, **Find a dealer**, **Downloads**), and a bottom line with
+      the business name, GSTIN, the grievance officer and the ways to pay (COD, plus UPI, Visa,
+      RuPay and Netbanking once Razorpay is connected).
 
 ### 3.2 Category listing and filters
 
@@ -527,8 +625,20 @@ http://home-orbit.localhost:3000 . Check it twice: on a normal desktop window, a
 - [ ] Desktop: filters on the left (Finish, Size, Material) with counts. Tick a finish: the list
       narrows, and the address bar changes (for example `?finish=antique`). Copy that address
       into a new tab: the same filtered list opens.
-- [ ] Phone: a **Filters** button opens a sheet from the bottom.
-- [ ] Change the sort order, and go to page 2 if there is one.
+- [ ] Phone: a **Filter** button opens a sheet from the bottom over a dimmed page, with Close,
+      **Clear** and **Show N products**.
+- [ ] With prices (3.6): a **Price** box. Type min 500 and max 1000 and press Go: only products
+      from ₹500 to ₹1,000, the address has `?min=500&max=1000`, and the button reads "Filter (1)".
+      **Clear all** empties it.
+- [ ] **Sort**: Popular, Newest, Price low to high, Price high to low, Name. "Price: low to high"
+      puts the cheapest first.
+- [ ] Each card has **Add to cart**. Press it: "Added ✓" and the header cart count goes up, without
+      leaving the page. (A product sold in several finishes says **Choose finish** and opens its
+      page; one out of stock says Out of stock; one without an online price says Ask for a quote.)
+- [ ] Below the list: **Load more** adds the next page under the first, and numbered page links
+      stay for search engines. "Prices include GST" at the bottom.
+- [ ] **On offer** appears while a scheme is live and **Rating** once products have published
+      reviews; options that would show nothing are left out.
 - [ ] Open **Door hardware** itself: it lists its subcategories and the products of all of
       them.
 
@@ -553,8 +663,16 @@ Open http://home-orbit.localhost:3000/products/feather-stainless-steel-pull-hand
 
 ### 3.4 Search, pages, contact, errors
 
-- [ ] Search `HOAL-101` (model number) and `towel` (name): matching products. A nonsense word
-      shows "0 results for …" and "Try a shorter word or the model number printed in our catalogue."
+- [ ] Type `610` in the header search box (desktop): a list opens under it with **Lotus glass door
+      handle HOGDH-610** (photo, model number, price) and "See all results for “610”". Model
+      numbers come first, even typed partly or without the dash (`hogdh610`).
+- [ ] Type `key`: products and a **Key hangers** category. Type `glas handel` (two typos): glass
+      door handles still come up. Arrow keys move through the list and Enter opens the choice.
+- [ ] Press Enter on a word: `/search?q=…` with "Results for “…”", the same filters and sort as a
+      category, sorted by **Best match**. Click the search box again with it empty: **Recent
+      searches** (kept only on this device).
+- [ ] A nonsense word: "Nothing matches “…”. Try a shorter word or the model number printed in our
+      catalogue."
 - [ ] Footer → **About us** (`/pages/about-us`): Home Orbit's story from their document.
 - [ ] **Contact** (`/contact`): send the form. It also gets an ENQ number.
 - [ ] Spam limit: send the contact form **6 times within 10 minutes**. The 6th says "You have sent
@@ -584,10 +702,17 @@ data): `pnpm demo:selling home-orbit`. It prints how many products it priced, an
       quote** and WhatsApp.
 - [ ] Type pincode 411045 and press Check: a delivery date, "Free delivery on this order" or the
       fee, and "Cash on delivery available".
+- [ ] Under the buttons: "7-day returns · GST invoice · Cash on delivery" (the return window from
+      Store settings; a warranty appears when the product's specifications have one). With a
+      public coupon covering the product (2.11): **Offers for you** with the code and Copy, and the
+      next scheme with its start date and Details.
 - [ ] **Add to cart**: "Added to your cart" and the cart icon in the header shows 1.
 - [ ] Cart: the line, its price, quantity buttons and Remove; Price details with items, delivery
       ("At checkout" until a pincode is set), total and "Includes GST of …". Press + : the total
       goes up. Enter a pincode under the items: the delivery fee and date appear.
+- [ ] **Move to wishlist** on a line: it leaves the cart and the header heart shows "1".
+      **Complete the look** under the lines suggests more from the same categories, each with Add
+      to cart.
 - [ ] **Checkout**: fill mobile, email, pincode 411045 (the state fills itself: Maharashtra),
       city, name and address. Delivery shows Standard with its date. Choose **Cash on delivery**:
       the ₹49 fee joins the summary and the button reads "Place order · ₹…".
@@ -706,17 +831,19 @@ draft store shows "coming soon" in production.
 
 Back in the owner's private window.
 
-- [ ] Sales → Enquiries: tabs **All, New, In progress, Closed** with counts. Your requests from
-      section 3 are under New, with reference, name, type (Product question or Contact form),
-      product and date.
-- [ ] Open the product one. It shows the product, model number, quantity, and the message
-      "Options: Size: 12 inch, Finish: Rose gold", plus the shopper's name, phone and city, and
-      that they agreed to be contacted.
+- [ ] Sales → Enquiries: the inbox, as the wireframe. Tabs **New, In progress, Closed** with
+      counts, a Type filter and search, and a card per enquiry on the left; the newest opens on
+      the right. Your requests from section 3 are under New.
+- [ ] Click the product one. On the right: name, company, phone, email, city and when it came;
+      the product with its photo, model number and quantity; the message "Options: Size: 12 inch,
+      Finish: Rose gold".
 - [ ] **Reply on WhatsApp** opens WhatsApp to the shopper's number with a greeting naming the
-      enquiry. **Reply by email** shows when they gave an email.
-- [ ] Set Status to **Contacted**, assign it to yourself, add an internal note, and Save. It
-      moves to the **In progress** tab. Set it to **Won** and it moves to Closed.
-- [ ] **Create New**: log a phone enquiry by hand. It gets the next ENQ number.
+      enquiry. **Reply by email** shows when they gave an email. **Create formal quote** is
+      marked P2.
+- [ ] Assign it to yourself and set Status to **Contacted** (each saves at once), and add an
+      internal note with **Add note**: it lists with your name. The enquiry moves to the **In
+      progress** tab. Set it to **Won** and it moves to Closed.
+- [ ] **Log an enquiry**: log a phone enquiry by hand. It gets the next ENQ number.
 - [ ] The dashboard shows the new enquiries in the figures, the **New enquiries** list and the
       **Enquiries, last 14 days** chart, and the top bar bell shows the same number. One left new
       for more than a day shows in Needs your attention as "waiting more than a day".
@@ -800,7 +927,7 @@ Uploaded files stay in `media/`; delete that folder too for a completely clean s
 - Affiliate statement PDFs (the statement is emailed as text)
 - WhatsApp offer messages and cart reminders (they need Meta-approved marketing templates)
 - CSV image and document links (photos are added in the CMS)
-- Two-step login (deferred)
+- Two-step for vendor staff is optional (our team must use it)
 - Real emails: locally they are printed in the `pnpm dev` terminal
 - Custom domains: locally every store is `<slug>.localhost:3000`
 

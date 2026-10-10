@@ -8,12 +8,14 @@ import type { PublicCoupon } from '@/lib/data/offers'
 import type { SellingInfo } from '@/lib/data/store'
 import { formatINR } from '@/lib/money'
 import { checkDelivery, updateCartLine } from '@/storefront/shop/actions'
+import { syncWishlist } from '@/storefront/shop/wishlistActions'
 import type { CheckoutSummary } from '@/storefront/shop/summary'
 
 import { TruckIcon } from '../icons'
 import { buttonClass } from '../ui'
 import { announceCartChange } from './CartLink'
 import { CouponBox } from './CouponBox'
+import { readWishlist, writeWishlist } from './HeartButton'
 import { Price } from './Price'
 import { QtyStepper } from './QtyStepper'
 
@@ -87,10 +89,16 @@ export function CartView({
   selling,
   initialPincode,
   coupons,
+  wishlistOn = false,
+  children,
 }: {
   summary: CheckoutSummary
   selling: SellingInfo
   initialPincode: string
+  /** "Move to wishlist" on each line (wishlist feature) */
+  wishlistOn?: boolean
+  /** Shown under the lines: "Complete the look" */
+  children?: React.ReactNode
   /** Public codes when the store's coupons are on; null when it has none */
   coupons: PublicCoupon[] | null
 }) {
@@ -104,6 +112,22 @@ export function CartView({
     startTransition(async () => {
       setError(null)
       const result = await updateCartLine({ ...line, qty })
+      if (!result.ok) setError(result.message)
+      announceCartChange()
+      router.refresh()
+    })
+
+  // Saves the item on the device (and the account when signed in), then takes it out of the cart
+  const moveToWishlist = (line: { productId: string; variantId: string | null }) =>
+    startTransition(async () => {
+      setError(null)
+      const items = readWishlist()
+      const next = items.some((i) => i.productId === line.productId)
+        ? items
+        : [...items, { productId: line.productId, variantId: line.variantId }]
+      writeWishlist(next)
+      await syncWishlist(next, 'replace')
+      const result = await updateCartLine({ ...line, qty: 0 })
       if (!result.ok) setError(result.message)
       announceCartChange()
       router.refresh()
@@ -187,6 +211,16 @@ export function CartView({
                     >
                       Remove
                     </button>
+                    {wishlistOn ? (
+                      <button
+                        className="text-sm text-ink-soft underline hover:text-ink"
+                        disabled={pending}
+                        onClick={() => moveToWishlist(line)}
+                        type="button"
+                      >
+                        Move to wishlist
+                      </button>
+                    ) : null}
                   </div>
                 </div>
                 <p className="hidden text-right font-semibold sm:block">{money(line.lineMinor)}</p>
@@ -259,6 +293,7 @@ export function CartView({
               />
             </div>
           ) : null}
+          {children}
         </div>
 
         <div className="lg:sticky lg:top-28 lg:self-start">

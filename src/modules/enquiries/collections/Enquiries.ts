@@ -29,7 +29,12 @@ export const Enquiries: CollectionConfig = {
     ],
     listSearchableFields: ['referenceNumber', 'name', 'phone', 'email', 'company'],
     hidden: hiddenWithoutFeature('enquiries'),
-    components: { beforeListTable: ['@/modules/enquiries/admin/EnquiryTabs#EnquiryTabs'] },
+    components: {
+      views: {
+        // docs/screens Enquiries inbox: the list beside the open enquiry
+        list: { Component: '@/modules/enquiries/admin/EnquiriesInbox#EnquiriesInbox' },
+      },
+    },
   },
   defaultSort: '-createdAt',
   access: {

@@ -1,7 +1,10 @@
 import type { CollectionConfig } from 'payload'
 
 import { CATALOG_READ, STORE_ADMIN } from '@/access'
+import { idOf } from '@/access'
 import { featureGatedAccess, hiddenWithoutFeature } from '@/modules/tenancy'
+
+import { positionForPincode } from '../services/position'
 
 const PINCODE = /^[1-9][0-9]{5}$/
 
@@ -19,6 +22,12 @@ export const Dealers: CollectionConfig = {
     listSearchableFields: ['name', 'city', 'pincode'],
     hidden: hiddenWithoutFeature('dealer-locator'),
     description: 'Only dealers marked “Show on store” appear on the dealer locator.',
+    components: {
+      views: {
+        // docs/screens Dealers: the list with Shown switches beside the map
+        list: { Component: '@/modules/dealers/admin/DealersList#DealersList' },
+      },
+    },
   },
   access: {
     read: featureGatedAccess({
@@ -73,7 +82,15 @@ export const Dealers: CollectionConfig = {
       type: 'point',
       admin: {
         description:
-          'In Google Maps, right-click the shop to copy its latitude and longitude, then enter each in its own box. Dealers without a position are listed but not pinned on the map.',
+          'Filled from the pincode. Drag the pin on the map to the shop, or type the latitude and longitude. Dealers without a position are listed but not pinned.',
+      },
+    },
+    {
+      name: 'map',
+      type: 'ui',
+      admin: {
+        components: { Field: '@/modules/dealers/admin/DealerMapField#DealerMapField' },
+        disableListColumn: true,
       },
     },
     {
@@ -97,4 +114,19 @@ export const Dealers: CollectionConfig = {
       hasMany: true,
     },
   ],
+  hooks: {
+    beforeChange: [
+      // No position yet: start from the pincode (docs/screens Dealers rule 2)
+      async ({ data, originalDoc, req }) => {
+        const location = data.location ?? originalDoc?.location
+        const pincode = data.pincode ?? originalDoc?.pincode
+        const tenantId = idOf(data.tenant ?? originalDoc?.tenant)
+        if ((Array.isArray(location) && location.length === 2) || !pincode || !tenantId) return data
+        // Read-only lookups, outside the save's transaction
+        const position = await positionForPincode(req.payload, tenantId, pincode)
+        if (position) data.location = [position.longitude, position.latitude]
+        return data
+      },
+    ],
+  },
 }

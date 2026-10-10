@@ -15,6 +15,8 @@ export const AUDIT_ACTIONS = [
   'staff_invited',
   'staff_changed',
   'two_factor_reset',
+  // Someone turned on two-step sign-in for their own account, or a vendor staff member turned it off
+  'two_factor_changed',
   'domain_changed',
   'price_changed',
   'refund',

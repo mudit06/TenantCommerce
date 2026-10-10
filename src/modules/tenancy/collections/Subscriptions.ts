@@ -23,7 +23,10 @@ export const Subscriptions: CollectionConfig = {
     group: 'Billing',
     description: 'Manual billing in the MVP (automatic with Razorpay Subscriptions in Phase 2).',
     components: {
-      beforeListTable: ['@/modules/tenancy/admin/views/SubscriptionSummary#SubscriptionSummary'],
+      views: {
+        // docs/screens Subscriptions: figures, status tabs and the billing desk's table
+        list: { Component: '@/modules/tenancy/admin/views/SubscriptionsList#SubscriptionsList' },
+      },
     },
   },
   access: {

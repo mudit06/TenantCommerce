@@ -10,6 +10,7 @@ import {
   workspaceOf,
 } from '@/access'
 import { currentStore, storeRolesOf } from '@/admin/store'
+import { mustSetUpTwoStep, TwoStepGate } from '@/modules/identity/admin'
 
 import { AppNavClient, type NavBadges, type NavIdentity } from './AppNavClient'
 import { buildMenu } from './menu'
@@ -24,6 +25,10 @@ type Props = ServerProps & { req?: PayloadRequest }
 export async function AppNav({ req, visibleEntities, permissions }: Props) {
   if (!req?.user) return null
   const user = req.user
+  // Our team sets up two-step sign-in before using the panel (docs/05): it covers every page
+  if (mustSetUpTwoStep(user)) {
+    return <TwoStepGate name={typeof user.name === 'string' ? user.name : ''} />
+  }
   const workspace = workspaceOf(user)
   if (!workspace) return null
   const session = storeSessionOf(user)

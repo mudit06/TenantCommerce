@@ -1,7 +1,9 @@
 import type { Payload } from 'payload'
 
 import { idOf } from '@/access'
-import { calendarDaysBetween } from '@/lib/dates'
+import { CONNECTOR_PROVIDERS } from '@/connectors'
+import { monthRange, ordersPlacedByStore } from '@/modules/reports'
+import { calendarDaysBetween, formatDateAndTime } from '@/lib/dates'
 import type { Plan, Subscription, Tenant } from '@/payload-types'
 
 import { USAGE_WARNING_RATIO } from '../constants'
@@ -18,6 +20,10 @@ export type AttentionItem = {
   tone: 'danger' | 'warning' | 'info'
   tab?: 'billing' | 'staff' | 'connectors' | 'domains'
 }
+
+const PROVIDER_LABEL = new Map<string, string>(
+  CONNECTOR_PROVIDERS.map((provider) => [provider.key, provider.label]),
+)
 
 export type StaffCounts = Map<string, number>
 
@@ -46,12 +52,13 @@ export type UsageNumbers = {
   ordersThisMonth: number
 }
 
-export function usageOf(tenant: Tenant, staff: number): UsageNumbers {
+/** `ordersThisMonth` is counted from the orders (reports module); there is no running counter. */
+export function usageOf(tenant: Tenant, staff: number, ordersThisMonth: number): UsageNumbers {
   return {
     products: tenant.usage?.productsCount ?? 0,
     staff,
     storageBytes: tenant.usage?.storageBytes ?? 0,
-    ordersThisMonth: tenant.usage?.ordersThisMonth ?? 0,
+    ordersThisMonth,
   }
 }
 
@@ -78,14 +85,28 @@ export type PlatformDashboardData = {
   livePaying: number
   billing: BillingSummary
   attention: AttentionItem[]
-  recent: { tenant: Tenant; planName: string; subscriptionStatus: string | null }[]
+  recent: {
+    tenant: Tenant
+    planName: string
+    subscriptionStatus: string | null
+    invitedOwnerId: string | null
+  }[]
+  tenantById: Map<string, Tenant>
 }
 
 export async function loadPlatformDashboard(
   payload: Payload,
   now = new Date(),
 ): Promise<PlatformDashboardData> {
-  const [{ docs: tenants }, { docs: subs }, staff, { docs: invitedOwners }] = await Promise.all([
+  const [
+    { docs: tenants },
+    { docs: subs },
+    staff,
+    { docs: invitedOwners },
+    { docs: failing },
+    { docs: templates },
+    monthOrders,
+  ] = await Promise.all([
     payload.find({
       collection: 'tenants',
       depth: 1,
@@ -107,6 +128,37 @@ export async function loadPlatformDashboard(
       overrideAccess: true,
       where: { and: [{ status: { equals: 'invited' } }, { 'tenants.roles': { in: ['owner'] } }] },
     }),
+    // Connectors whose webhooks are failing: payments may not be marked paid (rule 2)
+    payload.find({
+      collection: 'connector-configs',
+      depth: 0,
+      pagination: false,
+      overrideAccess: true,
+      where: {
+        and: [
+          { enabled: { equals: true } },
+          { 'health.failingSince': { exists: true } },
+          { 'health.failingSince': { not_equals: null } },
+        ],
+      },
+      select: { tenant: true, provider: true, kind: true, health: true },
+    }),
+    // WhatsApp templates Meta rejected or paused: those messages stop going
+    payload.find({
+      collection: 'notification-templates',
+      depth: 0,
+      pagination: false,
+      overrideAccess: true,
+      where: { status: { in: ['rejected', 'paused'] } },
+      select: {
+        tenant: true,
+        milestone: true,
+        whatsapp: true,
+        status: true,
+        rejectionReason: true,
+      },
+    }),
+    ordersPlacedByStore(payload, monthRange(null, now).from),
   ])
 
   const subByTenant = new Map<string, Subscription>()
@@ -158,7 +210,10 @@ export async function loadPlatformDashboard(
       }
     }
     const plan = typeof tenant.plan === 'object' ? tenant.plan : null
-    for (const warning of limitWarnings(usageOf(tenant, staff.get(id) ?? 0), plan)) {
+    for (const warning of limitWarnings(
+      usageOf(tenant, staff.get(id) ?? 0, monthOrders.get(id) ?? 0),
+      plan,
+    )) {
       attention.push({
         tenantId: id,
         vendor: tenant.name,
@@ -176,6 +231,43 @@ export async function loadPlatformDashboard(
         tone: 'info',
       })
     }
+  }
+
+  const tenantById = new Map(tenants.map((tenant) => [String(tenant.id), tenant]))
+  for (const config of failing) {
+    const tenant = tenantById.get(idOf(config.tenant) ?? '')
+    if (!tenant || tenant.status === 'archived') continue
+    const label = PROVIDER_LABEL.get(config.provider) ?? config.provider
+    const since = config.health?.failingSince
+    attention.push({
+      tenantId: String(tenant.id),
+      vendor: tenant.name,
+      message: `${label} webhook failing${since ? ` since ${formatDateAndTime(since)}` : ''}${config.health?.lastError ? `: ${config.health.lastError}` : ''}`,
+      tag:
+        config.kind === 'payment'
+          ? 'Payments'
+          : config.kind === 'shipping'
+            ? 'Shipping'
+            : 'Messaging',
+      tone: 'danger',
+      tab: 'connectors',
+    })
+  }
+  for (const template of templates) {
+    const tenant = tenantById.get(idOf(template.tenant) ?? '')
+    if (!tenant || tenant.status === 'archived') continue
+    const name = template.whatsapp?.name ?? template.milestone
+    attention.push({
+      tenantId: String(tenant.id),
+      vendor: tenant.name,
+      message:
+        template.status === 'paused'
+          ? `Meta paused the WhatsApp “${name}” template`
+          : `Meta rejected the WhatsApp “${name}” template${template.rejectionReason ? `: ${template.rejectionReason}` : ''}`,
+      tag: 'Messaging',
+      tone: 'warning',
+      tab: 'connectors',
+    })
   }
 
   for (const owner of invitedOwners) {
@@ -203,12 +295,18 @@ export async function loadPlatformDashboard(
 
   const recent = tenants.slice(0, 5).map((tenant) => {
     const sub = subByTenant.get(String(tenant.id))
+    const invited = invitedOwners.find((owner) =>
+      (owner.tenants ?? []).some(
+        (row) => idOf(row.tenant) === String(tenant.id) && row.roles?.includes('owner'),
+      ),
+    )
     return {
       tenant,
       planName: typeof tenant.plan === 'object' && tenant.plan ? tenant.plan.name : '—',
       subscriptionStatus: sub ? effectiveStatus(sub, now) : null,
+      invitedOwnerId: invited ? String(invited.id) : null,
     }
   })
 
-  return { counts, liveTrialing, livePaying, billing, attention, recent }
+  return { counts, liveTrialing, livePaying, billing, attention, recent, tenantById }
 }

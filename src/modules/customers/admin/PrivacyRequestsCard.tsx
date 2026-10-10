@@ -190,7 +190,7 @@ export function PrivacyRequestsCard({
           <ul className="te-rows">
             {rows.map((row) => (
               <li className="te-rows__item" key={row.id}>
-                <div>
+                <div className="te-rows__item--static">
                   <div className="te-rows__main">
                     <div className="te-rows__primary">
                       {row.typeLabel} · {row.who}

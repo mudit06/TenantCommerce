@@ -26,6 +26,12 @@ export const Products: CollectionConfig = {
     defaultColumns: ['title', 'modelNumber', 'primaryCategory', 'status', 'updatedAt'],
     listSearchableFields: ['title', 'modelNumber', 'searchKeywords'],
     description: 'Products need a main category: it decides the specification fields.',
+    components: {
+      views: {
+        // docs/screens Products: tabs, filters, price range and stock, bulk actions, export
+        list: { Component: '@/modules/catalog/admin/ProductsList#ProductsList' },
+      },
+    },
   },
   versions: { maxPerDoc: 20 },
   defaultSort: '-updatedAt',
@@ -60,271 +66,217 @@ export const Products: CollectionConfig = {
       ],
     },
     {
-      type: 'tabs',
-      tabs: [
+      type: 'collapsible',
+      label: 'Basics',
+      admin: { initCollapsed: false },
+      fields: [
         {
-          label: 'Basics',
+          type: 'row',
           fields: [
             {
-              type: 'row',
-              fields: [
-                {
-                  name: 'primaryCategory',
-                  label: 'Main category',
-                  type: 'relationship',
-                  relationTo: 'categories',
-                  required: true,
-                  admin: { description: 'Decides the specification fields' },
-                },
-                {
-                  name: 'categories',
-                  label: 'Also show in',
-                  type: 'relationship',
-                  relationTo: 'categories',
-                  hasMany: true,
-                },
-                { name: 'brand', type: 'relationship', relationTo: 'brands' },
-              ],
+              name: 'primaryCategory',
+              label: 'Main category',
+              type: 'relationship',
+              relationTo: 'categories',
+              required: true,
+              admin: { description: 'Decides the specification fields' },
             },
-            { name: 'shortDescription', type: 'textarea', maxLength: 300 },
             {
-              name: 'highlights',
-              type: 'array',
-              maxRows: 8,
-              labels: { singular: 'Highlight', plural: 'Highlights' },
-              fields: [{ name: 'text', type: 'text', required: true }],
-            },
-            { name: 'description', type: 'richText' },
-          ],
-        },
-        {
-          label: 'Photos and videos',
-          fields: [
-            {
-              name: 'gallery',
-              label: 'Photos',
-              type: 'upload',
-              relationTo: 'media',
+              name: 'categories',
+              label: 'Also show in',
+              type: 'relationship',
+              relationTo: 'categories',
               hasMany: true,
-              filterOptions: { mimeType: { contains: 'image' } },
-              admin: { description: 'The first photo is the main one' },
             },
-            {
-              name: 'videos',
-              type: 'array',
-              maxRows: 5,
-              admin: { condition: (_d, _s, { user }) => userHasFeature(user, 'product-videos') },
-              fields: [
-                {
-                  type: 'row',
-                  fields: [
-                    {
-                      name: 'url',
-                      label: 'YouTube link',
-                      type: 'text',
-                      required: true,
-                      validate: (value: string | null | undefined) =>
-                        !value || YOUTUBE.test(value) ? true : 'Paste a YouTube link',
-                    },
-                    {
-                      name: 'type',
-                      type: 'select',
-                      defaultValue: 'demo',
-                      options: [
-                        { label: 'Installation', value: 'installation' },
-                        { label: 'Demo', value: 'demo' },
-                        { label: 'Promotion', value: 'promo' },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            },
+            { name: 'brand', type: 'relationship', relationTo: 'brands' },
           ],
         },
+        { name: 'shortDescription', type: 'textarea', maxLength: 300 },
         {
-          label: 'Specifications',
-          fields: [
-            {
-              name: 'attributes',
-              label: 'Specifications',
-              type: 'json',
-              admin: {
-                components: { Field: '@/modules/catalog/admin/AttributesField#AttributesField' },
-              },
-            },
-          ],
+          name: 'highlights',
+          type: 'array',
+          maxRows: 8,
+          labels: { singular: 'Highlight', plural: 'Highlights' },
+          fields: [{ name: 'text', type: 'text', required: true }],
+        },
+        { name: 'description', type: 'richText' },
+      ],
+    },
+    {
+      type: 'collapsible',
+      label: 'Photos and videos',
+      admin: { initCollapsed: false },
+      fields: [
+        {
+          name: 'gallery',
+          label: 'Photos',
+          type: 'upload',
+          relationTo: 'media',
+          hasMany: true,
+          filterOptions: { mimeType: { contains: 'image' } },
+          admin: { description: 'The first photo is the main one' },
         },
         {
-          label: 'Finishes and sizes',
-          description:
-            'Each combination of the options ticked in Specifications (finish, size…) is a variant with its own code, price and stock.',
-          fields: [
-            {
-              name: 'generateVariants',
-              type: 'ui',
-              admin: {
-                components: {
-                  Field: '@/modules/catalog/admin/GenerateVariantsButton#GenerateVariantsButton',
-                },
-              },
-            },
-            {
-              name: 'variants',
-              type: 'join',
-              collection: 'variants',
-              on: 'product',
-              defaultSort: 'sortOrder',
-              admin: { defaultColumns: ['title', 'sku', 'price', 'stockQty', 'status'] },
-            },
-          ],
-        },
-        {
-          label: 'Price and GST',
+          name: 'videos',
+          type: 'array',
+          maxRows: 5,
+          admin: { condition: (_d, _s, { user }) => userHasFeature(user, 'product-videos') },
           fields: [
             {
               type: 'row',
               fields: [
-                moneyField({
-                  name: 'price',
-                  label: 'Selling price incl. GST',
-                  description: 'Variants can set their own',
-                }),
-                moneyField({ name: 'compareAtPrice', label: 'MRP' }),
-              ],
-            },
-            {
-              type: 'row',
-              fields: [
                 {
-                  name: 'gstRate',
-                  label: 'GST rate (%)',
-                  type: 'select',
-                  defaultValue: '18',
-                  options: GST_RATES.map((rate) => ({ label: `${rate}%`, value: String(rate) })),
-                },
-                {
-                  name: 'hsnCode',
-                  label: 'HSN code',
+                  name: 'url',
+                  label: 'YouTube link',
                   type: 'text',
+                  required: true,
                   validate: (value: string | null | undefined) =>
-                    !value || HSN_CODE.test(value) ? true : 'HSN codes have 4, 6 or 8 digits',
+                    !value || YOUTUBE.test(value) ? true : 'Paste a YouTube link',
                 },
-              ],
-            },
-            {
-              type: 'row',
-              fields: [
-                { name: 'weightGrams', label: 'Weight (g)', type: 'number', min: 0 },
                 {
-                  name: 'dimensions',
-                  label: 'Size in box (mm)',
-                  type: 'group',
-                  fields: [
-                    {
-                      type: 'row',
-                      fields: [
-                        { name: 'lengthMm', label: 'Length', type: 'number', min: 0 },
-                        { name: 'widthMm', label: 'Width', type: 'number', min: 0 },
-                        { name: 'heightMm', label: 'Height', type: 'number', min: 0 },
-                      ],
-                    },
+                  name: 'type',
+                  type: 'select',
+                  defaultValue: 'demo',
+                  options: [
+                    { label: 'Installation', value: 'installation' },
+                    { label: 'Demo', value: 'demo' },
+                    { label: 'Promotion', value: 'promo' },
                   ],
                 },
               ],
             },
           ],
         },
+      ],
+    },
+    {
+      type: 'collapsible',
+      label: 'Specifications',
+      admin: { initCollapsed: false },
+      fields: [
         {
-          label: 'Label details',
-          description:
-            'Legal Metrology details shown on the product page. Maker details default from Store settings.',
-          fields: [
-            {
-              name: 'legal',
-              type: 'group',
-              label: false,
-              fields: [
-                {
-                  type: 'row',
-                  fields: [
-                    {
-                      name: 'genericName',
-                      label: 'Generic name',
-                      type: 'text',
-                      admin: { placeholder: 'Door aldrop' },
-                    },
-                    {
-                      name: 'netQuantity',
-                      label: 'Net quantity',
-                      type: 'text',
-                      defaultValue: '1 piece',
-                    },
-                    {
-                      name: 'countryOfOrigin',
-                      label: 'Country of origin (ISO code)',
-                      type: 'text',
-                      defaultValue: 'IN',
-                      validate: (value: string | null | undefined) =>
-                        !value || /^[A-Z]{2}$/.test(value)
-                          ? true
-                          : 'Two capital letters, for example IN',
-                    },
-                  ],
-                },
-                {
-                  type: 'row',
-                  fields: [
-                    {
-                      name: 'madeBy',
-                      label: 'Made by',
-                      type: 'select',
-                      defaultValue: 'manufacturer',
-                      options: [...MADE_BY],
-                    },
-                    { name: 'madeByName', label: 'Name', type: 'text' },
-                  ],
-                },
-                { name: 'madeByAddress', label: 'Address', type: 'textarea' },
-                { name: 'consumerCare', label: 'Consumer care', type: 'text' },
-              ],
+          name: 'attributes',
+          label: 'Specifications',
+          type: 'json',
+          admin: {
+            components: { Field: '@/modules/catalog/admin/AttributesField#AttributesField' },
+          },
+        },
+      ],
+    },
+    {
+      type: 'collapsible',
+      label: 'Finishes, prices and stock',
+      admin: { initCollapsed: false },
+      fields: [
+        {
+          name: 'generateVariants',
+          type: 'ui',
+          admin: {
+            components: {
+              Field: '@/modules/catalog/admin/GenerateVariantsButton#GenerateVariantsButton',
             },
-          ],
+          },
         },
         {
-          label: 'Documents and related',
-          fields: [
-            {
-              name: 'documents',
-              type: 'relationship',
-              relationTo: 'product-documents',
-              hasMany: true,
-            },
-            {
-              name: 'relatedProducts',
-              label: 'Goes well with',
-              type: 'relationship',
-              relationTo: 'products',
-              hasMany: true,
-              maxRows: 8,
-            },
-          ],
+          name: 'variants',
+          type: 'join',
+          collection: 'variants',
+          on: 'product',
+          defaultSort: 'sortOrder',
+          admin: { defaultColumns: ['title', 'sku', 'price', 'stockQty', 'status'] },
         },
+      ],
+    },
+    {
+      type: 'collapsible',
+      label: 'Price and GST',
+      admin: { initCollapsed: false },
+      fields: [
         {
-          label: 'Search engines',
+          type: 'row',
           fields: [
-            slugField({
-              required: false,
-              admin: { description: 'Filled from the title. Store address: /products/<slug>' },
+            moneyField({
+              name: 'price',
+              label: 'Selling price incl. GST',
+              description: 'Variants can set their own',
             }),
-            {
-              name: 'searchKeywords',
-              type: 'text',
-              admin: { description: 'Other words shoppers use, separated by commas' },
-            },
-            seoFields(),
+            moneyField({ name: 'compareAtPrice', label: 'MRP' }),
           ],
         },
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'gstRate',
+              label: 'GST rate (%)',
+              type: 'select',
+              defaultValue: '18',
+              options: GST_RATES.map((rate) => ({ label: `${rate}%`, value: String(rate) })),
+            },
+            {
+              name: 'hsnCode',
+              label: 'HSN code',
+              type: 'text',
+              validate: (value: string | null | undefined) =>
+                !value || HSN_CODE.test(value) ? true : 'HSN codes have 4, 6 or 8 digits',
+            },
+          ],
+        },
+        {
+          // What the price works out to: taxable value and GST (docs/screens Product editor)
+          name: 'gstPreview',
+          type: 'ui',
+          admin: {
+            components: { Field: '@/modules/catalog/admin/GstPreview#GstPreview' },
+            disableListColumn: true,
+          },
+        },
+      ],
+    },
+    {
+      type: 'collapsible',
+      label: 'Documents',
+      admin: { initCollapsed: false },
+      fields: [
+        {
+          name: 'documents',
+          type: 'relationship',
+          relationTo: 'product-documents',
+          hasMany: true,
+        },
+      ],
+    },
+    {
+      type: 'collapsible',
+      label: 'Spare parts and related products',
+      admin: { initCollapsed: false },
+      fields: [
+        {
+          name: 'relatedProducts',
+          label: 'Goes well with',
+          type: 'relationship',
+          relationTo: 'products',
+          hasMany: true,
+          maxRows: 8,
+        },
+      ],
+    },
+    {
+      type: 'collapsible',
+      label: 'Search engines',
+      admin: { initCollapsed: false },
+      fields: [
+        slugField({
+          required: false,
+          admin: { description: 'Filled from the title. Store address: /products/<slug>' },
+        }),
+        {
+          name: 'searchKeywords',
+          type: 'text',
+          admin: { description: 'Other words shoppers use, separated by commas' },
+        },
+        seoFields(),
       ],
     },
     {
@@ -345,8 +297,84 @@ export const Products: CollectionConfig = {
       admin: {
         position: 'sidebar',
         description:
-          'Online checkout arrives in stage B; until then every product shows “Request a quote”.',
+          'Request a quote only suits project items; Both shows the price and a quote button.',
       },
+    },
+    {
+      name: 'legal',
+      type: 'group',
+      label: 'Legal details',
+      admin: {
+        position: 'sidebar',
+        description:
+          'Legal Metrology details shown on the product page. Maker details default from Store settings.',
+      },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'genericName',
+              label: 'Generic name',
+              type: 'text',
+              admin: { placeholder: 'Door aldrop' },
+            },
+            {
+              name: 'netQuantity',
+              label: 'Net quantity',
+              type: 'text',
+              defaultValue: '1 piece',
+            },
+            {
+              name: 'countryOfOrigin',
+              label: 'Country of origin (ISO code)',
+              type: 'text',
+              defaultValue: 'IN',
+              validate: (value: string | null | undefined) =>
+                !value || /^[A-Z]{2}$/.test(value) ? true : 'Two capital letters, for example IN',
+            },
+          ],
+        },
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'madeBy',
+              label: 'Made by',
+              type: 'select',
+              defaultValue: 'manufacturer',
+              options: [...MADE_BY],
+            },
+            { name: 'madeByName', label: 'Name', type: 'text' },
+          ],
+        },
+        { name: 'madeByAddress', label: 'Address', type: 'textarea' },
+        { name: 'consumerCare', label: 'Consumer care', type: 'text' },
+      ],
+    },
+    // Warranty and shipping (wireframe sidebar): what courier booking and rates use
+    {
+      name: 'weightGrams',
+      label: 'Weight (g)',
+      type: 'number',
+      min: 0,
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'dimensions',
+      label: 'Box size (mm)',
+      type: 'group',
+      admin: { position: 'sidebar' },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            { name: 'lengthMm', label: 'Length', type: 'number', min: 0 },
+            { name: 'widthMm', label: 'Width', type: 'number', min: 0 },
+            { name: 'heightMm', label: 'Height', type: 'number', min: 0 },
+          ],
+        },
+      ],
     },
     {
       name: 'isFeatured',
@@ -354,6 +382,15 @@ export const Products: CollectionConfig = {
       type: 'checkbox',
       defaultValue: false,
       admin: { position: 'sidebar' },
+    },
+    {
+      name: 'offersAndReviews',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: { Field: '@/modules/catalog/admin/ProductOffers#ProductOffers' },
+        disableListColumn: true,
+      },
     },
     {
       // Published reviews only, kept by the reviews module (docs/06 `reviews`); never edited here

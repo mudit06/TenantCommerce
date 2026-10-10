@@ -21,6 +21,12 @@ export const Categories: CollectionConfig = {
     defaultColumns: ['name', 'parent', 'attributeSet', 'sortOrder', 'isVisible'],
     listSearchableFields: ['name', 'slug'],
     description: 'Menus and category tiles follow the sort order (low numbers first).',
+    components: {
+      views: {
+        // docs/screens Categories: the tree with product counts, drag to reorder or nest
+        list: { Component: '@/modules/catalog/admin/CategoriesList#CategoriesList' },
+      },
+    },
   },
   defaultSort: 'sortOrder',
   access: {
@@ -34,7 +40,21 @@ export const Categories: CollectionConfig = {
     { fields: ['tenant', 'parent', 'sortOrder'] },
   ],
   fields: [
+    {
+      // The tree beside the form, as the wireframe (styles put this column on the left)
+      name: 'tree',
+      type: 'ui',
+      admin: {
+        position: 'sidebar',
+        components: { Field: '@/modules/catalog/admin/CategoryTreeField#CategoryTreeField' },
+        disableListColumn: true,
+      },
+    },
     { name: 'name', type: 'text', required: true, admin: { placeholder: 'Basin mixers' } },
+    // Top level, where the nested-docs plugin looks for it
+    createParentField('categories', {
+      admin: { description: 'Empty for a top-level category' },
+    }),
     {
       type: 'row',
       fields: [
@@ -76,9 +96,14 @@ export const Categories: CollectionConfig = {
       ],
     },
     seoFields(),
-    createParentField('categories', {
-      admin: { position: 'sidebar', description: 'Empty for a top-level category' },
-    }),
+    {
+      name: 'storeLink',
+      type: 'ui',
+      admin: {
+        components: { Field: '@/modules/catalog/admin/CategoryTreeField#CategoryStoreLink' },
+        disableListColumn: true,
+      },
+    },
     // Kept up to date by the nested-docs plugin; the storefront reads it for URLs and breadcrumbs
     createBreadcrumbsField('categories', { admin: { hidden: true } }),
   ],

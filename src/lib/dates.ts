@@ -94,6 +94,11 @@ export function calendarDaysBetween(from: Date, to: Date, timeZone = DEFAULT_TIM
   return Math.round((dayB - dayA) / 86_400_000)
 }
 
+/** 2026-10-10 on the zone's calendar: file names and day keys */
+export function isoDate(date: Date | string = new Date(), timeZone = DEFAULT_TIMEZONE): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone }).format(new Date(date))
+}
+
 /** 1 Oct 2026 */
 export function formatDate(date: Date | string, timeZone = DEFAULT_TIMEZONE): string {
   return new Intl.DateTimeFormat('en-IN', {

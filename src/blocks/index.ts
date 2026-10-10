@@ -6,8 +6,8 @@ import { BLOCK_GROUPS, BLOCK_META, blockThumbnail, type BlockGroup } from './met
 
 // CMS blocks: data shape only (docs/10). Each vendor's storefront code decides how a block looks;
 // the shape is the same for every vendor. Blocks of optional features (offer strip, scheme
-// products, coupon list, reviews, offers sign-up, affiliate invite) are added with their modules,
-// and product-picking blocks gain a "chosen products" source when the products collection lands.
+// products, coupon list, reviews, offers sign-up, affiliate invite) are offered only while their
+// feature is on (BLOCK_FEATURE, docs/screens Page builder rule 5).
 
 const YOUTUBE =
   /^https:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)[\w-]{6,}/
@@ -328,6 +328,125 @@ export const BrandStoryBlock: Block = {
   ],
 }
 
+// ---- Growth blocks (Phase 1 growth features) -------------------------------------------------
+
+/** A scheme of this store (the page's own), never another store's */
+const schemeField = (required: boolean, description: string) => ({
+  name: 'scheme',
+  type: 'relationship' as const,
+  relationTo: 'schemes' as const,
+  required,
+  admin: { description },
+  filterOptions: ({ data }: { data: { tenant?: unknown } }) => {
+    const tenant =
+      data?.tenant && typeof data.tenant === 'object'
+        ? (data.tenant as { id?: unknown }).id
+        : data?.tenant
+    return tenant ? { tenant: { equals: tenant } } : false
+  },
+})
+
+export const OfferStripBlock: Block = {
+  slug: 'offerStrip',
+  interfaceName: 'OfferStripBlock',
+  labels: { singular: 'Offer strip', plural: 'Offer strips' },
+  fields: [
+    schemeField(
+      false,
+      'Empty: whichever scheme is live. The strip hides itself while no scheme is live.',
+    ),
+    { name: 'buttonLabel', label: 'Button text', type: 'text', defaultValue: 'Shop the offer' },
+  ],
+}
+
+export const SchemeProductsBlock: Block = {
+  slug: 'schemeProducts',
+  interfaceName: 'SchemeProductsBlock',
+  labels: { singular: 'Scheme products', plural: 'Scheme products' },
+  fields: [
+    { name: 'heading', type: 'text' },
+    schemeField(true, 'Shows the products this scheme covers, with their offer prices'),
+    { name: 'limit', type: 'number', defaultValue: 8, min: 1, max: 24 },
+  ],
+}
+
+export const CouponListBlock: Block = {
+  slug: 'couponList',
+  interfaceName: 'CouponListBlock',
+  labels: { singular: 'Coupon list', plural: 'Coupon lists' },
+  fields: [
+    { name: 'heading', type: 'text', defaultValue: 'Coupon codes' },
+    {
+      name: 'limit',
+      type: 'number',
+      defaultValue: 4,
+      min: 1,
+      max: 12,
+      admin: { description: 'Coupons set to show on the Offers page, newest first' },
+    },
+  ],
+}
+
+export const ReviewsBlock: Block = {
+  slug: 'reviews',
+  interfaceName: 'ReviewsBlock',
+  labels: { singular: 'Reviews', plural: 'Reviews' },
+  fields: [
+    { name: 'heading', type: 'text', defaultValue: 'What our customers say' },
+    {
+      name: 'minRating',
+      label: 'Show reviews with',
+      type: 'select',
+      defaultValue: '4',
+      options: [
+        { label: '4 stars and up', value: '4' },
+        { label: '5 stars only', value: '5' },
+        { label: 'Any rating', value: '1' },
+      ],
+      admin: {
+        description: 'Published reviews only, from verified purchases. Never edited by the store.',
+      },
+    },
+    { name: 'limit', type: 'number', defaultValue: 6, min: 1, max: 12 },
+  ],
+}
+
+export const OffersSignupBlock: Block = {
+  slug: 'offersSignup',
+  interfaceName: 'OffersSignupBlock',
+  labels: { singular: 'Offers sign-up', plural: 'Offers sign-ups' },
+  fields: [
+    { name: 'heading', type: 'text', defaultValue: 'Hear about the next offer first' },
+    { name: 'text', type: 'textarea' },
+  ],
+}
+
+export const AffiliateInviteBlock: Block = {
+  slug: 'affiliateInvite',
+  interfaceName: 'AffiliateInviteBlock',
+  labels: { singular: 'Affiliate invite', plural: 'Affiliate invites' },
+  fields: [
+    { name: 'heading', type: 'text', defaultValue: 'Earn with us' },
+    { name: 'text', type: 'textarea' },
+    {
+      name: 'buttonLabel',
+      label: 'Button text',
+      type: 'text',
+      defaultValue: 'Join the affiliate program',
+    },
+  ],
+}
+
+/** The feature each optional block needs (docs/screens Page builder rule 5) */
+export const BLOCK_FEATURE: Record<string, string> = {
+  offerStrip: 'schemes',
+  schemeProducts: 'schemes',
+  couponList: 'coupons',
+  reviews: 'reviews',
+  offersSignup: 'offer-messages',
+  affiliateInvite: 'affiliate',
+}
+
 const GROUP_ORDER: BlockGroup[] = ['marketing', 'commerce', 'basic', 'utility']
 
 /**
@@ -369,6 +488,12 @@ export const PAGE_BLOCKS: Block[] = [
   DealerFinderBlock,
   EnquiryFormBlock,
   BrandStoryBlock,
+  OfferStripBlock,
+  SchemeProductsBlock,
+  CouponListBlock,
+  ReviewsBlock,
+  OffersSignupBlock,
+  AffiliateInviteBlock,
 ]
   .map(forPageBuilder)
   // Stable sort: blocks keep their order inside a group

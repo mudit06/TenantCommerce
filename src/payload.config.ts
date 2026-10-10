@@ -100,6 +100,7 @@ import {
 import { affiliateEndpoints } from '@/modules/affiliate/endpoints'
 import { reportEndpoints } from '@/modules/reports/endpoints'
 import { ImportJobs, runImportTask } from '@/modules/imports'
+import { dealerEndpoints } from '@/modules/dealers/endpoints'
 import { importEndpoints } from '@/modules/imports/endpoints'
 import { Pincodes, Shipments, ShippingZones } from '@/modules/shipping'
 // Endpoints load env and connectors; kept out of the shipping index so its pure parts stay
@@ -186,6 +187,8 @@ export default buildConfig({
       ],
       views: {
         dashboard: { Component: '@/admin/views/Dashboard#Dashboard' },
+        // Sign in, then the authenticator code on the same page (docs/screens `sa-login`)
+        login: { Component: '@/modules/identity/admin/SignInView#SignInView' },
         newPage: {
           Component: '@/modules/content/admin/NewPageView#NewPageView',
           path: '/new-page',
@@ -316,6 +319,7 @@ export default buildConfig({
     ...affiliateEndpoints,
     ...reportEndpoints,
     ...importEndpoints,
+    ...dealerEndpoints,
   ],
   jobs: {
     tasks: [

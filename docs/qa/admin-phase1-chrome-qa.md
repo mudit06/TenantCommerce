@@ -1,5 +1,8 @@
 # Admin panel QA script (Phase 1): for Claude in Chrome
 
+> **Superseded (10 October 2026).** Written for the 4 October build, before two-step sign-in and the
+> wireframe screens. Use the module-wise regression scripts and the workbook in `docs/qa/README.md`.
+
 Covers both admin workspaces as built on branch `claude/adoring-cori-we1zlg` (commit `cf85d96`,
 4 October 2026): the **super admin (platform panel)** and the **vendor CMS**. It also has a few
 storefront checks, which confirm that an admin change reached the shopper store.

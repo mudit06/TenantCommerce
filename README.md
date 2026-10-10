@@ -3,10 +3,9 @@
 Multi-tenant e-commerce SaaS for Indian manufacturers: each vendor gets its own branded PWA store
 and CMS on one shared codebase (Next.js 16 + Payload CMS 3 + MongoDB).
 
-**Status:** the super admin (platform panel) is about 80% built; the vendor CMS about 35% (stage A,
-catalog and content, is done except CSV import); the storefront runs as a catalogue with
-enquiries, and vendor 1 (Home Orbit) is loaded with its 110 products. Selling online (cart,
-checkout, payments, shipping) is next, in stage B.
+**Status:** the super admin (platform panel) and the vendor CMS are built to the wireframes for the
+MVP (10 October 2026), including two-step sign-in for our team; the storefront sells online
+(cart, checkout, Razorpay, cash on delivery, accounts, offers) with a few storefront screens left.
 Screen-by-screen status: **`docs/progress.md`**. Open questions: `docs/open-items.md`.
 Nothing is deployed yet.
 
@@ -14,6 +13,7 @@ Nothing is deployed yet.
 
 - `docs/progress.md`: what is built and what is left, per screen
 - `docs/manual-testing.md`: run it locally and check every built flow by hand, step by step
+- `docs/qa/README.md`: 349 regression test cases (super admin, vendor CMS, end-to-end) as module scripts for Claude in Chrome and an Excel workbook
 - `CLAUDE.md`: rules and docs map for AI coding assistants (and a good summary for humans)
 - `docs/00-overview.md`: decisions, glossary, phases
 - `docs/01-architecture.md`: modular monolith, request flow, module map
@@ -32,6 +32,7 @@ pnpm setup:local                                          # creates .env, genera
 docker compose -f docker/docker-compose.yml up -d mongo   # MongoDB replica set on port 27017
 pnpm seed                                                 # plans, first super admin, 2 demo stores
 pnpm seed:home-orbit                                      # vendor 1: Home Orbit's store and catalogue
+pnpm demo:selling home-orbit && pnpm demo:orders home-orbit   # optional: sample prices and orders
 pnpm dev                                                  # http://localhost:3000/admin
 ```
 
@@ -41,7 +42,10 @@ Every store answers on `<slug>.localhost:3000` locally; Chrome, Edge and Firefox
 `127.0.0.1 home-orbit.localhost` to your hosts file.
 
 Sign in at http://localhost:3000/admin with the email and password `pnpm setup:local` printed
-(they are also in `.env` as `SEED_SUPER_ADMIN_EMAIL` and `SEED_SUPER_ADMIN_PASSWORD`).
+(they are also in `.env` as `SEED_SUPER_ADMIN_EMAIL` and `SEED_SUPER_ADMIN_PASSWORD`). The first
+time, set up two-step sign-in with an authenticator app on your phone (Google Authenticator,
+Microsoft Authenticator, 1Password): it is required for platform accounts, and every later
+sign-in asks for its 6-digit code.
 
 To check every flow by hand (super admin, Home Orbit's CMS, its storefront), follow
 `docs/manual-testing.md`.

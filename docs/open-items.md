@@ -21,6 +21,7 @@ wireframes. What is left: three product decisions, the Sprint 1 spikes, and chec
 | Allow throwaway test code for the spikes below | Sprint 1 | The "no code yet" rule currently stops them |
 | The sheet's "Not Required" tab marks the page builder "Optional". The docs keep it core MVP; say if it should become a feature flag | Pages screens | "Feature sheet gap check" thread |
 | Media storage provider for production: Cloudflare R2 (no download fees, recommended) or AWS S3 Mumbai | Going live, not development (local disk works) | docs/12 "Media" |
+| A plan's "orders a month" limit is shown and warned about at 90% (counted from the orders since 10 October 2026), but never refuses a shopper's order. Should it, or should it only warn our team? | Plan limits | QA run of 10 October 2026 (docs/qa, DEF-002) |
 
 ## 2. Spikes for Sprint 1 (each ends in an ADR and doc updates)
 
@@ -44,7 +45,7 @@ The super admin panel is built (README status). These came up while building it:
 
 | Item | What was done for now | Needs |
 |---|---|---|
-| Two-step login for platform admins (spike 4 above) | Deferred by mudit on 3 October 2026; the Team screen says so. Password policy, lockout and 8-hour sessions are in | Pick `payload-totp` or our own TOTP before real vendor data goes live |
+| Two-step login for platform admins (spike 4 above) | Built 10 October 2026 as our own TOTP (docs/05 "Two-step sign-in, as built"): required for our team, optional for vendor staff, reset by super admins | — |
 | Per-vendor "Allowed" connector switch (super admin Connectors tab) | Built 6 October 2026 (mudit asked for the full tab): `tenants.blockedConnectors` lists providers our team switched off; a provider is usable when the plan allows it and it isn't blocked | — |
 | Invite links | Reuse Payload's reset-password token (72 h, single use). Payload stores it unhashed, docs/05 says hashed | Accept, or write our own invite token (small job) |
 | Admin fonts | Plus Jakarta Sans is self-hosted (@fontsource) since 4 October 2026; code text uses the system monospace font | — |

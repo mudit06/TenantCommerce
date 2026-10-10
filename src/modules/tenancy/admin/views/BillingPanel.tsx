@@ -160,7 +160,7 @@ export function BillingPanel({ data, canEdit }: { data: BillingPanelData; canEdi
 
       {canEdit ? (
         <div className="te-stack">
-          <Card title="Record payment">
+          <Card id="record-payment" title="Record payment">
             <p className="te-muted te-small">
               {sub.nextIsIntro ? 'Starting offer: covers ' : 'Covers '}
               {sub.nextCoverLabel}. Bank transfers and UPI are recorded by hand in the MVP.

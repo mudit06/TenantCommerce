@@ -5,6 +5,13 @@ export {
   buildReport,
   hsnSummary,
   monthRange,
+  soldOrders,
   type HsnRow,
   type Report,
 } from './services/report'
+export {
+  ordersPlacedByStore,
+  ordersThisMonth,
+  platformSales,
+  type PlatformSales,
+} from './services/platform'
