@@ -41,7 +41,8 @@ export function SearchBox({
   autoFocus = false,
 }: {
   defaultValue?: string
-  variant?: 'header' | 'page'
+  /** header: compact box; bar: a wide header search with a button; page: the search page */
+  variant?: 'header' | 'bar' | 'page'
   autoFocus?: boolean
 }) {
   const id = useId()
@@ -119,7 +120,7 @@ export function SearchBox({
           Search products or model number
         </label>
         <div
-          className={`flex items-center rounded-card border border-line px-3 focus-within:border-ink/40 ${variant === 'header' ? 'bg-surface-alt' : 'bg-white'}`}
+          className={`flex items-center rounded-card border px-3 focus-within:border-ink/40 ${variant === 'header' ? 'border-line bg-surface-alt' : variant === 'bar' ? 'border-ink/15 bg-white pr-1' : 'border-line bg-white'}`}
         >
           <SearchIcon className="shrink-0 text-ink-soft" />
           <input
@@ -129,7 +130,7 @@ export function SearchBox({
             aria-expanded={listOpen}
             autoComplete="off"
             autoFocus={autoFocus}
-            className={`bg-transparent px-2 text-sm outline-none placeholder:text-ink-soft ${variant === 'header' ? 'h-10 w-36 xl:w-44 2xl:w-56' : 'h-12 w-full text-base'}`}
+            className={`min-w-0 bg-transparent px-2 text-sm outline-none placeholder:text-ink-soft ${variant === 'header' ? 'h-10 w-36 xl:w-44 2xl:w-56' : variant === 'bar' ? 'h-12 flex-1' : 'h-12 w-full text-base'}`}
             id={`${id}-q`}
             name="q"
             onChange={(event) => {
@@ -152,11 +153,25 @@ export function SearchBox({
                 setOpen(false)
               }
             }}
-            placeholder={variant === 'header' ? 'Search or model no.' : 'Product name or model number'}
+            placeholder={
+              variant === 'header'
+                ? 'Search or model no.'
+                : variant === 'bar'
+                  ? 'Search products or model no.'
+                  : 'Product name or model number'
+            }
             role="combobox"
             type="search"
             value={q}
           />
+          {variant === 'bar' ? (
+            <button
+              className="inline-flex h-10 shrink-0 items-center rounded-[calc(var(--radius)*0.75)] bg-dark px-5 text-sm font-semibold text-white hover:bg-black"
+              type="submit"
+            >
+              Search
+            </button>
+          ) : null}
         </div>
       </form>
       {listOpen ? (

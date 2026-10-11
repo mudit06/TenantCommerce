@@ -799,6 +799,7 @@ export interface HeroBlock {
      * A separate, smaller image keeps the first screen fast on phones
      */
     mobileImage?: (string | null) | Media;
+    eyebrow?: string | null;
     heading: string;
     subheading?: string | null;
     buttonLabel?: string | null;
@@ -1129,6 +1130,10 @@ export interface BannerBlock {
  * via the `definition` "BenefitsBlock".
  */
 export interface BenefitsBlock {
+  /**
+   * A scrolling line stands still for visitors who turn off motion
+   */
+  style?: ('strip' | 'marquee') | null;
   items?:
     | {
         icon?: ('truck' | 'shield' | 'badge' | 'return' | 'phone' | 'check') | null;
@@ -1356,11 +1361,22 @@ export interface AffiliateInviteBlock {
  * via the `definition` "ProductGridBlock".
  */
 export interface ProductGridBlock {
+  eyebrow?: string | null;
   heading?: string | null;
   source: 'featured' | 'newest' | 'bestsellers' | 'category';
   category?: (string | null) | Category;
   limit?: number | null;
-  layout?: ('grid' | 'carousel') | null;
+  layout?: ('grid' | 'carousel' | 'promo') | null;
+  /**
+   * A tall picture card shown first, before the products
+   */
+  promo?: {
+    image?: (string | null) | Media;
+    eyebrow?: string | null;
+    heading?: string | null;
+    buttonLabel?: string | null;
+    buttonLink?: Link;
+  };
   id?: string | null;
   blockName?: string | null;
   blockType: 'productGrid';
@@ -1370,9 +1386,11 @@ export interface ProductGridBlock {
  * via the `definition` "CategoryTilesBlock".
  */
 export interface CategoryTilesBlock {
+  eyebrow?: string | null;
   heading?: string | null;
   categories: (string | Category)[];
-  style?: ('tiles' | 'circles') | null;
+  style?: ('tiles' | 'circles' | 'cards') | null;
+  showViewAll?: boolean | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'categoryTiles';
@@ -4120,6 +4138,7 @@ export interface HeroBlockSelect<T extends boolean = true> {
     | {
         image?: T;
         mobileImage?: T;
+        eyebrow?: T;
         heading?: T;
         subheading?: T;
         buttonLabel?: T;
@@ -4160,6 +4179,7 @@ export interface BannerBlockSelect<T extends boolean = true> {
  * via the `definition` "BenefitsBlock_select".
  */
 export interface BenefitsBlockSelect<T extends boolean = true> {
+  style?: T;
   items?:
     | T
     | {
@@ -4242,11 +4262,21 @@ export interface AffiliateInviteBlockSelect<T extends boolean = true> {
  * via the `definition` "ProductGridBlock_select".
  */
 export interface ProductGridBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
   heading?: T;
   source?: T;
   category?: T;
   limit?: T;
   layout?: T;
+  promo?:
+    | T
+    | {
+        image?: T;
+        eyebrow?: T;
+        heading?: T;
+        buttonLabel?: T;
+        buttonLink?: T | LinkSelect<T>;
+      };
   id?: T;
   blockName?: T;
 }
@@ -4255,9 +4285,11 @@ export interface ProductGridBlockSelect<T extends boolean = true> {
  * via the `definition` "CategoryTilesBlock_select".
  */
 export interface CategoryTilesBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
   heading?: T;
   categories?: T;
   style?: T;
+  showViewAll?: T;
   id?: T;
   blockName?: T;
 }

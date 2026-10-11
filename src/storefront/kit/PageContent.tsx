@@ -27,7 +27,7 @@ export function PageContent({ page, ctx }: { page: Page; ctx: StoreContext }) {
           </h1>
         </Container>
       ) : null}
-      <RenderBlocks blocks={page.layout} ctx={ctx} />
+      <RenderBlocks blocks={page.layout} ctx={ctx} hasTitle={plain} />
     </>
   )
 }

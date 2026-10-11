@@ -11,14 +11,53 @@ export function Container({
   return <div className={`mx-auto w-full max-w-7xl px-4 sm:px-6 ${className}`}>{children}</div>
 }
 
-export function SectionHeading({ children, action }: { children: ReactNode; action?: ReactNode }) {
+/** A section's h2, with an optional small label above it ("Curated selection") and a link. */
+export function SectionHeading({
+  children,
+  action,
+  eyebrow,
+}: {
+  children: ReactNode
+  action?: ReactNode
+  eyebrow?: string | null
+}) {
   return (
     <div className="mb-5 flex items-end justify-between gap-4">
-      <h2 className="font-heading text-xl font-semibold tracking-wide text-ink [text-transform:var(--heading-transform)] sm:text-2xl">
-        {children}
-      </h2>
+      <div>
+        {eyebrow ? (
+          <p className="mb-1 text-xs font-semibold tracking-[0.18em] text-accent uppercase">
+            {eyebrow}
+          </p>
+        ) : null}
+        <h2 className="font-heading text-xl font-semibold tracking-wide text-ink [text-transform:var(--heading-transform)] sm:text-2xl">
+          {children}
+        </h2>
+      </div>
       {action}
     </div>
+  )
+}
+
+/** "View all ›" beside a section heading */
+export function ViewAllLink({ href, label = 'View all' }: { href: string; label?: string }) {
+  return (
+    <Link
+      className="inline-flex min-h-11 shrink-0 items-center gap-1 text-sm font-semibold text-ink underline decoration-ink/30 underline-offset-4 hover:text-accent hover:decoration-accent"
+      href={href}
+    >
+      {label}
+      <svg
+        aria-hidden
+        fill="none"
+        height="14"
+        stroke="currentColor"
+        strokeWidth="2"
+        viewBox="0 0 24 24"
+        width="14"
+      >
+        <path d="m9 6 6 6-6 6" />
+      </svg>
+    </Link>
   )
 }
 

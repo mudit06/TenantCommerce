@@ -67,7 +67,7 @@ its regression script and how many manual test cases cover each kind of check.
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | E2E-01 Vendor onboarding to first store preview | sa-vendor-new, cms-dashboard | 3 | 2 | 1 | · | · | · | · | 2 | 1 | · | · | [E2E-01](regression/e2e/E2E-01-onboarding.md) |
 | E2E-02 Feature switches across portals | sa-vendor-features | 2 | 1 | 1 | · | · | · | · | 2 | · | · | · | [E2E-02](regression/e2e/E2E-02-features.md) |
-| E2E-03 Catalogue to storefront | cms-products, st-category, st-search, st-product | 4 | 1 | 1 | · | · | · | · | 4 | · | · | · | [E2E-03](regression/e2e/E2E-03-catalogue.md) |
+| E2E-03 Catalogue to storefront | cms-products, st-category, st-search, st-product | 7 | 1 | 1 | · | · | · | · | 7 | · | · | · | [E2E-03](regression/e2e/E2E-03-catalogue.md) |
 | E2E-04 Order to cash (COD) | st-cart, st-checkout, cms-order, sa-dashboard | 7 | 3 | 2 | · | · | · | 1 | 3 | 3 | · | · | [E2E-04](regression/e2e/E2E-04-order-to-cash.md) |
 | E2E-05 Schemes and coupons to checkout | cms-schemes, st-offers, st-cart | 3 | 1 | 1 | · | · | · | · | 3 | · | · | · | [E2E-05](regression/e2e/E2E-05-offers.md) |
 | E2E-06 Review lifecycle | st-review, cms-reviews | 2 | 1 | 1 | · | · | · | · | 1 | 1 | · | · | [E2E-06](regression/e2e/E2E-06-reviews.md) |
@@ -84,7 +84,7 @@ its regression script and how many manual test cases cover each kind of check.
 | E2E-17 Shopper account and wishlist across devices | st-login, st-account, st-wishlist | 3 | 0 | 0 | · | · | · | · | 1 | 1 | 1 | · | [E2E-17](regression/e2e/E2E-17-account.md) |
 | E2E-18 Storefront chrome and search (shop experience) | st-home, st-search, st-category, st-filters | 6 | 0 | 3 | 2 | · | · | · | · | · | · | 4 | [E2E-18](regression/e2e/E2E-18-storefront.md) |
 
-18 modules, 47 test cases.
+18 modules, 50 test cases.
 
 ## Dependencies between modules
 

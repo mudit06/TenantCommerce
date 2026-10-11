@@ -1,61 +1,75 @@
 import type { BlockRendererProps } from '@/storefront/types'
 import { linkHref } from '@/storefront/kit/links'
-import { Img } from '@/storefront/kit/media'
+import { Img, mediaUrl } from '@/storefront/kit/media'
+import { Slider } from '@/storefront/kit/Slider'
 import { ButtonLink, Container } from '@/storefront/kit/ui'
 
 /**
- * Home Orbit's hero: charcoal panel with the orange rule from the catalogue pages. Their product
- * photos are shot on black, so the photo sits on the panel instead of filling it.
+ * Home Orbit's hero slider: rounded charcoal panels with the orange rule from the catalogue
+ * pages, the words on the left and the photo on the right (their photos are shot on dark
+ * backgrounds). Slides, autoplay and the phone image come from the CMS hero block.
  */
-export function Hero({ block, first }: BlockRendererProps<'hero'>) {
-  const slide = block.slides?.[0]
-  if (!slide) return null
-  const target = linkHref(slide.buttonLink)
-  const second = block.slides?.[1]
-  const secondTarget = linkHref(second?.buttonLink)
+export function Hero({ block, first, h1 }: BlockRendererProps<'hero'>) {
+  const slides = block.slides ?? []
+  if (slides.length === 0) return null
   return (
-    <section className="relative overflow-hidden bg-dark text-white">
-      <div aria-hidden className="absolute inset-y-0 left-0 w-2 bg-brand" />
-      <Container className="grid items-center gap-8 py-10 md:grid-cols-[1.05fr_1fr] md:py-16">
-        <div>
-          <p className="text-xs font-semibold tracking-[0.25em] text-brand uppercase">
-            Premium quality · Durable finish · Modern design
-          </p>
-          <h1 className="mt-4 font-heading text-4xl leading-[1.05] font-bold uppercase sm:text-5xl lg:text-6xl">
-            {slide.heading}
-          </h1>
-          {slide.subheading ? (
-            <p className="mt-4 max-w-lg text-base text-white/80 sm:text-lg">{slide.subheading}</p>
-          ) : null}
-          <div className="mt-8 flex flex-wrap gap-3">
-            {target && slide.buttonLabel ? (
-              <ButtonLink href={target.href} newTab={target.newTab}>
-                {slide.buttonLabel}
-              </ButtonLink>
-            ) : null}
-            {secondTarget && second?.buttonLabel ? (
-              <ButtonLink href={secondTarget.href} style="onDark">
-                {second.buttonLabel}
-              </ButtonLink>
-            ) : null}
-          </div>
-        </div>
-        <div className="relative">
-          <Img
-            className="w-full rounded-card object-contain shadow-2xl"
-            media={slide.image}
-            priority={first}
-            sizes="(min-width: 1280px) 600px, (min-width: 768px) 45vw, calc(100vw - 32px)"
-          />
-          {second?.image ? (
-            <Img
-              className="absolute -bottom-6 -left-6 hidden aspect-square w-1/3 rounded-card border-4 border-dark object-cover shadow-xl sm:block"
-              media={second.image}
-              sizes="20vw"
-            />
-          ) : null}
-        </div>
-      </Container>
-    </section>
+    <Container className="mt-4 sm:mt-6">
+      <Slider autoplayMs={block.autoplay ? 6000 : 0} dots label="Highlights">
+        {slides.map((slide, i) => {
+          const target = linkHref(slide.buttonLink)
+          const Heading = h1 && i === 0 ? 'h1' : 'h2'
+          return (
+            <div
+              className="relative grid h-full overflow-hidden rounded-card bg-dark text-white md:min-h-[440px] md:grid-cols-[1.05fr_1fr]"
+              key={slide.id ?? i}
+            >
+              <div aria-hidden className="absolute inset-y-0 left-0 z-10 w-1.5 bg-brand" />
+              <div className="order-2 flex flex-col justify-center p-6 sm:p-10 md:order-1 lg:p-14">
+                {slide.eyebrow ? (
+                  <p className="text-xs font-semibold tracking-[0.22em] text-brand uppercase">
+                    {slide.eyebrow}
+                  </p>
+                ) : null}
+                <Heading className="mt-3 font-heading text-3xl leading-[1.08] font-bold [text-transform:var(--heading-transform)] sm:text-4xl lg:text-5xl">
+                  {slide.heading}
+                </Heading>
+                {slide.subheading ? (
+                  <p className="mt-4 max-w-lg text-base text-white/80 sm:text-lg">
+                    {slide.subheading}
+                  </p>
+                ) : null}
+                {target && slide.buttonLabel ? (
+                  <ButtonLink className="mt-7 self-start" href={target.href} newTab={target.newTab}>
+                    {slide.buttonLabel}
+                  </ButtonLink>
+                ) : null}
+              </div>
+              <div className="relative order-1 aspect-[16/10] md:order-2 md:aspect-auto">
+                <picture>
+                  {slide.mobileImage && typeof slide.mobileImage === 'object' ? (
+                    <source
+                      media="(max-width: 767px)"
+                      srcSet={mediaUrl(
+                        slide.mobileImage.sizes?.detail?.url ?? slide.mobileImage.url,
+                      )}
+                    />
+                  ) : null}
+                  <Img
+                    className="absolute inset-0 size-full object-cover"
+                    media={slide.image}
+                    priority={first && i === 0}
+                    sizes="(min-width: 1280px) 620px, (min-width: 768px) 48vw, calc(100vw - 32px)"
+                  />
+                </picture>
+                <div
+                  aria-hidden
+                  className="absolute inset-0 bg-gradient-to-t from-dark/60 to-transparent md:bg-gradient-to-r md:from-dark md:via-dark/10 md:to-transparent"
+                />
+              </div>
+            </div>
+          )
+        })}
+      </Slider>
+    </Container>
   )
 }

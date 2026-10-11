@@ -32,6 +32,15 @@ overrides `hero`). Page-level overrides (Header, ProductPage…) get added when 
 needs them. Fonts are self-hosted with `@fontsource-variable/*` (no request to Google).
 Page files under `app/(storefront)/[tenant]/` are thin: load data, get UI, render.
 
+**11 October 2026:** the contract also takes `Header` and `Footer` (`({ ctx }) => JSX`), used by
+the store layout instead of the kit's when a vendor sets them; Home Orbit has its own header
+(`vendors/home-orbit/layout/Header.tsx`). Both headers build on shared kit pieces so behaviour
+stays the same for every vendor: `kit/layout/nav.ts` (the menu from Menus, or the category tree;
+the announcement line), `kit/layout/MegaMenu.tsx` (the large dropdowns: up to four headed columns,
+category photos, the featured image, Shop all; the phone menu's accordions), `kit/Slider.tsx` (hero
+slides and carousels: scroll-snap, arrows, dots, autoplay that pauses and respects reduced motion)
+and `kit/shop/QuickAdd.tsx` (the cards' quick add, below).
+
 Use static `import()` maps (not string-built paths) so the bundler can code-split per vendor.
 
 ## Theme tokens
@@ -59,6 +68,14 @@ in the vendor's `index.ts`. Logo, favicon and colours that vendors may change li
 | `dealer-cta` | text, link to locator | MVP |
 | `enquiry-form` | form, product context | MVP |
 | `brand-story` / `stats` | numbers (years, dealers, cities) | MVP |
+
+Layout options added 11 October 2026 (same blocks, more ways to show them): hero slides and
+product grids and category tiles take a small label above the heading (`eyebrow`); the product
+grid's `layout` is Grid, Carousel, or **Promo card and products** (a tall picture card with its own
+label, heading and button before a row of products); category tiles' `style` adds **Cards in a
+row** (square cards that scroll sideways) and a "View all" switch; the benefits block's `style` is
+Icons in a row or a **Scrolling line** (still for visitors who reduce motion). The shared renderers
+are in `kit/blocks/CommerceBlocks.tsx`.
 | `offer-strip` | scheme (live one by default), style; shows badge, rule in plain words and the real end time; hides itself when no scheme is live | MVP (`schemes`) |
 | `scheme-products` | scheme, limit, layout: products the scheme covers, with offer prices | MVP (`schemes`) |
 | `coupon-list` | public coupons with copy buttons | MVP (`coupons`) |
@@ -86,7 +103,9 @@ title, model no., price, MRP strike, badges, swatches), ProductGallery (zoom, vi
 AddToCart / BuyNow / RequestQuote buttons, SpecTable (grouped attributes), LegalDetails (generic
 name, country of origin, net quantity, manufacturer/packer/importer, consumer care, MRP), DocumentsList,
 SizeGuideModal, FilterSidebar / mobile filter sheet, SortSelect, Pagination / infinite load,
-Breadcrumbs, SearchAutocomplete, CartDrawer, CheckoutForm (address with pincode -> city/state
+Breadcrumbs, SearchAutocomplete, QuickAdd (on every product card: one tap for a single finish, a
+picker with server prices for finishes and sizes, the quote form for "price on request"; the
+card's second photo shows on hover), CartDrawer, CheckoutForm (address with pincode -> city/state
 autofill), WhatsAppOptIn (checkout checkbox, docs/18), OrderSummary, OrderTracker (parcel journey
 timeline), WhatsAppButton, DealerLocator (map + list), EnquiryForm, Toasts, Skeletons, EmptyStates.
 Growth features (MVP): OfferBadge, OfferPrice (scheme price, MRP, real end time), Countdown (only
