@@ -598,15 +598,38 @@ http://home-orbit.localhost:3000 . Check it twice: on a normal desktop window, a
 
 - [ ] A thin **preview** bar at the top: "Preview: this store is not live yet, so search engines
       don't list it." It shows only while the store is a draft.
-- [ ] Home Orbit's logo, orange and charcoal colours, uppercase headings, the hero "Right choice
-      for the home".
-- [ ] Then: benefits, category tiles, featured products, banners, the brand story, **See it
-      before you buy** (a pincode box that opens the dealer locator), **Get our offers first**,
-      **Questions**, and the enquiry form. (A home page made before 10 October 2026 gets these from
-      `pnpm seed:home-orbit`.) The offer strip under the hero appears only while a scheme is live,
-      and **What buyers say** only once there are published reviews (2.11, 2.12).
-- [ ] Header menu: hover (desktop) or tap the menu button (phone) to see the categories. Nothing
-      runs off the side of the phone screen, at 1024 px wide either (the search box becomes an icon).
+- [ ] Home Orbit's look (11 October 2026): a light line on top (Find a dealer, the live offer or
+      the tagline, phone, WhatsApp, Track order), the logo with a wide **Search products or model
+      no.** box, and on desktop a category bar: **All categories** (hover: every category with its
+      photo) and **Door hardware**, **Home decor**, **Bathroom** with large dropdowns (headed columns
+      such as "Aldrops and latches" with Laser-cut, BMC-cut, Heavy and Classic, a picture on the
+      right, Shop all), About us, Contact, Find a dealer, and **Offers** when schemes or coupons
+      are on. Headings in sentence case, rounded corners.
+- [ ] The hero is a rounded charcoal slider with three slides: dots under it, arrows on desktop,
+      once you move the pointer, scroll or tap it moves on every 6 seconds (the first screen stays still until then) and stops while the pointer or keyboard focus is on it (and never
+      moves with "reduce motion" switched on in the operating system).
+- [ ] Then: benefits, **Shop by category** as a row of square cards (swipe on phones, arrows on
+      desktop, **View all** opens `/c`), **Designed for modern homes** (a tall promo card "Hexagon
+      towel rings" beside the featured products), carousels of glass door handles, key hangers and
+      bathroom accessories with View all, the towel rack banner, a slowly **scrolling line** of
+      ranges, the brand story, **See it before you buy** (a pincode box that opens the dealer
+      locator), **Get our offers first**, **Questions**, and the enquiry form. (A home page from the
+      first seed gets this layout from `pnpm seed:home-orbit`; one staff have changed is kept.) The
+      offer strip under the hero appears only while a scheme is live, and **What buyers say** only
+      once there are published reviews (2.11, 2.12).
+- [ ] **Quick add** on product cards: hover a card on desktop (on a phone the round + button is
+      always there). A product in one finish goes straight to the cart and the header count goes up;
+      one with finishes or sizes opens a picker with each option's price and stock, quantity, Add
+      to cart and Buy now; a product without an online price opens the quote form. A product with
+      two or more photos shows the second one on hover.
+- [ ] Bathroom categories (11 October 2026): Towel rings, Towel racks, Bathroom shelves, Soap
+      dishes, Soap dispensers, Tumbler holders and Toilet paper holders. The old address
+      `/c/bathroom-accessories/soap-dishes-and-dispensers` redirects to Soap dishes. A shelf with a
+      tumbler also shows under Tumbler holders.
+- [ ] Footer: **Privacy policy** under Help opens Home Orbit's policy (our draft for them to review).
+- [ ] Header menu: hover (desktop) or tap the menu button (phone) to see the categories; on a phone
+      each item opens to its columns. Nothing runs off the side of the phone screen, at 1024 px wide
+      either.
 - [ ] Desktop header (store selling, see 3.6): account, **wishlist with a count** and cart icons.
 - [ ] Phone: a **bottom bar** with Home, Shop, Dealers, Account and Cart (the cart shows its count).
       **Shop** opens `/c` with every category. On a product page, the cart and checkout the bar
@@ -633,8 +656,9 @@ http://home-orbit.localhost:3000 . Check it twice: on a normal desktop window, a
 - [ ] **Sort**: Popular, Newest, Price low to high, Price high to low, Name. "Price: low to high"
       puts the cheapest first.
 - [ ] Each card has **Add to cart**. Press it: "Added ✓" and the header cart count goes up, without
-      leaving the page. (A product sold in several finishes says **Choose finish** and opens its
-      page; one out of stock says Out of stock; one without an online price says Ask for a quote.)
+      leaving the page. (A product sold in several finishes says **Choose options** and opens a
+      picker on the page; one out of stock says Out of stock; one without an online price says
+      **Ask for a quote** and opens the quote form on the page.)
 - [ ] Below the list: **Load more** adds the next page under the first, and numbered page links
       stay for search engines. "Prices include GST" at the bottom.
 - [ ] **On offer** appears while a scheme is live and **Rating** once products have published

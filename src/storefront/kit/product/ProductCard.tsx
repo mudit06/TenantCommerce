@@ -3,18 +3,19 @@ import Link from 'next/link'
 import type { ProductCardData } from '@/lib/data/catalog'
 import { offerForProduct } from '@/lib/data/offers'
 
-import { requestSelling, requestStoreOffers } from '../../shop/offers'
+import { requestCardStore, requestSelling, requestStoreOffers } from '../../shop/offers'
 
 import { productHref } from '../links'
 import { Img } from '../media'
 import { Stars } from '../reviews/Stars'
-import { CardAddToCart } from '../shop/CardAddToCart'
 import { HeartButton } from '../shop/HeartButton'
 import { Price } from '../shop/Price'
+import { QuickAdd } from '../shop/QuickAdd'
 
 /**
  * `headingLevel`: 2 where the grid follows the page's h1 (listing, search), 3 under a section
- * heading. `withCart`: Add to cart under the card, as on category and search pages.
+ * heading. `withCart`: Add to cart (or Ask for a quote) under the card, as on category and search
+ * pages; other cards carry the same quick add on their photo. A second photo shows on hover.
  */
 export async function ProductCard({
   product,
@@ -27,10 +28,16 @@ export async function ProductCard({
   headingLevel?: 2 | 3
   withCart?: boolean
 }) {
-  const [main] = product.gallery ?? []
+  const [main, second] = (product.gallery ?? []).filter(
+    (photo) => typeof photo === 'object' && photo !== null,
+  )
   const Heading = headingLevel === 2 ? 'h2' : 'h3'
   // A live scheme's price and badge (docs/11 "Display"); checkout prices the cart again
-  const [offers, selling] = await Promise.all([requestStoreOffers(), requestSelling()])
+  const [offers, selling, store] = await Promise.all([
+    requestStoreOffers(),
+    requestSelling(),
+    requestCardStore(),
+  ])
   const offer = offers
     ? offerForProduct(offers, {
         id: product.id,
@@ -43,10 +50,30 @@ export async function ProductCard({
   const rating = offers?.reviewsShown && product.rating?.count ? product.rating : null
   const buyable =
     selling && product.purchaseMode !== 'enquire' && Boolean(product.price?.amountMinor)
+  // Quick add: straight to the cart, a picker for finishes and sizes, or a quote request
+  const quickMode = buyable
+    ? product.buy.options > 1
+      ? ('options' as const)
+      : ('cart' as const)
+    : store?.enquiries
+      ? ('quote' as const)
+      : null
+  const quick = quickMode
+    ? {
+        mode: quickMode,
+        productId: String(product.id),
+        variantId: product.buy.variantId,
+        available: product.buy.available,
+        slug: product.slug ?? '',
+        title: product.title,
+        modelNumber: product.modelNumber,
+        storeName: store?.name ?? '',
+      }
+    : null
   return (
-    <div className="relative flex h-full flex-col overflow-hidden rounded-card border border-line bg-white transition hover:border-ink/25 hover:shadow-md">
+    <div className="group/card relative flex h-full flex-col overflow-hidden rounded-card border border-line bg-white transition hover:border-ink/25 hover:shadow-md">
       <Link
-        className="group flex flex-1 flex-col focus-visible:outline-2 focus-visible:outline-ink"
+        className="flex flex-1 flex-col focus-visible:outline-2 focus-visible:outline-ink"
         href={productHref(product)}
       >
         <div className="relative aspect-square overflow-hidden bg-surface-alt">
@@ -56,11 +83,19 @@ export async function ProductCard({
             </span>
           ) : null}
           <Img
-            className="size-full object-contain transition duration-300 group-hover:scale-[1.03]"
-            media={typeof main === 'object' ? main : null}
+            className={`size-full object-contain transition duration-500 group-hover/card:scale-[1.03] ${second ? 'group-hover/card:opacity-0' : ''}`}
+            media={main}
             priority={priority}
             sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 46vw"
           />
+          {second ? (
+            <Img
+              alt=""
+              className="absolute inset-0 size-full object-contain opacity-0 transition duration-500 group-hover/card:opacity-100"
+              media={second}
+              sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 46vw"
+            />
+          ) : null}
         </div>
         <div className="flex flex-1 flex-col gap-1 p-3 sm:p-4">
           <p className="text-xs font-semibold tracking-wide text-accent uppercase">
@@ -107,23 +142,23 @@ export async function ProductCard({
           </div>
         </div>
       </Link>
+      {quick && !withCart ? (
+        // Over the photo (the card is as wide as its square photo): on hover with a mouse,
+        // always on touch screens
+        <div className="pointer-events-none absolute inset-x-0 top-0 flex aspect-square items-end justify-end p-2 transition [@media(hover:hover)]:translate-y-1 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-focus-within/card:translate-y-0 [@media(hover:hover)]:group-focus-within/card:opacity-100 [@media(hover:hover)]:group-hover/card:translate-y-0 [@media(hover:hover)]:group-hover/card:opacity-100">
+          <QuickAdd {...quick} look="overlay" />
+        </div>
+      ) : null}
       {withCart ? (
         <div className="px-3 pb-3 sm:px-4 sm:pb-4">
-          {buyable ? (
-            <CardAddToCart
-              available={product.buy.available}
-              href={productHref(product)}
-              options={product.buy.options}
-              productId={String(product.id)}
-              title={product.title}
-              variantId={product.buy.variantId}
-            />
+          {quick ? (
+            <QuickAdd {...quick} look="button" />
           ) : (
             <Link
               className="inline-flex min-h-10 w-full items-center justify-center rounded-card border border-line px-3 text-xs font-semibold hover:border-ink/40 sm:text-sm"
-              href={`${productHref(product)}#quote`}
+              href={productHref(product)}
             >
-              Ask for a quote
+              See details
             </Link>
           )}
         </div>

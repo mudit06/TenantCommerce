@@ -4,7 +4,6 @@ import { notFound } from 'next/navigation'
 import { idOf } from '@/access'
 import { getStoreOffers, offerForProduct, offersForProduct } from '@/lib/data/offers'
 import { getProductBySlug, getProductReviews, getProductsInCategories } from '@/lib/data/catalog'
-import { variantAxes } from '@/modules/catalog'
 import { whatsappNumber } from '@/modules/enquiries'
 import { getStoreContext } from '@/storefront/context'
 import { Breadcrumbs } from '@/storefront/kit/Breadcrumbs'
@@ -27,6 +26,7 @@ import { RichText } from '@/storefront/kit/RichText'
 import { Container, SectionHeading } from '@/storefront/kit/ui'
 import type { Product } from '@/payload-types'
 import { notFoundOrRedirect } from '@/storefront/notFoundOrRedirect'
+import { buyOptionsFor } from '@/storefront/shop/buyOptions'
 
 type Props = { params: Promise<{ tenant: string; slug: string }> }
 
@@ -77,15 +77,6 @@ export default async function ProductPage({ params }: Props) {
   const { product, attributeSet, category, documents, variants } = data
   const attributes = attributeSet?.attributes ?? []
   const values = (product.attributes ?? {}) as Record<string, unknown>
-  const axes = variantAxes(attributes, values).map((axis) => ({
-    ...axis,
-    options: axis.options.map((option) => ({
-      ...option,
-      swatchHex:
-        attributes.find((a) => a.code === axis.code)?.options?.find((o) => o.value === option.value)
-          ?.swatchHex ?? null,
-    })),
-  }))
   const name = ctx.settings?.storeName ?? ctx.store.name
   // Sold online when the store takes orders and the product has a price (docs/12 purchase modes)
   const buying =
@@ -128,10 +119,11 @@ export default async function ProductPage({ params }: Props) {
   const reviews = storeFeatures.reviewsShown
     ? await getProductReviews(ctx.store.tenantId, String(product.id))
     : null
-  const productCategories = [
-    idOf(product.primaryCategory),
-    ...(product.categories ?? []).map((c) => idOf(c)),
-  ].filter((id): id is string => Boolean(id))
+  const {
+    axes,
+    variants: buyVariants,
+    categoryIds: productCategories,
+  } = buyOptionsFor({ product, attributeSet, variants }, offers)
   const productOffer = offers
     ? offerForProduct(offers, {
         id: product.id,
@@ -288,31 +280,7 @@ export default async function ProductPage({ params }: Props) {
                 quoteHref={
                   ctx.hasFeature('enquiries') && product.purchaseMode === 'both' ? '#quote' : null
                 }
-                variants={variants.map((v) => ({
-                  id: String(v.id),
-                  options: Object.fromEntries(
-                    Object.entries((v.options ?? {}) as Record<string, unknown>).map(([k, val]) => [
-                      k,
-                      String(val),
-                    ]),
-                  ),
-                  priceMinor: v.price?.amountMinor ?? product.price?.amountMinor ?? 0,
-                  mrpMinor:
-                    v.compareAtPrice?.amountMinor ?? product.compareAtPrice?.amountMinor ?? null,
-                  sku: v.sku ?? null,
-                  available: v.allowBackorder
-                    ? null
-                    : Math.max(0, (v.stockQty ?? 0) - (v.reservedQty ?? 0)),
-                  offerMinor: offers
-                    ? (offerForProduct(offers, {
-                        id: product.id,
-                        variantId: String(v.id),
-                        categoryIds: productCategories,
-                        priceMinor: v.price?.amountMinor ?? product.price?.amountMinor ?? null,
-                        purchaseMode: product.purchaseMode,
-                      })?.priceMinor ?? null)
-                    : null,
-                }))}
+                variants={buyVariants}
                 whatsappHref={
                   whatsappNumber(ctx.settings?.contact?.whatsapp)
                     ? `https://wa.me/${whatsappNumber(ctx.settings?.contact?.whatsapp)}?text=${encodeURIComponent(`Hello ${name}, I have a question about ${product.title} (${product.modelNumber}). ${pageUrl}`)}`
@@ -488,7 +456,9 @@ export default async function ProductPage({ params }: Props) {
       ) : null}
       {related.length ? (
         <section className="mt-16">
-          <SectionHeading>{pickedCards.length ? 'Goes well with' : 'You may also like'}</SectionHeading>
+          <SectionHeading>
+            {pickedCards.length ? 'Goes well with' : 'You may also like'}
+          </SectionHeading>
           <ProductGrid products={related} />
         </section>
       ) : null}

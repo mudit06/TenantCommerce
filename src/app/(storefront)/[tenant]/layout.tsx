@@ -5,8 +5,8 @@ import type { CSSProperties, ReactNode } from 'react'
 import { PREVIEW_PAGE_HEADER } from '@/storefront/constants'
 import { getStoreContext } from '@/storefront/context'
 import { BottomNav } from '@/storefront/kit/layout/BottomNav'
-import { Footer } from '@/storefront/kit/layout/Footer'
-import { Header } from '@/storefront/kit/layout/Header'
+import { Footer as KitFooter } from '@/storefront/kit/layout/Footer'
+import { Header as KitHeader } from '@/storefront/kit/layout/Header'
 import { StoreMessage } from '@/storefront/kit/layout/StoreMessage'
 import { WhatsAppFloat } from '@/storefront/kit/layout/WhatsAppFloat'
 import { PwaSetup } from '@/storefront/kit/pwa/PwaSetup'
@@ -66,6 +66,8 @@ export default async function StoreLayout({ children, params }: Props) {
     '--heading-transform': theme.headingTransform,
   } as CSSProperties
   const name = ctx.settings?.storeName ?? ctx.store.name
+  const Header = ctx.ui.Header ?? KitHeader
+  const Footer = ctx.ui.Footer ?? KitFooter
   const preview = ctx.store.status === 'draft'
   // The editor's draft preview (signed link, checked by the proxy and again by the page) shows the
   // store as it will look, even before launch or during maintenance

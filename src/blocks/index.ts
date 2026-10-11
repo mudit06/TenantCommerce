@@ -12,6 +12,13 @@ import { BLOCK_GROUPS, BLOCK_META, blockThumbnail, type BlockGroup } from './met
 const YOUTUBE =
   /^https:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)[\w-]{6,}/
 
+const eyebrowField = {
+  name: 'eyebrow',
+  label: 'Small label above the heading',
+  type: 'text' as const,
+  admin: { placeholder: 'Curated selection' },
+}
+
 export const HeroBlock: Block = {
   slug: 'hero',
   interfaceName: 'HeroBlock',
@@ -38,6 +45,7 @@ export const HeroBlock: Block = {
           relationTo: 'media',
           admin: { description: 'A separate, smaller image keeps the first screen fast on phones' },
         },
+        { ...eyebrowField, admin: { placeholder: 'Premium quality · Durable finish' } },
         { name: 'heading', type: 'text', required: true },
         { name: 'subheading', type: 'text' },
         { name: 'buttonLabel', label: 'Button text', type: 'text' },
@@ -74,6 +82,7 @@ export const ProductGridBlock: Block = {
   interfaceName: 'ProductGridBlock',
   labels: { singular: 'Product grid or carousel', plural: 'Product grids' },
   fields: [
+    eyebrowField,
     { name: 'heading', type: 'text' },
     {
       name: 'source',
@@ -102,6 +111,23 @@ export const ProductGridBlock: Block = {
       options: [
         { label: 'Grid', value: 'grid' },
         { label: 'Carousel', value: 'carousel' },
+        { label: 'Promo card and products', value: 'promo' },
+      ],
+    },
+    {
+      name: 'promo',
+      label: 'Promo card',
+      type: 'group',
+      admin: {
+        condition: (_, sibling) => sibling?.layout === 'promo',
+        description: 'A tall picture card shown first, before the products',
+      },
+      fields: [
+        { name: 'image', type: 'upload', relationTo: 'media' },
+        { name: 'eyebrow', label: 'Small label', type: 'text' },
+        { name: 'heading', type: 'text' },
+        { name: 'buttonLabel', label: 'Button text', type: 'text' },
+        linkField({ name: 'buttonLink', label: 'Button goes to' }),
       ],
     },
   ],
@@ -112,6 +138,7 @@ export const CategoryTilesBlock: Block = {
   interfaceName: 'CategoryTilesBlock',
   labels: { singular: 'Category tiles', plural: 'Category tiles' },
   fields: [
+    eyebrowField,
     { name: 'heading', type: 'text' },
     {
       name: 'categories',
@@ -127,7 +154,14 @@ export const CategoryTilesBlock: Block = {
       options: [
         { label: 'Image tiles', value: 'tiles' },
         { label: 'Round icons', value: 'circles' },
+        { label: 'Cards in a row', value: 'cards' },
       ],
+    },
+    {
+      name: 'showViewAll',
+      label: 'Show a “View all” link to every category',
+      type: 'checkbox',
+      defaultValue: false,
     },
   ],
 }
@@ -166,6 +200,16 @@ export const BenefitsBlock: Block = {
   interfaceName: 'BenefitsBlock',
   labels: { singular: 'Benefits strip', plural: 'Benefits strips' },
   fields: [
+    {
+      name: 'style',
+      type: 'select',
+      defaultValue: 'strip',
+      options: [
+        { label: 'Icons in a row', value: 'strip' },
+        { label: 'Scrolling line', value: 'marquee' },
+      ],
+      admin: { description: 'A scrolling line stands still for visitors who turn off motion' },
+    },
     {
       name: 'items',
       type: 'array',

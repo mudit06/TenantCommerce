@@ -248,10 +248,30 @@ export const CATEGORIES: {
       'Stainless steel bathroom shelves, from strip shelves to 3 in 1 shelves with tumbler and towel rod.',
   },
   {
-    name: 'Soap dishes and dispensers',
+    name: 'Soap dishes',
     parent: 'Bathroom accessories',
     set: null,
-    description: 'Soap dishes, tumbler holders and wall-mounted liquid soap dispensers.',
+    description:
+      'Stainless steel soap dishes and soap dish shelves: square, oval, round and double.',
+  },
+  {
+    name: 'Soap dispensers',
+    parent: 'Bathroom accessories',
+    set: null,
+    description:
+      'Wall-mounted stainless steel liquid soap dispensers and dispenser shelves in four finishes.',
+  },
+  {
+    name: 'Tumbler holders',
+    parent: 'Bathroom accessories',
+    set: null,
+    description: 'Tumbler and glass holders for toothbrushes, alone or with a soap dish or shelf.',
+  },
+  {
+    name: 'Toilet paper holders',
+    parent: 'Bathroom accessories',
+    set: null,
+    description: 'Wall-mounted stainless steel toilet paper holders.',
   },
 ]
 
@@ -265,6 +285,8 @@ export type ProductSeed = {
   attributes?: Record<string, unknown>
   provisionalModel?: boolean
   featured?: boolean
+  /** Also shown in these categories ("also show in"), like a shelf that holds a tumbler */
+  alsoIn?: string[]
 }
 
 const ALDROP_OPTIONS = {
@@ -508,7 +530,7 @@ export const PRODUCTS: ProductSeed[] = [
   {
     model: 'HO-LSD-01',
     title: 'Wall-mounted S.S. liquid soap dispenser',
-    category: 'Soap dishes and dispensers',
+    category: 'Soap dispensers',
     genericName: 'Liquid soap dispenser',
     page: 18,
     box: [50, 145, 803, 540],
@@ -521,17 +543,36 @@ export const PRODUCTS: ProductSeed[] = [
   },
   ...(
     [
-      ['02', '2 in 1 shelf, dispenser and tumbler', [50, 597, 283, 768]],
-      ['03', '2 in 1 shelf, soap dish and tumbler', [310, 597, 543, 768]],
-      ['04', 'Double soap dish shelf', [570, 597, 803, 768]],
-      ['05', 'Liquid soap dispenser shelf', [50, 828, 283, 999]],
-      ['06', 'Tumbler holder shelf', [310, 828, 543, 999]],
-      ['07', 'Single soap dish shelf', [570, 828, 803, 999]],
+      [
+        '02',
+        '2 in 1 shelf, dispenser and tumbler',
+        [50, 597, 283, 768],
+        'Bathroom shelves',
+        ['Soap dispensers', 'Tumbler holders'],
+      ],
+      [
+        '03',
+        '2 in 1 shelf, soap dish and tumbler',
+        [310, 597, 543, 768],
+        'Bathroom shelves',
+        ['Soap dishes', 'Tumbler holders'],
+      ],
+      ['04', 'Double soap dish shelf', [570, 597, 803, 768], 'Soap dishes', ['Bathroom shelves']],
+      [
+        '05',
+        'Liquid soap dispenser shelf',
+        [50, 828, 283, 999],
+        'Soap dispensers',
+        ['Bathroom shelves'],
+      ],
+      ['06', 'Tumbler holder shelf', [310, 828, 543, 999], 'Tumbler holders', ['Bathroom shelves']],
+      ['07', 'Single soap dish shelf', [570, 828, 803, 999], 'Soap dishes', ['Bathroom shelves']],
     ] as const
-  ).map(([n, title, b]): ProductSeed => ({
+  ).map(([n, title, b, category, alsoIn]): ProductSeed => ({
     model: `HO-SDS-${n}`,
     title,
-    category: 'Soap dishes and dispensers',
+    category,
+    alsoIn: [...alsoIn],
     genericName: 'Bathroom shelf',
     page: 18,
     box: box(b),
@@ -541,7 +582,8 @@ export const PRODUCTS: ProductSeed[] = [
   {
     model: 'SDGH-001',
     title: 'Soap dish and glass holder SDGH-001',
-    category: 'Soap dishes and dispensers',
+    category: 'Soap dishes',
+    alsoIn: ['Tumbler holders'],
     genericName: 'Soap dish and glass holder',
     page: 19,
     box: [50, 145, 385, 312],
@@ -550,7 +592,7 @@ export const PRODUCTS: ProductSeed[] = [
   {
     model: 'DSD-001',
     title: 'Double soap dish DSD-001',
-    category: 'Soap dishes and dispensers',
+    category: 'Soap dishes',
     genericName: 'Soap dish',
     page: 19,
     box: [470, 145, 800, 312],
@@ -565,7 +607,7 @@ export const PRODUCTS: ProductSeed[] = [
   ).map(([suffix, title, b]): ProductSeed => ({
     model: `SD-001-${suffix}`,
     title: `${title}`,
-    category: 'Soap dishes and dispensers',
+    category: 'Soap dishes',
     genericName: 'Soap dish',
     page: 19,
     box: box(b),
@@ -575,7 +617,7 @@ export const PRODUCTS: ProductSeed[] = [
   {
     model: 'HO-TPH-01',
     title: 'Toilet paper holder',
-    category: 'Bathroom accessories',
+    category: 'Toilet paper holders',
     genericName: 'Toilet paper holder',
     page: 19,
     box: [40, 812, 205, 1008],

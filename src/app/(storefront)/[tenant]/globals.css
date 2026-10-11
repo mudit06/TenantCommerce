@@ -34,3 +34,22 @@
     outline-offset: 2px;
   }
 }
+
+/* Scrolling line of the benefits block: two copies of the list slide left by one copy's width.
+   Visitors who reduce motion get one still, wrapped line (CommerceBlocks.tsx). */
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee {
+  animation: marquee 40s linear infinite;
+}
+.marquee:hover {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    animation: none;
+  }
+}

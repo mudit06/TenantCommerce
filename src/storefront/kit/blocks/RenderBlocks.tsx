@@ -1,16 +1,17 @@
 import Link from 'next/link'
 import type { ComponentType } from 'react'
 
-import { getCategoryTree, getDownloads, getProductList, withDescendants } from '@/lib/data/catalog'
+import { getDownloads } from '@/lib/data/catalog'
 import type { Page } from '@/payload-types'
 
 import type { StoreContext } from '../../context'
-import { BENEFIT_ICONS, FileIcon } from '../icons'
-import { categoryHref, linkHref } from '../links'
+import { FileIcon } from '../icons'
+import { linkHref } from '../links'
 import { Img, mediaUrl } from '../media'
-import { ProductGrid } from '../product/ProductCard'
 import { QuoteForm } from '../product/QuoteForm'
 import { RichText } from '../RichText'
+import { Slider } from '../Slider'
+import { BenefitsSection, CategorySection, ProductSection } from './CommerceBlocks'
 import {
   AffiliateInvite,
   CouponList,
@@ -26,29 +27,40 @@ type Block = NonNullable<Page['layout']>[number]
 const YOUTUBE_ID = /(?:v=|youtu\.be\/)([\w-]{6,})/
 
 /** Renders a page's blocks with the kit's default components (docs/10 "CMS blocks"). */
-export async function RenderBlocks({ blocks, ctx }: { blocks: Page['layout']; ctx: StoreContext }) {
+export async function RenderBlocks({
+  blocks,
+  ctx,
+  hasTitle = false,
+}: {
+  blocks: Page['layout']
+  ctx: StoreContext
+  /** The page shows its own h1 above the blocks (default and policy pages) */
+  hasTitle?: boolean
+}) {
   const rendered = await Promise.all(
-    (blocks ?? []).map((block, index) => renderBlock(block, ctx, index)),
+    (blocks ?? []).map((block, index) => renderBlock(block, ctx, index, hasTitle)),
   )
   return <>{rendered}</>
 }
 
-async function renderBlock(block: Block, ctx: StoreContext, index: number) {
+async function renderBlock(block: Block, ctx: StoreContext, index: number, hasTitle: boolean) {
   const key = block.id ?? `${block.blockType}-${index}`
   const first = index === 0
+  // A landing page's first block carries its h1 (the hero's first slide)
+  const h1 = first && !hasTitle
   const Own = ctx.ui.blocks[block.blockType] as
-    ComponentType<{ block: Block; ctx: StoreContext; first: boolean }> | undefined
-  if (Own) return <Own block={block} ctx={ctx} first={first} key={key} />
+    ComponentType<{ block: Block; ctx: StoreContext; first: boolean; h1: boolean }> | undefined
+  if (Own) return <Own block={block} ctx={ctx} first={first} h1={h1} key={key} />
   switch (block.blockType) {
     case 'hero': {
       const slides = block.slides ?? []
       return (
-        <section aria-label="Highlights" className="relative" key={key}>
-          <div className="flex snap-x snap-mandatory overflow-x-auto [scrollbar-width:none]">
+        <section className="relative" key={key}>
+          <Slider autoplayMs={block.autoplay ? 6000 : 0} dots label="Highlights">
             {slides.map((slide, i) => {
               const target = linkHref(slide.buttonLink)
               return (
-                <div className="relative w-full shrink-0 snap-start" key={slide.id ?? i}>
+                <div className="relative" key={slide.id ?? i}>
                   <picture>
                     {slide.mobileImage && typeof slide.mobileImage === 'object' ? (
                       <source
@@ -68,9 +80,21 @@ async function renderBlock(block: Block, ctx: StoreContext, index: number) {
                   <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-transparent" />
                   <Container className="absolute inset-0 flex flex-col justify-center">
                     <div className="max-w-xl text-white">
-                      <h2 className="font-heading text-3xl leading-tight font-bold [text-transform:var(--heading-transform)] sm:text-5xl">
-                        {slide.heading}
-                      </h2>
+                      {slide.eyebrow ? (
+                        <p className="mb-2 text-xs font-semibold tracking-[0.2em] text-white/85 uppercase">
+                          {slide.eyebrow}
+                        </p>
+                      ) : null}
+                      {/* One h1 per page: the first slide of the page's first block */}
+                      {h1 && i === 0 ? (
+                        <h1 className="font-heading text-3xl leading-tight font-bold [text-transform:var(--heading-transform)] sm:text-5xl">
+                          {slide.heading}
+                        </h1>
+                      ) : (
+                        <h2 className="font-heading text-3xl leading-tight font-bold [text-transform:var(--heading-transform)] sm:text-5xl">
+                          {slide.heading}
+                        </h2>
+                      )}
                       {slide.subheading ? (
                         <p className="mt-3 text-base text-white/90 sm:text-lg">
                           {slide.subheading}
@@ -86,7 +110,7 @@ async function renderBlock(block: Block, ctx: StoreContext, index: number) {
                 </div>
               )
             })}
-          </div>
+          </Slider>
         </section>
       )
     }
@@ -118,73 +142,10 @@ async function renderBlock(block: Block, ctx: StoreContext, index: number) {
         </Container>
       )
     }
-    case 'productGrid': {
-      const { all } = await getCategoryTree(ctx.store.tenantId)
-      const category = all.find(
-        (node) =>
-          String(node.id) ===
-          (typeof block.category === 'object' ? block.category?.id : block.category),
-      )
-      const products = await getProductList(
-        ctx.store.tenantId,
-        block.source,
-        block.limit ?? 8,
-        category ? withDescendants(category) : undefined,
-      )
-      if (products.length === 0) return null
-      return (
-        <Container className="my-12" key={key}>
-          <SectionHeading
-            action={
-              category ? (
-                <Link
-                  className="text-sm font-semibold text-accent hover:underline"
-                  href={category.path}
-                >
-                  View all
-                </Link>
-              ) : null
-            }
-          >
-            {block.heading ?? 'Products'}
-          </SectionHeading>
-          <ProductGrid products={products} />
-        </Container>
-      )
-    }
-    case 'categoryTiles': {
-      const categories = (block.categories ?? []).filter((c) => typeof c === 'object' && c !== null)
-      if (categories.length === 0) return null
-      return (
-        <Container className="my-12" key={key}>
-          {block.heading ? <SectionHeading>{block.heading}</SectionHeading> : null}
-          <ul
-            className={`grid gap-3 sm:gap-5 ${block.style === 'circles' ? 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-6' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'}`}
-          >
-            {categories.map((category) =>
-              typeof category === 'object' ? (
-                <li key={category.id}>
-                  <Link className="group block" href={categoryHref(category)}>
-                    <div
-                      className={`overflow-hidden bg-surface-alt ${block.style === 'circles' ? 'aspect-square rounded-full' : 'aspect-[4/3] rounded-card'}`}
-                    >
-                      <Img
-                        className="size-full object-cover transition duration-300 group-hover:scale-105"
-                        media={category.image}
-                        sizes="(min-width: 1024px) 25vw, 50vw"
-                      />
-                    </div>
-                    <p className="mt-2 text-center text-sm font-semibold text-ink group-hover:text-accent sm:text-base">
-                      {category.name}
-                    </p>
-                  </Link>
-                </li>
-              ) : null,
-            )}
-          </ul>
-        </Container>
-      )
-    }
+    case 'productGrid':
+      return <ProductSection block={block} ctx={ctx} key={key} />
+    case 'categoryTiles':
+      return <CategorySection block={block} key={key} />
     case 'richText':
       return (
         <Container className="my-10 max-w-3xl" key={key}>
@@ -217,30 +178,7 @@ async function renderBlock(block: Block, ctx: StoreContext, index: number) {
       )
     }
     case 'benefits':
-      return (
-        <section className="my-10 border-y border-line bg-surface-alt" key={key}>
-          <Container>
-            <ul className="grid grid-cols-2 gap-4 py-6 md:grid-cols-4">
-              {(block.items ?? []).map((item, i) => {
-                const Icon =
-                  BENEFIT_ICONS[(item.icon ?? 'check') as keyof typeof BENEFIT_ICONS] ??
-                  BENEFIT_ICONS.check
-                return (
-                  <li
-                    className="flex items-center gap-3 text-sm font-semibold text-ink"
-                    key={item.id ?? i}
-                  >
-                    <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand text-brand-ink">
-                      <Icon />
-                    </span>
-                    {item.text}
-                  </li>
-                )
-              })}
-            </ul>
-          </Container>
-        </section>
-      )
+      return <BenefitsSection block={block} key={key} />
     case 'testimonials':
       return (
         <Container className="my-14" key={key}>

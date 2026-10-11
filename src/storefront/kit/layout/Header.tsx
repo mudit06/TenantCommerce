@@ -2,59 +2,23 @@ import Link from 'next/link'
 
 import type { StoreContext } from '../../context'
 import { MenuIcon, PhoneIcon, SearchIcon, UserIcon, WhatsAppIcon } from '../icons'
-import { linkHref } from '../links'
 import { SearchBox } from '../listing/SearchBox'
 import { Img } from '../media'
-import { getStoreOffers, runningSchemes } from '@/lib/data/offers'
 
 import { CartLink } from '../shop/CartLink'
 import { WishlistLink } from '../shop/WishlistLink'
 import { buttonClass, Container } from '../ui'
 import { storeWhatsApp } from '../whatsapp'
-
-type NavItem = { label: string; href: string | null; children: { label: string; href: string }[] }
-
-/** Menu items: the store's own header menu, or its category tree until it builds one. */
-function navItems(ctx: StoreContext): NavItem[] {
-  const fromMenu = (ctx.navigation?.header ?? []).map((item) => ({
-    label: item.label,
-    href: linkHref(item.link)?.href ?? null,
-    children: (item.columns ?? []).flatMap((column) =>
-      (column.links ?? []).flatMap((link) => {
-        const target = linkHref(link.link)
-        return target ? [{ label: link.label, href: target.href }] : []
-      }),
-    ),
-  }))
-  if (fromMenu.length > 0) return fromMenu
-  return ctx.categories.roots.map((root) => ({
-    label: root.name,
-    href: root.path,
-    children: root.children.map((child) => ({ label: child.name, href: child.path })),
-  }))
-}
+import { MegaMenu, MobileMenuList } from './MegaMenu'
+import { headerItems, storeAnnouncement } from './nav'
 
 export async function Header({ ctx }: { ctx: StoreContext }) {
   const settings = ctx.settings
   const name = settings?.storeName ?? ctx.store.name
-  const items = navItems(ctx)
+  const items = headerItems(ctx)
   const phone = settings?.contact?.phone
   const whatsapp = storeWhatsApp(settings?.contact?.whatsapp, `Hello ${name}, I have a question.`)
-  // A live scheme's announcement comes first while it runs (docs/screens Scheme editor "On the
-  // store"), linking to its page; otherwise the store's own announcement bar
-  const offer = runningSchemes(await getStoreOffers(ctx.store.tenantId)).find(
-    (s) => s.announcementText,
-  )
-  const announcement = offer?.announcementText
-    ? offer.announcementText
-    : settings?.announcementBar?.enabled
-      ? settings.announcementBar.text
-      : null
-  const announcementHref = offer?.announcementText
-    ? offer.slug
-      ? `/offers/${offer.slug}`
-      : '/offers'
-    : settings?.announcementBar?.linkUrl
+  const { text: announcement, href: announcementHref } = await storeAnnouncement(ctx)
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-white/95 backdrop-blur">
       <div className="bg-dark text-xs text-white/90">
@@ -94,7 +58,7 @@ export async function Header({ ctx }: { ctx: StoreContext }) {
           </div>
         </Container>
       </div>
-      <Container className="flex h-16 items-center gap-2 sm:gap-4 lg:h-20">
+      <Container className="relative flex h-16 items-center gap-2 sm:gap-4 lg:h-20">
         <details className="group relative lg:hidden">
           <summary
             aria-label="Menu"
@@ -106,32 +70,8 @@ export async function Header({ ctx }: { ctx: StoreContext }) {
             aria-label="Menu"
             className="fixed inset-x-0 top-[6.25rem] z-50 max-h-[calc(100dvh-6.25rem)] overflow-y-auto border-t border-line bg-white px-4 pb-8 shadow-xl"
           >
-            <ul className="divide-y divide-line">
-              {items.map((item) => (
-                <li className="py-3" key={item.label}>
-                  {item.href ? (
-                    <Link
-                      className="font-heading text-base font-semibold [text-transform:var(--heading-transform)]"
-                      href={item.href}
-                    >
-                      {item.label}
-                    </Link>
-                  ) : (
-                    <span className="font-heading font-semibold">{item.label}</span>
-                  )}
-                  {item.children.length > 0 ? (
-                    <ul className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1">
-                      {item.children.map((child) => (
-                        <li key={child.href}>
-                          <Link className="block py-1.5 text-sm text-ink-soft" href={child.href}>
-                            {child.label}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
-                </li>
-              ))}
+            <MobileMenuList items={items} />
+            <ul className="divide-y divide-line border-t border-line">
               {ctx.selling.selling ? (
                 <li className="py-3">
                   <Link className="text-sm" href="/account">
@@ -163,40 +103,10 @@ export async function Header({ ctx }: { ctx: StoreContext }) {
         </Link>
 
         <nav aria-label="Main" className="ml-2 hidden min-w-0 flex-1 lg:block xl:ml-6">
-          <ul className="flex items-center gap-0.5 xl:gap-1">
-            {items.map((item) => (
-              <li className="group relative" key={item.label}>
-                {item.href ? (
-                  <Link
-                    className="block rounded-card px-2 py-2 text-sm font-semibold whitespace-nowrap text-ink hover:text-accent xl:px-3"
-                    href={item.href}
-                  >
-                    {item.label}
-                  </Link>
-                ) : (
-                  <span className="block px-2 py-2 text-sm font-semibold whitespace-nowrap xl:px-3">
-                    {item.label}
-                  </span>
-                )}
-                {item.children.length > 0 ? (
-                  <div className="invisible absolute left-0 top-full min-w-56 translate-y-1 rounded-card border border-line bg-white p-2 opacity-0 shadow-lg transition group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
-                    <ul>
-                      {item.children.map((child) => (
-                        <li key={child.href}>
-                          <Link
-                            className="block rounded px-3 py-2 text-sm text-ink-soft hover:bg-surface-alt hover:text-ink"
-                            href={child.href}
-                          >
-                            {child.label}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : null}
-              </li>
-            ))}
-          </ul>
+          <MegaMenu
+            itemClassName="rounded-card px-2 text-sm font-semibold text-ink hover:text-accent xl:px-3"
+            items={items}
+          />
         </nav>
 
         <div className="ml-auto flex items-center gap-1.5 sm:gap-2">

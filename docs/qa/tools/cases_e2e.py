@@ -135,6 +135,24 @@ tc('E2E-03', 'Catalogue', 'Archive removes it from the store',
    ['Owner: archive QA hook', 'Store: reload the category and the product address'],
    'Gone from the category; the product address shows not found (or redirects if a redirect exists).',
    'High', role='Store owner, Shopper')
+tc('E2E-03', 'Catalogue', 'Quick add on a home page card',
+   'A card on the home page adds a single-finish product without leaving the page.',
+   'Store selling; Home Orbit home page from `pnpm seed:home-orbit`', 'Designed for modern homes: HOGDH-610',
+   ['Open the home page', 'Hover the Lotus glass door handle card (phone: tap its + button)', 'Press Add to cart on the photo'],
+   '"Added ✓" on the card and the header cart count goes up; the cart has one Lotus glass door handle at the price the card showed.',
+   'High', role='Shopper')
+tc('E2E-03', 'Catalogue', 'Quick add picker for finishes and sizes',
+   'A product sold in several finishes and sizes opens a picker with server prices.',
+   'Store selling; variants generated for HOPH-504 in the product editor with stock', 'Size 12 inch, finish Rose gold',
+   ['Open the home page', 'Press Quick add on the Feather pull handle card', 'Choose 12 inch and Rose gold', 'Add to cart'],
+   'The picker shows sizes and finish swatches, the price changes with the choice, code HOPH-504-12-INCH-ROSE-GOLD shows; "Added to your cart. View cart" and the count goes up; Esc closes it.',
+   'High', role='Shopper')
+tc('E2E-03', 'Catalogue', 'Menu dropdown columns from Menus',
+   'The header dropdown shows the columns, links and picture set on the Menus screen.',
+   'Home Orbit menus from `pnpm seed:home-orbit`', 'Door hardware: Aldrops and latches, Door handles, Door accessories',
+   ['Hover Door hardware in the category bar (desktop)', 'Press Laser-cut aldrops', 'Owner: rename the column "Door handles" to "Handles" in Menus and save', 'Reload the store and hover Door hardware'],
+   'Three headed columns, the aldrop picture and Shop all door hardware; Laser-cut aldrops opens Aldrops filtered to the laser-cut range (4 products); after the edit the column reads "Handles".',
+   'Medium', 'Integration', role='Shopper, Store owner')
 
 # E2E-04 Order to cash
 tc('E2E-04', 'Checkout', 'Guest COD order',

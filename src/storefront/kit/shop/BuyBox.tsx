@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useMemo, useState, useTransition } from 'react'
+import { useId, useMemo, useState, useTransition } from 'react'
 
 import { formatINR } from '@/lib/money'
 import { addToCart, checkDelivery, type DeliveryCheck } from '@/storefront/shop/actions'
@@ -44,6 +44,7 @@ export function BuyBox({
   quoteHref,
   whatsappHref,
   offer,
+  compact = false,
 }: {
   productId: string
   axes: PickerAxis[]
@@ -56,8 +57,11 @@ export function BuyBox({
   whatsappHref: string | null
   /** The product's live scheme: its badge and real end, and the price without a variant */
   offer?: BuyOffer | null
+  /** The cards' quick add: choices, quantity and the two buttons only */
+  compact?: boolean
 }) {
   const router = useRouter()
+  const uid = useId()
   const [chosen, setChosen] = useState<Record<string, string>>(() =>
     // Preselect the first variant in stock so a price shows at once
     variants.length ? { ...(variants.find((v) => v.available !== 0) ?? variants[0])!.options } : {},
@@ -168,7 +172,7 @@ export function BuyBox({
                   <input
                     checked={selected}
                     className="sr-only"
-                    name={`opt-${axis.code}`}
+                    name={`${uid}-opt-${axis.code}`}
                     onChange={() =>
                       setChosen((current) => ({ ...current, [axis.code]: option.value }))
                     }
@@ -209,7 +213,7 @@ export function BuyBox({
         </span>
       </div>
 
-      {pincodeCheck ? (
+      {pincodeCheck && !compact ? (
         <div className="rounded-card border border-line p-4">
           <p className="mb-2 text-sm font-semibold">Check delivery</p>
           <form
@@ -312,7 +316,7 @@ export function BuyBox({
         </p>
       ) : null}
 
-      {quoteHref || whatsappHref ? (
+      {!compact && (quoteHref || whatsappHref) ? (
         <div className="flex flex-wrap gap-3">
           {quoteHref ? (
             <a className={buttonClass('outline', 'flex-1')} href={quoteHref}>
@@ -333,19 +337,21 @@ export function BuyBox({
       ) : null}
 
       {/* Phone: Add to cart stays in reach while scrolling (docs/screens rule 7) */}
-      <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-line bg-white p-2 lg:hidden">
-        {priceMinor !== null ? (
-          <span className="pl-2 text-base font-bold">{formatINR(priceMinor)}</span>
-        ) : null}
-        <button
-          className={buttonClass('dark', 'flex-1')}
-          disabled={pending || needsChoice || soldOut}
-          onClick={() => add(false)}
-          type="button"
-        >
-          Add to cart
-        </button>
-      </div>
+      {compact ? null : (
+        <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-line bg-white p-2 lg:hidden">
+          {priceMinor !== null ? (
+            <span className="pl-2 text-base font-bold">{formatINR(priceMinor)}</span>
+          ) : null}
+          <button
+            className={buttonClass('dark', 'flex-1')}
+            disabled={pending || needsChoice || soldOut}
+            onClick={() => add(false)}
+            type="button"
+          >
+            Add to cart
+          </button>
+        </div>
+      )}
     </div>
   )
 }

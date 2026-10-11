@@ -34,11 +34,18 @@ export type BlockRendererProps<K extends BlockType> = {
   ctx: StoreContext
   /** The first block on the page: load its images eagerly (LCP) */
   first: boolean
+  /** This block carries the page's h1 (a landing page's first block) */
+  h1: boolean
 }
 export type BlockRenderers = Partial<{ [K in BlockType]: ComponentType<BlockRendererProps<K>> }>
 
+export type LayoutPart = ComponentType<{ ctx: StoreContext }>
+
 export type VendorUI = {
   theme: VendorTheme
+  /** Own header and footer (docs/10 "page-level overrides"); the kit's when left out */
+  Header?: LayoutPart
+  Footer?: LayoutPart
   /** Short line under the logo and in the default hero */
   tagline?: string
   /** Own renderers for some CMS blocks (docs/10 "Adding a block", step 3); others use the kit */
