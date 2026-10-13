@@ -70,7 +70,7 @@ const buttonStyles = {
 } as const
 
 export const buttonClass = (style: keyof typeof buttonStyles = 'primary', extra = '') =>
-  `inline-flex min-h-11 items-center justify-center gap-2 rounded-card px-5 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${buttonStyles[style]} ${extra}`
+  `inline-flex min-h-11 items-center justify-center gap-2 rounded-card px-5 text-sm font-semibold transition motion-ok:active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${buttonStyles[style]} ${extra}`
 
 export function ButtonLink({
   href,

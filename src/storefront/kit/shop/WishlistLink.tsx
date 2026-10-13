@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { HeartIcon } from '../icons'
 import { readWishlist, syncOnce, WISHLIST_EVENT } from './HeartButton'
@@ -24,14 +24,24 @@ export function WishlistLink({
   look?: 'boxed' | 'plain'
 }) {
   const [count, setCount] = useState(0)
+  // Goes up when a heart changes the count, so the badge bumps (not on page load)
+  const [changes, setChanges] = useState(0)
+  const last = useRef<number | null>(null)
   useEffect(() => {
-    const update = () => setCount(readWishlist().length)
+    const read = (bump: boolean) => {
+      const next = readWishlist().length
+      if (bump && last.current !== null && next !== last.current) setChanges((n) => n + 1)
+      last.current = next
+      setCount(next)
+    }
+    const update = () => read(false)
+    const changed = () => read(true)
     update()
     void syncOnce().then(update)
-    window.addEventListener(WISHLIST_EVENT, update)
+    window.addEventListener(WISHLIST_EVENT, changed)
     window.addEventListener('storage', update)
     return () => {
-      window.removeEventListener(WISHLIST_EVENT, update)
+      window.removeEventListener(WISHLIST_EVENT, changed)
       window.removeEventListener('storage', update)
     }
   }, [])
@@ -44,7 +54,8 @@ export function WishlistLink({
       <HeartIcon />
       {count > 0 ? (
         <span
-          className={`absolute flex min-w-5 items-center justify-center rounded-full px-1 text-[11px] font-bold ${BADGE[look]}`}
+          className={`absolute flex min-w-5 items-center justify-center rounded-full px-1 text-[11px] font-bold ${BADGE[look]} ${changes ? 'bump' : ''}`}
+          key={changes}
         >
           {count > 99 ? '99+' : count}
         </span>

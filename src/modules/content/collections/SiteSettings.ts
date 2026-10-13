@@ -88,6 +88,16 @@ export const SiteSettings: CollectionConfig = {
             },
           ],
         },
+        {
+          name: 'animations',
+          label: 'Animations on the store',
+          type: 'checkbox',
+          defaultValue: true,
+          admin: {
+            description:
+              'Sections rise in as shoppers scroll, menus ease in and the cart count bumps. Shoppers who turn off motion on their phone or computer never see them.',
+          },
+        },
       ],
     },
     {

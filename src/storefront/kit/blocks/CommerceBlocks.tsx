@@ -71,7 +71,11 @@ export async function ProductSection({
               </p>
             ) : null}
             {target && promo?.buttonLabel ? (
-              <ButtonLink className="mt-5 self-start" href={target.href} newTab={target.newTab}>
+              <ButtonLink
+                className="shine mt-5 self-start"
+                href={target.href}
+                newTab={target.newTab}
+              >
                 {promo.buttonLabel}
               </ButtonLink>
             ) : null}
@@ -137,7 +141,7 @@ export function CategorySection({ block }: { block: CategoryTilesBlock }) {
               href={categoryHref(category)}
               key={category.id}
             >
-              <div className="aspect-square rounded-card border border-line bg-white p-3 transition group-hover:border-ink/25 group-hover:shadow-md sm:p-4">
+              <div className="aspect-square rounded-card border border-line bg-white p-3 transition group-hover:border-ink/25 group-hover:shadow-md motion-ok:group-hover:-translate-y-1 sm:p-4">
                 <div className="size-full overflow-hidden rounded-[calc(var(--radius)*0.6)] bg-surface-alt">
                   <Img
                     className="size-full object-cover transition duration-300 group-hover:scale-105"

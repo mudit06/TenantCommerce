@@ -53,3 +53,130 @@
     animation: none;
   }
 }
+
+/* Motion (docs/10 "Motion"). CSS only, so pages carry no animation script, and only opacity,
+   translate and scale move (the compositor runs them). All of it is off for visitors who reduce
+   motion and for stores that switch Animations off in Store settings (`data-motion="off"` on
+   <html>, layout.tsx); browsers without scroll-driven animations show those parts still. */
+@custom-variant motion-ok {
+  @media (prefers-reduced-motion: no-preference) {
+    :root:not([data-motion='off']) & {
+      @slot;
+    }
+  }
+}
+/* Movement only: text stays at full contrast even while a section is still rising */
+@keyframes rise-in {
+  from {
+    translate: 0 32px;
+  }
+}
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    translate: var(--slide-from, 48px) 0;
+  }
+}
+@keyframes drop-in {
+  from {
+    opacity: 0;
+    translate: 0 -6px;
+  }
+}
+@keyframes sheet-up {
+  from {
+    translate: 0 100%;
+  }
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    scale: 0.96;
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes bump {
+  40% {
+    scale: 1.3;
+  }
+}
+@keyframes shine {
+  to {
+    translate: 260% 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    /* Sections and cards rise as they scroll into view; ones already on screen stay put */
+    :root:not([data-motion='off']) .reveal {
+      animation: rise-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 180px;
+    }
+    /* Hero words follow their slide in sideways, each line a little further (a light parallax).
+       The timeline is the slide's place in the slider's row (Slider.tsx), not the slide's own
+       box, which clips its rounded corners. */
+    :root:not([data-motion='off']) [aria-roledescription='slide'] {
+      view-timeline: --slide inline;
+    }
+    :root:not([data-motion='off']) .slide-words > * {
+      animation: slide-in linear both;
+      animation-timeline: --slide;
+      animation-range: entry 0% entry 100%;
+    }
+    :root:not([data-motion='off']) .slide-words > :nth-child(2) {
+      --slide-from: 80px;
+    }
+    :root:not([data-motion='off']) .slide-words > :nth-child(3) {
+      --slide-from: 112px;
+    }
+    :root:not([data-motion='off']) .slide-words > :nth-child(n + 4) {
+      --slide-from: 144px;
+    }
+  }
+
+  /* Dropdowns and the phone menu ease in each time they open */
+  :root:not([data-motion='off']) .drop-in {
+    animation: drop-in 180ms ease-out;
+  }
+  /* Quick add: a sheet from the bottom on phones, a small pop in the middle on wider screens */
+  :root:not([data-motion='off']) .sheet[open] {
+    animation: sheet-up 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  :root:not([data-motion='off']) .sheet[open]::backdrop {
+    animation: fade-in 200ms ease-out;
+  }
+  @media (min-width: 640px) {
+    :root:not([data-motion='off']) .sheet[open] {
+      animation: pop-in 200ms ease-out;
+    }
+  }
+  /* A count or heart that just changed */
+  :root:not([data-motion='off']) .bump {
+    animation: bump 360ms ease-out;
+  }
+  /* A light sweep across a call-to-action on hover */
+  :root:not([data-motion='off']) .shine {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  :root:not([data-motion='off']) .shine::after {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: -1;
+    width: 40%;
+    translate: -120% 0;
+    background: linear-gradient(100deg, transparent, rgb(255 255 255 / 0.45), transparent);
+    pointer-events: none;
+  }
+  :root:not([data-motion='off']) .shine:hover::after {
+    animation: shine 700ms ease-out;
+  }
+}

@@ -106,7 +106,7 @@ export async function Header({ ctx }: { ctx: StoreContext }) {
             </summary>
             <nav
               aria-label="Menu"
-              className="absolute inset-x-0 top-full z-50 max-h-[calc(100dvh-6.5rem)] overflow-y-auto border-t border-line bg-white px-4 pb-24 shadow-xl"
+              className="drop-in absolute inset-x-0 top-full z-50 max-h-[calc(100dvh-6.5rem)] overflow-y-auto border-t border-line bg-white px-4 pb-24 shadow-xl"
             >
               <div className="py-3 md:hidden">
                 <SearchBox variant="page" />

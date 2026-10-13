@@ -271,6 +271,10 @@ export interface SiteSetting {
    * Shown when shoppers install the store on their phone
    */
   pwaIcon?: (string | null) | Media;
+  /**
+   * Sections rise in as shoppers scroll, menus ease in and the cart count bumps. Shoppers who turn off motion on their phone or computer never see them.
+   */
+  animations?: boolean | null;
   contact?: {
     email?: string | null;
     phone?: string | null;
@@ -3747,6 +3751,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   logoDark?: T;
   favicon?: T;
   pwaIcon?: T;
+  animations?: T;
   contact?:
     | T
     | {

@@ -24,13 +24,19 @@ const readCount = () => {
 /** The header's cart icon with its count, kept current without a request (cookie + event). */
 export function CartLink({ look = 'boxed' }: { look?: 'boxed' | 'plain' }) {
   const [count, setCount] = useState(0)
+  // Goes up when something is added here, so the badge bumps (not on page load)
+  const [changes, setChanges] = useState(0)
   useEffect(() => {
     const update = () => setCount(readCount())
+    const changed = () => {
+      update()
+      setChanges((n) => n + 1)
+    }
     update()
-    window.addEventListener(CART_EVENT, update)
+    window.addEventListener(CART_EVENT, changed)
     window.addEventListener('focus', update)
     return () => {
-      window.removeEventListener(CART_EVENT, update)
+      window.removeEventListener(CART_EVENT, changed)
       window.removeEventListener('focus', update)
     }
   }, [])
@@ -43,7 +49,8 @@ export function CartLink({ look = 'boxed' }: { look?: 'boxed' | 'plain' }) {
       <CartIcon />
       {count > 0 ? (
         <span
-          className={`absolute flex min-w-5 items-center justify-center rounded-full px-1 text-[11px] font-bold ${BADGE[look]}`}
+          className={`absolute flex min-w-5 items-center justify-center rounded-full px-1 text-[11px] font-bold ${BADGE[look]} ${changes ? 'bump' : ''}`}
+          key={changes}
         >
           {count > 99 ? '99+' : count}
         </span>

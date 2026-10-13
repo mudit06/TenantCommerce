@@ -273,6 +273,30 @@ describe('abandoned carts', () => {
     })
   })
 
+  it('starts a new cart under the same cookie after the last one was ordered', async () => {
+    const token = newCartToken()
+    const line = { productId: shopB.towel, variantId: null, qty: 1 }
+    const ordered = await saveCart(payload, shopB.tenantId, token, [line])
+    // Ordered before tokens were released on conversion: it still holds the shopper's token
+    await payload.update({
+      collection: 'carts',
+      id: ordered.id,
+      data: { status: 'converted' },
+      overrideAccess: true,
+    })
+    const next = await saveCart(payload, shopB.tenantId, token, [{ ...line, qty: 3 }])
+    expect(String(next.id)).not.toBe(String(ordered.id))
+    expect(next.status).toBe('active')
+    expect(String((await findCart(payload, shopB.tenantId, token))?.id)).toBe(String(next.id))
+    const old = await payload.findByID({
+      collection: 'carts',
+      id: ordered.id,
+      overrideAccess: true,
+    })
+    expect(old).toMatchObject({ status: 'converted' })
+    expect(old.items).toHaveLength(1)
+  })
+
   it('lets only this store’s owners and managers change the reminders', async () => {
     const req = await reqAs(payload, shopA.owner)
     await expect(assertCartsAccess(req, shopB.tenantId, 'write')).rejects.toThrow()

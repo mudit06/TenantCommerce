@@ -40,7 +40,21 @@ export async function RenderBlocks({
   const rendered = await Promise.all(
     (blocks ?? []).map((block, index) => renderBlock(block, ctx, index, hasTitle)),
   )
-  return <>{rendered}</>
+  // Sections after the first rise in as they scroll into view (CSS only; globals.css "Motion").
+  // The first stays still: it is what loads first and usually holds the h1.
+  return (
+    <>
+      {rendered.map((node, index) =>
+        index === 0 || !node ? (
+          node
+        ) : (
+          <div className="reveal" key={blocks?.[index]?.id ?? index}>
+            {node}
+          </div>
+        ),
+      )}
+    </>
+  )
 }
 
 async function renderBlock(block: Block, ctx: StoreContext, index: number, hasTitle: boolean) {
@@ -79,7 +93,7 @@ async function renderBlock(block: Block, ctx: StoreContext, index: number, hasTi
                   </picture>
                   <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-transparent" />
                   <Container className="absolute inset-0 flex flex-col justify-center">
-                    <div className="max-w-xl text-white">
+                    <div className="slide-words max-w-xl text-white">
                       {slide.eyebrow ? (
                         <p className="mb-2 text-xs font-semibold tracking-[0.2em] text-white/85 uppercase">
                           {slide.eyebrow}
@@ -101,7 +115,11 @@ async function renderBlock(block: Block, ctx: StoreContext, index: number, hasTi
                         </p>
                       ) : null}
                       {target && slide.buttonLabel ? (
-                        <ButtonLink className="mt-6" href={target.href} newTab={target.newTab}>
+                        <ButtonLink
+                          className="shine mt-6"
+                          href={target.href}
+                          newTab={target.newTab}
+                        >
                           {slide.buttonLabel}
                         </ButtonLink>
                       ) : null}

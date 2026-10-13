@@ -88,7 +88,7 @@ export function MegaPanel({
   const shown = columns.slice(0, featured ? 3 : 4)
   return (
     <div
-      className={`absolute inset-x-0 top-full z-50 hidden border-t border-line bg-white shadow-xl ${open}`}
+      className={`drop-in absolute inset-x-0 top-full z-50 hidden border-t border-line bg-white shadow-xl ${open}`}
     >
       <Container className="grid gap-8 py-7 lg:grid-cols-4">
         <div

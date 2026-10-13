@@ -57,7 +57,7 @@ export default function QuickAddDialog({
   return (
     <dialog
       aria-labelledby={`qa-${productId}`}
-      className="pointer-events-auto fixed inset-x-0 top-auto bottom-0 m-0 max-h-[90dvh] w-full max-w-none overflow-y-auto rounded-t-2xl bg-white p-0 text-ink shadow-2xl backdrop:bg-black/50 sm:inset-0 sm:m-auto sm:max-w-lg sm:rounded-card"
+      className="sheet pointer-events-auto fixed inset-x-0 top-auto bottom-0 m-0 max-h-[90dvh] w-full max-w-none overflow-y-auto rounded-t-2xl bg-white p-0 text-ink shadow-2xl backdrop:bg-black/50 sm:inset-0 sm:m-auto sm:max-w-lg sm:rounded-card"
       onClick={(event) => {
         // A click on the backdrop closes it
         if (event.target === event.currentTarget) dialog.current?.close()
@@ -119,9 +119,23 @@ export default function QuickAddDialog({
             whatsappHref={null}
           />
         ) : (
-          <p aria-live="polite" className="py-6 text-center text-sm text-ink-soft">
-            Loading options…
-          </p>
+          // A still outline of the picker while its prices load
+          <div aria-busy="true" className="space-y-4 py-2">
+            <span className="sr-only" role="status">
+              Loading options…
+            </span>
+            {['w-24', 'w-32', 'w-20'].map((width) => (
+              <div className="space-y-2" key={width}>
+                <div className={`h-3 rounded bg-surface-alt motion-safe:animate-pulse ${width}`} />
+                <div className="flex gap-2">
+                  <div className="h-10 w-20 rounded-card bg-surface-alt motion-safe:animate-pulse" />
+                  <div className="h-10 w-20 rounded-card bg-surface-alt motion-safe:animate-pulse" />
+                  <div className="h-10 w-20 rounded-card bg-surface-alt motion-safe:animate-pulse" />
+                </div>
+              </div>
+            ))}
+            <div className="h-11 rounded-card bg-surface-alt motion-safe:animate-pulse" />
+          </div>
         )}
         <Link
           className="mt-4 inline-block text-sm font-semibold text-accent underline-offset-4 hover:underline"

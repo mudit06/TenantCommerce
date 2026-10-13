@@ -1532,6 +1532,7 @@ Store name, logos and colour, contact details, GST invoice details, checkout and
 - Field: Logo for dark backgrounds
 - Field: Browser icon
 - Field: App icon
+- Checkbox: Animations on the store (ticked) — Sections rise in as shoppers scroll, menus ease in and the cart count bumps. Shoppers who turn off motion on their phone or computer never see them.
 - Heading: Contact
 - Text: Shown in the footer, on invoices and on the contact page.
 - Field: Email (sample: “care@aquaverde.example”)

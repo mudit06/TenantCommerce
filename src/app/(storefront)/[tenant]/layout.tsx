@@ -94,7 +94,12 @@ export default async function StoreLayout({ children, params }: Props) {
           }
 
   return (
-    <html lang="en-IN" style={style}>
+    // Store settings → Branding → Animations (on unless switched off; globals.css "Motion")
+    <html
+      data-motion={ctx.settings?.animations === false ? 'off' : undefined}
+      lang="en-IN"
+      style={style}
+    >
       <body>
         {closed ? (
           <StoreMessage title={closedMessage.title}>{closedMessage.body}</StoreMessage>

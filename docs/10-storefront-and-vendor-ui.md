@@ -165,3 +165,25 @@ focus states, alt text, colour contrast. Offers stay honest (docs/14): countdown
 scheme's real end, stock warnings only from real stock, no pre-ticked consent or add-ons, the
 reason a coupon doesn't apply said plainly, and the discount shown as its own line wherever the
 total is shown. Offer badges are text (`badgeText`), so each vendor UI styles them its own way.
+
+## Motion
+
+Animations are CSS only (`src/app/(storefront)/[tenant]/globals.css`, "Motion"), so pages ship no
+animation library and Lighthouse stays at 90+. Only `opacity`, `translate` and `scale` move, so the
+compositor runs them. Everything sits inside `prefers-reduced-motion: no-preference`, and a store
+can switch it all off in the CMS (Store settings → Branding → **Animations on the store**, which
+puts `data-motion="off"` on `<html>`); browsers without scroll-driven animations just show those
+parts still. Tailwind classes that move use the `motion-ok:` variant (globals.css), which follows
+both. Shared classes a vendor UI can use:
+
+| Class | Effect | Used on |
+|---|---|---|
+| `reveal` | Rises in as it scrolls into view (scroll-driven, no script) | Every page block after the first (RenderBlocks), product grid cards |
+| `slide-words` | Its children follow their slide in sideways, each a little further | Hero text (kit and Home Orbit) |
+| `drop-in` | Eases in each time it is shown | Menu dropdowns, phone menus |
+| `sheet` | On a `<dialog>`: slides up on phones, pops in on wider screens; the backdrop fades | Quick add |
+| `bump` | A short scale bump; set it with a changing `key` so it replays | Cart and wishlist counts, wishlist heart |
+| `shine` | A light sweep on hover | Hero and promo buttons |
+
+Never animate the first block (it loads first and holds the h1), and never use motion to fake
+urgency (docs/14). The benefits block's scrolling line (`marquee`) also stops for reduced motion.

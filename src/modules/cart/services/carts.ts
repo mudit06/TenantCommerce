@@ -84,6 +84,19 @@ export async function saveCart(
   if (existing) {
     return payload.update({ collection: 'carts', id: existing.id, data, overrideAccess: true })
   }
+  // A cart ordered before tokens were released on conversion may still hold this token
+  await payload.update({
+    collection: 'carts',
+    where: {
+      and: [
+        { tenant: { equals: tenantId } },
+        { tokenHash: { equals: hashCartToken(token) } },
+        { status: { not_equals: 'active' } },
+      ],
+    },
+    data: { tokenHash: hashCartToken(newCartToken()) },
+    overrideAccess: true,
+  })
   return payload.create({
     collection: 'carts',
     data: { tenant: tenantId, tokenHash: hashCartToken(token), status: 'active', ...data },
@@ -110,7 +123,13 @@ export async function markCartConverted(payload: Payload, cartId: string, orderI
   await payload.update({
     collection: 'carts',
     id: cartId,
-    data: { status: 'converted', convertedOrder: orderId },
+    // The shopper keeps their cart cookie, so its token is released here: their next add starts
+    // a new cart under the same token (tokens are unique per store)
+    data: {
+      status: 'converted',
+      convertedOrder: orderId,
+      tokenHash: hashCartToken(newCartToken()),
+    },
     overrideAccess: true,
   })
 }

@@ -11,7 +11,7 @@ Regression script, generated from `docs/qa/tools` (edit the case files there, th
 | Environment | Local QA: admin `http://localhost:3000/admin`, store `http://home-orbit.localhost:3000`, database `tenantecom_qa` |
 | Spec | `st-home`, `st-search`, `st-category`, `st-filters` (docs/screens) |
 | Depends on | VC-03, VC-21 |
-| Test cases | 6 (3 in the smoke run) |
+| Test cases | 7 (3 in the smoke run) |
 
 ## Before you start
 
@@ -57,13 +57,13 @@ Regression script, generated from `docs/qa/tools` (edit the case files there, th
 3. Narrow to 1024 px
 4. Verify the expected result below before going on.
 
-**Expected result:** Menu items on one line, search box, account, wishlist with count and cart with count; at 1024 the search becomes an icon and nothing overlaps.
+**Expected result:** Menu items on one line, search box, account, wishlist with count and cart with count; at 1024 nothing overlaps (the default header turns the search into an icon; Home Orbit keeps its search bar on its own row).
 
-**Actual result:** At 1280 px: menu on one line, search box, account, wishlist and cart icons; at 1024 px the search became an icon and the menu no longer overlapped.
+**Actual result:** At 1280 px: menu on one line, 547 px search bar, account, wishlist and cart with count; at 1024 px the menu still fits one line, the search bar (367 px) sits on its own row, no overlaps, no sideways scroll.
 
-**Status:** Pass (Claude (in-app browser), 2026-10-10)
+**Status:** Pass (Claude (in-app browser), 2026-10-12)
 
-**Execution notes / defect:** Found and fixed in the same session (search box covered "About us" at 1024 px).
+**Execution notes / defect:** Expected result updated for Home Orbit's header, whose search has its own row.
 
 ### E2E-18-002 · Phone: Bottom navigation
 
@@ -87,9 +87,9 @@ Regression script, generated from `docs/qa/tools` (edit the case files there, th
 
 **Expected result:** Home, Shop, Dealers, Account, Cart; Shop opens /c with all categories; on product, cart and checkout the page's sticky button replaces the bar.
 
-**Actual result:** Phone: bottom bar Home, Shop, Dealers, Account, Cart; Shop opened /c; on a product page the sticky "₹1,049 Add to cart" bar replaced it.
+**Actual result:** Phone: bottom bar Home, Shop (/c), Dealers, Account, Cart with count; on a product page the sticky "₹849 Add to cart" bar replaces it.
 
-**Status:** Pass (Claude (in-app browser), 2026-10-10)
+**Status:** Pass (Claude (in-app browser), 2026-10-12)
 
 **Execution notes / defect:** —
 
@@ -113,11 +113,11 @@ Regression script, generated from `docs/qa/tools` (edit the case files there, th
 
 **Expected result:** Logo, contact, Get our offers first; Shop with Offers; Help with Track order, published policies, Contact us; Company with Find a dealer and Downloads; legal name, GSTIN, grievance officer and ways to pay.
 
-**Actual result:** Footer: Get our offers first, Shop (with Offers), Help (Track order, Contact us), Company (About us, Contact us, Find a dealer, Downloads), legal line with name and GSTIN, COD chip.
+**Actual result:** Footer: Get our offers first; Shop (with Offers); Help (Track order, Privacy policy, Contact us); Company (About us, Contact us, Find a dealer, Downloads); legal line with GSTIN and COD.
 
-**Status:** Pass (Claude (in-app browser), 2026-10-10)
+**Status:** Pass (Claude (in-app browser), 2026-10-12)
 
-**Execution notes / defect:** QA data has placeholder business details and no grievance officer or published policies, so those lines were not shown.
+**Execution notes / defect:** QA data has placeholder legal name and no grievance officer, so that line was not shown.
 
 ### E2E-18-004 · Search: Instant search with typos and recent searches
 
@@ -141,11 +141,11 @@ Regression script, generated from `docs/qa/tools` (edit the case files there, th
 
 **Expected result:** HOGDH-610 first for the first two; glass door handles for the typo; Enter opens the choice; Recent searches list earlier terms.
 
-**Actual result:** "610" and "hogdh610" → HOGDH-610 first; "key" → key hangers and the Key hangers category; "glas handel" → glass door handles (after the swapped-letter fix).
+**Actual result:** "610" and "hogdh610" → HOGDH-610 first; "glas handel" → glass door handles; ArrowDown + Enter opened HOGDH-610; clearing the box showed Recent searches "hogdh610".
 
-**Status:** Pass (Claude (in-app browser), 2026-10-10)
+**Status:** Pass (Claude (in-app browser), 2026-10-12)
 
-**Execution notes / defect:** Arrow keys and Recent searches were not exercised.
+**Execution notes / defect:** —
 
 ### E2E-18-005 · Listing: Filter sheet on phones
 
@@ -170,9 +170,9 @@ Regression script, generated from `docs/qa/tools` (edit the case files there, th
 
 **Expected result:** A sheet over a dimmed page with Close and Clear; the count matches the list; Filter (1) after closing.
 
-**Actual result:** Filter sheet opened over the page with Close, Price, Clear and "Show 50 products"; price 500–1000 gave 21 products, Price low to high cheapest first.
+**Actual result:** Phone: Filter opened a sheet with Close and Clear; max ₹1,000 + Go → "Show 32 products" and 32 in the list (all ≤ ₹1,000); Filter (1) after closing.
 
-**Status:** Pass (Claude (in-app browser), 2026-10-10)
+**Status:** Pass (Claude (in-app browser), 2026-10-12)
 
 **Execution notes / defect:** —
 
@@ -198,8 +198,38 @@ Regression script, generated from `docs/qa/tools` (edit the case files there, th
 
 **Expected result:** The line leaves the cart and the heart count goes up; suggestions come from the same categories and Add to cart adds one.
 
-**Actual result:** Move to wishlist removed the door stopper from the cart and the heart read "1 saved"; Complete the look listed 4 products with Add to cart.
+**Actual result:** Move to wishlist took HOPH-504 out of the cart and the wishlist badge went 0 → 1; Complete the look showed glass door handles; Add to cart on HOGDH-612 made 2 items, ₹1,898.
 
-**Status:** Pass (Claude (in-app browser), 2026-10-10)
+**Status:** Pass (Claude (in-app browser), 2026-10-12)
 
 **Execution notes / defect:** —
+
+### E2E-18-007 · Motion: Light animations that respect reduced motion
+
+| Field | Value |
+|---|---|
+| Module | E2E-18 · Storefront chrome and search (shop experience) |
+| Test case ID | E2E-18-007 |
+| Scenario and objective | Sections, hero words, menus, quick add and counts move lightly, and stay still for visitors who reduce motion. |
+| Preconditions | Store selling; a browser with scroll-driven animations (Chrome, Edge) |
+| Test data | Windows: Settings → Accessibility → Visual effects → Animation effects off |
+| Role | Shopper, Store owner |
+| Priority | Medium |
+| Type | UI/UX |
+
+**Steps**
+
+1. Scroll the home page
+2. Swipe the hero
+3. Open a menu, Quick add, a heart and Add to cart
+4. Turn animations off in the system and reload
+5. Owner: Store settings → Branding → untick Animations on the store, Save; reload the store
+6. Verify the expected result below before going on.
+
+**Expected result:** Sections rise in as they arrive, hero words follow their slide, menus and the quick add sheet ease in, the cart and wishlist counts bump; with system animations off everything shows at once and nothing moves (the benefits line stops); with the store switch off the same motion stops for every shopper.
+
+**Actual result:** Home: sections below the first rise in while scrolling, hero words follow a half-swiped slide (50%); menu dropdown and phone menu ease in; quick add sheet slides up with a fading backdrop; cart and heart bump. Checked with the browser's animation timings. Store switch: with animations off in the store's settings the page carries data-motion="off" and no scroll animations run; the page renders the same. Lighthouse mobile on the production build: accessibility, best practices and SEO 100 on home, listing and product; layout shift 0.
+
+**Status:** Pass (Claude (in-app browser), 2026-10-12)
+
+**Execution notes / defect:** Reduced-motion run not done in the in-app browser (it cannot switch the OS setting); the switch was set in the database, not by saving the CMS form (no CMS sign-in in this run).

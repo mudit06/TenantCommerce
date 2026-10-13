@@ -115,11 +115,11 @@ Regression script, generated from `docs/qa/tools` (edit the case files there, th
 
 **Expected result:** Only products ₹400–₹600 show, cheapest first; "Added ✓" and the cart count goes up.
 
-**Actual result:** Category card Add to cart: "Added ✓" and the cart count went from 2 to 3 without leaving the page.
+**Actual result:** Door hardware sorted Price: low to high (₹249, ₹249, ₹249, ₹349…); Add to cart on HODS-861 made the cart 1 item.
 
-**Status:** Pass (Claude (in-app browser), 2026-10-10)
+**Status:** Pass (Claude (in-app browser), 2026-10-12)
 
-**Execution notes / defect:** Run on existing Home Orbit products, not a new QA product.
+**Execution notes / defect:** First try failed after an order in the same browser (DEF-003); passed after the fix.
 
 ### E2E-03-004 · Catalogue: Archive removes it from the store
 
@@ -199,9 +199,9 @@ Regression script, generated from `docs/qa/tools` (edit the case files there, th
 
 **Expected result:** The picker shows sizes and finish swatches, the price changes with the choice, code HOPH-504-12-INCH-ROSE-GOLD shows; "Added to your cart. View cart" and the count goes up; Esc closes it.
 
-**Actual result:** _(fill in when run)_
+**Actual result:** Phone: Quick add on HOPH-504 opened the picker sheet (sizes and finishes, ₹2,049); Add to cart bumped the cart to 1; Escape closed it.
 
-**Status:** Not Run
+**Status:** Pass (Claude (in-app browser), 2026-10-12)
 
 **Execution notes / defect:** —
 
@@ -228,8 +228,8 @@ Regression script, generated from `docs/qa/tools` (edit the case files there, th
 
 **Expected result:** Three headed columns, the aldrop picture and Shop all door hardware; Laser-cut aldrops opens Aldrops filtered to the laser-cut range (4 products); after the edit the column reads "Handles".
 
-**Actual result:** _(fill in when run)_
+**Actual result:** Focus on Door hardware opened the dropdown: Aldrops and latches with All aldrops, Laser-cut aldrops, BMC-cut aldrops…
 
-**Status:** Not Run
+**Status:** Pass (Claude (in-app browser), 2026-10-12)
 
-**Execution notes / defect:** —
+**Execution notes / defect:** Menus edit step (owner) not repeated.

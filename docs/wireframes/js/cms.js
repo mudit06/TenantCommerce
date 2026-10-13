@@ -1071,7 +1071,8 @@
           <section class="fsec"><header><h4>Branding ${pin(1)}</h4><p>Layout and design are set in code by the platform team.</p></header>
             <div class="form">${field('Store name', 'Aquaverde', { req: true })}${field('Theme colour', `<span class="swt" style="background:var(--ink)"></span> #0F4C5C`)}
               <div class="fld"><span class="fl">Logo</span>${ph('SVG or PNG', { h: 64 })}</div><div class="fld"><span class="fl">Logo for dark backgrounds</span>${ph('SVG or PNG', { h: 64 })}</div>
-              <div class="fld"><span class="fl">Browser icon</span>${ph('64 × 64', { h: 64, w: 64 })}</div><div class="fld"><span class="fl">App icon ${pin(2)}</span>${ph('512 × 512', { h: 64, w: 64 })}</div></div></section>
+              <div class="fld"><span class="fl">Browser icon</span>${ph('64 × 64', { h: 64, w: 64 })}</div><div class="fld"><span class="fl">App icon ${pin(2)}</span>${ph('512 × 512', { h: 64, w: 64 })}</div>
+              <div class="fld s2"><span class="fl">Motion</span>${tog(true, 'Animations on the store')}<span class="small muted">Sections rise in as shoppers scroll, menus ease in and the cart count bumps. Shoppers who turn off motion on their phone or computer never see them.</span></div></div></section>
           <section class="fsec"><header><h4>Contact</h4><p>Shown in the footer, on invoices and on the contact page.</p></header>
             <div class="form">${field('Email', 'care@aquaverde.example')}${field('Phone', '1800 000 0000')}${field('WhatsApp number', '+91 90000 00000', { help: 'Used by the WhatsApp button' })}${field('Address', 'Survey 112, NH 8-A, Morbi, Gujarat 363642')}</div></section>
           <section class="fsec"><header><h4>Grievance officer and labels ${pin(5)}</h4><p>Shown on the contact page and in the footer; the label details prefill every product.</p></header>

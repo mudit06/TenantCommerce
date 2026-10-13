@@ -59,6 +59,8 @@ export function HeartButton({
   withText?: boolean
 }) {
   const [saved, setSaved] = useState(false)
+  // Goes up on each tap, so the heart bumps when pressed (not when the page loads)
+  const [taps, setTaps] = useState(0)
   const [, start] = useTransition()
 
   useEffect(() => {
@@ -76,6 +78,7 @@ export function HeartButton({
       : [...items, { productId, variantId }]
     writeWishlist(next)
     setSaved(!saved)
+    setTaps((n) => n + 1)
     start(async () => {
       await syncWishlist(next, 'replace')
     })
@@ -94,8 +97,9 @@ export function HeartButton({
     >
       <HeartIcon
         aria-hidden
-        className={saved ? 'fill-red-600 text-red-600' : 'text-ink'}
+        className={`${saved ? 'fill-red-600 text-red-600' : 'text-ink'} ${taps ? 'bump' : ''}`}
         height={18}
+        key={taps}
         width={18}
       />
       {withText ? <span>{saved ? 'Saved' : 'Save'}</span> : null}

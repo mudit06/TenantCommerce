@@ -71,7 +71,7 @@ export async function ProductCard({
       }
     : null
   return (
-    <div className="group/card relative flex h-full flex-col overflow-hidden rounded-card border border-line bg-white transition hover:border-ink/25 hover:shadow-md">
+    <div className="group/card relative flex h-full flex-col overflow-hidden rounded-card border border-line bg-white transition duration-300 hover:border-ink/25 hover:shadow-lg motion-ok:hover:-translate-y-1">
       <Link
         className="flex flex-1 flex-col focus-visible:outline-2 focus-visible:outline-ink"
         href={productHref(product)}
@@ -188,7 +188,8 @@ export function ProductGrid({
   return (
     <ul className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 xl:grid-cols-4">
       {products.map((product, index) => (
-        <li key={product.id}>
+        // Rows below the first screen rise in as they scroll into view (globals.css "Motion")
+        <li className="reveal" key={product.id}>
           <ProductCard
             headingLevel={headingLevel}
             priority={index < priorityCount}

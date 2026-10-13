@@ -199,6 +199,12 @@ tc('E2E-04', 'Stock', 'Stock held and released',
    ['Order both pieces', 'Try to buy one more', 'Owner cancels the order', 'Try again'],
    '"Only 0 left"/Out of stock while held; buyable again after cancel.',
    'High', 'Boundary', role='Shopper, Store owner')
+tc('E2E-04', 'Checkout', 'Shop again after an order',
+   'The browser that placed an order can fill a new cart straight away.',
+   'E2E-04-001 done in this browser', 'Any product',
+   ['After the confirmation, open a category', 'Press Add to cart on a card', 'Open the cart'],
+   'The cart count goes from 0 to 1 and the cart shows only the new item; the order stays as placed.',
+   'Critical', role='Shopper')
 
 # E2E-05 Offers
 tc('E2E-05', 'Scheme', 'Live scheme prices everywhere',
@@ -382,7 +388,7 @@ tc('E2E-18', 'Header', 'Desktop header icons and menu',
    'The desktop header has the menu, search and icons and never overflows.',
    'Store selling; wishlist on', 'Widths 1280 and 1024',
    [f'Open {STORE} at 1280 px', 'Read the header', 'Narrow to 1024 px'],
-   'Menu items on one line, search box, account, wishlist with count and cart with count; at 1024 the search becomes an icon and nothing overlaps.',
+   'Menu items on one line, search box, account, wishlist with count and cart with count; at 1024 nothing overlaps (the default header turns the search into an icon; Home Orbit keeps its search bar on its own row).',
    'High', 'UI/UX', role='Shopper', smoke=True)
 tc('E2E-18', 'Phone', 'Bottom navigation',
    'The phone bottom bar shows the right tabs and hides on pages with their own bar.',
@@ -414,3 +420,9 @@ tc('E2E-18', 'Cart', 'Move to wishlist and Complete the look',
    ['Press Move to wishlist on one line', 'Read Complete the look', 'Add one suggestion'],
    'The line leaves the cart and the heart count goes up; suggestions come from the same categories and Add to cart adds one.',
    'Medium', 'Functional', role='Shopper')
+tc('E2E-18', 'Motion', 'Light animations that respect reduced motion',
+   'Sections, hero words, menus, quick add and counts move lightly, and stay still for visitors who reduce motion.',
+   'Store selling; a browser with scroll-driven animations (Chrome, Edge)', 'Windows: Settings → Accessibility → Visual effects → Animation effects off',
+   ['Scroll the home page', 'Swipe the hero', 'Open a menu, Quick add, a heart and Add to cart', 'Turn animations off in the system and reload', 'Owner: Store settings → Branding → untick Animations on the store, Save; reload the store'],
+   'Sections rise in as they arrive, hero words follow their slide, menus and the quick add sheet ease in, the cart and wishlist counts bump; with system animations off everything shows at once and nothing moves (the benefits line stops); with the store switch off the same motion stops for every shopper.',
+   'Medium', 'UI/UX', role='Shopper, Store owner')

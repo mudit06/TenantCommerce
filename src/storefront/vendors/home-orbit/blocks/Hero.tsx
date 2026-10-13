@@ -24,7 +24,7 @@ export function Hero({ block, first, h1 }: BlockRendererProps<'hero'>) {
               key={slide.id ?? i}
             >
               <div aria-hidden className="absolute inset-y-0 left-0 z-10 w-1.5 bg-brand" />
-              <div className="order-2 flex flex-col justify-center p-6 sm:p-10 md:order-1 lg:p-14">
+              <div className="slide-words order-2 flex flex-col justify-center p-6 sm:p-10 md:order-1 lg:p-14">
                 {slide.eyebrow ? (
                   <p className="text-xs font-semibold tracking-[0.22em] text-brand uppercase">
                     {slide.eyebrow}
@@ -39,7 +39,11 @@ export function Hero({ block, first, h1 }: BlockRendererProps<'hero'>) {
                   </p>
                 ) : null}
                 {target && slide.buttonLabel ? (
-                  <ButtonLink className="mt-7 self-start" href={target.href} newTab={target.newTab}>
+                  <ButtonLink
+                    className="shine mt-7 self-start"
+                    href={target.href}
+                    newTab={target.newTab}
+                  >
                     {slide.buttonLabel}
                   </ButtonLink>
                 ) : null}

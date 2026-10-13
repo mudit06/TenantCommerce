@@ -68,7 +68,7 @@ export async function Header({ ctx }: { ctx: StoreContext }) {
           </summary>
           <nav
             aria-label="Menu"
-            className="fixed inset-x-0 top-[6.25rem] z-50 max-h-[calc(100dvh-6.25rem)] overflow-y-auto border-t border-line bg-white px-4 pb-8 shadow-xl"
+            className="drop-in fixed inset-x-0 top-[6.25rem] z-50 max-h-[calc(100dvh-6.25rem)] overflow-y-auto border-t border-line bg-white px-4 pb-8 shadow-xl"
           >
             <MobileMenuList items={items} />
             <ul className="divide-y divide-line border-t border-line">

@@ -130,6 +130,21 @@
    "by": "Claude",
    "date": "2026-10-10",
    "remarks": "Fixed: counted from the orders (reports ordersThisMonth / ordersPlacedByStore) on the vendor overview, the store's plan card and the dashboard's limit warnings. Retested: 18 / 1,000. Open question for the product: the monthly order limit is shown but never enforced at checkout."
+  },
+  {
+   "id": "DEF-003",
+   "case": "E2E-04-008",
+   "portal": "End-to-End",
+   "module": "E2E-04 · Order to cash",
+   "description": "After placing an order, the same browser could not add anything to the cart: the server rejected every Add to cart until the cart cookie expired (30 days).",
+   "severity": "Critical",
+   "steps": "1. Place an order on the store (E2E-04-001). 2. Open any category. 3. Press Add to cart on a card.",
+   "expected": "The cart count goes to 1.",
+   "actual": "Nothing was added; the dev log showed \"ValidationError: The following field is invalid: tenant\" from saveCart. The ordered cart kept the shopper's cart token, and tokens are unique per store, so the new cart could not be created.",
+   "status": "Closed",
+   "by": "Claude",
+   "date": "2026-10-12",
+   "remarks": "Fixed: markCartConverted gives the ordered cart a fresh token, and saveCart frees the token from any older ordered cart before creating a new one (integration test in tests/integration/offers.test.ts). Retested: Add to cart works after an order."
   }
  ],
  "SA-06-001": {
@@ -228,48 +243,99 @@
  },
  "E2E-18-001": {
   "status": "Pass",
-  "actual": "At 1280 px: menu on one line, search box, account, wishlist and cart icons; at 1024 px the search became an icon and the menu no longer overlapped.",
+  "actual": "At 1280 px: menu on one line, 547 px search bar, account, wishlist and cart with count; at 1024 px the menu still fits one line, the search bar (367 px) sits on its own row, no overlaps, no sideways scroll.",
   "by": "Claude (in-app browser)",
-  "date": "2026-10-10",
-  "notes": "Found and fixed in the same session (search box covered \"About us\" at 1024 px)."
+  "date": "2026-10-12",
+  "notes": "Expected result updated for Home Orbit's header, whose search has its own row."
  },
  "E2E-18-002": {
   "status": "Pass",
-  "actual": "Phone: bottom bar Home, Shop, Dealers, Account, Cart; Shop opened /c; on a product page the sticky \"₹1,049 Add to cart\" bar replaced it.",
+  "actual": "Phone: bottom bar Home, Shop (/c), Dealers, Account, Cart with count; on a product page the sticky \"₹849 Add to cart\" bar replaces it.",
   "by": "Claude (in-app browser)",
-  "date": "2026-10-10"
+  "date": "2026-10-12"
  },
  "E2E-18-003": {
   "status": "Pass",
-  "actual": "Footer: Get our offers first, Shop (with Offers), Help (Track order, Contact us), Company (About us, Contact us, Find a dealer, Downloads), legal line with name and GSTIN, COD chip.",
+  "actual": "Footer: Get our offers first; Shop (with Offers); Help (Track order, Privacy policy, Contact us); Company (About us, Contact us, Find a dealer, Downloads); legal line with GSTIN and COD.",
   "by": "Claude (in-app browser)",
-  "date": "2026-10-10",
-  "notes": "QA data has placeholder business details and no grievance officer or published policies, so those lines were not shown."
+  "date": "2026-10-12",
+  "notes": "QA data has placeholder legal name and no grievance officer, so that line was not shown."
  },
  "E2E-18-004": {
   "status": "Pass",
-  "actual": "\"610\" and \"hogdh610\" → HOGDH-610 first; \"key\" → key hangers and the Key hangers category; \"glas handel\" → glass door handles (after the swapped-letter fix).",
+  "actual": "\"610\" and \"hogdh610\" → HOGDH-610 first; \"glas handel\" → glass door handles; ArrowDown + Enter opened HOGDH-610; clearing the box showed Recent searches \"hogdh610\".",
   "by": "Claude (in-app browser)",
-  "date": "2026-10-10",
-  "notes": "Arrow keys and Recent searches were not exercised."
+  "date": "2026-10-12"
  },
  "E2E-18-005": {
   "status": "Pass",
-  "actual": "Filter sheet opened over the page with Close, Price, Clear and \"Show 50 products\"; price 500–1000 gave 21 products, Price low to high cheapest first.",
+  "actual": "Phone: Filter opened a sheet with Close and Clear; max ₹1,000 + Go → \"Show 32 products\" and 32 in the list (all ≤ ₹1,000); Filter (1) after closing.",
   "by": "Claude (in-app browser)",
-  "date": "2026-10-10"
+  "date": "2026-10-12"
  },
  "E2E-18-006": {
   "status": "Pass",
-  "actual": "Move to wishlist removed the door stopper from the cart and the heart read \"1 saved\"; Complete the look listed 4 products with Add to cart.",
+  "actual": "Move to wishlist took HOPH-504 out of the cart and the wishlist badge went 0 → 1; Complete the look showed glass door handles; Add to cart on HOGDH-612 made 2 items, ₹1,898.",
   "by": "Claude (in-app browser)",
-  "date": "2026-10-10"
+  "date": "2026-10-12"
  },
  "E2E-03-003": {
   "status": "Pass",
-  "actual": "Category card Add to cart: \"Added ✓\" and the cart count went from 2 to 3 without leaving the page.",
+  "actual": "Door hardware sorted Price: low to high (₹249, ₹249, ₹249, ₹349…); Add to cart on HODS-861 made the cart 1 item.",
   "by": "Claude (in-app browser)",
-  "date": "2026-10-10",
-  "notes": "Run on existing Home Orbit products, not a new QA product."
+  "date": "2026-10-12",
+  "notes": "First try failed after an order in the same browser (DEF-003); passed after the fix."
+ },
+ "E2E-18-007": {
+  "status": "Pass",
+  "actual": "Home: sections below the first rise in while scrolling, hero words follow a half-swiped slide (50%); menu dropdown and phone menu ease in; quick add sheet slides up with a fading backdrop; cart and heart bump. Checked with the browser's animation timings. Store switch: with animations off in the store's settings the page carries data-motion=\"off\" and no scroll animations run; the page renders the same. Lighthouse mobile on the production build: accessibility, best practices and SEO 100 on home, listing and product; layout shift 0.",
+  "by": "Claude (in-app browser)",
+  "date": "2026-10-12",
+  "notes": "Reduced-motion run not done in the in-app browser (it cannot switch the OS setting); the switch was set in the database, not by saving the CMS form (no CMS sign-in in this run)."
+ },
+ "E2E-03-006": {
+  "status": "Pass",
+  "actual": "Phone: Quick add on HOPH-504 opened the picker sheet (sizes and finishes, ₹2,049); Add to cart bumped the cart to 1; Escape closed it.",
+  "by": "Claude (in-app browser)",
+  "date": "2026-10-12"
+ },
+ "E2E-03-007": {
+  "status": "Pass",
+  "actual": "Focus on Door hardware opened the dropdown: Aldrops and latches with All aldrops, Laser-cut aldrops, BMC-cut aldrops…",
+  "by": "Claude (in-app browser)",
+  "date": "2026-10-12",
+  "notes": "Menus edit step (owner) not repeated."
+ },
+ "E2E-04-001": {
+  "status": "Pass",
+  "actual": "\"Thank you, Rahul. Your order is placed.\" Order HOM-10024 · ₹1,947.00 to pay in cash on delivery, arrives Thu 15 Oct, both items listed; cart empty; email and WhatsApp printed in the dev log.",
+  "by": "Claude (in-app browser)",
+  "date": "2026-10-12"
+ },
+ "E2E-04-002": {
+  "status": "Pass",
+  "actual": "Changed every shown total to ₹1.00 before Place order; the order and messages say ₹1,947 (₹849 + ₹1,049 + ₹49 COD fee).",
+  "by": "Claude (in-app browser)",
+  "date": "2026-10-12"
+ },
+ "E2E-04-003": {
+  "status": "Pass",
+  "actual": "The confirmation address fetched without the shopper's cookies: \"We can't show this order here\".",
+  "by": "Claude (in-app browser)",
+  "date": "2026-10-12"
+ },
+ "E2E-04-005": {
+  "status": "Pass",
+  "actual": "/t/<code> without cookies: HOM-10024 Confirmed · arriving by Thu 15 Oct with the journey; no address.",
+  "by": "Claude (in-app browser)",
+  "date": "2026-10-12",
+  "notes": "Order not shipped yet, so courier and AWB were not shown."
+ },
+ "E2E-04-008": {
+  "status": "Pass",
+  "actual": "After HOM-10024, Add to cart on a listing card made the cart 1 item.",
+  "by": "Claude (in-app browser)",
+  "date": "2026-10-12",
+  "notes": "Failed before the fix (DEF-003)."
  }
 }

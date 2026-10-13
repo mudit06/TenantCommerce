@@ -11,7 +11,7 @@ Regression script, generated from `docs/qa/tools` (edit the case files there, th
 | Environment | Local QA: admin `http://localhost:3000/admin`, store `http://home-orbit.localhost:3000`, database `tenantecom_qa` |
 | Spec | `st-cart`, `st-checkout`, `cms-order`, `sa-dashboard` (docs/screens) |
 | Depends on | VC-10, VC-24, VC-25 |
-| Test cases | 7 (2 in the smoke run) |
+| Test cases | 8 (2 in the smoke run) |
 
 ## Before you start
 
@@ -64,9 +64,9 @@ Regression script, generated from `docs/qa/tools` (edit the case files there, th
 
 **Expected result:** "Thank you, Rahul. Your order is placed." with the order number (HOM-…), amount to pay in cash, delivery date and items; the cart is empty again.
 
-**Actual result:** _(fill in when run)_
+**Actual result:** "Thank you, Rahul. Your order is placed." Order HOM-10024 · ₹1,947.00 to pay in cash on delivery, arrives Thu 15 Oct, both items listed; cart empty; email and WhatsApp printed in the dev log.
 
-**Status:** Not Run
+**Status:** Pass (Claude (in-app browser), 2026-10-12)
 
 **Execution notes / defect:** —
 
@@ -91,9 +91,9 @@ Regression script, generated from `docs/qa/tools` (edit the case files there, th
 
 **Expected result:** The order uses the server's price; the edited number has no effect.
 
-**Actual result:** _(fill in when run)_
+**Actual result:** Changed every shown total to ₹1.00 before Place order; the order and messages say ₹1,947 (₹849 + ₹1,049 + ₹49 COD fee).
 
-**Status:** Not Run
+**Status:** Pass (Claude (in-app browser), 2026-10-12)
 
 **Execution notes / defect:** —
 
@@ -117,9 +117,9 @@ Regression script, generated from `docs/qa/tools` (edit the case files there, th
 
 **Expected result:** "We can't show this order here".
 
-**Actual result:** _(fill in when run)_
+**Actual result:** The confirmation address fetched without the shopper's cookies: "We can't show this order here".
 
-**Status:** Not Run
+**Status:** Pass (Claude (in-app browser), 2026-10-12)
 
 **Execution notes / defect:** —
 
@@ -176,11 +176,11 @@ Regression script, generated from `docs/qa/tools` (edit the case files there, th
 
 **Expected result:** Journey, courier and AWB, items and masked phone; no address or invoice. A made-up code: "We can't find this order".
 
-**Actual result:** _(fill in when run)_
+**Actual result:** /t/<code> without cookies: HOM-10024 Confirmed · arriving by Thu 15 Oct with the journey; no address.
 
-**Status:** Not Run
+**Status:** Pass (Claude (in-app browser), 2026-10-12)
 
-**Execution notes / defect:** —
+**Execution notes / defect:** Order not shipped yet, so courier and AWB were not shown.
 
 ### E2E-04-006 · Platform: Sale reaches the platform dashboard
 
@@ -237,3 +237,31 @@ Regression script, generated from `docs/qa/tools` (edit the case files there, th
 **Status:** Not Run
 
 **Execution notes / defect:** —
+
+### E2E-04-008 · Checkout: Shop again after an order
+
+| Field | Value |
+|---|---|
+| Module | E2E-04 · Order to cash (COD) |
+| Test case ID | E2E-04-008 |
+| Scenario and objective | The browser that placed an order can fill a new cart straight away. |
+| Preconditions | E2E-04-001 done in this browser |
+| Test data | Any product |
+| Role | Shopper |
+| Priority | Critical |
+| Type | Integration |
+
+**Steps**
+
+1. After the confirmation, open a category
+2. Press Add to cart on a card
+3. Open the cart
+4. Verify the expected result below before going on.
+
+**Expected result:** The cart count goes from 0 to 1 and the cart shows only the new item; the order stays as placed.
+
+**Actual result:** After HOM-10024, Add to cart on a listing card made the cart 1 item.
+
+**Status:** Pass (Claude (in-app browser), 2026-10-12)
+
+**Execution notes / defect:** Failed before the fix (DEF-003).

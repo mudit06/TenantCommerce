@@ -70,6 +70,8 @@ export function QuickAdd({
             : mode === 'cart'
               ? 'Add to cart'
               : 'Quick add'
+  const buttonText =
+    mode === 'quote' ? 'Ask for a quote' : mode === 'options' ? 'Choose options' : label
   const Icon = mode === 'quote' ? MailIcon : note?.ok ? CartIcon : PlusIcon
   const onClick = mode === 'cart' ? addNow : open
 
@@ -87,13 +89,14 @@ export function QuickAdd({
       </button>
     ) : (
       <button
-        aria-label={`${label}: ${title}`}
+        // The spoken name starts with the words on the button (WCAG 2.5.3)
+        aria-label={`${buttonText}: ${title}`}
         className={buttonClass('outline', 'min-h-10 w-full px-3 text-xs sm:text-sm')}
         disabled={soldOut || (pending && mode === 'cart')}
         onClick={onClick}
         type="button"
       >
-        {mode === 'quote' ? 'Ask for a quote' : mode === 'options' ? 'Choose options' : label}
+        {buttonText}
       </button>
     )
 

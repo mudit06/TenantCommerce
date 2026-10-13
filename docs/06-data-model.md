@@ -77,7 +77,8 @@ store-session service, never through the API; ends by itself at `endsAt`).
 ## Store configuration (T)
 
 ### site-settings (per-tenant singleton)
-`storeName` (L), `logo`, `logoDark`, `favicon`, `pwaIcon` (512px), `themeColor`,
+`storeName` (L), `logo`, `logoDark`, `favicon`, `pwaIcon` (512px), `themeColor`, `animations`
+(checkbox, on unless unticked: the storefront motion in docs/10 "Motion"),
 `contact` (email, phone, whatsapp, address), `grievanceOfficer { name, designation, email, phone }`
 (shown on the contact page and in the footer, Consumer Protection E-Commerce Rules 2020),
 `legalDefaults { manufacturerName, manufacturerAddress, consumerCare }` (prefills each product's

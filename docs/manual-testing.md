@@ -260,6 +260,10 @@ Search and analytics, Store status). Press **Contact**: the page scrolls to it.
 - [ ] Section **Grievance officer and labels**: fill in a name, designation, email and phone, then
       Save. The contact page and the footer show the grievance officer.
 - [ ] Back on the dashboard, the Store settings step is ticked (7 of 9).
+- [ ] Section **Branding**: untick **Animations on the store** and Save. Reload the home page and
+      scroll: sections no longer rise in, menus open without easing and the cart count doesn't
+      bump (the benefits line still scrolls; it is the block's own style). Tick it again and Save:
+      the motion is back.
 - [ ] Section **Store status**: tick **Maintenance mode** and Save. A yellow bar "Maintenance mode is
       on" shows on every page of the CMS and in Needs your attention. Untick it again.
 
@@ -627,6 +631,12 @@ http://home-orbit.localhost:3000 . Check it twice: on a normal desktop window, a
       `/c/bathroom-accessories/soap-dishes-and-dispensers` redirects to Soap dishes. A shelf with a
       tumbler also shows under Tumbler holders.
 - [ ] Footer: **Privacy policy** under Help opens Home Orbit's policy (our draft for them to review).
+- [ ] **Motion** (Chrome or Edge): scroll the home page: each section after the hero rises in as
+      it arrives (ones already on screen don't move). Swipe the hero slowly: the next slide's
+      words slide in after it. A menu dropdown, the phone menu and the quick add sheet ease in;
+      the cart and wishlist counts bump when they change; hero buttons get a light sweep on hover.
+      Turn off animations (Windows: Settings → Accessibility → Visual effects → Animation effects)
+      and reload: everything shows at once and nothing moves, the scrolling line included.
 - [ ] Header menu: hover (desktop) or tap the menu button (phone) to see the categories; on a phone
       each item opens to its columns. Nothing runs off the side of the phone screen, at 1024 px wide
       either.
@@ -743,6 +753,8 @@ data): `pnpm demo:selling home-orbit`. It prints how many products it priced, an
 - [ ] Place the order: "Thank you, Rahul. Your order is placed." with the order number (HOM-10001
       for the first), the amount "to pay in cash on delivery", the delivery date and address,
       and the items. The cart icon is empty again.
+- [ ] Straight after, open a category and press **Add to cart** on a card: the cart count goes to
+      1 and the cart holds only the new item (the same browser can shop again after an order).
 - [ ] Copy the page address into another browser: "We can’t show this order here" (only the
       browser that placed it sees it).
 - [ ] With test keys: choose **Pay online**; Razorpay's test window opens. Pay with a test card
