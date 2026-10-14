@@ -11,7 +11,7 @@ Regression script, generated from `docs/qa/tools` (edit the case files there, th
 | Environment | Local QA: admin `http://localhost:3000/admin`, store `http://home-orbit.localhost:3000`, database `tenantecom_qa` |
 | Spec | `st-home`, `st-search`, `st-category`, `st-filters` (docs/screens) |
 | Depends on | VC-03, VC-21 |
-| Test cases | 7 (3 in the smoke run) |
+| Test cases | 8 (3 in the smoke run) |
 
 ## Before you start
 
@@ -233,3 +233,34 @@ Regression script, generated from `docs/qa/tools` (edit the case files there, th
 **Status:** Pass (Claude (in-app browser), 2026-10-12)
 
 **Execution notes / defect:** Reduced-motion run not done in the in-app browser (it cannot switch the OS setting); the switch was set in the database, not by saving the CMS form (no CMS sign-in in this run).
+
+### E2E-18-008 · Loaders: Page loader and busy buttons
+
+| Field | Value |
+|---|---|
+| Module | E2E-18 · Storefront chrome and search (shop experience) |
+| Test case ID | E2E-18-008 |
+| Scenario and objective | Moving between pages and waiting on a button both show the store’s loader, and a missing page still answers 404. |
+| Preconditions | Store selling; Chrome DevTools → Network → Slow 4G for the slow steps |
+| Test data | Any product; pincode 560001; /products/no-such-product |
+| Role | Shopper |
+| Priority | Medium |
+| Type | UI/UX |
+
+**Steps**
+
+1. Click a category, then a product (Slow 4G)
+2. Search from the header and press Enter
+3. Add to cart, Buy now and Check the pincode on a product
+4. Place an order (COD)
+5. Turn animations off in the system and repeat one step
+6. Open /products/no-such-product directly
+7. Verify the expected result below before going on.
+
+**Expected result:** A thin bar in the store colour at the top at once; after about half a second the house with a dot circling it and "Loading…" in the middle, gone when the page arrives (quick pages show neither); only the pressed button shows a small ring with its words; the order page loads under the loader; with animations off the ring and dot fade instead of turning; the missing product answers 404 (a moved one still redirects).
+
+**Actual result:** _(fill in when run)_
+
+**Status:** Not Run
+
+**Execution notes / defect:** —

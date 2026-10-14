@@ -187,3 +187,23 @@ both. Shared classes a vendor UI can use:
 
 Never animate the first block (it loads first and holds the h1), and never use motion to fake
 urgency (docs/14). The benefits block's scrolling line (`marquee`) also stops for reduced motion.
+
+### Loaders
+
+One loader, in the store's own colours: a small house with a dot circling it (`kit/Loader.tsx`,
+inline SVG and a few lines of CSS in globals.css "Loaders", no image, font or library; about 1 KB).
+
+- **Between pages**: `kit/layout/NavigationLoader.tsx` (in the store layout) shows a thin bar in
+  `--brand` at the top as soon as a shopper clicks a link to another page or submits a search or
+  filter form, and the loader in the middle if the page takes longer than half a second. Code that
+  moves to another page with `router.push` or `router.replace` calls `startNavigation()` first.
+- **Busy buttons**: give the button `aria-busy={pending}` and keep its words ("Adding…"); a small
+  ring takes the place of its icon. Only the pressed button gets it.
+- **Part of a page**: `<Loader label="Loading your wishlist…" />` where client data is still coming
+  (wishlist); a still outline of the content is fine too (quick add options).
+- **No `loading.tsx` under `app/(storefront)`**: it streams the page, which commits a 200 before
+  the page runs, so a missing page would answer 200 and a moved one would redirect in the browser
+  instead of with a 308 (Next.js docs, `loading.js` "Status codes"). The first load of a page is
+  the server's HTML, which needs no loader.
+- With reduced motion or the store's Animations switch off, the dot and the ring fade in and out
+  instead of turning, so the busy state still shows.

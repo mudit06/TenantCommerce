@@ -204,7 +204,12 @@ export function ApplyForm({
         </p>
       ) : null}
       <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
-        <button className={buttonClass('primary')} disabled={pending} type="submit">
+        <button
+          aria-busy={pending}
+          className={buttonClass('primary')}
+          disabled={pending}
+          type="submit"
+        >
           {pending ? 'Sending…' : 'Send application'}
         </button>
         <span className="text-xs text-ink-soft">Signed in as {email}</span>

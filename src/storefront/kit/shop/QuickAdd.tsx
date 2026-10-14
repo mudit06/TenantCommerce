@@ -78,6 +78,7 @@ export function QuickAdd({
   const trigger =
     look === 'overlay' ? (
       <button
+        aria-busy={pending && mode === 'cart'}
         aria-label={`${label}: ${title}`}
         className="pointer-events-auto inline-flex min-h-10 items-center gap-1.5 rounded-full bg-white/95 px-3 text-xs font-semibold text-ink shadow-md ring-1 ring-black/5 transition hover:bg-dark hover:text-white disabled:opacity-60 sm:text-sm"
         disabled={soldOut || (pending && mode === 'cart')}
@@ -90,6 +91,7 @@ export function QuickAdd({
     ) : (
       <button
         // The spoken name starts with the words on the button (WCAG 2.5.3)
+        aria-busy={pending && mode === 'cart'}
         aria-label={`${buttonText}: ${title}`}
         className={buttonClass('outline', 'min-h-10 w-full px-3 text-xs sm:text-sm')}
         disabled={soldOut || (pending && mode === 'cart')}

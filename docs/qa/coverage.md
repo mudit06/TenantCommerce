@@ -82,9 +82,9 @@ its regression script and how many manual test cases cover each kind of check.
 | E2E-15 Affiliate referral to commission | st-affiliate, cms-affiliates | 1 | 0 | 0 | · | · | · | · | 1 | · | · | · | [E2E-15](regression/e2e/E2E-15-affiliate.md) |
 | E2E-16 Billing to subscriptions | sa-vendor-billing, sa-subscriptions | 1 | 0 | 0 | · | · | · | · | 1 | · | · | · | [E2E-16](regression/e2e/E2E-16-billing.md) |
 | E2E-17 Shopper account and wishlist across devices | st-login, st-account, st-wishlist | 3 | 0 | 0 | · | · | · | · | 1 | 1 | 1 | · | [E2E-17](regression/e2e/E2E-17-account.md) |
-| E2E-18 Storefront chrome and search (shop experience) | st-home, st-search, st-category, st-filters | 7 | 0 | 3 | 2 | · | · | · | · | · | · | 5 | [E2E-18](regression/e2e/E2E-18-storefront.md) |
+| E2E-18 Storefront chrome and search (shop experience) | st-home, st-search, st-category, st-filters | 8 | 0 | 3 | 2 | · | · | · | · | · | · | 6 | [E2E-18](regression/e2e/E2E-18-storefront.md) |
 
-18 modules, 52 test cases.
+18 modules, 53 test cases.
 
 ## Dependencies between modules
 

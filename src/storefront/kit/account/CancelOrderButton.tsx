@@ -19,6 +19,7 @@ export function CancelOrderButton({
   return (
     <div className="space-y-2">
       <button
+        aria-busy={pending}
         className="inline-flex min-h-9 items-center rounded-card border border-red-700/40 px-3 text-sm font-semibold text-red-700 hover:border-red-700"
         disabled={pending}
         onClick={() => {

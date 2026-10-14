@@ -177,7 +177,7 @@ export function ReviewForm({
           {error}
         </p>
       ) : null}
-      <button className={buttonClass('dark')} disabled={pending} type="submit">
+      <button aria-busy={pending} className={buttonClass('dark')} disabled={pending} type="submit">
         {pending ? 'Sending…' : 'Submit review'}
       </button>
     </form>

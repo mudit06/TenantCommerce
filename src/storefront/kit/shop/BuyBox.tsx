@@ -13,6 +13,7 @@ import { buttonClass } from '../ui'
 import { announceCartChange } from './CartLink'
 import { Price } from './Price'
 import { QtyStepper } from './QtyStepper'
+import { startNavigation } from '../layout/NavigationLoader'
 
 export type BuyVariant = {
   id: string
@@ -72,6 +73,8 @@ export function BuyBox({
   const [delivery, setDelivery] = useState<DeliveryCheck | null>(null)
   const [deliveryError, setDeliveryError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
+  // Which button is waiting, so only that one shows the busy ring
+  const [busy, setBusy] = useState<'cart' | 'buy' | 'pincode' | null>(null)
 
   const variant = useMemo(
     () =>
@@ -101,7 +104,8 @@ export function BuyBox({
     return match ? (match.offerMinor ?? match.priceMinor) : null
   }
 
-  const add = (thenCheckout: boolean) =>
+  const add = (thenCheckout: boolean) => {
+    setBusy(thenCheckout ? 'buy' : 'cart')
     startTransition(async () => {
       setMessage(null)
       const result = await addToCart({ productId, variantId: variant?.id ?? null, qty })
@@ -110,11 +114,15 @@ export function BuyBox({
         return
       }
       announceCartChange()
-      if (thenCheckout) router.push('/checkout')
-      else setMessage({ tone: 'ok', text: 'Added to your cart.' })
+      if (thenCheckout) {
+        startNavigation()
+        router.push('/checkout')
+      } else setMessage({ tone: 'ok', text: 'Added to your cart.' })
     })
+  }
 
-  const check = () =>
+  const check = () => {
+    setBusy('pincode')
     startTransition(async () => {
       setDeliveryError(null)
       const result = await checkDelivery({
@@ -130,6 +138,7 @@ export function BuyBox({
       }
       setDelivery(result.data)
     })
+  }
 
   return (
     <div className="space-y-5">
@@ -237,6 +246,7 @@ export function BuyBox({
               value={pincode}
             />
             <button
+              aria-busy={pending && busy === 'pincode'}
               className={buttonClass('outline')}
               disabled={pending || pincode.length !== 6}
               type="submit"
@@ -285,6 +295,7 @@ export function BuyBox({
 
       <div className="grid grid-cols-2 gap-3">
         <button
+          aria-busy={pending && busy === 'cart'}
           className={buttonClass('dark')}
           disabled={pending || needsChoice || soldOut}
           onClick={() => add(false)}
@@ -293,6 +304,7 @@ export function BuyBox({
           Add to cart
         </button>
         <button
+          aria-busy={pending && busy === 'buy'}
           className={buttonClass('outline')}
           disabled={pending || needsChoice || soldOut}
           onClick={() => add(true)}
@@ -343,6 +355,7 @@ export function BuyBox({
             <span className="pl-2 text-base font-bold">{formatINR(priceMinor)}</span>
           ) : null}
           <button
+            aria-busy={pending && busy === 'cart'}
             className={buttonClass('dark', 'flex-1')}
             disabled={pending || needsChoice || soldOut}
             onClick={() => add(false)}

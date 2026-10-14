@@ -65,6 +65,7 @@ export function RetryPayment({
   return (
     <div>
       <button
+        aria-busy={busy}
         className={buttonClass('dark', 'w-full')}
         disabled={busy}
         onClick={() => void pay()}

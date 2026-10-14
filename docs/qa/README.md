@@ -2,7 +2,7 @@
 
 Everything a tester (or Claude in Chrome) needs to regression-test the **super admin** (platform
 panel) and the **vendor CMS**, plus the cross-portal workflows that run through the storefront.
-Last built 12 October 2026 against branch `claude/adoring-cori-we1zlg`.
+Last built 14 October 2026 against branch `claude/adoring-cori-we1zlg`.
 
 | Deliverable | Where |
 |---|---|
@@ -11,7 +11,7 @@ Last built 12 October 2026 against branch `claude/adoring-cori-we1zlg`.
 | C. Inventory, coverage matrix, this guide | `coverage.md` and this file |
 | Source of all three | `tools/` (case files, results, generator) |
 
-**354 test cases in 62 modules:** 105 super admin, 197 vendor CMS, 52 end-to-end. 63 are marked
+**355 test cases in 62 modules:** 105 super admin, 197 vendor CMS, 53 end-to-end. 63 are marked
 **Smoke run** (the critical path to run after every change). Each case has the same ID in its
 script, the workbook and the coverage matrix: `SA-05-008` is case 8 of module SA-05 (Vendor
 overview), in `regression/super-admin/SA-05-vendor-overview.md` and on the Super Admin tab.

@@ -6,6 +6,7 @@ import { useState, useTransition } from 'react'
 import { buyAgain } from '../../shop/accountActions'
 import { announceCartChange } from '../shop/CartLink'
 import { buttonClass } from '../ui'
+import { startNavigation } from '../layout/NavigationLoader'
 
 /** Puts a delivered order's items back in the cart, at today's prices, and opens the cart. */
 export function BuyAgainButton({ orderNumber }: { orderNumber: string }) {
@@ -15,6 +16,7 @@ export function BuyAgainButton({ orderNumber }: { orderNumber: string }) {
   return (
     <>
       <button
+        aria-busy={pending}
         className={buttonClass('outline', 'min-h-9 px-3')}
         disabled={pending}
         onClick={() =>
@@ -30,6 +32,7 @@ export function BuyAgainButton({ orderNumber }: { orderNumber: string }) {
               return
             }
             announceCartChange()
+            startNavigation()
             router.push('/cart')
           })
         }

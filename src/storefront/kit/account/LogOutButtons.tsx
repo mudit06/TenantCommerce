@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 
 import { logOut } from '../../shop/accountActions'
+import { startNavigation } from '../layout/NavigationLoader'
 
 /** "Log out" and "Log out of all devices" (docs/screens My account rule 3). */
 export function LogOutButtons({ className = '' }: { className?: string }) {
@@ -12,6 +13,7 @@ export function LogOutButtons({ className = '' }: { className?: string }) {
   const run = (everywhere: boolean) =>
     start(async () => {
       await logOut(everywhere)
+      startNavigation()
       router.replace('/')
       router.refresh()
     })

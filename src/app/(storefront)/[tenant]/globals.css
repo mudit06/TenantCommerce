@@ -180,3 +180,72 @@
     animation: shine 700ms ease-out;
   }
 }
+
+/* Loaders (docs/10 "Loaders"): the house-and-orbit mark (kit/Loader.tsx), the page loader between
+   pages (kit/layout/NavigationLoader.tsx) and a small ring on a busy button (`aria-busy`). Only
+   rotate, translate and opacity move. Visitors who reduce motion, and stores with Animations off,
+   get a slow fade instead of movement, so the busy state still shows. */
+@keyframes orbit {
+  to {
+    rotate: 1turn;
+  }
+}
+@keyframes page-bar {
+  from {
+    translate: -100% 0;
+  }
+  to {
+    translate: 250% 0;
+  }
+}
+@keyframes breathe {
+  50% {
+    opacity: 0.35;
+  }
+}
+.loader-orbit {
+  transform-origin: 32px 32px;
+  animation: breathe 1.6s ease-in-out infinite;
+}
+/* The bar shows after a beat and the middle loader only if the page is slow, so quick pages
+   never flash either of them */
+.page-bar {
+  animation: fade-in 150ms 120ms both;
+}
+.page-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 40%;
+  border-radius: 999px;
+  background: var(--brand);
+  animation: breathe 1.6s ease-in-out infinite;
+}
+.page-loader {
+  animation: fade-in 200ms 500ms both;
+}
+button[aria-busy='true']::before {
+  content: '';
+  flex: none;
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 999px;
+  animation: breathe 1.2s ease-in-out infinite;
+}
+/* The ring takes the place of the button's icon while it is busy */
+button[aria-busy='true'] > svg {
+  display: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  :root:not([data-motion='off']) .loader-orbit {
+    animation: orbit 1.2s cubic-bezier(0.5, 0.15, 0.5, 0.85) infinite;
+  }
+  :root:not([data-motion='off']) .page-bar::after {
+    animation: page-bar 1.1s ease-in-out infinite;
+  }
+  :root:not([data-motion='off']) button[aria-busy='true']::before {
+    animation: orbit 700ms linear infinite;
+  }
+}

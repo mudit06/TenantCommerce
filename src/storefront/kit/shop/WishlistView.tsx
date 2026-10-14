@@ -7,6 +7,7 @@ import { addToCart } from '@/storefront/shop/actions'
 import { syncWishlist, wishlistView, type WishlistRow } from '@/storefront/shop/wishlistActions'
 
 import { HeartIcon } from '../icons'
+import { Loader } from '../Loader'
 import { buttonClass } from '../ui'
 import { announceCartChange } from './CartLink'
 import { readWishlist, syncOnce, writeWishlist, type LocalItem } from './HeartButton'
@@ -68,7 +69,7 @@ export function WishlistView({ signedIn, selling }: { signedIn: boolean; selling
     <div className="space-y-4">
       <header>
         <h1 className="font-heading text-2xl font-bold">Your wishlist</h1>
-        <p className="text-sm text-ink-soft">{rows ? `${rows.length} saved` : 'Loading…'}</p>
+        <p className="text-sm text-ink-soft">{rows ? `${rows.length} saved` : ' '}</p>
       </header>
       {!signedIn ? (
         <div className="flex flex-wrap items-center gap-3 rounded-card bg-surface-alt p-3 text-sm">
@@ -111,6 +112,7 @@ export function WishlistView({ signedIn, selling }: { signedIn: boolean; selling
           </Link>
         </p>
       ) : null}
+      {rows ? null : <Loader className="py-12" label="Loading your wishlist…" />}
       {rows && rows.length === 0 ? (
         <div className="py-10 text-center">
           <p className="text-ink-soft">

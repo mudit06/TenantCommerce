@@ -426,3 +426,9 @@ tc('E2E-18', 'Motion', 'Light animations that respect reduced motion',
    ['Scroll the home page', 'Swipe the hero', 'Open a menu, Quick add, a heart and Add to cart', 'Turn animations off in the system and reload', 'Owner: Store settings → Branding → untick Animations on the store, Save; reload the store'],
    'Sections rise in as they arrive, hero words follow their slide, menus and the quick add sheet ease in, the cart and wishlist counts bump; with system animations off everything shows at once and nothing moves (the benefits line stops); with the store switch off the same motion stops for every shopper.',
    'Medium', 'UI/UX', role='Shopper, Store owner')
+tc('E2E-18', 'Loaders', 'Page loader and busy buttons',
+   'Moving between pages and waiting on a button both show the store’s loader, and a missing page still answers 404.',
+   'Store selling; Chrome DevTools → Network → Slow 4G for the slow steps', 'Any product; pincode 560001; /products/no-such-product',
+   ['Click a category, then a product (Slow 4G)', 'Search from the header and press Enter', 'Add to cart, Buy now and Check the pincode on a product', 'Place an order (COD)', 'Turn animations off in the system and repeat one step', 'Open /products/no-such-product directly'],
+   'A thin bar in the store colour at the top at once; after about half a second the house with a dot circling it and "Loading…" in the middle, gone when the page arrives (quick pages show neither); only the pressed button shows a small ring with its words; the order page loads under the loader; with animations off the ring and dot fade instead of turning; the missing product answers 404 (a moved one still redirects).',
+   'Medium', 'UI/UX', role='Shopper')

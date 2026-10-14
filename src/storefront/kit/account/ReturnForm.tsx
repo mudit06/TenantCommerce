@@ -165,7 +165,12 @@ export function ReturnForm({
         </p>
       ) : null}
       <div className="flex flex-wrap gap-2">
-        <button className={buttonClass('primary')} disabled={pending} type="submit">
+        <button
+          aria-busy={pending}
+          className={buttonClass('primary')}
+          disabled={pending}
+          type="submit"
+        >
           {pending ? 'Sending…' : 'Send return request'}
         </button>
         <button className={buttonClass('outline')} onClick={() => setOpen(false)} type="button">

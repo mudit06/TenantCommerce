@@ -174,6 +174,7 @@ export function QuoteForm({
       ) : null}
       <div className="sm:col-span-2">
         <button
+          aria-busy={pending}
           className={buttonClass('primary', 'w-full sm:w-auto')}
           disabled={pending}
           type="submit"

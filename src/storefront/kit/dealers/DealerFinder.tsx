@@ -106,6 +106,7 @@ export function DealerFinder({
             Search
           </button>
           <button
+            aria-busy={locating}
             className={buttonClass('outline', 'whitespace-nowrap')}
             disabled={locating}
             onClick={useLocation}

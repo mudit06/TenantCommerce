@@ -208,7 +208,12 @@ export function AddressBook({ addresses }: { addresses: SavedAddress[] }) {
               Use this address at checkout
             </label>
             <div className="flex gap-2 sm:col-span-2">
-              <button className={buttonClass('dark')} disabled={pending} type="submit">
+              <button
+                aria-busy={pending}
+                className={buttonClass('dark')}
+                disabled={pending}
+                type="submit"
+              >
                 {pending ? 'Saving…' : 'Save address'}
               </button>
               <button

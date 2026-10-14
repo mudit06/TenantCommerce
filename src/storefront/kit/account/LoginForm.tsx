@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, useTransition } from 'react'
 
 import { passwordLogin, sendCode, verifyCode } from '../../shop/accountActions'
 import { buttonClass } from '../ui'
+import { startNavigation } from '../layout/NavigationLoader'
 
 const inputClass =
   'h-12 w-full rounded-card border border-line bg-white px-3 text-base outline-none focus:border-ink/60'
@@ -57,6 +58,7 @@ export function LoginForm({ initialEmail, next }: { initialEmail: string; next: 
         setError(result.message)
         return
       }
+      startNavigation()
       router.replace(result.data.next)
       router.refresh()
     })
@@ -69,6 +71,7 @@ export function LoginForm({ initialEmail, next }: { initialEmail: string; next: 
         setError(result.message)
         return
       }
+      startNavigation()
       router.replace(result.data.next)
       router.refresh()
     })
@@ -169,7 +172,12 @@ export function LoginForm({ initialEmail, next }: { initialEmail: string; next: 
                 value={password}
               />
             </div>
-            <button className={buttonClass('dark', 'w-full')} disabled={pending} type="submit">
+            <button
+              aria-busy={pending}
+              className={buttonClass('dark', 'w-full')}
+              disabled={pending}
+              type="submit"
+            >
               {pending ? 'Logging in…' : 'Log in'}
             </button>
             <p className="text-xs text-ink-soft">
@@ -177,7 +185,12 @@ export function LoginForm({ initialEmail, next }: { initialEmail: string; next: 
             </p>
           </>
         ) : !sentTo ? (
-          <button className={buttonClass('dark', 'w-full')} disabled={pending} type="submit">
+          <button
+            aria-busy={pending}
+            className={buttonClass('dark', 'w-full')}
+            disabled={pending}
+            type="submit"
+          >
             {pending ? 'Sending…' : 'Send code'}
           </button>
         ) : (
@@ -223,7 +236,12 @@ export function LoginForm({ initialEmail, next }: { initialEmail: string; next: 
                 )}
               </p>
             </div>
-            <button className={buttonClass('dark', 'w-full')} disabled={pending} type="submit">
+            <button
+              aria-busy={pending}
+              className={buttonClass('dark', 'w-full')}
+              disabled={pending}
+              type="submit"
+            >
               {pending ? 'Checking…' : 'Verify'}
             </button>
           </>

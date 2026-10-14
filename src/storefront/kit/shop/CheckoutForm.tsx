@@ -16,6 +16,7 @@ import {
 import type { CheckoutSummary } from '@/storefront/shop/summary'
 
 import { CardIcon, CashIcon, LockIcon } from '../icons'
+import { startNavigation } from '../layout/NavigationLoader'
 import { buttonClass } from '../ui'
 import { announceCartChange } from './CartLink'
 import { PriceDetails } from './CartView'
@@ -215,10 +216,16 @@ export function CheckoutForm({
     summary.problems.length > 0 || summary.lines.some((line) => line.problem) || !method
   const err = (path: string) => fields[path]
 
+  // The order page, with the page loader showing while it renders
+  const toSuccess = (orderNumber: string) => {
+    startNavigation()
+    router.push(`/checkout/success?order=${encodeURIComponent(orderNumber)}`)
+  }
+
   const openRazorpay = async (placed: PlacedOrder) => {
     const payment = placed.payment!
     if (!(await loadRazorpay()) || !window.Razorpay) {
-      router.push(`/checkout/success?order=${encodeURIComponent(placed.orderNumber)}`)
+      toSuccess(placed.orderNumber)
       return
     }
     const checkout = new window.Razorpay({
@@ -232,12 +239,11 @@ export function CheckoutForm({
       theme: { color: themeColor },
       handler: async (response: RazorpayResponse) => {
         await confirmPayment({ orderNumber: placed.orderNumber, ...response })
-        router.push(`/checkout/success?order=${encodeURIComponent(placed.orderNumber)}`)
+        toSuccess(placed.orderNumber)
       },
       modal: {
         // Closed without paying: the order waits 30 minutes; the order page can try again
-        ondismiss: () =>
-          router.push(`/checkout/success?order=${encodeURIComponent(placed.orderNumber)}`),
+        ondismiss: () => toSuccess(placed.orderNumber),
       },
     })
     checkout.open()
@@ -276,7 +282,7 @@ export function CheckoutForm({
       setPlacing(false)
       return
     }
-    router.push(`/checkout/success?order=${encodeURIComponent(result.data.orderNumber)}`)
+    toSuccess(result.data.orderNumber)
   }
 
   const arrives = summary.delivery.arrivesBy
@@ -614,6 +620,7 @@ export function CheckoutForm({
           </ul>
         ) : null}
         <button
+          aria-busy={placing}
           className={buttonClass('dark', 'hidden w-full lg:flex')}
           disabled={blocked || placing || pending}
           type="submit"
@@ -647,6 +654,7 @@ export function CheckoutForm({
 
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white p-2 lg:hidden">
         <button
+          aria-busy={placing}
           className={buttonClass('dark', 'w-full')}
           disabled={blocked || placing || pending}
           type="submit"

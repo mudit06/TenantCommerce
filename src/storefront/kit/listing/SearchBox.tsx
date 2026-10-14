@@ -7,6 +7,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import type { Suggestions } from '@/app/(storefront)/[tenant]/search/suggest/route'
 
 import { SearchIcon } from '../icons'
+import { startNavigation } from '../layout/NavigationLoader'
 
 const RECENT_KEY = 'te_recent_searches'
 
@@ -94,6 +95,7 @@ export function SearchBox({
   const go = (href: string, searched?: string) => {
     if (searched) rememberSearch(searched)
     setOpen(false)
+    startNavigation()
     router.push(href)
   }
   const optionId = (i: number) => `${id}-opt-${i}`

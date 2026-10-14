@@ -51,6 +51,7 @@ export function UnsubscribeButton({
             Stop offers from {storeName} to <b>{address}</b>?
           </p>
           <button
+            aria-busy={pending}
             className={buttonClass('dark')}
             disabled={pending}
             onClick={() => change(false)}

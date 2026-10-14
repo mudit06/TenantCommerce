@@ -156,7 +156,12 @@ export function PayoutDetailsForm({ payout, pan }: { payout: string | null; pan:
             />
           </div>
           <div className="flex items-end">
-            <button className={buttonClass('primary')} disabled={pending} type="submit">
+            <button
+              aria-busy={pending}
+              className={buttonClass('primary')}
+              disabled={pending}
+              type="submit"
+            >
               {pending ? 'Saving…' : 'Save payout details'}
             </button>
           </div>

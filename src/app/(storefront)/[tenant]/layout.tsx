@@ -1,12 +1,13 @@
 import type { Metadata, Viewport } from 'next'
 import { headers } from 'next/headers'
-import type { CSSProperties, ReactNode } from 'react'
+import { Suspense, type CSSProperties, type ReactNode } from 'react'
 
 import { PREVIEW_PAGE_HEADER } from '@/storefront/constants'
 import { getStoreContext } from '@/storefront/context'
 import { BottomNav } from '@/storefront/kit/layout/BottomNav'
 import { Footer as KitFooter } from '@/storefront/kit/layout/Footer'
 import { Header as KitHeader } from '@/storefront/kit/layout/Header'
+import { NavigationLoader } from '@/storefront/kit/layout/NavigationLoader'
 import { StoreMessage } from '@/storefront/kit/layout/StoreMessage'
 import { WhatsAppFloat } from '@/storefront/kit/layout/WhatsAppFloat'
 import { PwaSetup } from '@/storefront/kit/pwa/PwaSetup'
@@ -123,6 +124,9 @@ export default async function StoreLayout({ children, params }: Props) {
             <Footer ctx={ctx} />
             <BottomNav dealers={ctx.hasFeature('dealer-locator')} selling={ctx.selling.selling} />
             <PwaSetup icon="/app-icon/192" storeName={name} />
+            <Suspense fallback={null}>
+              <NavigationLoader />
+            </Suspense>
             <WhatsAppFloat
               href={storeWhatsApp(
                 ctx.settings?.contact?.whatsapp,

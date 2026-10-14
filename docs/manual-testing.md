@@ -637,6 +637,14 @@ http://home-orbit.localhost:3000 . Check it twice: on a normal desktop window, a
       the cart and wishlist counts bump when they change; hero buttons get a light sweep on hover.
       Turn off animations (Windows: Settings → Accessibility → Visual effects → Animation effects)
       and reload: everything shows at once and nothing moves, the scrolling line included.
+- [ ] **Loaders** (DevTools → Network → Slow 4G helps): click a category, a product, a search
+      result: a thin bar in the store colour runs along the top at once, and after about half a
+      second the store's loader (a house with a dot circling it, "Loading…") shows in the middle
+      until the page arrives. Quick pages show neither. **Add to cart**, **Buy now**, **Check**
+      (pincode), **Place order**, **Log in** and the account and review forms show a small ring in
+      the pressed button only while they work. With animations off (above) the ring and the dot
+      fade in and out instead of turning. Opening a missing product address directly still gives
+      the 404 page with a real 404 status (DevTools → Network).
 - [ ] Header menu: hover (desktop) or tap the menu button (phone) to see the categories; on a phone
       each item opens to its columns. Nothing runs off the side of the phone screen, at 1024 px wide
       either.
