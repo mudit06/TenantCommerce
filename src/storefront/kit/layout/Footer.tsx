@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import Link from '@/storefront/kit/IntentLink'
 
 import type { StoreContext } from '../../context'
 import { MailIcon, PhoneIcon, PinIcon, WhatsAppIcon } from '../icons'

@@ -1,5 +1,4 @@
-import Link from 'next/link'
-
+import Link from '@/storefront/kit/IntentLink'
 import { buttonClass, Container } from '@/storefront/kit/ui'
 
 export default function NotFound() {

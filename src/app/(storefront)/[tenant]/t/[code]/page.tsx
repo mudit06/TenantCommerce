@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
-import Link from 'next/link'
 
 import { getPayloadClient } from '@/lib/data/payload'
 import { allow, LIMITS } from '@/lib/rate-limit'
 import { trackingView } from '@/modules/notifications'
 import { getStoreContext } from '@/storefront/context'
 import { CheckIcon, LockIcon, TruckIcon } from '@/storefront/kit/icons'
+import Link from '@/storefront/kit/IntentLink'
 import { TrackingUpdates } from '@/storefront/kit/shop/TrackingUpdates'
 import { buttonClass, Container } from '@/storefront/kit/ui'
 import { loginHref } from '@/storefront/shop/account'

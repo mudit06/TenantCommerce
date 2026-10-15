@@ -1,9 +1,9 @@
 'use client'
 
 /* eslint-disable @next/next/no-img-element -- a 200 px thumbnail from our own WebP sizes */
-import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 
+import Link from '@/storefront/kit/IntentLink'
 import { quickAddOptions, type QuickAddOptions } from '@/storefront/shop/quickAddActions'
 
 import { CloseIcon } from '../icons'

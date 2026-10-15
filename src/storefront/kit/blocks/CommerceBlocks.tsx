@@ -1,7 +1,6 @@
-import Link from 'next/link'
-
 import { getCategoryTree, getProductList, withDescendants } from '@/lib/data/catalog'
 import type { BenefitsBlock, CategoryTilesBlock, ProductGridBlock } from '@/payload-types'
+import Link from '@/storefront/kit/IntentLink'
 
 import type { StoreContext } from '../../context'
 import { BENEFIT_ICONS } from '../icons'

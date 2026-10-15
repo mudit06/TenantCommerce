@@ -90,6 +90,11 @@ How:
     `getCategoryTree`, `getStoreOffers`) are also memoised per request with React `cache`.
   - Media served by the app (local disk, or a bucket without `MEDIA_PUBLIC_URL`) is sent with
     `Cache-Control: public, max-age=86400, stale-while-revalidate=604800`.
+  - Storefront links prefetch on intent only (pointer over, touch, focus): use
+    `@/storefront/kit/IntentLink`, not `next/link`. Next prefetches every link that scrolls into
+    view, and a category page has 60+ (cards, filters, menus): measured, that was 2.3 MB of product
+    pages and about 2 s of server work per visit, and a category page answering in 120 ms took
+    0.9 to 1.2 s while the previous page's prefetches were still running.
 - Admin (vendor CMS and platform panel), as built 15 October 2026. Admin pages are rendered for
   each request, so their cost is server CPU and database round trips:
   - Payload works out every collection's permissions (create, read, update, delete, versions) on

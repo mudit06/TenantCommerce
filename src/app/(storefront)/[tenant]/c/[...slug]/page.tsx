@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { notFound, permanentRedirect } from 'next/navigation'
 
 import {
@@ -9,6 +8,7 @@ import {
 } from '@/lib/data/catalog'
 import { getStoreContext, type StoreContext } from '@/storefront/context'
 import { Breadcrumbs } from '@/storefront/kit/Breadcrumbs'
+import Link from '@/storefront/kit/IntentLink'
 import { ProductListing } from '@/storefront/kit/listing/ProductListing'
 import { Img } from '@/storefront/kit/media'
 import { Container } from '@/storefront/kit/ui'

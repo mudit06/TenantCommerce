@@ -1,5 +1,3 @@
-import Link from 'next/link'
-
 import { getProductsFor, getStoreReviews } from '@/lib/data/catalog'
 import { getStoreOffers, runningSchemes } from '@/lib/data/offers'
 import { formatINR } from '@/lib/money'
@@ -11,6 +9,7 @@ import type {
   ReviewsBlock,
   SchemeProductsBlock,
 } from '@/payload-types'
+import Link from '@/storefront/kit/IntentLink'
 
 import type { StoreContext } from '../../context'
 import { ProductGrid } from '../product/ProductCard'

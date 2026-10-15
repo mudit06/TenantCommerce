@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 
 import { searchProducts } from '@/lib/data/catalog'
 import { matchCategories } from '@/lib/search'
 import { getStoreContext } from '@/storefront/context'
+import Link from '@/storefront/kit/IntentLink'
 import { ProductListing } from '@/storefront/kit/listing/ProductListing'
 import { SearchBox } from '@/storefront/kit/listing/SearchBox'
 import { Container } from '@/storefront/kit/ui'

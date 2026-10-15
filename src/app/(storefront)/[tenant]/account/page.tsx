@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
+import { getPayloadClient } from '@/lib/data/payload'
 import { formatINR } from '@/lib/money'
 import { customerAddresses, customerOrders, hasPassword } from '@/modules/customers'
 import { maskedPhone, offersAgreed, preferenceFor, whatsappStopped } from '@/modules/notifications'
@@ -15,8 +15,8 @@ import { LogOutButtons } from '@/storefront/kit/account/LogOutButtons'
 import { dayMonth, pillClass, shopperOrderStatus } from '@/storefront/kit/account/orderStatus'
 import { ProfileForm } from '@/storefront/kit/account/ProfileForm'
 import { UpdatesCard } from '@/storefront/kit/account/UpdatesCard'
+import Link from '@/storefront/kit/IntentLink'
 import { buttonClass, Container } from '@/storefront/kit/ui'
-import { getPayloadClient } from '@/lib/data/payload'
 import { loginHref, signedInShopper } from '@/storefront/shop/account'
 
 export const metadata: Metadata = { title: 'My account', robots: { index: false, follow: false } }

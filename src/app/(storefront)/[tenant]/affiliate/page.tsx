@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import { getPayloadClient } from '@/lib/data/payload'
@@ -7,6 +6,7 @@ import { formatINR } from '@/lib/money'
 import { affiliateOfCustomer, programConfig } from '@/modules/affiliate'
 import { getStoreContext } from '@/storefront/context'
 import { ApplyForm } from '@/storefront/kit/affiliate/ApplyForm'
+import Link from '@/storefront/kit/IntentLink'
 import { buttonClass, Container } from '@/storefront/kit/ui'
 import { loginHref, signedInShopper } from '@/storefront/shop/account'
 

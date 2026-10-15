@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 import { cookies } from 'next/headers'
-import Link from 'next/link'
 
 import { GST_STATES } from '@/lib/gst/gstin'
 import { formatINR } from '@/lib/money'
 import { getStoreContext } from '@/storefront/context'
 import { CheckIcon, UserIcon } from '@/storefront/kit/icons'
+import Link from '@/storefront/kit/IntentLink'
 import { RetryPayment } from '@/storefront/kit/shop/RetryPayment'
 import { buttonClass, Container } from '@/storefront/kit/ui'
 import { signedInShopper } from '@/storefront/shop/account'

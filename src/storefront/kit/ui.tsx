@@ -1,5 +1,6 @@
-import Link from 'next/link'
 import type { ReactNode } from 'react'
+
+import Link from '@/storefront/kit/IntentLink'
 
 export function Container({
   children,

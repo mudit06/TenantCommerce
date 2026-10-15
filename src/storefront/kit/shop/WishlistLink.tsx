@@ -1,7 +1,8 @@
 'use client'
 
-import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
+
+import Link from '@/storefront/kit/IntentLink'
 
 import { HeartIcon } from '../icons'
 import { readWishlist, syncOnce, WISHLIST_EVENT } from './HeartButton'

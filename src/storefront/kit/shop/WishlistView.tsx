@@ -1,8 +1,8 @@
 'use client'
 
-import Link from 'next/link'
 import { useEffect, useRef, useState, useTransition } from 'react'
 
+import Link from '@/storefront/kit/IntentLink'
 import { addToCart } from '@/storefront/shop/actions'
 import { syncWishlist, wishlistView, type WishlistRow } from '@/storefront/shop/wishlistActions'
 

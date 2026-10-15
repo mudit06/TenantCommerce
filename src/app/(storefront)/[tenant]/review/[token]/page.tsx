@@ -1,14 +1,14 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import { getPayloadClient } from '@/lib/data/payload'
 import { nameChoices, readReviewToken, reviewableItems } from '@/modules/reviews'
 import { featureConfig } from '@/modules/tenancy'
 import { getStoreContext } from '@/storefront/context'
+import Link from '@/storefront/kit/IntentLink'
+import { mediaUrl } from '@/storefront/kit/media'
 import { ReviewForm } from '@/storefront/kit/reviews/ReviewForm'
 import { buttonClass, Container } from '@/storefront/kit/ui'
-import { mediaUrl } from '@/storefront/kit/media'
 
 export const metadata: Metadata = {
   title: 'Review your purchase',

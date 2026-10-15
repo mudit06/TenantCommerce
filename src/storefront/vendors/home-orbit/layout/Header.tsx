@@ -1,5 +1,3 @@
-import Link from 'next/link'
-
 import type { StoreContext } from '@/storefront/context'
 import {
   MenuIcon,
@@ -10,6 +8,7 @@ import {
   UserIcon,
   WhatsAppIcon,
 } from '@/storefront/kit/icons'
+import Link from '@/storefront/kit/IntentLink'
 import { MegaMenu, MegaPanel, MobileMenuList } from '@/storefront/kit/layout/MegaMenu'
 import { categoryColumns, headerItems, storeAnnouncement } from '@/storefront/kit/layout/nav'
 import { SearchBox } from '@/storefront/kit/listing/SearchBox'

@@ -1,8 +1,8 @@
-import Link from 'next/link'
 import type { ComponentType } from 'react'
 
 import { getDownloads } from '@/lib/data/catalog'
 import type { Page } from '@/payload-types'
+import Link from '@/storefront/kit/IntentLink'
 
 import type { StoreContext } from '../../context'
 import { FileIcon } from '../icons'

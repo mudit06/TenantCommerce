@@ -1,8 +1,9 @@
 'use client'
 
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
+
+import Link from '@/storefront/kit/IntentLink'
 
 import { applyForAffiliate } from '../../shop/affiliateActions'
 import { buttonClass } from '../ui'

@@ -1,15 +1,15 @@
 'use client'
 
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 
 import type { PublicCoupon } from '@/lib/data/offers'
 import type { SellingInfo } from '@/lib/data/store'
 import { formatINR } from '@/lib/money'
+import Link from '@/storefront/kit/IntentLink'
 import { checkDelivery, updateCartLine } from '@/storefront/shop/actions'
-import { syncWishlist } from '@/storefront/shop/wishlistActions'
 import type { CheckoutSummary } from '@/storefront/shop/summary'
+import { syncWishlist } from '@/storefront/shop/wishlistActions'
 
 import { TruckIcon } from '../icons'
 import { buttonClass } from '../ui'

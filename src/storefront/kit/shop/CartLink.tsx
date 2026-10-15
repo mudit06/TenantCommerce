@@ -1,7 +1,8 @@
 'use client'
 
-import Link from 'next/link'
 import { useEffect, useState } from 'react'
+
+import Link from '@/storefront/kit/IntentLink'
 
 import { CartIcon } from '../icons'
 

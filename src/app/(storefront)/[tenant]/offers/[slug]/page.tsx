@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 
 import { getProductsFor } from '@/lib/data/catalog'
 import { getSchemeBySlug, getStoreOffers } from '@/lib/data/offers'
 import { getStoreContext } from '@/storefront/context'
+import Link from '@/storefront/kit/IntentLink'
 import { ProductGrid } from '@/storefront/kit/product/ProductCard'
 import { buttonClass, Container } from '@/storefront/kit/ui'
 

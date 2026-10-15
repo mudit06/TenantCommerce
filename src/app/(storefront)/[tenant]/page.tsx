@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 
 import { getProductList } from '@/lib/data/catalog'
 import { getBanners, getPublishedPage } from '@/lib/data/content'
 import { getStoreContext } from '@/storefront/context'
 import { RenderBlocks } from '@/storefront/kit/blocks/RenderBlocks'
+import Link from '@/storefront/kit/IntentLink'
 import { linkHref } from '@/storefront/kit/links'
 import { Img } from '@/storefront/kit/media'
 import { ProductGrid } from '@/storefront/kit/product/ProductCard'

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 
 import { getStoreContext } from '@/storefront/context'
 import { Breadcrumbs } from '@/storefront/kit/Breadcrumbs'
+import Link from '@/storefront/kit/IntentLink'
 import { Img } from '@/storefront/kit/media'
 import { Container } from '@/storefront/kit/ui'
 

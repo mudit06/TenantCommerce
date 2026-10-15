@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import { getStoreOffers, runningSchemes, type StoreScheme } from '@/lib/data/offers'
 import { formatINR } from '@/lib/money'
 import { OCCASIONS } from '@/modules/promotions'
 import { getStoreContext } from '@/storefront/context'
+import Link from '@/storefront/kit/IntentLink'
 import { CopyCode } from '@/storefront/kit/shop/CopyCode'
 import { OfferSignup } from '@/storefront/kit/shop/OfferSignup'
 import { buttonClass, Container } from '@/storefront/kit/ui'

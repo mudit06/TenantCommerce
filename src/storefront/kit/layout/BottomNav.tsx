@@ -1,8 +1,9 @@
 'use client'
 
-import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
+
+import Link from '@/storefront/kit/IntentLink'
 
 import { CartIcon, GridIcon, HomeIcon, MailIcon, PinIcon, SearchIcon, UserIcon } from '../icons'
 import { CART_EVENT } from '../shop/CartLink'

@@ -1,8 +1,7 @@
-import Link from 'next/link'
-
 import type { ProductCardData } from '@/lib/data/catalog'
 import { getStoreOffers, offerForProduct } from '@/lib/data/offers'
 import { getSellingInfo, getStoreContent } from '@/lib/data/store'
+import Link from '@/storefront/kit/IntentLink'
 
 import { productHref } from '../links'
 import { Img } from '../media'

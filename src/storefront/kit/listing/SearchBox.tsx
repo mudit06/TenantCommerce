@@ -1,10 +1,10 @@
 'use client'
 
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useId, useRef, useState } from 'react'
 
 import type { Suggestions } from '@/app/(storefront)/[tenant]/search/suggest/route'
+import Link from '@/storefront/kit/IntentLink'
 
 import { SearchIcon } from '../icons'
 import { startNavigation } from '../layout/NavigationLoader'

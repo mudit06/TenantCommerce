@@ -1,11 +1,11 @@
 'use client'
 
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState, useTransition } from 'react'
 
 import { GST_STATE_OPTIONS } from '@/lib/gst/gstin'
 import { formatINR } from '@/lib/money'
+import Link from '@/storefront/kit/IntentLink'
 import {
   confirmPayment,
   previewCheckout,

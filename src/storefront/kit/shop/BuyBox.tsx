@@ -1,10 +1,10 @@
 'use client'
 
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useId, useMemo, useState, useTransition } from 'react'
 
 import { formatINR } from '@/lib/money'
+import Link from '@/storefront/kit/IntentLink'
 import { addToCart, checkDelivery, type DeliveryCheck } from '@/storefront/shop/actions'
 
 import { CashIcon, CheckIcon, TruckIcon, WhatsAppIcon } from '../icons'

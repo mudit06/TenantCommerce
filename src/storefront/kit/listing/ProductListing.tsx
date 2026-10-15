@@ -1,8 +1,7 @@
-import Link from 'next/link'
-
 import { type ProductCardData, withGalleries } from '@/lib/data/catalog'
 import { getStoreOffers, offerForProduct } from '@/lib/data/offers'
 import type { Attribute } from '@/modules/catalog'
+import Link from '@/storefront/kit/IntentLink'
 
 import { ChevronIcon } from '../icons'
 import { ProductGrid } from '../product/ProductCard'
