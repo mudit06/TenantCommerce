@@ -122,6 +122,10 @@ export function BuyBox({
   }
 
   const check = () => {
+    if (pincode.length !== 6) {
+      setDeliveryError('Enter a 6-digit pincode.')
+      return
+    }
     setBusy('pincode')
     startTransition(async () => {
       setDeliveryError(null)
@@ -241,20 +245,29 @@ export function BuyBox({
               id="pdp-pincode"
               inputMode="numeric"
               maxLength={6}
-              onChange={(event) => setPincode(event.target.value.replace(/\D/g, ''))}
+              onChange={(event) => {
+                // An answer for another pincode would read as this one's
+                setPincode(event.target.value.replace(/\D/g, ''))
+                setDelivery(null)
+                setDeliveryError(null)
+              }}
               placeholder="Enter pincode"
               value={pincode}
             />
             <button
               aria-busy={pending && busy === 'pincode'}
               className={buttonClass('outline')}
-              disabled={pending || pincode.length !== 6}
+              disabled={pending || pincode.length === 0}
               type="submit"
             >
               Check
             </button>
           </form>
-          {deliveryError ? <p className="mt-2 text-sm text-red-700">{deliveryError}</p> : null}
+          {deliveryError ? (
+            <p aria-live="polite" className="mt-2 text-sm text-red-700">
+              {deliveryError}
+            </p>
+          ) : null}
           {delivery ? (
             delivery.serviceable ? (
               <ul className="mt-3 space-y-1.5 text-sm" aria-live="polite">
