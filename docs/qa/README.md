@@ -9,6 +9,7 @@ Last built 14 October 2026 against branch `claude/adoring-cori-we1zlg`.
 | A. Regression scripts, one per module | `regression/super-admin/` (15), `regression/vendor-cms/` (29), `regression/e2e/` (18) |
 | B. Manual test workbook (Excel) | `TenantEcom-test-cases.xlsx`: Test Summary, Vendor CMS, Super Admin, End-to-End Workflows, Defect Log, Test Data & Preconditions |
 | C. Inventory, coverage matrix, this guide | `coverage.md` and this file |
+| D. Storefront end-to-end script for Claude in Chrome (221 cases, `SF-*`, 14 October 2026) | `storefront-e2e-chrome.md` |
 | Source of all three | `tools/` (case files, results, generator) |
 
 **355 test cases in 62 modules:** 105 super admin, 197 vendor CMS, 53 end-to-end. 63 are marked
