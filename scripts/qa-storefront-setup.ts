@@ -6,14 +6,15 @@
  * switches on affiliates, adds the public coupon HOME200 (₹200 off above ₹1,000), a live
  * "Diwali 2026" scheme (10% off Door hardware, at most ₹1,500, not with coupons), an upcoming
  * "Winter launch" scheme shown before it starts, and a sample installation PDF on the Downloads
- * page linked to HOPH-504. Safe to run again: it keeps what is already there.
+ * page linked to HOPH-504, and test contact details where the store has none. Safe to run again:
+ * it keeps what is already there.
  */
 import { writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
 import config from '@payload-config'
-import { createLocalReq, getPayload } from 'payload'
+import { createLocalReq, getPayload, type Where } from 'payload'
 
 // The Coupons and Schemes screens' own actions (not in the module's public API; a QA tool only)
 import { saveCoupon } from '@/modules/promotions/services/coupons'
@@ -34,32 +35,89 @@ const req = await createLocalReq({}, payload)
 const one = async <T>(promise: Promise<{ docs: T[] }>) => (await promise).docs[0]
 
 const tenant = await one(
-  payload.find({ collection: 'tenants', where: { slug: { equals: slug } }, limit: 1, overrideAccess: true }),
+  payload.find({
+    collection: 'tenants',
+    where: { slug: { equals: slug } },
+    limit: 1,
+    overrideAccess: true,
+  }),
 )
 if (!tenant) {
   console.error(`No store "${slug}"`)
   process.exit(1)
 }
 const tenantId = String(tenant.id)
-const scoped = (extra: Record<string, unknown>) => ({ and: [{ tenant: { equals: tenantId } }, extra] })
+const scoped = (extra: Where): Where => ({ and: [{ tenant: { equals: tenantId } }, extra] })
 
 // 1. Enterprise plan, so the affiliate program can be switched on (SF-17)
 const sub = await one(
-  payload.find({ collection: 'subscriptions', where: { tenant: { equals: tenantId } }, limit: 1, overrideAccess: true, depth: 0 }),
+  payload.find({
+    collection: 'subscriptions',
+    where: { tenant: { equals: tenantId } },
+    limit: 1,
+    overrideAccess: true,
+    depth: 0,
+  }),
 )
 const enterprise = await one(
-  payload.find({ collection: 'plans', where: { code: { equals: 'enterprise' } }, limit: 1, overrideAccess: true }),
+  payload.find({
+    collection: 'plans',
+    where: { code: { equals: 'enterprise' } },
+    limit: 1,
+    overrideAccess: true,
+  }),
 )
 if (sub && enterprise && String(sub.plan) !== String(enterprise.id)) {
-  await changeSubscriptionPlan(req, { subscriptionId: String(sub.id), planId: String(enterprise.id) })
+  await changeSubscriptionPlan(req, {
+    subscriptionId: String(sub.id),
+    planId: String(enterprise.id),
+  })
   console.log('plan: Enterprise')
 } else console.log('plan: already Enterprise')
 await setFeature(req, { tenantId, key: 'affiliate', enabled: true, cascade: true })
 console.log('feature: affiliate on')
 
+// Test contact details, only where the store has none, so the top line, footer and contact page
+// have a phone, WhatsApp, email and address to show (SF-01-002, SF-01-008, SF-16-001)
+const settings = await one(
+  payload.find({
+    collection: 'site-settings',
+    where: { tenant: { equals: tenantId } },
+    limit: 1,
+    overrideAccess: true,
+  }),
+)
+if (settings) {
+  const sample = {
+    phone: '+91 98765 00000',
+    whatsapp: '+91 98765 00000',
+    email: `hello@${slug}.example`,
+    address: 'Shop 1, Baner Road\nPune 411045, Maharashtra',
+  }
+  const contact = Object.fromEntries(
+    Object.entries(sample).map(([key, value]) => [
+      key,
+      settings.contact?.[key as keyof typeof sample] || value,
+    ]),
+  )
+  await payload.update({
+    collection: 'site-settings',
+    id: settings.id,
+    data: { contact },
+    overrideAccess: true,
+    req,
+  })
+  console.log('contact: phone, WhatsApp, email and address filled where empty')
+}
+
 // 2. HOME200
 const coupon = await one(
-  payload.find({ collection: 'coupons', where: scoped({ codeNormalized: { equals: 'HOME200' } }), limit: 1, overrideAccess: true }),
+  payload.find({
+    collection: 'coupons',
+    where: scoped({ codeNormalized: { equals: 'HOME200' } }),
+    limit: 1,
+    overrideAccess: true,
+  }),
 )
 if (!coupon) {
   await saveCoupon(req, tenantId, {
@@ -76,7 +134,12 @@ if (!coupon) {
 
 // 3. Schemes: one live on Door hardware, one coming up
 const doorHardware = await one(
-  payload.find({ collection: 'categories', where: scoped({ slug: { equals: 'door-hardware' } }), limit: 1, overrideAccess: true }),
+  payload.find({
+    collection: 'categories',
+    where: scoped({ slug: { equals: 'door-hardware' } }),
+    limit: 1,
+    overrideAccess: true,
+  }),
 )
 const day = 86_400_000
 const schemes = [
@@ -89,7 +152,12 @@ const schemes = [
     appliesTo: doorHardware
       ? { mode: 'categories', categories: [doorHardware.id] }
       : { mode: 'all' },
-    display: { badgeText: 'Diwali offer', announcementText: 'Diwali offer: 10% off door hardware', showBeforeStart: true, showCountdown: true },
+    display: {
+      badgeText: 'Diwali offer',
+      announcementText: 'Diwali offer: 10% off door hardware',
+      showBeforeStart: true,
+      showCountdown: true,
+    },
   },
   {
     name: 'Winter launch',
@@ -103,7 +171,12 @@ const schemes = [
 ]
 for (const s of schemes) {
   let doc = await one(
-    payload.find({ collection: 'schemes', where: scoped({ name: { equals: s.name } }), limit: 1, overrideAccess: true }),
+    payload.find({
+      collection: 'schemes',
+      where: scoped({ name: { equals: s.name } }),
+      limit: 1,
+      overrideAccess: true,
+    }),
   )
   if (!doc) {
     doc = await payload.create({
@@ -124,18 +197,29 @@ for (const s of schemes) {
       req,
     })
   }
-  if (doc.status === 'draft') doc = await changeSchemeStatus(req, tenantId, String(doc.id), 'schedule')
+  if (doc.status === 'draft')
+    doc = await changeSchemeStatus(req, tenantId, String(doc.id), 'schedule')
   console.log(`scheme: ${s.name} is ${doc.status} (/offers/${doc.slug})`)
 }
 
 // 4. A sample installation PDF on the Downloads page, linked to HOPH-504
 const title = 'Feather pull handle, installation guide (QA sample)'
 let document = await one(
-  payload.find({ collection: 'product-documents', where: scoped({ title: { equals: title } }), limit: 1, overrideAccess: true }),
+  payload.find({
+    collection: 'product-documents',
+    where: scoped({ title: { equals: title } }),
+    limit: 1,
+    overrideAccess: true,
+  }),
 )
 if (!document) {
   let media = await one(
-    payload.find({ collection: 'media', where: scoped({ alt: { equals: title } }), limit: 1, overrideAccess: true }),
+    payload.find({
+      collection: 'media',
+      where: scoped({ alt: { equals: title } }),
+      limit: 1,
+      overrideAccess: true,
+    }),
   )
   if (!media) {
     const file = path.join(tmpdir(), 'hoph-504-installation-guide.pdf')

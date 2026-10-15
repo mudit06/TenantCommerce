@@ -20,7 +20,11 @@ One script that tests every shopper-facing feature of the storefront, written to
    `pnpm seed`, `pnpm seed:home-orbit`, `pnpm demo:selling home-orbit`.
    For online payment cases also put Razorpay **test** keys in `.env` before `demo:selling`
    (`RAZORPAY_TEST_KEY_ID`, `RAZORPAY_TEST_KEY_SECRET`). Without them SF-09 is Not Applicable.
-3. **[CMS] as the super admin or the Home Orbit owner** (Manage store):
+3. **Store setup.** `pnpm qa:storefront-setup home-orbit` (with the QA `DATABASE_URI`) does all of
+   the list below except dealers, and fills in test contact details (phone, WhatsApp, email,
+   address) so the top line, footer and contact page have them. It only runs on a database whose
+   name contains "qa". Run it **before** starting the server: a running store keeps its settings
+   cached for up to an hour (or save Store settings once in the CMS to refresh them). Or by hand, **[CMS] as the super admin or the Home Orbit owner** (Manage store):
    - Features: make sure **wishlist, reviews, schemes, coupons, offer-messages, abandoned-cart,
      dealer-locator, downloads, product-videos, whatsapp-button** are on. **Affiliate** needs the
      Enterprise plan: switch Home Orbit to Enterprise (or turn the feature on) to run SF-17;
@@ -39,7 +43,11 @@ One script that tests every shopper-facing feature of the storefront, written to
    for a code or link. Paste it in the chat when asked.
 5. Chrome with the Claude extension, **signed out** of the store (clear cookies for
    `home-orbit.localhost` if you ran it before). Close heavy apps: the dev server compiles each
-   page on its first visit and can take up to a minute.
+   page on its first visit and can take up to a minute. A production build (`pnpm build`, then
+   `pnpm start` with the same `DATABASE_URI`) is much faster and steadier for a long run, and its
+   terminal prints the same codes and links.
+6. Use a **normal Chrome window**, not Incognito: the extension has no browser control there unless
+   "Allow in Incognito" is on.
 
 ### Test data
 
@@ -172,7 +180,8 @@ horizontal scroll (`document.documentElement.scrollWidth <= innerWidth`).
 **SF-01-008 · Footer** (P1)
 Scroll to the footer.
 Expect: logo, phone and WhatsApp, **Get our offers first** (email box, "By email" unticked), Shop
-(with Offers), Help (Track order, the published policies, Contact us), Company (About us, Find a
+(with Offers), Help (Track order to `/account`, where a code login brings in guest orders; the
+published policies only; Contact us), Company (About us, Find a
 dealer, Downloads, Affiliate program when on), bottom line with business name, GSTIN, grievance
 officer and the ways to pay (COD; UPI, Visa, RuPay, Netbanking when Razorpay is connected).
 
@@ -724,8 +733,9 @@ discounts, delivery, COD fee, total, GST line, address, WhatsApp switch, Downloa
 packed, Get help on WhatsApp (link checked), **Cancel order** only until it ships.
 
 **SF-10-007 · Cancel an order** (P1)
-Cancel ORDER_2 with a reason.
-Expect: confirm step; then Cancelled; Cancel no longer offered; (stock goes back: product page
+Cancel ORDER_2. It asks with the **browser's own confirm dialog**: accept it (if the extension
+can't, mark the case Not Run (human) and say so; don't leave the dialog open, it freezes the tab).
+Expect: then Cancelled; Cancel no longer offered; (stock goes back: product page
 stock rises by the quantity).
 
 **SF-10-008 · Someone else's order** (P1)
@@ -1115,7 +1125,8 @@ Expect: `X-Content-Type-Options: nosniff`, a Referrer-Policy, frame protection
 
 **SF-21-003 · Admin not reachable from the store domain** (P2)
 Open http://home-orbit.localhost:3000/admin.
-Expect: not the Payload admin (404 or redirected), or the admin with no store data before login.
+Expect: a redirect (307) to the admin's own address (`ADMIN_URL`, http://localhost:3000/admin
+locally); the admin never renders on a store's domain.
 
 **SF-21-004 · API scoped** (P1)
 Open http://home-orbit.localhost:3000/api/orders and /api/customers signed out.
