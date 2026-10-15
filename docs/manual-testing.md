@@ -724,6 +724,8 @@ Open http://home-orbit.localhost:3000/products/feather-stainless-steel-pull-hand
       Home Orbit's design.
 - [ ] http://unknown-store.localhost:3000 : a plain 404. Unknown addresses never show a store.
 - [ ] http://home-orbit.localhost:3000/robots.txt : `Disallow: /` while the store is a draft.
+- [ ] http://home-orbit.localhost:3000/admin : sends you to the admin's own address
+      (http://localhost:3000/admin). The admin never opens on a store's domain.
 
 ### 3.5 The other stores
 
@@ -743,7 +745,8 @@ data): `pnpm demo:selling home-orbit`. It prints how many products it priced, an
       "In stock", **Check delivery**, **Add to cart** and **Buy now**, then **Request a bulk
       quote** and WhatsApp.
 - [ ] Type pincode 411045 and press Check: a delivery date, "Free delivery on this order" or the
-      fee, and "Cash on delivery available".
+      fee, and "Cash on delivery available". Change the pincode: the answer goes away. Type
+      `12345` and press Check: "Enter a 6-digit pincode."
 - [ ] Under the buttons: "7-day returns · GST invoice · Cash on delivery" (the return window from
       Store settings; a warranty appears when the product's specifications have one). With a
       public coupon covering the product (2.11): **Offers for you** with the code and Copy, and the
@@ -755,7 +758,9 @@ data): `pnpm demo:selling home-orbit`. It prints how many products it priced, an
 - [ ] **Move to wishlist** on a line: it leaves the cart and the header heart shows "1".
       **Complete the look** under the lines suggests more from the same categories, each with Add
       to cart.
-- [ ] **Checkout**: fill mobile, email, pincode 411045 (the state fills itself: Maharashtra),
+- [ ] **Checkout**: press Place order with everything empty: an error under each required field and
+      the cursor in the first one (Mobile number); typing a valid value clears that field's error.
+- [ ] Then fill mobile, email, pincode 411045 (the state fills itself: Maharashtra),
       city, name and address. Delivery shows Standard with its date. Choose **Cash on delivery**:
       the ₹49 fee joins the summary and the button reads "Place order · ₹…".
 - [ ] Place the order: "Thank you, Rahul. Your order is placed." with the order number (HOM-10001

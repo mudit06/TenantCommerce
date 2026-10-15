@@ -29,7 +29,8 @@
     "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
     "seed:home-orbit": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/vendors/home-orbit/seed.ts",
     "demo:selling": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/demo-selling.ts",
-    "demo:orders": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/demo-orders.ts"
+    "demo:orders": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/demo-orders.ts",
+    "qa:storefront-setup": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/qa-storefront-setup.ts"
   },
   "dependencies": {
     "@fontsource-variable/plus-jakarta-sans": "^5.3.0",

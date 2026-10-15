@@ -4,7 +4,11 @@ import '@fontsource-variable/plus-jakarta-sans'
 import '@payloadcms/next/css'
 import type { ServerFunctionClient } from 'payload'
 import { handleServerFunctions, RootLayout } from '@payloadcms/next/layouts'
+import { headers } from 'next/headers'
+import { redirect } from 'next/navigation'
 import type React from 'react'
+
+import { adminAddress, isAdminHost } from '@/lib/adminHost'
 
 import { importMap } from './admin/importMap.js'
 import './custom.scss'
@@ -22,10 +26,15 @@ const serverFunction: ServerFunctionClient = async function (args) {
   })
 }
 
-const Layout = ({ children }: Args) => (
-  <RootLayout config={config} importMap={importMap} serverFunction={serverFunction}>
-    {children}
-  </RootLayout>
-)
+// Our addition: the admin opens only on its own address, never on a store's domain (docs/19).
+// Checked here, before anything streams, so the browser gets a real redirect.
+const Layout = async ({ children }: Args) => {
+  if (!isAdminHost((await headers()).get('host'))) redirect(adminAddress())
+  return (
+    <RootLayout config={config} importMap={importMap} serverFunction={serverFunction}>
+      {children}
+    </RootLayout>
+  )
+}
 
 export default Layout

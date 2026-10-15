@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useEffect, useRef, useState, useTransition } from 'react'
+import { cloneElement, isValidElement, useEffect, useRef, useState, useTransition } from 'react'
 
 import { GST_STATE_OPTIONS } from '@/lib/gst/gstin'
 import { formatINR } from '@/lib/money'
@@ -51,6 +51,20 @@ function loadRazorpay(): Promise<boolean> {
 const inputClass =
   'h-11 w-full rounded-card border border-line bg-white px-3 text-sm aria-[invalid=true]:border-red-600'
 
+/** The server's error paths each input answers for: editing the input clears them */
+const ERROR_PATHS: Record<string, string[]> = {
+  'co-phone': ['contact.phone'],
+  'co-email': ['contact.email'],
+  // The pincode fills the state, so a corrected pincode also clears a state error
+  'co-pincode': ['shippingAddress.pincode', 'shippingAddress.stateCode'],
+  'co-city': ['shippingAddress.city'],
+  'co-state': ['shippingAddress.stateCode'],
+  'co-name': ['shippingAddress.name', 'contact.name'],
+  'co-line1': ['shippingAddress.line1'],
+  'co-gstin': ['buyerGstin'],
+  'co-business': ['buyerLegalName'],
+}
+
 function Field({
   id,
   label,
@@ -72,7 +86,9 @@ function Field({
         {label}
         {required ? <span aria-hidden> *</span> : null}
       </label>
-      {children}
+      {error && isValidElement<{ 'aria-describedby'?: string }>(children)
+        ? cloneElement(children, { 'aria-describedby': `${id}-error` })
+        : children}
       {error ? (
         <p className="mt-1 text-xs text-red-700" id={`${id}-error`}>
           {error}
@@ -144,6 +160,23 @@ export function CheckoutForm({
   const [fields, setFields] = useState<Record<string, string>>({})
   // One key per checkout page: a double press or a retried request places one order (docs/11)
   const idempotencyKey = useRef<string | null>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+  // Set when Place order comes back with field errors: the first one gets the focus
+  const focusFirstError = useRef(false)
+  useEffect(() => {
+    if (!focusFirstError.current) return
+    focusFirstError.current = false
+    formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
+  }, [fields])
+  const clearErrors = (inputId: string) => {
+    const paths = ERROR_PATHS[inputId]
+    if (!paths?.some((path) => fields[path])) return
+    setFields((current) => {
+      const next = { ...current }
+      for (const path of paths) delete next[path]
+      return next
+    })
+  }
 
   const saved = account?.address ?? null
   const [contact, setContact] = useState({
@@ -273,6 +306,7 @@ export function CheckoutForm({
     if (!result.ok) {
       setPlacing(false)
       setError(result.message)
+      focusFirstError.current = true
       setFields(result.fields ?? {})
       return
     }
@@ -291,10 +325,12 @@ export function CheckoutForm({
     <form
       className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]"
       noValidate
+      onChange={(event) => clearErrors((event.target as HTMLElement).id)}
       onSubmit={(event) => {
         event.preventDefault()
         void place()
       }}
+      ref={formRef}
     >
       <div className="space-y-5">
         {summary.payment.online.testMode ? (
@@ -447,7 +483,7 @@ export function CheckoutForm({
             required
           >
             <input
-              aria-invalid={Boolean(err('shippingAddress.name'))}
+              aria-invalid={Boolean(err('shippingAddress.name') ?? err('contact.name'))}
               autoComplete="name"
               className={inputClass}
               id="co-name"
