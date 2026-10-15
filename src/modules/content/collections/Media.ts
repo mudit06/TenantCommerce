@@ -125,6 +125,13 @@ export const Media: CollectionConfig = {
     ],
     adminThumbnail: 'thumb',
     focalPoint: true,
+    // Files served by the app (local disk, or a bucket without MEDIA_PUBLIC_URL) otherwise carry
+    // no caching header, so every page view downloads every photo again through the server.
+    // A day fresh, then a week served while it refreshes: a replaced file shows within a day.
+    modifyResponseHeaders: ({ headers }) => {
+      headers.set('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800')
+      return headers
+    },
   },
   fields: [
     {

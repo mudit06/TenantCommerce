@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 
-import { getSearchList } from '@/lib/data/catalog'
+import { getCartSuggestions } from '@/lib/data/catalog'
 import { getStoreOffers } from '@/lib/data/offers'
 import { quoteCheckout } from '@/modules/orders'
 import { getStoreContext } from '@/storefront/context'
@@ -23,24 +23,13 @@ export default async function CartPage({ params }: Props) {
     pincode: cart?.pincode ?? null,
     couponCode: cart?.couponCode ?? null,
   })
-  const [offers, everything] = await Promise.all([
-    getStoreOffers(ctx.store.tenantId),
-    lines.length ? getSearchList(ctx.store.tenantId) : Promise.resolve([]),
-  ])
   // "Complete the look": more from the categories of what's in the cart, not already in it
-  const inCart = new Set(lines.map((line) => line.productId))
-  const cartCategories = new Set(
-    everything.filter((p) => inCart.has(String(p.id))).flatMap((p) => p.categoryIds),
-  )
-  const suggestions = everything
-    .filter(
-      (p) =>
-        !inCart.has(String(p.id)) &&
-        p.purchaseMode !== 'enquire' &&
-        p.price?.amountMinor &&
-        p.categoryIds.some((id) => cartCategories.has(id)),
-    )
-    .slice(0, 4)
+  const [offers, suggestions] = await Promise.all([
+    getStoreOffers(ctx.store.tenantId),
+    getCartSuggestions(ctx.store.tenantId, [
+      ...new Set(lines.map((line) => String(line.productId))),
+    ]),
+  ])
   return (
     <Container className="py-6 sm:py-10">
       <CartView
@@ -53,7 +42,7 @@ export default async function CartPage({ params }: Props) {
         {suggestions.length ? (
           <section className="mt-10">
             <SectionHeading>Complete the look</SectionHeading>
-            <ProductGrid products={suggestions} withCart />
+            <ProductGrid products={suggestions} tenantId={ctx.store.tenantId} withCart />
           </section>
         ) : null}
       </CartView>

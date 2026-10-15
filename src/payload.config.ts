@@ -133,6 +133,16 @@ registerOrderEvents()
 const storeCollection = (collection: CollectionConfig) =>
   withStoreSessionAudit(storeScreen(collection))
 
+/**
+ * Our own list screens (products, orders, enquiries...) read their rows themselves, but Payload
+ * still loads its default list under them: whole documents, products with every variant joined,
+ * read on every visit and never shown. With the select API it loads only its columns.
+ */
+const leanDefaultList = (collection: CollectionConfig): CollectionConfig =>
+  collection.admin?.components?.views?.list?.Component
+    ? { ...collection, admin: { ...collection.admin, enableListViewSelectAPI: true } }
+    : collection
+
 /** Largest upload Payload accepts (PDF catalogues); images are capped lower in media hooks. */
 const MAX_UPLOAD_BYTES = 50 * 1024 * 1024
 
@@ -301,7 +311,7 @@ export default buildConfig({
     ...[Tenants, TenantDomains, Plans, Subscriptions].map(platformScreen),
     FeatureFlags,
     ...[Users, AuditLogs].map(platformScreen),
-  ],
+  ].map(leanDefaultList),
   upload: { limits: { fileSize: MAX_UPLOAD_BYTES } },
   endpoints: [
     ...tenancyEndpoints,

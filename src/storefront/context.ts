@@ -1,22 +1,21 @@
-import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 import { cache } from 'react'
 
 import { getCategoryTree } from '@/lib/data/catalog'
 import { getSellingInfo, getStoreByHost, getStoreContent } from '@/lib/data/store'
+import { storeOriginForHost } from '@/lib/storeOrigin'
 
-import { PUBLIC_PROTOCOL, STORE_HOST_HEADER } from './constants'
 import { getVendorUI } from './registry'
 
 /**
- * Everything a storefront page needs about its store, once per request. The host comes from the
- * URL segment the proxy wrote and must match the header it set, so a store can't be opened
- * through another host's address (docs/04).
+ * Everything a storefront page needs about its store, once per request. The host is the URL
+ * segment src/proxy.ts wrote: a store's domain is always rewritten to its own host, and the
+ * admin host never reaches these routes (the proxy answers 404), so a store can't be opened
+ * through another host's address (docs/04). Nothing here reads the request, so shopper pages
+ * can be rendered once and served from the cache (docs/13).
  */
 export const getStoreContext = cache(async (hostParam: string) => {
   const host = decodeURIComponent(hostParam).toLowerCase()
-  const requestHeaders = await headers()
-  if (requestHeaders.get(STORE_HOST_HEADER) !== host) notFound()
   const store = await getStoreByHost(host)
   if (!store || store.status === 'archived') notFound()
   const [content, ui, categories, selling] = await Promise.all([
@@ -25,7 +24,7 @@ export const getStoreContext = cache(async (hostParam: string) => {
     getCategoryTree(store.tenantId),
     getSellingInfo(store.tenantId),
   ])
-  const origin = `${PUBLIC_PROTOCOL}://${requestHeaders.get('host') ?? host}`
+  const origin = storeOriginForHost(host)!
   return {
     store,
     ...content,

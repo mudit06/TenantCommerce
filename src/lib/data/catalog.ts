@@ -1,5 +1,6 @@
 import { unstable_cache } from 'next/cache'
 import type { Payload, Where } from 'payload'
+import { cache } from 'react'
 
 import { idOf } from '@/access'
 import { storefrontTag } from '@/hooks/revalidateStorefront'
@@ -9,6 +10,7 @@ import type { AttributeSet, Category, Product, ProductDocument, Variant } from '
 import { rankSearch } from '@/lib/search'
 
 import { getPayloadClient } from './payload'
+import { MEDIA_FIELDS } from './populate'
 
 const cached = <T>(tenantId: string, key: unknown[], fn: () => Promise<T>) =>
   unstable_cache(fn, ['catalog', tenantId, ...key.map((part) => JSON.stringify(part))], {
@@ -25,36 +27,62 @@ const liveProducts = (tenantId: string, extra?: Where): Where => ({
   ],
 })
 
+/** What a populated relationship carries in storefront queries: only what pages read from it. */
+const LEAN_POPULATE = {
+  media: MEDIA_FIELDS,
+  tenants: { slug: true },
+  'attribute-sets': { name: true },
+  categories: { name: true, slug: true, breadcrumbs: true, parent: true },
+  products: { title: true, slug: true },
+} as const
+
 export type CategoryNode = Category & { children: CategoryNode[]; path: string }
 
-/** The visible category tree, ordered for menus and tiles. */
-export const getCategoryTree = (tenantId: string) =>
-  cached(tenantId, ['tree'], async () => {
+/**
+ * The visible categories, flat. The tree is not cached: its JSON repeats every subtree under
+ * each ancestor and again in `all`, which passes the data cache's 2 MB entry limit on a large
+ * catalogue, and an entry over the limit is never cached (every request would query).
+ */
+const getCategoryList = (tenantId: string) =>
+  cached(tenantId, ['categories'], async () => {
     const payload = await getPayloadClient()
     const { docs } = await payload.find({
       collection: 'categories',
       where: { and: [{ tenant: { equals: tenantId } }, { isVisible: { not_equals: false } }] },
       depth: 1,
+      populate: LEAN_POPULATE,
       sort: 'sortOrder',
       pagination: false,
       overrideAccess: true,
     })
-    const nodes = new Map<string, CategoryNode>()
-    for (const doc of docs) {
-      nodes.set(String(doc.id), {
-        ...doc,
-        children: [],
-        path: doc.breadcrumbs?.at(-1)?.url ?? `/c/${doc.slug}`,
-      })
-    }
-    const roots: CategoryNode[] = []
-    for (const node of nodes.values()) {
-      const parent = node.parent ? nodes.get(idOf(node.parent) ?? '') : undefined
-      if (parent) parent.children.push(node)
-      else roots.push(node)
-    }
-    return { roots, all: [...nodes.values()] }
+    return docs
   })
+
+/** The visible category tree, ordered for menus and tiles (built once per request). */
+export const getCategoryTree = cache(async (tenantId: string) => {
+  const docs = await getCategoryList(tenantId)
+  const nodes = new Map<string, CategoryNode>()
+  for (const doc of docs) {
+    nodes.set(String(doc.id), {
+      ...doc,
+      children: [],
+      path: doc.breadcrumbs?.at(-1)?.url ?? `/c/${doc.slug}`,
+    })
+  }
+  const roots: CategoryNode[] = []
+  for (const node of nodes.values()) {
+    const parent = node.parent ? nodes.get(idOf(node.parent) ?? '') : undefined
+    if (parent) parent.children.push(node)
+    else roots.push(node)
+  }
+  return { roots, all: [...nodes.values()] }
+})
+
+/** The attribute set a category's filters come from (its own, else the nearest parent's). */
+export const getCategoryAttributeSet = (tenantId: string, categoryId: string) =>
+  cached(tenantId, ['attribute-set', categoryId], async () =>
+    attributeSetForCategory(await getPayloadClient(), categoryId),
+  )
 
 /** A category and every category under it, for listings. */
 export function withDescendants(node: CategoryNode): string[] {
@@ -102,6 +130,11 @@ const CARD_SELECT = {
   primaryCategory: true,
   categories: true,
 } as const
+
+/** A card without its photos: the cached category lists (`getProductsInCategories`). */
+const LIST_SELECT = Object.fromEntries(
+  Object.entries(CARD_SELECT).filter(([field]) => field !== 'gallery'),
+) as Omit<typeof CARD_SELECT, 'gallery'>
 
 const toCard = (doc: Product, buy?: ProductCardData['buy']): ProductCardData => ({
   id: doc.id,
@@ -156,7 +189,12 @@ async function toCards(payload: Payload, tenantId: string, docs: Product[]) {
   return docs.map((doc) => toCard(doc, byProduct.get(String(doc.id))))
 }
 
-/** Every live product in these categories (main or "also show in"), newest first. */
+/**
+ * Every live product in these categories (main or "also show in"), newest first, for filters,
+ * facets and sorting. Cached without photos, which are most of a card's size: a large category
+ * stays under the data cache's 2 MB entry limit and each request parses half as much. The page
+ * of cards on screen gets its photos from `withGalleries`.
+ */
 export const getProductsInCategories = (tenantId: string, categoryIds: string[]) =>
   cached(tenantId, ['in', [...categoryIds].sort()], async () => {
     const payload = await getPayloadClient()
@@ -165,14 +203,65 @@ export const getProductsInCategories = (tenantId: string, categoryIds: string[])
       where: liveProducts(tenantId, {
         or: [{ primaryCategory: { in: categoryIds } }, { categories: { in: categoryIds } }],
       }),
-      depth: 1,
+      depth: 0,
       sort: '-createdAt',
+      pagination: false,
+      overrideAccess: true,
+      select: LIST_SELECT,
+    })
+    return toCards(payload, tenantId, docs as Product[])
+  })
+
+/** The first two photos of these products, by product id (cached per set of products). */
+const getGalleries = (tenantId: string, ids: string[]) =>
+  cached(tenantId, ['galleries', [...ids].sort()], async () => {
+    const payload = await getPayloadClient()
+    const { docs } = await payload.find({
+      collection: 'products',
+      where: liveProducts(tenantId, { id: { in: ids } }),
+      depth: 1,
+      populate: LEAN_POPULATE,
+      pagination: false,
+      overrideAccess: true,
+      select: { gallery: true },
+    })
+    return Object.fromEntries(
+      docs.map((doc) => [String(doc.id), (doc.gallery ?? []).slice(0, 2)]),
+    ) as Record<string, ProductCardData['gallery']>
+  })
+
+/** Cards from a photo-less list (`getProductsInCategories`) with their photos, for the screen. */
+export async function withGalleries<T extends ProductCardData>(
+  tenantId: string,
+  cards: T[],
+): Promise<T[]> {
+  const missing = cards.filter((card) => !card.gallery?.length).map((card) => String(card.id))
+  if (missing.length === 0) return cards
+  const galleries = await getGalleries(tenantId, missing)
+  return cards.map((card) =>
+    card.gallery?.length ? card : { ...card, gallery: galleries[String(card.id)] ?? [] },
+  )
+}
+
+/** Cards for these products, in the order given (search results, cart suggestions). */
+const getCardsByIds = async (tenantId: string, ids: string[]): Promise<ProductCardData[]> => {
+  if (ids.length === 0) return []
+  const cards = await cached(tenantId, ['cards', [...ids].sort()], async () => {
+    const payload = await getPayloadClient()
+    const { docs } = await payload.find({
+      collection: 'products',
+      where: liveProducts(tenantId, { id: { in: ids } }),
+      depth: 1,
+      populate: LEAN_POPULATE,
       pagination: false,
       overrideAccess: true,
       select: CARD_SELECT,
     })
     return toCards(payload, tenantId, docs as Product[])
   })
+  const byId = new Map(cards.map((card) => [String(card.id), card]))
+  return ids.flatMap((id) => byId.get(id) ?? [])
+}
 
 export const getProductList = (
   tenantId: string,
@@ -192,6 +281,7 @@ export const getProductList = (
       collection: 'products',
       where: liveProducts(tenantId, extra),
       depth: 1,
+      populate: LEAN_POPULATE,
       // Bestsellers need order stats (stage B); newest until then
       sort: '-createdAt',
       limit,
@@ -202,25 +292,28 @@ export const getProductList = (
   })
 
 /**
- * Every live product with its search fields, for search and suggestions (ranked in memory by
- * `rankSearch`; Atlas Search replaces this when catalogues grow, docs/12).
+ * Every live product's search fields only (title, model number, keywords), ranked in memory by
+ * `rankSearch`; Atlas Search replaces this when catalogues grow (docs/12). Kept this small so
+ * a store with thousands of products still fits one cache entry: cards are read for the best
+ * matches only, not for the whole catalogue on every keystroke.
  */
-export const getSearchList = (tenantId: string) =>
-  cached(tenantId, ['search-list'], async () => {
+const getSearchIndex = (tenantId: string) =>
+  cached(tenantId, ['search-index'], async () => {
     const payload = await getPayloadClient()
     const { docs } = await payload.find({
       collection: 'products',
       where: liveProducts(tenantId),
-      depth: 1,
+      depth: 0,
       sort: '-isFeatured,-createdAt',
       pagination: false,
       overrideAccess: true,
-      select: { ...CARD_SELECT, searchKeywords: true },
+      select: { title: true, modelNumber: true, searchKeywords: true },
     })
-    const cards = await toCards(payload, tenantId, docs as Product[])
-    return cards.map((card, i) => ({
-      ...card,
-      searchKeywords: (docs[i] as Product).searchKeywords ?? null,
+    return docs.map((doc) => ({
+      id: String(doc.id),
+      title: doc.title,
+      modelNumber: doc.modelNumber,
+      searchKeywords: doc.searchKeywords ?? null,
     }))
   })
 
@@ -228,7 +321,28 @@ export const getSearchList = (tenantId: string) =>
 export const searchProducts = async (tenantId: string, query: string, limit = 48) => {
   const term = query.trim().slice(0, 80)
   if (term.length < 2) return []
-  return rankSearch(await getSearchList(tenantId), term).slice(0, limit)
+  const ranked = rankSearch(await getSearchIndex(tenantId), term).slice(0, limit)
+  return getCardsByIds(
+    tenantId,
+    ranked.map((row) => row.id),
+  )
+}
+
+/**
+ * "Complete the look" in the cart: more from the categories of what's in it, not already in it,
+ * sold online with a price. Reads the cart's products and a few candidates, not the catalogue.
+ */
+export const getCartSuggestions = async (tenantId: string, productIds: string[], limit = 4) => {
+  if (productIds.length === 0) return []
+  const inCart = await getCardsByIds(tenantId, productIds)
+  const categoryIds = [...new Set(inCart.flatMap((card) => card.categoryIds))]
+  if (categoryIds.length === 0) return []
+  const candidates = await getProductsFor(
+    tenantId,
+    { categoryIds, excludeIds: productIds },
+    limit * 3,
+  )
+  return candidates.filter((card) => card.price?.amountMinor).slice(0, limit)
 }
 
 export type ProductPageData = {
@@ -246,6 +360,7 @@ export const getProductBySlug = (tenantId: string, slug: string) =>
       collection: 'products',
       where: liveProducts(tenantId, { slug: { equals: slug } }),
       depth: 2,
+      populate: LEAN_POPULATE,
       limit: 1,
       overrideAccess: true,
     })
@@ -263,6 +378,7 @@ export const getProductBySlug = (tenantId: string, slug: string) =>
             ],
           },
           depth: 1,
+          populate: LEAN_POPULATE,
           sort: 'sortOrder',
           pagination: false,
           overrideAccess: true,
@@ -384,12 +500,55 @@ export const getProductsFor = (
       collection: 'products',
       where: liveProducts(tenantId, { and }),
       depth: 1,
+      populate: LEAN_POPULATE,
       sort: '-createdAt',
       limit,
       overrideAccess: true,
       select: CARD_SELECT,
     })
     return toCards(payload, tenantId, docs as Product[])
+  })
+
+/**
+ * "Goes well with" on a product page: the vendor's picks in their order, else the newest from
+ * its main category. Only these few cards are read, never the whole catalogue or category.
+ */
+export const getRelatedProducts = (
+  tenantId: string,
+  productId: string,
+  pickedIds: string[],
+  categoryId: string | null,
+  limit = 4,
+) =>
+  cached(tenantId, ['related', productId, pickedIds, categoryId, limit], async () => {
+    const payload = await getPayloadClient()
+    const find = (extra: Where, sort?: string) =>
+      payload
+        .find({
+          collection: 'products',
+          where: liveProducts(tenantId, { and: [extra, { id: { not_equals: productId } }] }),
+          depth: 1,
+          populate: LEAN_POPULATE,
+          sort,
+          limit,
+          overrideAccess: true,
+          select: CARD_SELECT,
+        })
+        .then((r) => r.docs as Product[])
+    if (pickedIds.length) {
+      const docs = await find({ id: { in: pickedIds } })
+      if (docs.length) {
+        const order = new Map(pickedIds.map((id, i) => [id, i]))
+        docs.sort((a, b) => (order.get(String(a.id)) ?? 0) - (order.get(String(b.id)) ?? 0))
+        return { picked: true, cards: await toCards(payload, tenantId, docs) }
+      }
+    }
+    if (!categoryId) return { picked: false, cards: [] }
+    const docs = await find(
+      { or: [{ primaryCategory: { equals: categoryId } }, { categories: { equals: categoryId } }] },
+      '-createdAt',
+    )
+    return { picked: false, cards: await toCards(payload, tenantId, docs) }
   })
 
 export type PublicReview = {
@@ -419,6 +578,7 @@ export const getProductReviews = (tenantId: string, productId: string) =>
       },
       sort: '-publishedAt',
       depth: 1,
+      populate: LEAN_POPULATE,
       limit: 200,
       pagination: false,
       overrideAccess: true,

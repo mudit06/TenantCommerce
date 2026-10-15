@@ -3,10 +3,25 @@
 
 export const DEFAULT_TIMEZONE = 'Asia/Kolkata'
 
+// Creating an Intl formatter looks up locale and time zone data (about 0.1 ms each), while using
+// one is about a microsecond: a list of 25 products formatted its dates with 75 new formatters.
+// They hold no state, so one per locale and options is shared.
+const formatters = new Map<string, Intl.DateTimeFormat>()
+
+function dateFormat(locale: string, options: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
+  const key = `${locale} ${JSON.stringify(options)}`
+  let format = formatters.get(key)
+  if (!format) {
+    format = new Intl.DateTimeFormat(locale, options)
+    formatters.set(key, format)
+  }
+  return format
+}
+
 type WallClock = { year: number; month: number; day: number; hour: number; minute: number }
 
 function wallClock(date: Date, timeZone: string): WallClock {
-  const parts = new Intl.DateTimeFormat('en-GB', {
+  const parts = dateFormat('en-GB', {
     timeZone,
     hourCycle: 'h23',
     year: 'numeric',
@@ -96,12 +111,12 @@ export function calendarDaysBetween(from: Date, to: Date, timeZone = DEFAULT_TIM
 
 /** 2026-10-10 on the zone's calendar: file names and day keys */
 export function isoDate(date: Date | string = new Date(), timeZone = DEFAULT_TIMEZONE): string {
-  return new Intl.DateTimeFormat('en-CA', { timeZone }).format(new Date(date))
+  return dateFormat('en-CA', { timeZone }).format(new Date(date))
 }
 
 /** 1 Oct 2026 */
 export function formatDate(date: Date | string, timeZone = DEFAULT_TIMEZONE): string {
-  return new Intl.DateTimeFormat('en-IN', {
+  return dateFormat('en-IN', {
     timeZone,
     day: 'numeric',
     month: 'short',
@@ -111,7 +126,7 @@ export function formatDate(date: Date | string, timeZone = DEFAULT_TIMEZONE): st
 
 /** Fri, 2 Oct 2026 */
 export function formatDateWithWeekday(date: Date | string, timeZone = DEFAULT_TIMEZONE): string {
-  return new Intl.DateTimeFormat('en-IN', {
+  return dateFormat('en-IN', {
     timeZone,
     weekday: 'short',
     day: 'numeric',
@@ -122,7 +137,7 @@ export function formatDateWithWeekday(date: Date | string, timeZone = DEFAULT_TI
 
 /** 2 Oct, 10:42 */
 export function formatDateTime(date: Date | string, timeZone = DEFAULT_TIMEZONE): string {
-  return new Intl.DateTimeFormat('en-IN', {
+  return dateFormat('en-IN', {
     timeZone,
     day: 'numeric',
     month: 'short',
@@ -134,14 +149,12 @@ export function formatDateTime(date: Date | string, timeZone = DEFAULT_TIMEZONE)
 
 /** October 2026 */
 export function formatMonth(date: Date | string, timeZone = DEFAULT_TIMEZONE): string {
-  return new Intl.DateTimeFormat('en-IN', { timeZone, month: 'long', year: 'numeric' }).format(
-    new Date(date),
-  )
+  return dateFormat('en-IN', { timeZone, month: 'long', year: 'numeric' }).format(new Date(date))
 }
 
 /** 10:42 */
 export function formatTime(date: Date | string, timeZone = DEFAULT_TIMEZONE): string {
-  return new Intl.DateTimeFormat('en-IN', {
+  return dateFormat('en-IN', {
     timeZone,
     hour: '2-digit',
     minute: '2-digit',
@@ -179,15 +192,13 @@ export function formatRelative(
 
 /** 2 Oct (day and short month): chart axes */
 export function formatDayMonth(date: Date | string, timeZone = DEFAULT_TIMEZONE): string {
-  return new Intl.DateTimeFormat('en-IN', { timeZone, day: 'numeric', month: 'short' }).format(
-    new Date(date),
-  )
+  return dateFormat('en-IN', { timeZone, day: 'numeric', month: 'short' }).format(new Date(date))
 }
 
 /** "Good morning" before noon, "Good afternoon" until 5 pm, then "Good evening" */
 export function greetingFor(date: Date, timeZone = DEFAULT_TIMEZONE): string {
   const hour = Number(
-    new Intl.DateTimeFormat('en-GB', { timeZone, hour: 'numeric', hourCycle: 'h23' }).format(date),
+    dateFormat('en-GB', { timeZone, hour: 'numeric', hourCycle: 'h23' }).format(date),
   )
   return hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
 }

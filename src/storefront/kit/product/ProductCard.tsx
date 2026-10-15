@@ -1,9 +1,8 @@
 import Link from 'next/link'
 
 import type { ProductCardData } from '@/lib/data/catalog'
-import { offerForProduct } from '@/lib/data/offers'
-
-import { requestCardStore, requestSelling, requestStoreOffers } from '../../shop/offers'
+import { getStoreOffers, offerForProduct } from '@/lib/data/offers'
+import { getSellingInfo, getStoreContent } from '@/lib/data/store'
 
 import { productHref } from '../links'
 import { Img } from '../media'
@@ -18,11 +17,14 @@ import { QuickAdd } from '../shop/QuickAdd'
  * pages; other cards carry the same quick add on their photo. A second photo shows on hover.
  */
 export async function ProductCard({
+  tenantId,
   product,
   priority = false,
   headingLevel = 3,
   withCart = false,
 }: {
+  /** The store the card belongs to (passed in, not read from the request, so pages can be cached) */
+  tenantId: string
   product: ProductCardData
   priority?: boolean
   headingLevel?: 2 | 3
@@ -33,21 +35,24 @@ export async function ProductCard({
   )
   const Heading = headingLevel === 2 ? 'h2' : 'h3'
   // A live scheme's price and badge (docs/11 "Display"); checkout prices the cart again
-  const [offers, selling, store] = await Promise.all([
-    requestStoreOffers(),
-    requestSelling(),
-    requestCardStore(),
+  // Memoised per request: a grid of cards reads each of these once
+  const [offers, { selling }, content] = await Promise.all([
+    getStoreOffers(tenantId),
+    getSellingInfo(tenantId),
+    getStoreContent(tenantId),
   ])
-  const offer = offers
-    ? offerForProduct(offers, {
-        id: product.id,
-        categoryIds: product.categoryIds ?? [],
-        priceMinor: product.price?.amountMinor ?? null,
-        purchaseMode: product.purchaseMode,
-      })
-    : null
+  const store = {
+    name: content.settings?.storeName ?? '',
+    enquiries: content.features.includes('enquiries'),
+  }
+  const offer = offerForProduct(offers, {
+    id: product.id,
+    categoryIds: product.categoryIds ?? [],
+    priceMinor: product.price?.amountMinor ?? null,
+    purchaseMode: product.purchaseMode,
+  })
   const listMinor = product.price?.amountMinor ?? 0
-  const rating = offers?.reviewsShown && product.rating?.count ? product.rating : null
+  const rating = offers.reviewsShown && product.rating?.count ? product.rating : null
   const buyable =
     selling && product.purchaseMode !== 'enquire' && Boolean(product.price?.amountMinor)
   // Quick add: straight to the cart, a picker for finishes and sizes, or a quote request
@@ -175,11 +180,13 @@ export async function ProductCard({
 }
 
 export function ProductGrid({
+  tenantId,
   products,
   priorityCount = 0,
   headingLevel = 3,
   withCart = false,
 }: {
+  tenantId: string
   products: ProductCardData[]
   priorityCount?: number
   headingLevel?: 2 | 3
@@ -194,6 +201,7 @@ export function ProductGrid({
             headingLevel={headingLevel}
             priority={index < priorityCount}
             product={product}
+            tenantId={tenantId}
             withCart={withCart}
           />
         </li>

@@ -1,4 +1,5 @@
 import { unstable_cache } from 'next/cache'
+import { cache } from 'react'
 
 import { idOf } from '@/access'
 import { storefrontTag } from '@/hooks/revalidateStorefront'
@@ -9,6 +10,7 @@ import { getTenantFeatures } from '@/modules/tenancy'
 import type { Navigation, SiteSetting } from '@/payload-types'
 
 import { getPayloadClient } from './payload'
+import { MEDIA_FIELDS } from './populate'
 
 // Storefront data layer (docs/04 "Three layers of isolation", layer 2): every function takes the
 // store first and filters on it; storefront pages never call Payload directly.
@@ -27,8 +29,11 @@ export type StoreRef = {
   city: string | null
 }
 
+// Each loader below is also memoised per request (React `cache`): headers, footers and every
+// product card ask for the same store, and a data cache read parses the whole entry each time.
+
 /** The store a request host belongs to, or null for an unknown host (cached, docs/04). */
-export const getStoreByHost = (host: string): Promise<StoreRef | null> =>
+export const getStoreByHost = cache((host: string): Promise<StoreRef | null> =>
   unstable_cache(
     async () => {
       const payload = await getPayloadClient()
@@ -64,7 +69,8 @@ export const getStoreByHost = (host: string): Promise<StoreRef | null> =>
     },
     ['store-by-host', host],
     { tags: [HOST_MAP_TAG], revalidate: 300 },
-  )()
+  )(),
+)
 
 export type StoreContent = {
   settings: SiteSetting | null
@@ -72,8 +78,21 @@ export type StoreContent = {
   features: string[]
 }
 
+/**
+ * What settings and menus carry of the documents they link to: links need a page's or product's
+ * slug and a category's address and photo (menus with pictures), photos only what `Img` reads.
+ * Without this, depth 2 copies every linked page's blocks into an entry read on every request.
+ */
+const CONTENT_POPULATE = {
+  media: MEDIA_FIELDS,
+  pages: { title: true, slug: true, _status: true },
+  categories: { name: true, slug: true, breadcrumbs: true, image: true },
+  products: { title: true, slug: true },
+  tenants: { slug: true },
+} as const
+
 /** Store settings, menus and switched-on features. */
-export const getStoreContent = (tenantId: string): Promise<StoreContent> =>
+export const getStoreContent = cache((tenantId: string): Promise<StoreContent> =>
   unstable_cache(
     async () => {
       const payload = await getPayloadClient()
@@ -83,6 +102,7 @@ export const getStoreContent = (tenantId: string): Promise<StoreContent> =>
             collection: 'site-settings',
             where: { tenant: { equals: tenantId } },
             depth: 2,
+            populate: CONTENT_POPULATE,
             limit: 1,
             overrideAccess: true,
           })
@@ -92,6 +112,7 @@ export const getStoreContent = (tenantId: string): Promise<StoreContent> =>
             collection: 'navigation',
             where: { tenant: { equals: tenantId } },
             depth: 2,
+            populate: CONTENT_POPULATE,
             limit: 1,
             overrideAccess: true,
           })
@@ -102,7 +123,8 @@ export const getStoreContent = (tenantId: string): Promise<StoreContent> =>
     },
     ['store-content', tenantId],
     { tags: [storefrontTag(tenantId), tenantTag(tenantId, 'features')], revalidate: 3600 },
-  )()
+  )(),
+)
 
 export const sameTenant = (doc: { tenant?: unknown } | null | undefined, tenantId: string) =>
   Boolean(doc) && idOf(doc?.tenant) === tenantId
@@ -119,7 +141,7 @@ export type SellingInfo = {
 }
 
 /** Whether a store takes orders online. Short cache: keys change in the CMS, not the catalogue. */
-export const getSellingInfo = (tenantId: string): Promise<SellingInfo> =>
+export const getSellingInfo = cache((tenantId: string): Promise<SellingInfo> =>
   unstable_cache(
     async () => {
       const payload = await getPayloadClient()
@@ -139,4 +161,5 @@ export const getSellingInfo = (tenantId: string): Promise<SellingInfo> =>
     },
     ['selling-info', tenantId],
     { tags: [tenantTag(tenantId, 'selling')], revalidate: 60 },
-  )()
+  )(),
+)

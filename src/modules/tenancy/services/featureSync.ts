@@ -1,5 +1,6 @@
 import type { PayloadRequest } from 'payload'
 
+import { forgetStoreFeatures } from './featureAccess'
 import { getTenantFeatures } from './features'
 
 /**
@@ -23,6 +24,7 @@ export async function syncEnabledFeatures(
       req,
       context: { skipAudit: true },
     })
+    forgetStoreFeatures(req)
   }
   return next
 }

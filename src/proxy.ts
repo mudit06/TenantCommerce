@@ -4,6 +4,7 @@ import { verifyPreviewToken } from '@/lib/preview-token'
 import {
   PREVIEW_PAGE_HEADER,
   PREVIEW_PREFIX,
+  PREVIEW_ROUTE,
   PUBLIC_PROTOCOL,
   STORE_HOST_HEADER,
 } from '@/storefront/constants'
@@ -37,8 +38,14 @@ const SECURITY_HEADERS: Record<string, string> = {
 }
 
 /**
+ * Paths the admin host answers besides the admin, the API and static files (excluded by the
+ * matcher): Next's own development and platform endpoints.
+ */
+const ADMIN_HOST_PASSTHROUGH = ['/__nextjs', '/_vercel', '/.well-known/']
+
+/**
  * A draft preview link (docs/screens Page builder rule 4): the page id when its signature is
- * genuine and current. The page still checks the store; this only decides the headers.
+ * genuine and current. The page still checks the store; this decides where it is served.
  */
 async function previewPageId(request: NextRequest): Promise<string | null> {
   const { pathname, searchParams } = request.nextUrl
@@ -56,6 +63,15 @@ export async function proxy(request: NextRequest) {
     // Not request.url: behind a reverse proxy it holds the server's own address (127.0.0.1:3000)
     if (pathname === '/')
       return NextResponse.redirect(`${PUBLIC_PROTOCOL}://${request.headers.get('host')}/admin`)
+    // Anything else would reach the storefront routes, whose first segment is the store's host:
+    // admin.example.com/<store-host>/... must not open a store on the admin's origin. The routes
+    // trust their host segment (no request read, so pages can be cached), so this is the check.
+    if (!ADMIN_HOST_PASSTHROUGH.some((prefix) => pathname.startsWith(prefix))) {
+      return new NextResponse('Not found', {
+        status: 404,
+        headers: { 'Content-Type': 'text/plain; charset=utf-8', ...SECURITY_HEADERS },
+      })
+    }
     // Our internal headers are only ever set below, for a store's own domain: a copy sent by a
     // browser to the admin host must not open a store's pages there
     const headers = new Headers(request.headers)
@@ -65,13 +81,19 @@ export async function proxy(request: NextRequest) {
   }
 
   const url = request.nextUrl.clone()
-  // Per-store sitemap: a plain route (a folder named sitemap.xml would be built as a static file)
-  url.pathname = pathname === '/sitemap.xml' ? `/${host}/store-sitemap` : `/${host}${pathname}`
   const headers = new Headers(request.headers)
   headers.set(STORE_HOST_HEADER, host)
   headers.delete(PREVIEW_PAGE_HEADER)
   const previewing = await previewPageId(request)
-  if (previewing) headers.set(PREVIEW_PAGE_HEADER, previewing)
+  if (previewing) {
+    // A genuine preview link renders in its own route (always fresh, shown even while the store
+    // is closed), so the shoppers' layout never has to read the request
+    headers.set(PREVIEW_PAGE_HEADER, previewing)
+    url.pathname = `${PREVIEW_ROUTE}/${host}/${encodeURIComponent(previewing)}`
+  } else {
+    // Per-store sitemap: a plain route (a folder named sitemap.xml would be built as a static file)
+    url.pathname = pathname === '/sitemap.xml' ? `/${host}/store-sitemap` : `/${host}${pathname}`
+  }
   const response = NextResponse.rewrite(url, { request: { headers } })
   for (const [name, value] of Object.entries(SECURITY_HEADERS)) response.headers.set(name, value)
   if (previewing) {

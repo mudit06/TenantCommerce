@@ -22,7 +22,8 @@ export const metadata: Metadata = { robots: { index: false, follow: false } }
 /**
  * The editor's live preview (docs/screens Page builder rule 4): the page's latest draft in this
  * store's own storefront code. Needs a signed link for this page and this store (src/lib
- * preview-token, made by the admin); anything else is "not found".
+ * preview-token, made by the admin), checked by src/proxy.ts and again here; anything else is
+ * "not found".
  */
 export default async function PagePreview({ params, searchParams }: Props) {
   const [{ tenant, id }, { token }] = await Promise.all([params, searchParams])

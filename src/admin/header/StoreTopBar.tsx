@@ -2,7 +2,7 @@ import type { PayloadRequest, ServerProps } from 'payload'
 
 import { ENQUIRY_WORK, TENANT_ROLE_LABELS } from '@/access'
 import { adminUrl } from '@/admin/paths'
-import { currentStore, storeRolesOf } from '@/admin/store'
+import { currentStore, newEnquiryCount, storeRolesOf } from '@/admin/store'
 import { Icon } from '@/admin/ui/icons'
 
 import { AdminSearch } from './AdminSearch'
@@ -19,15 +19,7 @@ export async function StoreTopBar({ req }: ServerProps & { req?: PayloadRequest 
   const roles = storeRolesOf(req.user, store.id)
   const seesEnquiries =
     store.features.includes('enquiries') && roles.some((role) => ENQUIRY_WORK.includes(role))
-  const newEnquiries = seesEnquiries
-    ? (
-        await req.payload.count({
-          collection: 'enquiries',
-          where: { and: [{ tenant: { equals: store.id } }, { status: { equals: 'new' } }] },
-          overrideAccess: true,
-        })
-      ).totalDocs
-    : 0
+  const newEnquiries = seesEnquiries ? await newEnquiryCount(req.payload, store.id) : 0
   const name =
     ('name' in req.user && typeof req.user.name === 'string' && req.user.name) || req.user.email
   const roleLabel = roles.map((role) => TENANT_ROLE_LABELS[role] ?? role).join(', ')

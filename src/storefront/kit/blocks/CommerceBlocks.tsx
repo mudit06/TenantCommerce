@@ -43,7 +43,9 @@ export async function ProductSection({
       {block.heading ?? 'Products'}
     </SectionHeading>
   )
-  const cards = products.map((product) => <ProductCard key={product.id} product={product} />)
+  const cards = products.map((product) => (
+    <ProductCard key={product.id} product={product} tenantId={ctx.store.tenantId} />
+  ))
 
   if (block.layout === 'promo') {
     const promo = block.promo
@@ -104,7 +106,7 @@ export async function ProductSection({
           {cards}
         </Slider>
       ) : (
-        <ProductGrid products={products} />
+        <ProductGrid products={products} tenantId={ctx.store.tenantId} />
       )}
     </Container>
   )

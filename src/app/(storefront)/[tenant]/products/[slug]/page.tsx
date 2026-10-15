@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 
 import { idOf } from '@/access'
 import { getStoreOffers, offerForProduct, offersForProduct } from '@/lib/data/offers'
-import { getProductBySlug, getProductReviews, getProductsInCategories } from '@/lib/data/catalog'
+import { getProductBySlug, getProductReviews, getRelatedProducts } from '@/lib/data/catalog'
 import { whatsappNumber } from '@/modules/enquiries'
 import { getStoreContext } from '@/storefront/context'
 import { Breadcrumbs } from '@/storefront/kit/Breadcrumbs'
@@ -27,6 +27,13 @@ import { Container, SectionHeading } from '@/storefront/kit/ui'
 import type { Product } from '@/payload-types'
 import { notFoundOrRedirect } from '@/storefront/notFoundOrRedirect'
 import { buyOptionsFor } from '@/storefront/shop/buyOptions'
+
+/**
+ * No page is built ahead: each store's page is rendered on its first visit, then served from the
+ * cache until the store's data changes (tag revalidation from Payload hooks) or its data's own
+ * expiry passes (docs/13). Keep this page free of request reads (headers, cookies, search params).
+ */
+export const generateStaticParams = async () => []
 
 type Props = { params: Promise<{ tenant: string; slug: string }> }
 
@@ -97,20 +104,12 @@ export default async function ProductPage({ params }: Props) {
   const picked = (product.relatedProducts ?? [])
     .map((p) => idOf(p))
     .filter((id): id is string => Boolean(id))
-  const sameCategory = node
-    ? await getProductsInCategories(ctx.store.tenantId, [String(node.id)])
-    : []
-  const pickedCards = picked.length
-    ? (
-        await getProductsInCategories(
-          ctx.store.tenantId,
-          ctx.categories.all.map((c) => String(c.id)),
-        )
-      ).filter((p) => picked.includes(String(p.id)))
-    : []
-  const related = (pickedCards.length ? pickedCards : sameCategory)
-    .filter((p) => p.id !== product.id)
-    .slice(0, 4)
+  const { picked: showsPicks, cards: related } = await getRelatedProducts(
+    ctx.store.tenantId,
+    String(product.id),
+    picked,
+    node ? String(node.id) : null,
+  )
   const pageUrl = `${ctx.origin}/products/${product.slug}`
   // A live scheme's price and badge; the cart and checkout price again on the server
   const storeFeatures = await getStoreOffers(ctx.store.tenantId)
@@ -456,10 +455,8 @@ export default async function ProductPage({ params }: Props) {
       ) : null}
       {related.length ? (
         <section className="mt-16">
-          <SectionHeading>
-            {pickedCards.length ? 'Goes well with' : 'You may also like'}
-          </SectionHeading>
-          <ProductGrid products={related} />
+          <SectionHeading>{showsPicks ? 'Goes well with' : 'You may also like'}</SectionHeading>
+          <ProductGrid products={related} tenantId={ctx.store.tenantId} />
         </section>
       ) : null}
       <script

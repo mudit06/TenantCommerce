@@ -7,8 +7,15 @@ export const STORE_HOST_HEADER = 'x-te-store-host'
  */
 export const PREVIEW_PAGE_HEADER = 'x-te-preview-page'
 
-/** Path prefix of draft previews on a store's domain (src/app/(storefront)/[tenant]/preview). */
+/** Path prefix of draft previews on a store's domain (`/preview/pages/<page id>?token=...`). */
 export const PREVIEW_PREFIX = '/preview/pages/'
+
+/**
+ * Where src/proxy.ts sends a preview link once its signature checks out:
+ * `/store-preview/<host>/<page id>`, served by src/app/(preview). Its own route, with its own
+ * layout, so the shoppers' pages stay free of request reads and can be cached.
+ */
+export const PREVIEW_ROUTE = '/store-preview'
 
 /**
  * Scheme of public addresses. Production always sits behind HTTPS (Vercel, or Caddy on a server,

@@ -6,6 +6,13 @@ import { Breadcrumbs } from '@/storefront/kit/Breadcrumbs'
 import { Img } from '@/storefront/kit/media'
 import { Container } from '@/storefront/kit/ui'
 
+/**
+ * No page is built ahead: each store's page is rendered on its first visit, then served from the
+ * cache until the store's data changes (tag revalidation from Payload hooks) or its data's own
+ * expiry passes (docs/13). Keep this page free of request reads (headers, cookies, search params).
+ */
+export const generateStaticParams = async () => []
+
 type Props = { params: Promise<{ tenant: string }> }
 
 export const metadata: Metadata = { title: 'Shop by category', alternates: { canonical: '/c' } }
@@ -39,7 +46,10 @@ export default async function CategoriesPage({ params }: Props) {
                 >
                   {root.name}
                 </h2>
-                <Link className="text-sm font-semibold text-accent hover:underline" href={root.path}>
+                <Link
+                  className="text-sm font-semibold text-accent hover:underline"
+                  href={root.path}
+                >
                   View all
                 </Link>
               </div>

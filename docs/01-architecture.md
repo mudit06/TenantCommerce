@@ -69,7 +69,11 @@ What keeps it a *modular* monolith (and therefore splittable later):
    (not redirects) to `/<host>/products/basin-mixer`, served by `src/app/(storefront)/[tenant]/`
    (the segment holds the host). The layout looks the store up from the host with a cached Local
    API query (`getStoreByHost`, tag `tenant-domains`), so the proxy has no database code; it also
-   sets `x-te-store-host`, and a `/<host>/` path only answers on that host (as built, 3 October 2026). The shopper's URL
+   sets `x-te-store-host` (for server actions and route handlers). The admin host answers 404 for
+   any path outside the admin, the API and static files, so a `/<host>/` path only opens on that
+   store's own domain and the pages can trust their host segment without reading the request
+   (14 October 2026: this is what lets them be cached, docs/13). A signed draft preview link is
+   rewritten to its own route, `/store-preview/<host>/<page id>` (`src/app/(preview)`). The shopper's URL
    never shows the slug. Reserved slugs (`admin`, `api`, `_next`, `platform`...) can't be tenant
    slugs. Unknown host -> 404 page.
    Suspended tenant -> "store unavailable" page.

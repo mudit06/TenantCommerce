@@ -9,7 +9,7 @@ import {
   TENANT_ROLE_LABELS,
   workspaceOf,
 } from '@/access'
-import { currentStore, storeRolesOf } from '@/admin/store'
+import { currentStore, newEnquiryCount, storeRolesOf } from '@/admin/store'
 import { mustSetUpTwoStep, TwoStepGate } from '@/modules/identity/admin'
 
 import { AppNavClient, type NavBadges, type NavIdentity } from './AppNavClient'
@@ -66,16 +66,10 @@ export async function AppNav({ req, visibleEntities, permissions }: Props) {
             overrideAccess: true,
           })
         : null,
-      visible.has('enquiries')
-        ? req.payload.count({
-            collection: 'enquiries',
-            where: { and: [{ tenant: { equals: store.id } }, { status: { equals: 'new' } }] },
-            overrideAccess: true,
-          })
-        : null,
+      visible.has('enquiries') ? newEnquiryCount(req.payload, store.id) : 0,
     ])
     if (drafts?.totalDocs) badges.draftPages = { count: drafts.totalDocs, label: 'drafts' }
-    if (enquiries?.totalDocs) badges.newEnquiries = { count: enquiries.totalDocs, label: 'new' }
+    if (enquiries) badges.newEnquiries = { count: enquiries, label: 'new' }
   }
 
   const name = ('name' in user && typeof user.name === 'string' && user.name) || user.email

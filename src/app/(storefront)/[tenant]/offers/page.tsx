@@ -10,6 +10,13 @@ import { CopyCode } from '@/storefront/kit/shop/CopyCode'
 import { OfferSignup } from '@/storefront/kit/shop/OfferSignup'
 import { buttonClass, Container } from '@/storefront/kit/ui'
 
+/**
+ * No page is built ahead: each store's page is rendered on its first visit, then served from the
+ * cache until the store's data changes (tag revalidation from Payload hooks) or its data's own
+ * expiry passes (docs/13). Keep this page free of request reads (headers, cookies, search params).
+ */
+export const generateStaticParams = async () => []
+
 export const metadata: Metadata = { title: 'Offers' }
 
 type Props = { params: Promise<{ tenant: string }> }

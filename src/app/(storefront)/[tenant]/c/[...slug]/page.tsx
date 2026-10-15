@@ -2,9 +2,11 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound, permanentRedirect } from 'next/navigation'
 
-import { getProductsInCategories, withDescendants } from '@/lib/data/catalog'
-import { getPayloadClient } from '@/lib/data/payload'
-import { attributeSetForCategory } from '@/modules/catalog'
+import {
+  getCategoryAttributeSet,
+  getProductsInCategories,
+  withDescendants,
+} from '@/lib/data/catalog'
 import { getStoreContext, type StoreContext } from '@/storefront/context'
 import { Breadcrumbs } from '@/storefront/kit/Breadcrumbs'
 import { ProductListing } from '@/storefront/kit/listing/ProductListing'
@@ -48,7 +50,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const node = await findCategory(ctx, slug)
   const [all, set] = await Promise.all([
     getProductsInCategories(ctx.store.tenantId, withDescendants(node)),
-    attributeSetForCategory(await getPayloadClient(), String(node.id)),
+    getCategoryAttributeSet(ctx.store.tenantId, String(node.id)),
   ])
   const crumbs = (node.breadcrumbs ?? []).map((crumb) => ({
     label: crumb.label ?? '',

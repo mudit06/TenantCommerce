@@ -44,6 +44,10 @@ export const Products: CollectionConfig = {
   indexes: [
     { fields: ['tenant', 'slug'], unique: true },
     { fields: ['tenant', 'status', 'primaryCategory'] },
+    // "Also show in" listings, and newest-first lists (new arrivals, featured, search). Without
+    // these Mongo walks the global createdAt index, reading every store's products per query
+    { fields: ['tenant', 'status', 'categories'] },
+    { fields: ['tenant', 'status', 'createdAt'] },
     { fields: ['tenant', 'modelNumber'] },
   ],
   fields: [

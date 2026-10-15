@@ -6,6 +6,13 @@ import { getStoreContext } from '@/storefront/context'
 import { PageContent } from '@/storefront/kit/PageContent'
 import { notFoundOrRedirect } from '@/storefront/notFoundOrRedirect'
 
+/**
+ * No page is built ahead: each store's page is rendered on its first visit, then served from the
+ * cache until the store's data changes (tag revalidation from Payload hooks) or its data's own
+ * expiry passes (docs/13). Keep this page free of request reads (headers, cookies, search params).
+ */
+export const generateStaticParams = async () => []
+
 type Props = { params: Promise<{ tenant: string; slug: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

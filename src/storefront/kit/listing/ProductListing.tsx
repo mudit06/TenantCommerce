@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import type { ProductCardData } from '@/lib/data/catalog'
+import { type ProductCardData, withGalleries } from '@/lib/data/catalog'
 import { getStoreOffers, offerForProduct } from '@/lib/data/offers'
 import type { Attribute } from '@/modules/catalog'
 
@@ -76,6 +76,8 @@ export async function ProductListing({
     undefined,
     one(query.from) ? Number(one(query.from)) : undefined,
   )
+  // Lists are cached without photos; only the cards on screen need them
+  const shown = await withGalleries(tenantId, page.items)
 
   const withQuery = (changes: Record<string, string | null>) => {
     const next = new URLSearchParams()
@@ -338,7 +340,8 @@ export async function ProductListing({
           <ProductGrid
             headingLevel={2}
             priorityCount={priorityCount}
-            products={page.items}
+            products={shown}
+            tenantId={tenantId}
             withCart
           />
         ) : (

@@ -71,5 +71,50 @@ How:
 - Third-party scripts (analytics, chat) with `next/script` `lazyOnload` and only after consent.
 - Caching: product/category/page data via `unstable_cache`/`use cache` with tenant tags and
   on-demand revalidation from Payload hooks; ISR-style static generation for top pages.
+  As built (14 October 2026):
+  - Home, product, CMS page, offers, downloads, contact, category index and offline pages export
+    `generateStaticParams = async () => []`: each store's page is rendered on its first visit and
+    then served from the cache (`s-maxage` from its data's shortest expiry, 60 s today), cleared by
+    the same tags as the data. They and the `[tenant]` layout must not read the request
+    (`headers()`, `cookies()`, `searchParams`): pass the store down (`ProductCard` takes `tenantId`)
+    instead. Listings with filters (`/c/...`), search, cart, checkout and account stay dynamic.
+  - One page render is about 35 ms of server CPU, so an uncached page tops out near 30 requests a
+    second per Node process; a cached one costs a few milliseconds, or nothing behind a CDN.
+  - Data cache entries over 2 MB are silently never cached. Cached lists stay lean: `populate` only
+    the fields pages read (`src/lib/data/populate.ts`), the category tree is cached flat, category
+    lists without photos (the cards on screen get them), and search ranks a small index (title,
+    model number, keywords) before reading cards for the best matches. Rough limits per entry: about
+    3,000 products in one category, 12,000 in a store's search, 1,400 categories. Past those, move
+    listing and search to Atlas Search (docs/12).
+  - Loaders that every card or block calls (`getStoreByHost`, `getStoreContent`, `getSellingInfo`,
+    `getCategoryTree`, `getStoreOffers`) are also memoised per request with React `cache`.
+  - Media served by the app (local disk, or a bucket without `MEDIA_PUBLIC_URL`) is sent with
+    `Cache-Control: public, max-age=86400, stale-while-revalidate=604800`.
+- Admin (vendor CMS and platform panel), as built 15 October 2026. Admin pages are rendered for
+  each request, so their cost is server CPU and database round trips:
+  - Payload works out every collection's permissions (create, read, update, delete, versions) on
+    every admin page. An access function that reads the database runs about sixty times per page:
+    memoise per request instead (`featureGatedAccess` reads the stores' features once per request,
+    `src/modules/tenancy/services/featureAccess.ts`).
+  - Never create an `Intl` formatter per row: one costs about 0.1 ms to create and a microsecond to
+    use. `src/lib/dates.ts` and `formatINR` keep one per shape; use them, or a module-level
+    formatter, rather than `new Intl...` or `toLocaleString(locale, options)` in a loop.
+  - Under our own list screens Payload still loads its default list (whole documents, products with
+    their variants joined); collections with a custom list view use the list select API so it loads
+    only its columns (`leanDefaultList`, `src/payload.config.ts`).
+  - Helpers several components ask for on one page are memoised with React `cache` (current store,
+    new enquiry count, the store's category tree).
+  - Measured on one production process (10 concurrent requests, small catalogue): CMS dashboard
+    1.8 -> 5.9 pages a second, products list 2.6 -> 8.7, product form 2.7 -> 9.7, platform dashboard
+    5.3 -> 10.4; storefront category listing 7.8 -> 34 and search 13 -> 33 (each card's price
+    made a new formatter).
+  - `next dev` is not a speed test: admin pages take 1.5 to 3 s there against about 0.1 s in a
+    production build (React's development build records a stack trace for every promise a Server
+    Component creates, and Payload creates thousands per page), and each route compiles on its
+    first visit. Judge speed with `pnpm build && pnpm start`.
+- Hosting: the app server and Atlas must be in the same region (Mumbai, docs/19): an admin page
+  makes 20 to 90 database calls, so 200 ms of distance between them costs seconds per page. With
+  object storage, set `MEDIA_PUBLIC_URL` so photos come from the CDN; otherwise every photo is a
+  request to the app.
 - DB: lean projections (`select`), `depth: 0/1`, compound indexes, no N+1 relationship loading.
 - Lazy-load below-the-fold blocks and carousels.

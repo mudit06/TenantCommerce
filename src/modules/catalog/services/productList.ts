@@ -1,4 +1,5 @@
 import type { Payload, Where } from 'payload'
+import { cache } from 'react'
 
 import { idOf } from '@/access'
 import type { Media, Product, Variant } from '@/payload-types'
@@ -23,7 +24,8 @@ export const productFiltersFrom = (params: URLSearchParams): ProductFilters => (
 
 type CategoryNode = { id: string; name: string; parent: string | null }
 
-export async function storeCategories(payload: Payload, tenantId: string) {
+/** The store's category tree; read once per page (the screen, its filters and its rows ask). */
+export const storeCategories = cache(async (payload: Payload, tenantId: string) => {
   const { docs } = await payload.find({
     collection: 'categories',
     where: { tenant: { equals: tenantId } },
@@ -52,7 +54,7 @@ export async function storeCategories(payload: Payload, tenantId: string) {
     ...nodes.filter((n) => n.parent === id).flatMap((n) => descendants(n.id)),
   ]
   return { nodes, byId, pathOf, descendants }
-}
+})
 
 type VariantStock = Pick<Variant, 'product' | 'stockQty' | 'lowStockThreshold' | 'status'>
 
@@ -157,8 +159,8 @@ export type ProductRow = {
   updatedAt: string
 }
 
-const rupees = (minor: number) =>
-  `₹${(minor / 100).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`
+const RUPEES = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2 })
+const rupees = (minor: number) => `₹${RUPEES.format(minor / 100)}`
 
 /** Each listed product's category, finishes, price range and stock (cms-products rule 2). */
 export async function productRows(

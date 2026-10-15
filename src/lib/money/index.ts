@@ -110,18 +110,29 @@ type FormatOptions = {
   currency?: Currency
 }
 
+const currencyFormats = new Map<string, Intl.NumberFormat>()
+
 /** ₹1,12,400 style, Indian digit grouping. */
 export function formatINR(amountMinor: number, options: FormatOptions = {}): string {
   assertMinor(amountMinor)
   const { decimals = 'auto', currency = 'INR' } = options
   const perMajor = MINOR_PER_MAJOR[currency]
   const showPaise = decimals === 'always' || (decimals === 'auto' && amountMinor % perMajor !== 0)
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: showPaise ? 2 : 0,
-    maximumFractionDigits: decimals === 'never' ? 0 : 2,
-  }).format(amountMinor / perMajor)
+  const minimum = showPaise ? 2 : 0
+  const maximum = decimals === 'never' ? 0 : 2
+  // One formatter per shape: creating one costs far more than formatting (src/lib/dates.ts)
+  const key = `${currency} ${minimum} ${maximum}`
+  let format = currencyFormats.get(key)
+  if (!format) {
+    format = new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: minimum,
+      maximumFractionDigits: maximum,
+    })
+    currencyFormats.set(key, format)
+  }
+  return format.format(amountMinor / perMajor)
 }
 
 /** Lakh and crore shorthand for dashboards: ₹3.70 L, ₹2.62 Cr. */

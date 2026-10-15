@@ -5,7 +5,7 @@ import { env } from '@/lib/env'
 import { signPreviewToken } from '@/lib/preview-token'
 import { storeOriginForHost } from '@/lib/storeOrigin'
 
-/** Where the store's draft preview of a page lives (src/app/(storefront)/[tenant]/preview). */
+/** Where the store's draft preview of a page lives (src/proxy.ts serves it from src/app/(preview)). */
 export const PREVIEW_PATH = '/preview/pages'
 
 /**

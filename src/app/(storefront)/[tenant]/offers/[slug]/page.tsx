@@ -8,6 +8,13 @@ import { getStoreContext } from '@/storefront/context'
 import { ProductGrid } from '@/storefront/kit/product/ProductCard'
 import { buttonClass, Container } from '@/storefront/kit/ui'
 
+/**
+ * No page is built ahead: each store's page is rendered on its first visit, then served from the
+ * cache until the store's data changes (tag revalidation from Payload hooks) or its data's own
+ * expiry passes (docs/13). Keep this page free of request reads (headers, cookies, search params).
+ */
+export const generateStaticParams = async () => []
+
 type Props = { params: Promise<{ tenant: string; slug: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -94,7 +101,7 @@ export default async function OfferPage({ params }: Props) {
           </Link>
         </div>
       ) : shown.length ? (
-        <ProductGrid headingLevel={2} products={shown} />
+        <ProductGrid headingLevel={2} products={shown} tenantId={ctx.store.tenantId} />
       ) : (
         <p className="text-ink-soft">The products in this offer will show here.</p>
       )}

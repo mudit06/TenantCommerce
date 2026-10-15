@@ -125,7 +125,7 @@ export async function SchemeProducts({
       >
         {block.heading || scheme.name}
       </SectionHeading>
-      <ProductGrid products={products} />
+      <ProductGrid products={products} tenantId={ctx.store.tenantId} />
     </Container>
   )
 }

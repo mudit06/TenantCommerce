@@ -73,6 +73,18 @@ const loadStore = cache(async (payload: Payload, id: string): Promise<CurrentSto
   }
 })
 
+/** New enquiries in a store: the menu's badge and the top bar's bell (counted once per request). */
+export const newEnquiryCount = cache(
+  async (payload: Payload, storeId: string): Promise<number> =>
+    (
+      await payload.count({
+        collection: 'enquiries',
+        where: { and: [{ tenant: { equals: storeId } }, { status: { equals: 'new' } }] },
+        overrideAccess: true,
+      })
+    ).totalDocs,
+)
+
 /** The current store of a store-workspace page, or null in the platform panel. */
 export async function currentStore(payload: Payload, user: unknown): Promise<CurrentStore | null> {
   if (workspaceOf(user) !== 'store') return null
