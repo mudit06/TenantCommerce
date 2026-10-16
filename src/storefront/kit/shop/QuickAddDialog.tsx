@@ -116,7 +116,7 @@ export default function QuickAddDialog({
             productId={options.productId}
             quoteHref={null}
             variants={options.variants}
-            whatsappHref={null}
+            whatsapp={null}
           />
         ) : (
           // A still outline of the picker while its prices load

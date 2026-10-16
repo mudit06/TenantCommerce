@@ -1,8 +1,9 @@
 import Link from '@/storefront/kit/IntentLink'
 
 import type { StoreContext } from '../../context'
-import { MenuIcon, PhoneIcon, SearchIcon, UserIcon, WhatsAppIcon } from '../icons'
+import { CloseIcon, MenuIcon, PhoneIcon, SearchIcon, UserIcon, WhatsAppIcon } from '../icons'
 import { SearchBox } from '../listing/SearchBox'
+import { SheetClose } from '../listing/SheetClose'
 import { Img } from '../media'
 
 import { CartLink } from '../shop/CartLink'
@@ -59,7 +60,7 @@ export async function Header({ ctx }: { ctx: StoreContext }) {
         </Container>
       </div>
       <Container className="relative flex h-16 items-center gap-2 sm:gap-4 lg:h-20">
-        <details className="group relative lg:hidden">
+        <details className="group relative lg:hidden" data-sheet>
           <summary
             aria-label="Menu"
             className="flex size-11 cursor-pointer list-none items-center justify-center rounded-card border border-line [&::-webkit-details-marker]:hidden"
@@ -70,6 +71,11 @@ export async function Header({ ctx }: { ctx: StoreContext }) {
             aria-label="Menu"
             className="drop-in fixed inset-x-0 top-[6.25rem] z-50 max-h-[calc(100dvh-6.25rem)] overflow-y-auto border-t border-line bg-white px-4 pb-8 shadow-xl"
           >
+            <div className="flex justify-end pt-2">
+              <SheetClose className="inline-flex min-h-11 items-center gap-1.5 px-2 text-sm font-semibold">
+                <CloseIcon height={16} width={16} /> Close
+              </SheetClose>
+            </div>
             <MobileMenuList items={items} />
             <ul className="divide-y divide-line border-t border-line">
               {ctx.selling.selling ? (

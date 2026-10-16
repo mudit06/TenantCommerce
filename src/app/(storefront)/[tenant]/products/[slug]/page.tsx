@@ -19,6 +19,7 @@ import { Stars } from '@/storefront/kit/reviews/Stars'
 import { formatINR } from '@/lib/money'
 import { RememberView } from '@/storefront/kit/pwa/RememberView'
 import { BuyBox } from '@/storefront/kit/shop/BuyBox'
+import { ChosenOptionsProvider } from '@/storefront/kit/shop/ChosenOptions'
 import { CopyCode } from '@/storefront/kit/shop/CopyCode'
 import { HeartButton } from '@/storefront/kit/shop/HeartButton'
 import { SpecTable } from '@/storefront/kit/product/SpecTable'
@@ -131,6 +132,14 @@ export default async function ProductPage({ params }: Props) {
         purchaseMode: product.purchaseMode,
       })
     : null
+  // The price shoppers see first, as the cards show it: the lowest finish in stock (of all of
+  // them when none is), with its live scheme price; without finishes, the product's
+  const inStock = buyVariants.filter((v) => v.available !== 0)
+  const lowestMinor = (inStock.length ? inStock : buyVariants).reduce<number | null>(
+    (min, v) => Math.min(min ?? Infinity, v.offerMinor ?? v.priceMinor),
+    null,
+  )
+  const shownMinor = lowestMinor ?? productOffer?.priceMinor ?? product.price?.amountMinor ?? null
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -144,12 +153,12 @@ export default async function ProductPage({ params }: Props) {
       .filter(Boolean),
     countryOfOrigin: product.legal?.countryOfOrigin ?? undefined,
     offers:
-      buying && product.price?.amountMinor
+      buying && shownMinor
         ? {
             '@type': 'Offer',
             url: pageUrl,
             priceCurrency: 'INR',
-            price: ((productOffer?.priceMinor ?? product.price.amountMinor) / 100).toFixed(2),
+            price: (shownMinor / 100).toFixed(2),
             availability:
               variants.length === 0 ||
               variants.some((v) => v.allowBackorder || (v.stockQty ?? 0) - (v.reservedQty ?? 0) > 0)
@@ -192,189 +201,193 @@ export default async function ProductPage({ params }: Props) {
       <RememberView
         image={typeof firstPhoto === 'object' ? (mediaUrl(firstPhoto?.url) ?? null) : null}
         path={`/products/${product.slug}`}
-        price={
-          buying && product.price?.amountMinor
-            ? formatINR(productOffer?.priceMinor ?? product.price.amountMinor)
-            : null
-        }
+        price={buying && shownMinor ? formatINR(shownMinor) : null}
         title={product.title}
       />
       <Breadcrumbs items={crumbs} origin={ctx.origin} />
-      <div className="mt-5 grid gap-8 lg:grid-cols-2 lg:gap-12">
-        <Gallery
-          slides={photos.map((photo, i) => (
-            <Img
-              className="size-full object-contain"
-              key={i}
-              media={photo}
-              priority={i === 0}
-              sizes="(min-width: 1024px) 45vw, 100vw"
-            />
-          ))}
-          thumbs={photos.map((photo, i) => (
-            <Img className="size-full object-cover" key={i} media={photo} sizes="80px" />
-          ))}
-          title={product.title}
-        />
-        <div>
-          {category ? (
-            <p className="text-xs font-semibold tracking-wider text-accent uppercase">
-              {category.name}
-            </p>
-          ) : null}
-          <h1 className="mt-1 font-heading text-2xl leading-tight font-bold sm:text-3xl">
-            {product.title}
-          </h1>
-          <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-soft">
-            <span>
-              Model no. <span className="font-semibold text-ink">{product.modelNumber}</span>
-            </span>
-            {reviews?.count && product.rating?.average ? (
-              <a className="inline-flex items-center gap-1.5 hover:underline" href="#reviews">
-                <Stars value={product.rating.average} />
-                <span className="font-semibold text-ink">{product.rating.average.toFixed(1)}</span>
-                <span>
-                  {reviews.count} review{reviews.count === 1 ? '' : 's'}
-                </span>
-              </a>
-            ) : null}
-            {storeFeatures.wishlistOn ? (
-              <HeartButton
-                className="inline-flex items-center gap-1.5 rounded-card border border-line px-2.5 py-1 text-sm text-ink hover:border-ink/40"
-                label={product.title}
-                productId={String(product.id)}
-                withText
+      <ChosenOptionsProvider>
+        <div className="mt-5 grid gap-8 lg:grid-cols-2 lg:gap-12">
+          <Gallery
+            slides={photos.map((photo, i) => (
+              <Img
+                className="size-full object-contain"
+                key={i}
+                media={photo}
+                priority={i === 0}
+                sizes="(min-width: 1024px) 45vw, 100vw"
               />
+            ))}
+            thumbs={photos.map((photo, i) => (
+              <Img className="size-full object-cover" key={i} media={photo} sizes="80px" />
+            ))}
+            title={product.title}
+          />
+          <div>
+            {category ? (
+              <p className="text-xs font-semibold tracking-wider text-accent uppercase">
+                {category.name}
+              </p>
             ) : null}
-          </p>
-          {product.shortDescription ? (
-            <p className="mt-4 leading-relaxed text-ink-soft">{product.shortDescription}</p>
-          ) : null}
-          {buying ? null : (
-            <p className="mt-4 rounded-card bg-surface-alt px-4 py-3 text-sm text-ink">
-              Price on request. Tell us the finish, size and quantity you need and we’ll send you a
-              quote.
+            <h1 className="mt-1 font-heading text-2xl leading-tight font-bold sm:text-3xl">
+              {product.title}
+            </h1>
+            <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-soft">
+              <span>
+                Model no. <span className="font-semibold text-ink">{product.modelNumber}</span>
+              </span>
+              {reviews?.count && product.rating?.average ? (
+                <a className="inline-flex items-center gap-1.5 hover:underline" href="#reviews">
+                  <Stars value={product.rating.average} />
+                  <span className="font-semibold text-ink">
+                    {product.rating.average.toFixed(1)}
+                  </span>
+                  <span>
+                    {reviews.count} review{reviews.count === 1 ? '' : 's'}
+                  </span>
+                </a>
+              ) : null}
+              {storeFeatures.wishlistOn ? (
+                <HeartButton
+                  className="inline-flex items-center gap-1.5 rounded-card border border-line px-2.5 py-1 text-sm text-ink hover:border-ink/40"
+                  label={product.title}
+                  productId={String(product.id)}
+                  withText
+                />
+              ) : null}
             </p>
-          )}
-          {product.highlights?.length ? (
-            <ul className="mt-5 space-y-1.5 text-sm">
-              {product.highlights.map((item, i) => (
-                <li className="flex gap-2" key={item.id ?? i}>
-                  <span aria-hidden className="mt-2 size-1.5 shrink-0 rounded-full bg-brand" />
-                  {item.text}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-          <div className="mt-6">
-            {buying ? (
-              <BuyBox
-                axes={axes}
-                baseMrpMinor={product.compareAtPrice?.amountMinor ?? null}
-                basePriceMinor={product.price?.amountMinor ?? null}
-                modelNumber={product.modelNumber}
-                pincodeCheck={ctx.hasFeature('pincode-check')}
-                productId={String(product.id)}
-                offer={productOffer}
-                quoteHref={
-                  ctx.hasFeature('enquiries') && product.purchaseMode === 'both' ? '#quote' : null
-                }
-                variants={buyVariants}
-                whatsappHref={
-                  whatsappNumber(ctx.settings?.contact?.whatsapp)
-                    ? `https://wa.me/${whatsappNumber(ctx.settings?.contact?.whatsapp)}?text=${encodeURIComponent(`Hello ${name}, I have a question about ${product.title} (${product.modelNumber}). ${pageUrl}`)}`
-                    : null
-                }
-              />
+            {product.shortDescription ? (
+              <p className="mt-4 leading-relaxed text-ink-soft">{product.shortDescription}</p>
             ) : null}
-            {forYou.coupons.length || forYou.nextScheme ? (
-              <section
-                aria-labelledby="offers-for-you"
-                className="mt-6 rounded-card border border-dashed border-accent/50 p-4"
-              >
-                <h2 className="flex items-center gap-2 text-sm font-semibold" id="offers-for-you">
-                  <TagIcon className="text-accent" height={16} width={16} /> Offers for you
-                </h2>
-                <ul className="mt-2 space-y-2 text-sm">
-                  {forYou.coupons.map((coupon) => (
-                    <li className="flex flex-wrap items-center gap-2" key={coupon.code}>
-                      <span className="rounded border border-line bg-surface-alt px-2 py-0.5 font-mono text-xs font-semibold">
-                        {coupon.code}
-                      </span>
-                      <span className="flex-1 text-ink-soft">
-                        {coupon.gives}
-                        {coupon.minOrderMinor
-                          ? ` on orders above ${formatINR(coupon.minOrderMinor)}`
-                          : ''}
-                        {coupon.onlineOnly ? ' · pay online' : ''}
-                      </span>
-                      <CopyCode code={coupon.code} />
-                    </li>
-                  ))}
-                  {forYou.nextScheme ? (
-                    <li className="text-ink-soft">
-                      <span className="font-semibold text-ink">{forYou.nextScheme.name}</span>
-                      {`: ${forYou.nextScheme.description}, from ${startDate(forYou.nextScheme.startsAt)}. `}
-                      <a
-                        className="font-semibold text-accent underline"
-                        href={
-                          forYou.nextScheme.slug ? `/offers/${forYou.nextScheme.slug}` : '/offers'
-                        }
-                      >
-                        Details
-                      </a>
-                    </li>
-                  ) : null}
-                </ul>
-                <p className="mt-2 text-xs text-ink-soft">Codes are applied in the cart.</p>
-              </section>
-            ) : null}
-            {promises.length ? (
-              <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-soft">
-                {promises.map(({ icon: Icon, text }) => (
-                  <li className="flex items-center gap-1.5" key={text}>
-                    <Icon className="text-accent" height={16} width={16} /> {text}
+            {buying ? null : (
+              <p className="mt-4 rounded-card bg-surface-alt px-4 py-3 text-sm text-ink">
+                Price on request. Tell us the finish, size and quantity you need and we’ll send you
+                a quote.
+              </p>
+            )}
+            {product.highlights?.length ? (
+              <ul className="mt-5 space-y-1.5 text-sm">
+                {product.highlights.map((item, i) => (
+                  <li className="flex gap-2" key={item.id ?? i}>
+                    <span aria-hidden className="mt-2 size-1.5 shrink-0 rounded-full bg-brand" />
+                    {item.text}
                   </li>
                 ))}
               </ul>
             ) : null}
-            {buying &&
-            !(ctx.hasFeature('enquiries') && product.purchaseMode === 'both') ? null : buying ? (
-              <section
-                aria-labelledby="quote-heading"
-                className="mt-8 scroll-mt-28 rounded-card border border-line bg-surface-alt p-4 sm:p-6"
-                id="quote"
-              >
-                <h2 className="mb-1 font-heading text-lg font-semibold" id="quote-heading">
-                  Request a bulk quote
-                </h2>
-                <p className="mb-4 text-sm text-ink-soft">
-                  For large quantities, projects and trade prices.
-                </p>
-                <QuoteForm
+            <div className="mt-6">
+              {buying ? (
+                <BuyBox
+                  axes={axes}
+                  baseMrpMinor={product.compareAtPrice?.amountMinor ?? null}
+                  basePriceMinor={product.price?.amountMinor ?? null}
                   modelNumber={product.modelNumber}
-                  page={pageUrl}
-                  productTitle={product.title}
-                  showQty
-                  storeName={name}
-                  submitLabel="Send quote request"
-                  type="bulk"
+                  pincodeCheck={ctx.hasFeature('pincode-check')}
+                  productId={String(product.id)}
+                  offer={productOffer}
+                  quoteHref={
+                    ctx.hasFeature('enquiries') && product.purchaseMode === 'both' ? '#quote' : null
+                  }
+                  variants={buyVariants}
+                  whatsapp={
+                    whatsappNumber(ctx.settings?.contact?.whatsapp)
+                      ? {
+                          number: whatsappNumber(ctx.settings?.contact?.whatsapp)!,
+                          intro: `Hello ${name}, I have a question about ${product.title} (${product.modelNumber})`,
+                          pageUrl,
+                        }
+                      : null
+                  }
                 />
-              </section>
-            ) : (
-              <ProductEnquiry
-                axes={axes}
-                enquiriesOn={ctx.hasFeature('enquiries')}
-                modelNumber={product.modelNumber}
-                pageUrl={pageUrl}
-                storeName={name}
-                title={product.title}
-                whatsappNumber={whatsappNumber(ctx.settings?.contact?.whatsapp)}
-              />
-            )}
+              ) : null}
+              {forYou.coupons.length || forYou.nextScheme ? (
+                <section
+                  aria-labelledby="offers-for-you"
+                  className="mt-6 rounded-card border border-dashed border-accent/50 p-4"
+                >
+                  <h2 className="flex items-center gap-2 text-sm font-semibold" id="offers-for-you">
+                    <TagIcon className="text-accent" height={16} width={16} /> Offers for you
+                  </h2>
+                  <ul className="mt-2 space-y-2 text-sm">
+                    {forYou.coupons.map((coupon) => (
+                      <li className="flex flex-wrap items-center gap-2" key={coupon.code}>
+                        <span className="rounded border border-line bg-surface-alt px-2 py-0.5 font-mono text-xs font-semibold">
+                          {coupon.code}
+                        </span>
+                        <span className="flex-1 text-ink-soft">
+                          {coupon.gives}
+                          {coupon.minOrderMinor
+                            ? ` on orders above ${formatINR(coupon.minOrderMinor)}`
+                            : ''}
+                          {coupon.onlineOnly ? ' · pay online' : ''}
+                        </span>
+                        <CopyCode code={coupon.code} />
+                      </li>
+                    ))}
+                    {forYou.nextScheme ? (
+                      <li className="text-ink-soft">
+                        <span className="font-semibold text-ink">{forYou.nextScheme.name}</span>
+                        {`: ${forYou.nextScheme.description}, from ${startDate(forYou.nextScheme.startsAt)}. `}
+                        <a
+                          className="font-semibold text-accent underline"
+                          href={
+                            forYou.nextScheme.slug ? `/offers/${forYou.nextScheme.slug}` : '/offers'
+                          }
+                        >
+                          Details
+                        </a>
+                      </li>
+                    ) : null}
+                  </ul>
+                  <p className="mt-2 text-xs text-ink-soft">Codes are applied in the cart.</p>
+                </section>
+              ) : null}
+              {promises.length ? (
+                <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-soft">
+                  {promises.map(({ icon: Icon, text }) => (
+                    <li className="flex items-center gap-1.5" key={text}>
+                      <Icon className="text-accent" height={16} width={16} /> {text}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {buying &&
+              !(ctx.hasFeature('enquiries') && product.purchaseMode === 'both') ? null : buying ? (
+                <section
+                  aria-labelledby="quote-heading"
+                  className="mt-8 scroll-mt-28 rounded-card border border-line bg-surface-alt p-4 sm:p-6"
+                  id="quote"
+                >
+                  <h2 className="mb-1 font-heading text-lg font-semibold" id="quote-heading">
+                    Request a bulk quote
+                  </h2>
+                  <p className="mb-4 text-sm text-ink-soft">
+                    For large quantities, projects and trade prices.
+                  </p>
+                  <QuoteForm
+                    modelNumber={product.modelNumber}
+                    page={pageUrl}
+                    productTitle={product.title}
+                    showQty
+                    storeName={name}
+                    submitLabel="Send quote request"
+                    type="bulk"
+                  />
+                </section>
+              ) : (
+                <ProductEnquiry
+                  axes={axes}
+                  enquiriesOn={ctx.hasFeature('enquiries')}
+                  modelNumber={product.modelNumber}
+                  pageUrl={pageUrl}
+                  storeName={name}
+                  title={product.title}
+                  whatsappNumber={whatsappNumber(ctx.settings?.contact?.whatsapp)}
+                />
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      </ChosenOptionsProvider>
 
       <div className="mt-14 grid gap-12 lg:grid-cols-2">
         <section aria-labelledby="specs">

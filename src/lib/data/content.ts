@@ -30,6 +30,34 @@ export const getPublishedPage = (tenantId: string, slug: string): Promise<Page |
     { tags: [storefrontTag(tenantId)], revalidate: 3600 },
   )()
 
+/** The addresses of this store's published pages (not the home page), for the sitemap. */
+export const getPublishedPagePaths = (tenantId: string) =>
+  unstable_cache(
+    async () => {
+      const payload = await getPayloadClient()
+      const { docs } = await payload.find({
+        collection: 'pages',
+        where: {
+          and: [
+            { tenant: { equals: tenantId } },
+            { _status: { equals: 'published' } },
+            { slug: { not_equals: 'home' } },
+          ],
+        },
+        depth: 0,
+        pagination: false,
+        draft: false,
+        overrideAccess: true,
+        select: { slug: true, updatedAt: true },
+      })
+      return docs
+        .filter((doc) => doc.slug)
+        .map((doc) => ({ path: `/pages/${doc.slug}`, updatedAt: doc.updatedAt }))
+    },
+    ['page-paths', tenantId],
+    { tags: [storefrontTag(tenantId)], revalidate: 3600 },
+  )()
+
 /**
  * The latest draft of one page of this store, for the editor's preview only (never cached: the
  * preview route checks a signed link first). The store filter is explicit (CLAUDE.md rule 1).

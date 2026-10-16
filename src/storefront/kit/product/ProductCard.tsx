@@ -121,6 +121,7 @@ export async function ProductCard({
               <>
                 <Price
                   amountMinor={offer?.priceMinor ?? listMinor}
+                  from={product.buy.priceRange}
                   mrpMinor={
                     offer?.priceMinor
                       ? (product.compareAtPrice?.amountMinor ?? listMinor)

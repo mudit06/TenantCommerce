@@ -9,6 +9,8 @@ import type { AttributeSet, Category, Product, ProductDocument, Variant } from '
 
 import { rankSearch } from '@/lib/search'
 
+import { cardPrice, type VariantPrice } from './cardPrice'
+
 import { getPayloadClient } from './payload'
 import { MEDIA_FIELDS } from './populate'
 
@@ -109,9 +111,15 @@ export type ProductCardData = Pick<
   categoryIds: string[]
   /**
    * For the card's Add to cart and the stock filter: how many finishes or sizes it is sold in,
-   * the one variant when there is only one, and pieces left (null when stock isn't tracked)
+   * the one variant when there is only one, and pieces left (null when stock isn't tracked).
+   * `priceRange`: the finishes cost different amounts, so `price` is the lowest ("From")
    */
-  buy: { options: number; variantId: string | null; available: number | null }
+  buy: {
+    options: number
+    variantId: string | null
+    available: number | null
+    priceRange?: boolean
+  }
 }
 
 const CARD_SELECT = {
@@ -136,25 +144,32 @@ const LIST_SELECT = Object.fromEntries(
   Object.entries(CARD_SELECT).filter(([field]) => field !== 'gallery'),
 ) as Omit<typeof CARD_SELECT, 'gallery'>
 
-const toCard = (doc: Product, buy?: ProductCardData['buy']): ProductCardData => ({
-  id: doc.id,
-  title: doc.title,
-  slug: doc.slug,
-  modelNumber: doc.modelNumber,
-  gallery: (doc.gallery ?? []).slice(0, 2),
-  attributes: doc.attributes,
-  isFeatured: doc.isFeatured,
-  createdAt: doc.createdAt,
-  purchaseMode: doc.purchaseMode,
-  price: doc.price,
-  compareAtPrice: doc.compareAtPrice,
-  rating: doc.rating,
-  primaryCategory: idOf(doc.primaryCategory),
-  categoryIds: [idOf(doc.primaryCategory), ...(doc.categories ?? []).map((c) => idOf(c))].filter(
-    (id): id is string => Boolean(id),
-  ),
-  buy: buy ?? { options: 0, variantId: null, available: null },
-})
+const toCard = (
+  doc: Product,
+  buy?: ProductCardData['buy'],
+  variantPrices: VariantPrice[] = [],
+): ProductCardData => {
+  const { price, compareAtPrice, priceRange } = cardPrice(doc, variantPrices)
+  return {
+    id: doc.id,
+    title: doc.title,
+    slug: doc.slug,
+    modelNumber: doc.modelNumber,
+    gallery: (doc.gallery ?? []).slice(0, 2),
+    attributes: doc.attributes,
+    isFeatured: doc.isFeatured,
+    createdAt: doc.createdAt,
+    purchaseMode: doc.purchaseMode,
+    price,
+    compareAtPrice,
+    rating: doc.rating,
+    primaryCategory: idOf(doc.primaryCategory),
+    categoryIds: [idOf(doc.primaryCategory), ...(doc.categories ?? []).map((c) => idOf(c))].filter(
+      (id): id is string => Boolean(id),
+    ),
+    buy: { ...(buy ?? { options: 0, variantId: null, available: null }), priceRange },
+  }
+}
 
 /** Cards with their variants' stock (one query for the whole list). */
 async function toCards(payload: Payload, tenantId: string, docs: Product[]) {
@@ -171,9 +186,17 @@ async function toCards(payload: Payload, tenantId: string, docs: Product[]) {
     depth: 0,
     pagination: false,
     overrideAccess: true,
-    select: { product: true, stockQty: true, reservedQty: true, allowBackorder: true },
+    select: {
+      product: true,
+      stockQty: true,
+      reservedQty: true,
+      allowBackorder: true,
+      price: true,
+      compareAtPrice: true,
+    },
   })
   const byProduct = new Map<string, ProductCardData['buy']>()
+  const pricesByProduct = new Map<string, VariantPrice[]>()
   for (const variant of variants) {
     const productId = idOf(variant.product)!
     const current = byProduct.get(productId) ?? { options: 0, variantId: null, available: 0 }
@@ -185,8 +208,18 @@ async function toCards(payload: Payload, tenantId: string, docs: Product[]) {
       variantId: current.options === 0 ? String(variant.id) : null,
       available: current.available === null || left === null ? null : current.available + left,
     })
+    pricesByProduct.set(productId, [
+      ...(pricesByProduct.get(productId) ?? []),
+      {
+        priceMinor: variant.price?.amountMinor ?? null,
+        mrpMinor: variant.compareAtPrice?.amountMinor ?? null,
+        inStock: left === null || left > 0,
+      },
+    ])
   }
-  return docs.map((doc) => toCard(doc, byProduct.get(String(doc.id))))
+  return docs.map((doc) =>
+    toCard(doc, byProduct.get(String(doc.id)), pricesByProduct.get(String(doc.id))),
+  )
 }
 
 /**

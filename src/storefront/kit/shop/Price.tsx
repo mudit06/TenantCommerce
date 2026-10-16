@@ -1,16 +1,21 @@
 import { formatINR } from '@/lib/money'
 
-/** A GST-inclusive price with the MRP struck through and the saving (docs/screens storefront rules). */
+/**
+ * A GST-inclusive price with the MRP struck through and the saving (docs/screens storefront
+ * rules). `from`: the lowest of several finishes' prices, shown as "From ₹1,499".
+ */
 export function Price({
   amountMinor,
   mrpMinor,
   size = 'md',
   showTaxNote = false,
+  from = false,
 }: {
   amountMinor: number
   mrpMinor?: number | null
   size?: 'sm' | 'md' | 'lg'
   showTaxNote?: boolean
+  from?: boolean
 }) {
   const off =
     mrpMinor && mrpMinor > amountMinor ? Math.round(((mrpMinor - amountMinor) / mrpMinor) * 100) : 0
@@ -18,7 +23,10 @@ export function Price({
   return (
     <div>
       <p className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-        <span className={`${main} font-bold text-ink`}>{formatINR(amountMinor)}</span>
+        <span className={`${main} font-bold text-ink`}>
+          {from ? <span className="text-xs font-normal text-ink-soft">From </span> : null}
+          {formatINR(amountMinor)}
+        </span>
         {off > 0 ? (
           <>
             <span className="text-xs text-ink-soft">

@@ -3,6 +3,7 @@
 import { useActionState } from 'react'
 
 import { sendEnquiry, type EnquiryState } from '../../actions'
+import { useChosenOptions } from '../shop/ChosenOptions'
 import { CheckIcon } from '../icons'
 import { buttonClass } from '../ui'
 
@@ -40,6 +41,10 @@ export function QuoteForm({
   submitLabel?: string
 }) {
   const [state, action, pending] = useActionState(sendEnquiry, { status: 'idle' } as EnquiryState)
+  // On a product page the finish picked in the buy box goes with a bulk quote request
+  const chosen = useChosenOptions()?.text
+  const pickedOptions = !options && productTitle && chosen ? chosen : null
+  const sentOptions = options ?? (pickedOptions ? `Options: ${pickedOptions}` : undefined)
   if (state.status === 'sent') {
     return (
       <div
@@ -65,7 +70,10 @@ export function QuoteForm({
       <input name="type" type="hidden" value={type} />
       {productTitle ? <input name="productTitle" type="hidden" value={productTitle} /> : null}
       {modelNumber ? <input name="modelNumber" type="hidden" value={modelNumber} /> : null}
-      {options ? <input name="options" type="hidden" value={options} /> : null}
+      {sentOptions ? <input name="options" type="hidden" value={sentOptions} /> : null}
+      {pickedOptions ? (
+        <p className="text-sm text-ink-soft sm:col-span-2">For {pickedOptions}</p>
+      ) : null}
       {page ? <input name="page" type="hidden" value={page} /> : null}
       <div aria-hidden className="absolute -left-[9999px]">
         <label>

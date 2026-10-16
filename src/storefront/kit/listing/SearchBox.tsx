@@ -152,6 +152,8 @@ export function SearchBox({
                 event.preventDefault()
                 setActive((a) => Math.max(-1, a - 1))
               } else if (event.key === 'Escape') {
+                // Closes the suggestions first; the next Escape closes the menu around the box
+                if (open) event.preventDefault()
                 setOpen(false)
               }
             }}

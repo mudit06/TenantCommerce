@@ -247,7 +247,7 @@ export async function ProductListing({
   )
 
   const sortMenu = (
-    <details className="relative">
+    <details className="relative" data-sheet>
       <summary className="inline-flex min-h-10 cursor-pointer list-none items-center gap-1.5 rounded-card border border-line px-3 text-sm font-medium [&::-webkit-details-marker]:hidden">
         Sort: {sort ? SORTS[sort] : 'Best match'}
         <ChevronIcon className="rotate-90" height={14} width={14} />
@@ -300,7 +300,7 @@ export async function ProductListing({
             {page.total} {page.total === 1 ? 'product' : 'products'}
           </p>
           <div className="flex items-center gap-2 text-sm">
-            <details className="lg:hidden">
+            <details className="lg:hidden" data-sheet>
               <summary className="inline-flex min-h-10 cursor-pointer list-none items-center rounded-card border border-line px-4 font-medium [&::-webkit-details-marker]:hidden">
                 Filter{activeCount ? ` (${activeCount})` : ''}
               </summary>
@@ -345,10 +345,21 @@ export async function ProductListing({
           />
         ) : (
           <p className="rounded-card border border-dashed border-line p-10 text-center text-ink-soft">
-            No products match these filters.{' '}
-            <Link className="text-accent underline" href={clearAll}>
-              Clear filters
-            </Link>
+            {activeCount ? (
+              <>
+                No products match these filters.{' '}
+                <Link className="text-accent underline" href={clearAll}>
+                  Clear filters
+                </Link>
+              </>
+            ) : (
+              <>
+                No products here yet.{' '}
+                <Link className="text-accent underline" href="/c">
+                  See all categories
+                </Link>
+              </>
+            )}
           </p>
         )}
         {page.page < page.pages ? (

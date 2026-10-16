@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useId, useMemo, useState, useTransition } from 'react'
+import { useEffect, useId, useMemo, useState, useTransition } from 'react'
 
 import { formatINR } from '@/lib/money'
 import Link from '@/storefront/kit/IntentLink'
@@ -11,6 +11,7 @@ import { CashIcon, CheckIcon, TruckIcon, WhatsAppIcon } from '../icons'
 import type { PickerAxis } from '../product/ProductEnquiry'
 import { buttonClass } from '../ui'
 import { announceCartChange } from './CartLink'
+import { useChosenOptions } from './ChosenOptions'
 import { Price } from './Price'
 import { QtyStepper } from './QtyStepper'
 import { startNavigation } from '../layout/NavigationLoader'
@@ -29,6 +30,9 @@ export type BuyVariant = {
 
 export type BuyOffer = { badge: string | null; until: string | null; priceMinor: number | null }
 
+/** "Ask on WhatsApp": the store's number and the message, which gets the chosen finish added. */
+export type BuyWhatsApp = { number: string; intro: string; pageUrl: string }
+
 /**
  * The product page's buying block (docs/screens storefront `st-product`): finish and size with
  * their prices, quantity and stock, the pincode check, Add to cart and Buy now; a quote request
@@ -43,7 +47,7 @@ export function BuyBox({
   modelNumber,
   pincodeCheck,
   quoteHref,
-  whatsappHref,
+  whatsapp,
   offer,
   compact = false,
 }: {
@@ -55,7 +59,7 @@ export function BuyBox({
   modelNumber: string
   pincodeCheck: boolean
   quoteHref: string | null
-  whatsappHref: string | null
+  whatsapp: BuyWhatsApp | null
   /** The product's live scheme: its badge and real end, and the price without a variant */
   offer?: BuyOffer | null
   /** The cards' quick add: choices, quantity and the two buttons only */
@@ -94,6 +98,25 @@ export function BuyBox({
   const available = variant?.available ?? null
   const soldOut = available === 0
   const max = available ?? 99
+
+  // The choice travels with the request: "Finish: Rose gold, Size: 8 inch" (docs/10 kit)
+  const optionsText = axes
+    .map((axis) => {
+      const option = axis.options.find((o) => o.value === chosen[axis.code])
+      return option ? `${axis.label}: ${option.label}` : null
+    })
+    .filter(Boolean)
+    .join(', ')
+  const whatsappHref = whatsapp
+    ? `https://wa.me/${whatsapp.number}?text=${encodeURIComponent(
+        `${whatsapp.intro}${optionsText ? `, ${optionsText}` : ''}. ${whatsapp.pageUrl}`,
+      )}`
+    : null
+  const chosenOptions = useChosenOptions()
+  const setChosenText = chosenOptions?.setText
+  useEffect(() => {
+    if (!compact) setChosenText?.(optionsText)
+  }, [compact, optionsText, setChosenText])
 
   const priceFor = (axisCode: string, value: string) => {
     const match = variants.find(

@@ -9,6 +9,7 @@ import { BottomNav } from './BottomNav'
 import { Footer as KitFooter } from './Footer'
 import { Header as KitHeader } from './Header'
 import { NavigationLoader } from './NavigationLoader'
+import { SheetDismiss } from './SheetDismiss'
 import { StoreMessage } from './StoreMessage'
 import { WhatsAppFloat } from './WhatsAppFloat'
 
@@ -130,6 +131,7 @@ export function StoreDocument({
             <Suspense fallback={null}>
               <NavigationLoader />
             </Suspense>
+            <SheetDismiss />
             <WhatsAppFloat
               href={storeWhatsApp(
                 ctx.settings?.contact?.whatsapp,

@@ -1,5 +1,6 @@
 import type { StoreContext } from '@/storefront/context'
 import {
+  CloseIcon,
   MenuIcon,
   PhoneIcon,
   PinIcon,
@@ -12,6 +13,7 @@ import Link from '@/storefront/kit/IntentLink'
 import { MegaMenu, MegaPanel, MobileMenuList } from '@/storefront/kit/layout/MegaMenu'
 import { categoryColumns, headerItems, storeAnnouncement } from '@/storefront/kit/layout/nav'
 import { SearchBox } from '@/storefront/kit/listing/SearchBox'
+import { SheetClose } from '@/storefront/kit/listing/SheetClose'
 import { Img } from '@/storefront/kit/media'
 import { CartLink } from '@/storefront/kit/shop/CartLink'
 import { WishlistLink } from '@/storefront/kit/shop/WishlistLink'
@@ -96,7 +98,7 @@ export async function Header({ ctx }: { ctx: StoreContext }) {
 
       <header className="sticky top-0 z-40 border-b border-line bg-white/95 backdrop-blur">
         <Container className="relative flex h-16 items-center gap-2 sm:gap-4 lg:h-[84px] lg:gap-8">
-          <details className="group lg:hidden">
+          <details className="group lg:hidden" data-sheet>
             <summary
               aria-label="Menu"
               className="flex size-11 cursor-pointer list-none items-center justify-center rounded-full hover:bg-surface-alt [&::-webkit-details-marker]:hidden"
@@ -107,6 +109,11 @@ export async function Header({ ctx }: { ctx: StoreContext }) {
               aria-label="Menu"
               className="drop-in absolute inset-x-0 top-full z-50 max-h-[calc(100dvh-6.5rem)] overflow-y-auto border-t border-line bg-white px-4 pb-24 shadow-xl"
             >
+              <div className="flex justify-end pt-2">
+                <SheetClose className="inline-flex min-h-11 items-center gap-1.5 px-2 text-sm font-semibold">
+                  <CloseIcon height={16} width={16} /> Close
+                </SheetClose>
+              </div>
               <div className="py-3 md:hidden">
                 <SearchBox variant="page" />
               </div>
