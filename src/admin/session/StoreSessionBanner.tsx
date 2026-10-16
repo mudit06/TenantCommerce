@@ -6,6 +6,7 @@ import { Icon } from '@/admin/ui/icons'
 import { formatTime } from '@/lib/dates'
 
 import { EndStoreSessionButton } from './EndStoreSessionButton'
+import { StoreCookieSync } from './StoreCookieSync'
 
 /**
  * Shown on every page while one of our team works inside a store (docs/05): whose store, as
@@ -38,6 +39,7 @@ export async function StoreSessionBanner({ req }: ServerProps & { req?: PayloadR
         </span>
       </p>
       <EndStoreSessionButton />
+      <StoreCookieSync storeId={session.tenantId} />
     </div>
   )
 }

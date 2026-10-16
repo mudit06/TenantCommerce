@@ -54,7 +54,7 @@ export const Pages: CollectionConfig = {
       url: ({ data, req }) => pagePreviewUrl(req, data),
       breakpoints: [
         { name: 'phone', label: 'Phone', width: 390, height: 844 },
-        { name: 'tablet', label: 'Tablet', width: 820, height: 1180 },
+        { name: 'tablet', label: 'Tablet', width: 768, height: 1024 },
         { name: 'desktop', label: 'Desktop', width: 1440, height: 900 },
       ],
     },

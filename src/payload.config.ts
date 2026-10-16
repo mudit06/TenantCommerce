@@ -148,6 +148,9 @@ const MAX_UPLOAD_BYTES = 50 * 1024 * 1024
 
 // Assembles collections, plugins, endpoints and jobs (docs/03). Module code stays in
 // src/modules/*; this file only wires it together.
+
+const PLUGIN_GLOBAL_REDIRECT = '@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect'
+
 export default buildConfig({
   serverURL: env.ADMIN_URL,
   secret: env.PAYLOAD_SECRET,
@@ -484,6 +487,22 @@ export default buildConfig({
       i18n: { translations: { en: { 'nav-tenantSelector-label': 'Store' } } },
       // Stores are archived, never cascade-deleted from the admin (docs/04)
       cleanupAfterTenantDelete: false,
+    }),
+    // Store settings and Menus open the document of the store the CMS page is about (our team's
+    // store session included), not the plugin's cookie guess (src/admin/session/GlobalViewRedirect)
+    (config) => ({
+      ...config,
+      admin: {
+        ...config.admin,
+        components: {
+          ...config.admin?.components,
+          actions: config.admin?.components?.actions?.map((action) =>
+            typeof action === 'object' && action.path === PLUGIN_GLOBAL_REDIRECT
+              ? { ...action, path: '@/admin/session/GlobalViewRedirect#GlobalViewRedirect' }
+              : action,
+          ),
+        },
+      },
     }),
   ],
 })

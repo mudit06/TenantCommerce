@@ -22,16 +22,21 @@ export function DealerMapField() {
     Array.isArray(value) && value.length === 2 && value.every((n) => typeof n === 'number')
 
   const fill = async () => {
-    if (!pincode || !tenant) return toast.error('Enter the pincode first')
+    if (!/^[1-9][0-9]{5}$/.test(pincode ?? '')) return toast.error('Enter a 6-digit pincode first')
+    if (!tenant) return toast.error('Choose the store first')
     setBusy(true)
     const response = await fetch(
-      `/api/admin/v1/dealers/position?store=${encodeURIComponent(tenant)}&pincode=${encodeURIComponent(pincode)}`,
+      `/api/admin/v1/dealers/position?store=${encodeURIComponent(tenant)}&pincode=${encodeURIComponent(pincode!)}`,
       { credentials: 'include' },
-    )
+    ).catch(() => null)
     setBusy(false)
-    const body = (await response.json().catch(() => null)) as {
-      data?: { position: { latitude: number; longitude: number } | null }
+    const body = (await response?.json().catch(() => null)) as {
+      data?: { position: { latitude: number; longitude: number } | null } | null
+      error?: { message?: string } | null
     } | null
+    if (!response?.ok) {
+      return toast.error(body?.error?.message ?? 'Couldn’t look up the pincode. Try again.')
+    }
     const position = body?.data?.position
     if (!position) {
       return toast.error(
@@ -39,6 +44,8 @@ export function DealerMapField() {
       )
     }
     setValue([round(position.longitude), round(position.latitude)])
+    // The pin may already sit there, so say what happened
+    toast.success('Pin placed at the pincode. Drag it onto the shop if needed.')
   }
 
   return (

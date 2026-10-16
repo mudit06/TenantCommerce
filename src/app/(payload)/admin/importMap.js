@@ -84,7 +84,7 @@ import { BlockLibraryHints as BlockLibraryHints_dc611f20083a013f1d541042bd5ca384
 import { Icon as Icon_586723811577fcd570b153bacaa81664 } from '@/admin/graphics/Icon'
 import { Logo as Logo_fb41377240e79a3f427000f9c4717644 } from '@/admin/graphics/Logo'
 import { StoreTopBar as StoreTopBar_92c1acfa020c3baf55d49748ffd5bfba } from '@/admin/header/StoreTopBar'
-import { GlobalViewRedirect as GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
+import { GlobalViewRedirect as GlobalViewRedirect_79ca3528ddffdc556604b8c9c3a196e8 } from '@/admin/session/GlobalViewRedirect'
 import { TenantSelector as TenantSelector_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
 import { TenantSelectionProvider as TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
 import { Dashboard as Dashboard_1892ca63063ac8b0682f63e4a9002f9d } from '@/admin/views/Dashboard'
@@ -190,7 +190,7 @@ export const importMap = {
   "@/admin/graphics/Icon#Icon": Icon_586723811577fcd570b153bacaa81664,
   "@/admin/graphics/Logo#Logo": Logo_fb41377240e79a3f427000f9c4717644,
   "@/admin/header/StoreTopBar#StoreTopBar": StoreTopBar_92c1acfa020c3baf55d49748ffd5bfba,
-  "@payloadcms/plugin-multi-tenant/rsc#GlobalViewRedirect": GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e62,
+  "@/admin/session/GlobalViewRedirect#GlobalViewRedirect": GlobalViewRedirect_79ca3528ddffdc556604b8c9c3a196e8,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelector": TenantSelector_d6d5f193a167989e2ee7d14202901e62,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider": TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62,
   "@/admin/views/Dashboard#Dashboard": Dashboard_1892ca63063ac8b0682f63e4a9002f9d,
