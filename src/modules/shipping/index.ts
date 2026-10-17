@@ -11,6 +11,11 @@ export {
   type StoreDeliveryQuote,
 } from './services/delivery'
 export {
+  readPincodeDirectory,
+  type DirectoryResult,
+  type DirectoryRow,
+} from './services/pincodeDirectory'
+export {
   lookupPincode,
   PINCODE_PATTERN,
   stateFromPincodePrefix,

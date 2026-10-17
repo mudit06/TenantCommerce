@@ -64,6 +64,8 @@ export type WishlistRow = {
   offer: { priceMinor: number | null; badge: string | null; until: string | null } | null
   /** Why it can't go in the cart now: sold out, sold on request… */
   problem: string | null
+  /** Saved without a finish or size (a card's heart): the shopper picks one on the product page */
+  needsOptions: boolean
 }
 
 /**
@@ -141,6 +143,7 @@ export async function wishlistView(items: unknown): Promise<WishlistRow[]> {
         : line.problem === 'Choose a finish or size.'
           ? null
           : line.problem,
+      needsOptions: line?.problem === 'Choose a finish or size.',
     })
   }
   return rows

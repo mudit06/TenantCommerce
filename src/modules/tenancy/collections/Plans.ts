@@ -147,6 +147,24 @@ export const Plans: CollectionConfig = {
     { name: 'sortOrder', type: 'number', defaultValue: 0, admin: { position: 'sidebar' } },
   ],
   hooks: {
+    beforeValidate: [
+      // A key no longer in the registry (a feature or provider removed from code, or written by
+      // another branch's seed) would fail "invalid selection" and block every save (QA SAP-02-33)
+      ({ data }) => {
+        if (!data) return data
+        const features = new Set<string>(FEATURES.map((feature) => feature.key))
+        const providers = new Set<string>(CONNECTOR_PROVIDERS.map((provider) => provider.key))
+        if (Array.isArray(data.allowedModules)) {
+          data.allowedModules = data.allowedModules.filter((key: string) => features.has(key))
+        }
+        if (Array.isArray(data.allowedConnectors)) {
+          data.allowedConnectors = data.allowedConnectors.filter((key: string) =>
+            providers.has(key),
+          )
+        }
+        return data
+      },
+    ],
     afterChange: [
       async ({ doc, previousDoc, operation, req }) => {
         if (operation === 'update') {

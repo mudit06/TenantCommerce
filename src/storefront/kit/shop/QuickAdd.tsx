@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic'
 import { useState, useTransition } from 'react'
 
 import { addToCart } from '@/storefront/shop/actions'
+import { reach } from '@/storefront/shop/reach'
 
 import { CartIcon, MailIcon, PlusIcon } from '../icons'
 import { buttonClass } from '../ui'
@@ -51,7 +52,7 @@ export function QuickAdd({
 
   const addNow = () =>
     start(async () => {
-      const result = await addToCart({ productId, variantId, qty: 1 })
+      const result = await reach(() => addToCart({ productId, variantId, qty: 1 }))
       if (result.ok) {
         announceCartChange()
         setNote({ ok: true, text: `${title} added to your cart` })

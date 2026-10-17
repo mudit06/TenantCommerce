@@ -21,6 +21,7 @@
     "create-tenant": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/create-tenant.ts",
     "migrate:r2": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/migrate-images-to-r2.ts",
     "reset-two-step": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/reset-two-step.ts",
+    "import:pincodes": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/import-pincodes.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write .",

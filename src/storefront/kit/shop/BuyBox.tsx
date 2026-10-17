@@ -6,6 +6,7 @@ import { useEffect, useId, useMemo, useState, useTransition } from 'react'
 import { formatINR } from '@/lib/money'
 import Link from '@/storefront/kit/IntentLink'
 import { addToCart, checkDelivery, type DeliveryCheck } from '@/storefront/shop/actions'
+import { reach } from '@/storefront/shop/reach'
 
 import { CashIcon, CheckIcon, TruckIcon, WhatsAppIcon } from '../icons'
 import type { PickerAxis } from '../product/ProductEnquiry'
@@ -114,9 +115,13 @@ export function BuyBox({
     : null
   const chosenOptions = useChosenOptions()
   const setChosenText = chosenOptions?.setText
+  const setChosenVariant = chosenOptions?.setVariantId
+  const variantId = variant?.id ?? null
   useEffect(() => {
-    if (!compact) setChosenText?.(optionsText)
-  }, [compact, optionsText, setChosenText])
+    if (compact) return
+    setChosenText?.(optionsText)
+    setChosenVariant?.(variantId)
+  }, [compact, optionsText, setChosenText, setChosenVariant, variantId])
 
   const priceFor = (axisCode: string, value: string) => {
     const match = variants.find(
@@ -131,7 +136,9 @@ export function BuyBox({
     setBusy(thenCheckout ? 'buy' : 'cart')
     startTransition(async () => {
       setMessage(null)
-      const result = await addToCart({ productId, variantId: variant?.id ?? null, qty })
+      const result = await reach(() =>
+        addToCart({ productId, variantId: variant?.id ?? null, qty }),
+      )
       if (!result.ok) {
         setMessage({ tone: 'error', text: result.message })
         return

@@ -37,11 +37,12 @@ const Tick = ({ on, label }: { on?: boolean; label: string }) =>
  * from the form as staff edit the fields below (docs/screens `cms-attributes`).
  */
 export function AttributeTable() {
-  const attributes = useFormFields(([fields]) =>
-    ((reduceFieldsToValues(fields, true) as { attributes?: Attribute[] }).attributes ?? []).map(
-      (a) => ({ ...a }),
-    ),
-  )
+  const attributes = useFormFields(([fields]) => {
+    // An array with no rows yet is held as its row count, not a list
+    const rows = (reduceFieldsToValues(fields, true) as { attributes?: Attribute[] | number })
+      .attributes
+    return (Array.isArray(rows) ? rows : []).map((a) => ({ ...a }))
+  })
   const name = useFormFields(([fields]) => fields.name?.value as string | undefined)
   const axes = attributes.filter((a) => a.isVariantAxis && (a.options?.length ?? 0) > 0)
 

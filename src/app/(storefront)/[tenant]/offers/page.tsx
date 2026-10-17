@@ -120,7 +120,8 @@ export default async function OffersPage({ params }: Props) {
                 <span className="rounded-full bg-surface-alt px-2.5 py-0.5 text-xs font-semibold">
                   {occasionLabel(s.occasion)}
                 </span>
-                <p className="mt-2 font-semibold">{s.description}</p>
+                <h3 className="mt-2 font-semibold">{s.name}</h3>
+                <p className="mt-1">{s.description}</p>
                 <p className="mt-1 text-sm text-ink-soft">
                   {when(s.startsAt, false)} to {when(s.endsAt, false)} · {covers(s).toLowerCase()}
                   {s.combinesWithCoupons ? '' : ' · not with coupons'}

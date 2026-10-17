@@ -201,6 +201,12 @@ function PincodeTester({ storeId }: { storeId: string }) {
   const [error, setError] = useState<string | null>(null)
 
   const check = async () => {
+    if (!/^[1-9][0-9]{5}$/.test(pincode)) {
+      // Never leave another pincode's answer on screen (QA P3-01-001)
+      setResult(null)
+      setError('Enter a 6-digit pincode that doesn’t start with 0.')
+      return
+    }
     setBusy(true)
     setError(null)
     const response = await callApi<Check>(
@@ -236,11 +242,15 @@ function PincodeTester({ storeId }: { storeId: string }) {
           id="test-pincode"
           inputMode="numeric"
           maxLength={6}
-          onChange={(event) => setPincode(event.target.value.replace(/\D/g, ''))}
+          onChange={(event) => {
+            setPincode(event.target.value.replace(/\D/g, ''))
+            setResult(null)
+            setError(null)
+          }}
           placeholder="411045"
           value={pincode}
         />
-        <Button buttonStyle="secondary" disabled={busy || pincode.length !== 6} type="submit">
+        <Button buttonStyle="secondary" disabled={busy || !pincode} type="submit">
           Check
         </Button>
       </form>

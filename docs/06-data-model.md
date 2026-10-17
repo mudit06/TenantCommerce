@@ -54,7 +54,7 @@ changed, payment recorded, paused...). Every field is read-only in the admin: ch
 
 ### pincodes (platform, no tenant)
 `pincode` (6 digits, unique), `city` (district), `state`, `stateCode` (2-digit GST state code),
-`location` (GeoJSON Point, `2dsphere`, when known). Seeded by `scripts/import-pincodes` from the
+`location` (GeoJSON Point, `2dsphere`, when known). Seeded by `pnpm import:pincodes <csv>` (`scripts/import-pincodes.ts`) from the
 government's All India Pincode Directory (data.gov.in, Open Government Data licence), refreshed
 quarterly. Used for checkout city/state autofill, the place of supply, matching shipping zones
 and placing dealers on the map (staff can still drag the pin). Owned by the `shipping` module.

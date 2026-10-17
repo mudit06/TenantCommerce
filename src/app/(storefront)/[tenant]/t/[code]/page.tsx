@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
+import { notFound } from 'next/navigation'
 
 import { getPayloadClient } from '@/lib/data/payload'
 import { allow, LIMITS } from '@/lib/rate-limit'
@@ -41,17 +42,13 @@ export default async function TrackingPage({ params }: Props) {
     ? await trackingView(await getPayloadClient(), ctx.store.tenantId, code)
     : null
 
+  // An unknown code is a real "not found" (404), with this page's own message (./not-found.tsx)
+  if (allowed && !view) notFound()
   if (!view) {
     return (
       <Container className="py-16 text-center">
-        <h1 className="font-heading text-2xl font-bold">
-          {allowed ? 'We can’t find this order' : 'Too many tries'}
-        </h1>
-        <p className="mt-2 text-ink-soft">
-          {allowed
-            ? 'Check the link in your order email or WhatsApp message.'
-            : 'Please wait a minute and open the link again.'}
-        </p>
+        <h1 className="font-heading text-2xl font-bold">Too many tries</h1>
+        <p className="mt-2 text-ink-soft">Please wait a minute and open the link again.</p>
         <Link className={buttonClass('dark', 'mt-6')} href="/">
           Continue shopping
         </Link>

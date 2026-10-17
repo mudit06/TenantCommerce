@@ -225,6 +225,7 @@ export interface Config {
       'run-import': TaskRunImport;
       'offer-campaigns-send': TaskOfferCampaignsSend;
       'abandoned-carts': TaskAbandonedCarts;
+      'release-stuck-jobs': TaskReleaseStuckJobs;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -3404,6 +3405,7 @@ export interface PayloadJob {
           | 'run-import'
           | 'offer-campaigns-send'
           | 'abandoned-carts'
+          | 'release-stuck-jobs'
           | 'schedulePublish';
         taskID: string;
         input?:
@@ -3453,6 +3455,7 @@ export interface PayloadJob {
         | 'run-import'
         | 'offer-campaigns-send'
         | 'abandoned-carts'
+        | 'release-stuck-jobs'
         | 'schedulePublish'
       )
     | null;
@@ -6147,6 +6150,16 @@ export interface TaskAbandonedCarts {
   input?: unknown;
   output: {
     reminded: number;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskRelease-stuck-jobs".
+ */
+export interface TaskReleaseStuckJobs {
+  input?: unknown;
+  output: {
+    released: number;
   };
 }
 /**

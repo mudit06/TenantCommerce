@@ -1,6 +1,12 @@
 import type { CollectionConfig } from 'payload'
 
-import { fieldPlatformStaffOnly, nobody, superAdminOnly, isPlatformStaff } from '@/access'
+import {
+  fieldPlatformStaffOnly,
+  isPlatformStaff,
+  nobody,
+  storeSessionOf,
+  superAdminOnly,
+} from '@/access'
 import { addressGroup } from '@/fields/address'
 import { gstinField } from '@/fields/gstin'
 import { slugField } from '@/fields/slug'
@@ -88,8 +94,15 @@ export const Tenants: CollectionConfig = {
     },
   },
   access: {
-    // The multi-tenant plugin narrows reads to the stores a vendor user belongs to
-    read: ({ req }) => Boolean(req.user),
+    // The multi-tenant plugin narrows reads to the stores a vendor user belongs to. Our team in a
+    // store session sees that store only, like its own staff: the plugin's store picker then has
+    // one store to choose, so its cookie and the "Assigned Tenant" prompt follow the session
+    // (QA R3-02) instead of whichever store sorts first.
+    read: ({ req }) => {
+      const session = storeSessionOf(req.user)
+      if (session) return { id: { equals: session.tenantId } }
+      return Boolean(req.user)
+    },
     // Only onboarding creates stores (same steps as scripts/create-tenant)
     create: nobody,
     update: superAdminOnly,
@@ -324,14 +337,15 @@ export const Tenants: CollectionConfig = {
       type: 'text',
       defaultValue: 'shared',
       admin: { hidden: true },
-      access: { update: () => false },
+      // Infrastructure detail: our team only (QA SAP-01-02)
+      access: { read: fieldPlatformStaffOnly, update: () => false },
     },
     {
       name: 'createdBy',
       type: 'relationship',
       relationTo: 'users',
       admin: { hidden: true },
-      access: { update: () => false },
+      access: { read: fieldPlatformStaffOnly, update: () => false },
     },
     { name: 'activatedAt', type: 'date', admin: { hidden: true }, access: { update: () => false } },
     {

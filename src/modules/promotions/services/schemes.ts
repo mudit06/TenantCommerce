@@ -3,6 +3,7 @@ import { z } from 'zod'
 
 import { idOf } from '@/access'
 import { editorName } from '@/fields/editedBy'
+import { cardPrice, type VariantPrice } from '@/lib/data/cardPrice'
 import { AppError } from '@/lib/errors'
 import { cancelSchemeMessage, scheduleSchemeMessage } from '@/modules/notifications'
 import { featureConfig } from '@/modules/tenancy'
@@ -264,6 +265,45 @@ export async function previewScheme(
     },
     req,
   })
+  // A product's finishes can have their own prices: the card is priced as the store prices it,
+  // from the lowest finish in stock (QA P3-03-006: the preview used the product's own price)
+  const { docs: variants } = products.length
+    ? await req.payload.find({
+        collection: 'variants',
+        where: {
+          and: [
+            { tenant: { equals: tenantId } },
+            { product: { in: products.map((p) => p.id) } },
+            { status: { equals: 'active' } },
+          ],
+        },
+        depth: 0,
+        pagination: false,
+        overrideAccess: true,
+        select: {
+          product: true,
+          stockQty: true,
+          reservedQty: true,
+          allowBackorder: true,
+          price: true,
+          compareAtPrice: true,
+        },
+        req,
+      })
+    : { docs: [] }
+  const variantPrices = new Map<string, VariantPrice[]>()
+  for (const v of variants) {
+    const productId = idOf(v.product)!
+    const left = v.allowBackorder ? null : (v.stockQty ?? 0) - (v.reservedQty ?? 0)
+    variantPrices.set(productId, [
+      ...(variantPrices.get(productId) ?? []),
+      {
+        priceMinor: v.price?.amountMinor ?? null,
+        mrpMinor: v.compareAtPrice?.amountMinor ?? null,
+        inStock: left === null || left > 0,
+      },
+    ])
+  }
   const tree =
     rule.covers.mode === 'categories' ? await categoryAncestors(req.payload, tenantId, req) : null
   const lines: (PromoLine & { title: string; mrp: number | null; model: string | null })[] =
@@ -273,15 +313,16 @@ export async function previewScheme(
           idOf(p.primaryCategory),
           ...((p.categories ?? []) as unknown[]).map((c) => idOf(c)),
         ].filter((c): c is string => Boolean(c))
+        const shown = cardPrice(p, variantPrices.get(String(p.id)) ?? [])
         return {
           key: String(p.id),
           productId: String(p.id),
           variantId: null,
           categoryIds: tree ? [...new Set(cats.flatMap((c) => tree.get(c) ?? [c]))] : cats,
           qty: 1,
-          unitMinor: p.price?.amountMinor ?? 0,
+          unitMinor: shown.price?.amountMinor ?? 0,
           title: p.title,
-          mrp: p.compareAtPrice?.amountMinor ?? null,
+          mrp: shown.compareAtPrice?.amountMinor ?? null,
           model: p.modelNumber ?? null,
         }
       })

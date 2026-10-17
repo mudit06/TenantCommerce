@@ -305,7 +305,12 @@ export const SiteSettings: CollectionConfig = {
     {
       type: 'collapsible',
       label: 'Announcement bar',
-      admin: { initCollapsed: false },
+      admin: {
+        initCollapsed: false,
+        // A live scheme's own announcement takes the line while it runs (QA R2-03)
+        description:
+          'While a live offer has its own announcement (Schemes, “On the store”), the store shows that one instead, and this bar returns when the offer ends.',
+      },
       fields: [
         {
           name: 'announcementBar',

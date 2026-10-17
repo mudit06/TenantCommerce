@@ -5,6 +5,7 @@ import { useEffect, useState, useTransition } from 'react'
 import { syncWishlist } from '@/storefront/shop/wishlistActions'
 
 import { HeartIcon } from '../icons'
+import { useChosenOptions } from './ChosenOptions'
 
 // Wishlist hearts (docs/screens storefront `st-wishlist` rule 1). The list lives on the device
 // for everyone; a signed-in shopper's list is also kept in their account, merged on first use.
@@ -51,13 +52,18 @@ export function HeartButton({
   label,
   className = '',
   withText = false,
+  followChosen = false,
 }: {
   productId: string
   variantId?: string | null
   label: string
   className?: string
   withText?: boolean
+  /** On a product page: save the finish and size picked in the buy box */
+  followChosen?: boolean
 }) {
+  const chosen = useChosenOptions()
+  const savedVariant = followChosen ? (chosen?.variantId ?? variantId) : variantId
   const [saved, setSaved] = useState(false)
   // Goes up on each tap, so the heart bumps when pressed (not when the page loads)
   const [taps, setTaps] = useState(0)
@@ -75,7 +81,7 @@ export function HeartButton({
     const items = readWishlist()
     const next = saved
       ? items.filter((i) => i.productId !== productId)
-      : [...items, { productId, variantId }]
+      : [...items, { productId, variantId: savedVariant }]
     writeWishlist(next)
     setSaved(!saved)
     setTaps((n) => n + 1)

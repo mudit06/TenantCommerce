@@ -160,6 +160,16 @@ export const Users: CollectionConfig = {
       type: 'group',
       admin: { hidden: true },
       access: { read: fieldPlatformStaffOnly, create: () => false, update: () => false },
+      hooks: {
+        // A session past its end grants nothing (storeSessionOf); show it as closed (QA SAP-02-04)
+        afterRead: [
+          ({ value }) => {
+            const endsAt = (value as { endsAt?: string | null } | null | undefined)?.endsAt
+            if (!endsAt || Date.parse(endsAt) > Date.now()) return value
+            return { tenant: null, mode: null, reason: null, startedAt: null, endsAt: null }
+          },
+        ],
+      },
       fields: [
         { name: 'tenant', type: 'relationship', relationTo: 'tenants' },
         {

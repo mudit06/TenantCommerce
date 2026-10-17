@@ -1,7 +1,7 @@
 import { DefaultTemplate } from '@payloadcms/next/templates'
 import type { AdminViewServerProps } from 'payload'
 
-import { isSuperAdmin } from '@/access'
+import { isSuperAdmin, workspaceOf } from '@/access'
 import { adminUrl } from '@/admin/paths'
 import { Notice } from '@/admin/ui'
 import { env } from '@/lib/env'
@@ -17,7 +17,9 @@ export async function NewVendorView({
 }: AdminViewServerProps) {
   const { req, permissions, visibleEntities, locale } = initPageResult
   requireSignedIn(req.user, adminUrl.newVendor)
-  const allowed = isSuperAdmin(req.user)
+  // Platform screens stay closed during a store session, as for the store's own staff (QA SAP-03-09)
+  const inStoreSession = isSuperAdmin(req.user) && workspaceOf(req.user) === 'store'
+  const allowed = isSuperAdmin(req.user) && !inStoreSession
   const plans: PlanOption[] = allowed
     ? (
         await req.payload.find({
@@ -65,7 +67,9 @@ export async function NewVendorView({
             </p>
           </div>
         </header>
-        {!allowed ? (
+        {inStoreSession ? (
+          <Notice tone="warning">End your store session to onboard a vendor.</Notice>
+        ) : !allowed ? (
           <Notice tone="danger">Only super admins onboard vendors.</Notice>
         ) : plans.length === 0 ? (
           <Notice tone="warning">

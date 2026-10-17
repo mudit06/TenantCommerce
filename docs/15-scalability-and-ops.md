@@ -45,6 +45,12 @@ per message.
 
 Every job: idempotent, has `tenantId` in input, retries with backoff (max 5), logs with job id.
 
+A runner that stops mid-run (server restart, crash, serverless timeout) leaves its jobs marked
+`processing`, and Payload never runs those again on its own. `jobs/releaseStuckJobs.ts` runs every
+5 minutes on `scheduled` and hands back any job locked for over 30 minutes (imports excepted:
+they run long and keep their own progress). Without it a shopper message stayed "Sending" for a
+week in QA (17 October 2026).
+
 ## Environments
 
 `local` (Docker Compose: Mongo replica set, app; messages to the `dev-log` connector) -> `staging` (own Atlas DB, Razorpay

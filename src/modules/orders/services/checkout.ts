@@ -134,6 +134,8 @@ export type CheckoutQuote = {
     stateCode: GstStateCode
     stateName: string
     source: 'directory' | 'prefix' | 'address'
+    /** The pincode's city from the pincode directory, when it is loaded */
+    city: string | null
   } | null
   payment: {
     razorpay: { available: boolean; mode: 'test' | 'live' | null; keyId: string | null }
@@ -309,6 +311,7 @@ export async function quoteCheckout(
         stateCode,
         stateName: GST_STATES[stateCode as keyof typeof GST_STATES],
         source: info.stateCode ? (info.source as 'directory' | 'prefix') : 'address',
+        city: info.city,
       }
     }
   }
@@ -384,8 +387,13 @@ export async function quoteCheckout(
   const codFeeMinor = codAvailable ? (codRules.codFeeMinor ?? 0) : 0
 
   const razorpayReady = Boolean(razorpay?.public.keyId && razorpay.secret.keySecret)
+  // With cash on delivery the only way to pay, say why this order can't use it (QA P3-04-004)
   if (!razorpayReady && !codAvailable && buyable.length)
-    problems.push('This store isn’t taking orders online yet.')
+    problems.push(
+      codFeature && codRules.codEnabled && codReason
+        ? `${codReason} It is the only way to pay in this store at the moment.`
+        : 'This store isn’t taking orders online yet.',
+    )
 
   const shippingMinor = promotions.freeShipping ? 0 : (delivery?.feeMinor ?? 0)
   const pricing = priceCart({

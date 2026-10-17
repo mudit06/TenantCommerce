@@ -2,7 +2,13 @@
 
 import { createContext, type ReactNode, useContext, useMemo, useState } from 'react'
 
-type Chosen = { text: string; setText: (text: string) => void }
+type Chosen = {
+  text: string
+  setText: (text: string) => void
+  /** The variant those options make, for the page's wishlist heart */
+  variantId: string | null
+  setVariantId: (variantId: string | null) => void
+}
 
 const ChosenOptionsContext = createContext<Chosen | null>(null)
 
@@ -13,7 +19,8 @@ const ChosenOptionsContext = createContext<Chosen | null>(null)
  */
 export function ChosenOptionsProvider({ children }: { children: ReactNode }) {
   const [text, setText] = useState('')
-  const value = useMemo(() => ({ text, setText }), [text])
+  const [variantId, setVariantId] = useState<string | null>(null)
+  const value = useMemo(() => ({ text, setText, variantId, setVariantId }), [text, variantId])
   return <ChosenOptionsContext.Provider value={value}>{children}</ChosenOptionsContext.Provider>
 }
 

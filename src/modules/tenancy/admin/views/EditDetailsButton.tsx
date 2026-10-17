@@ -10,9 +10,8 @@ export function EditDetailsButton() {
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
-    const form = document.querySelector('.collection-edit')
-    if (!form) return
-    form.classList.toggle('te-vendor-editing', open)
+    // The sections show through CSS on this button's aria-expanded (_base.scss), not a class
+    // set on Payload's form, which React owns and can re-render away (QA SAP-02-22)
     if (open) document.querySelector('.te-vendor-edit')?.scrollIntoView({ behavior: 'smooth' })
   }, [open])
 
@@ -30,7 +29,7 @@ export function EditDetailsButton() {
   return (
     <button
       aria-expanded={open}
-      className="btn btn--style-secondary btn--size-small te-btn"
+      className="btn btn--style-secondary btn--size-small te-btn te-vendor-edit-toggle"
       onClick={() => setOpen((value) => !value)}
       type="button"
     >

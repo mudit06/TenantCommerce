@@ -114,23 +114,26 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
  * needed. The pincode sets the state (place of supply), the delivery fee and whether COD is
  * offered; the server prices everything again when the order is placed.
  */
+export type CheckoutAddress = {
+  pincode: string
+  city: string
+  stateCode: string
+  name: string
+  line1: string
+  line2: string
+  landmark: string
+  gstin: string
+  legalName: string
+}
+
 export type CheckoutAccount = {
   email: string
   phone: string
   name: string
   /** The saved address checkout fills in (the default one) */
-  address: {
-    pincode: string
-    city: string
-    stateCode: string
-    name: string
-    line1: string
-    line2: string
-    landmark: string
-    gstin: string
-    legalName: string
-  } | null
-  savedAddresses: number
+  address: CheckoutAddress | null
+  /** Every saved address, the default first, to deliver to another one (QA P4-01-004) */
+  addresses: (CheckoutAddress & { id: string; label: string })[]
 }
 
 export function CheckoutForm({
@@ -206,6 +209,9 @@ export function CheckoutForm({
     line2: saved?.line2 ?? '',
     landmark: saved?.landmark ?? '',
   })
+  // The pincode the city was filled in for (the saved address's, or the pincode directory's), so
+  // a new pincode replaces that city but never one the shopper typed (QA P3-04-003, P4-01-004)
+  const cityFilledFor = useRef<string | null>(saved?.city ? saved.pincode : null)
   const [business, setBusiness] = useState(Boolean(saved?.gstin))
   const [gstin, setGstin] = useState({
     buyerGstin: saved?.gstin ?? '',
@@ -219,6 +225,7 @@ export function CheckoutForm({
   const pincodeReady = /^[1-9][0-9]{5}$/.test(address.pincode)
   useEffect(() => {
     if (!pincodeReady && address.pincode.length > 0) return
+    const pincode = address.pincode
     startTransition(async () => {
       const result = await previewCheckout({
         pincode: pincodeReady ? address.pincode : undefined,
@@ -227,8 +234,17 @@ export function CheckoutForm({
       })
       if (!result.ok) return
       setSummary(result.data)
-      if (result.data.placeOfSupply) {
-        setAddress((current) => ({ ...current, stateCode: result.data.placeOfSupply!.stateCode }))
+      const place = result.data.placeOfSupply
+      if (place) {
+        // Read once: React may run the update twice, and both runs must decide the same
+        const filled = cityFilledFor.current
+        setAddress((current) => {
+          if (current.pincode !== pincode) return current
+          const next = { ...current, stateCode: place.stateCode }
+          if (filled === pincode || (filled === null && current.city)) return next
+          cityFilledFor.current = place.city ? pincode : null
+          return { ...next, city: place.city ?? '' }
+        })
       }
       if (
         method === 'cod' &&
@@ -243,6 +259,27 @@ export function CheckoutForm({
 
   const set = <K extends keyof typeof address>(key: K, value: string) =>
     setAddress((current) => ({ ...current, [key]: value }))
+
+  const savedAddresses = account?.addresses ?? []
+  const [savedChoice, setSavedChoice] = useState(savedAddresses[0]?.id ?? '')
+  // Another saved address: its pincode re-prices delivery and its GSTIN the invoice
+  const chooseSaved = (id: string) => {
+    setSavedChoice(id)
+    const chosen = savedAddresses.find((a) => a.id === id)
+    if (!chosen) return
+    cityFilledFor.current = chosen.city ? chosen.pincode : null
+    setAddress({
+      pincode: chosen.pincode,
+      city: chosen.city,
+      stateCode: chosen.stateCode,
+      name: chosen.name || account?.name || '',
+      line1: chosen.line1,
+      line2: chosen.line2,
+      landmark: chosen.landmark,
+    })
+    setBusiness(Boolean(chosen.gstin))
+    setGstin({ buyerGstin: chosen.gstin, buyerLegalName: chosen.legalName })
+  }
 
   const total = summary.totals.grandTotalMinor
   const blocked =
@@ -307,7 +344,13 @@ export function CheckoutForm({
       setPlacing(false)
       setError(result.message)
       focusFirstError.current = true
-      setFields(result.fields ?? {})
+      // The contact name is the delivery name: one field, so one message for it (QA P3-04-002)
+      const { 'contact.name': contactName, ...rest } = result.fields ?? {}
+      setFields(
+        contactName && !rest['shippingAddress.name']
+          ? { ...rest, 'shippingAddress.name': contactName }
+          : rest,
+      )
       return
     }
     announceCartChange()
@@ -434,6 +477,22 @@ export function CheckoutForm({
         </Step>
 
         <Step n={2} title="Delivery address">
+          {savedAddresses.length > 1 ? (
+            <Field id="co-saved" label="Deliver to">
+              <select
+                className={inputClass}
+                id="co-saved"
+                onChange={(event) => chooseSaved(event.target.value)}
+                value={savedChoice}
+              >
+                {savedAddresses.map((saved, index) => (
+                  <option key={saved.id} value={saved.id}>
+                    {index === 0 ? `${saved.label} (default)` : saved.label}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          ) : null}
           <div className="grid gap-4 sm:grid-cols-[1fr_1fr_1fr]">
             <Field error={err('shippingAddress.pincode')} id="co-pincode" label="Pincode" required>
               <input
@@ -453,7 +512,10 @@ export function CheckoutForm({
                 autoComplete="address-level2"
                 className={inputClass}
                 id="co-city"
-                onChange={(event) => set('city', event.target.value)}
+                onChange={(event) => {
+                  cityFilledFor.current = null
+                  set('city', event.target.value)
+                }}
                 value={address.city}
               />
             </Field>
@@ -666,7 +728,9 @@ export function CheckoutForm({
             ? 'Placing your order…'
             : method === 'cod'
               ? `Place order · ${money(total)}`
-              : `Pay ${money(total)}`}
+              : method
+                ? `Pay ${money(total)}`
+                : 'Place order'}
         </button>
       </div>
 
@@ -699,7 +763,9 @@ export function CheckoutForm({
             ? 'Placing your order…'
             : method === 'cod'
               ? `Place order · ${money(total)}`
-              : `Pay ${money(total)}`}
+              : method
+                ? `Pay ${money(total)}`
+                : 'Place order'}
         </button>
       </div>
     </form>

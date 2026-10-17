@@ -45,7 +45,7 @@ export type CheckoutSummary = {
     arrivesBy: string | null
     source: 'shiprocket' | 'rate-card' | null
   }
-  placeOfSupply: { stateCode: string; stateName: string } | null
+  placeOfSupply: { stateCode: string; stateName: string; city: string | null } | null
   payment: {
     online: { available: boolean; testMode: boolean }
     cod: { available: boolean; reason: string | null; feeMinor: number }
@@ -108,7 +108,11 @@ export function summarize(quote: CheckoutQuote): CheckoutSummary {
       source: quote.delivery?.source ?? null,
     },
     placeOfSupply: quote.placeOfSupply
-      ? { stateCode: quote.placeOfSupply.stateCode, stateName: quote.placeOfSupply.stateName }
+      ? {
+          stateCode: quote.placeOfSupply.stateCode,
+          stateName: quote.placeOfSupply.stateName,
+          city: quote.placeOfSupply.city,
+        }
       : null,
     payment: {
       online: {

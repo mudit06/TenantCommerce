@@ -8,6 +8,7 @@ import type { SellingInfo } from '@/lib/data/store'
 import { formatINR } from '@/lib/money'
 import Link from '@/storefront/kit/IntentLink'
 import { checkDelivery, updateCartLine } from '@/storefront/shop/actions'
+import { reach } from '@/storefront/shop/reach'
 import type { CheckoutSummary } from '@/storefront/shop/summary'
 import { syncWishlist } from '@/storefront/shop/wishlistActions'
 
@@ -38,7 +39,8 @@ export function PriceDetails({
       </h2>
       <dl className="divide-y divide-line px-4 text-sm">
         <div className="flex justify-between py-2.5">
-          <dt>Items ({summary.count})</dt>
+          {/* The items priced in the total: a line that can't be bought isn't (QA P3-02-008) */}
+          <dt>{`Items (${summary.lines.reduce((sum, l) => sum + (l.problem ? 0 : l.qty), 0)})`}</dt>
           <dd>{money(t.itemsMinor)}</dd>
         </div>
         <div className="flex justify-between py-2.5">
@@ -111,7 +113,7 @@ export function CartView({
   const change = (line: { productId: string; variantId: string | null }, qty: number) =>
     startTransition(async () => {
       setError(null)
-      const result = await updateCartLine({ ...line, qty })
+      const result = await reach(() => updateCartLine({ ...line, qty }))
       if (!result.ok) setError(result.message)
       announceCartChange()
       router.refresh()
@@ -127,7 +129,7 @@ export function CartView({
         : [...items, { productId: line.productId, variantId: line.variantId }]
       writeWishlist(next)
       await syncWishlist(next, 'replace')
-      const result = await updateCartLine({ ...line, qty: 0 })
+      const result = await reach(() => updateCartLine({ ...line, qty: 0 }))
       if (!result.ok) setError(result.message)
       announceCartChange()
       router.refresh()

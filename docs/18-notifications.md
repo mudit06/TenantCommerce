@@ -103,6 +103,7 @@ a Shiprocket tracking webhook arrives, or staff mark a parcel shipped (manual sh
        enqueue job notifications/send { tenantId, logId } to run at sendAfter
   -> job: re-read order and parcel, skip if stale, render variables, connector.send()
        log `sent` + providerMessageId
+       (a job left locked by a stopped runner is handed back after 30 minutes, docs/15 "Jobs")
   -> provider webhook: delivered | read | failed -> update the log
        `failed` and the milestone has SMS fallback -> new SMS log + job
 ```

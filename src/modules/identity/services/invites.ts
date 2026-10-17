@@ -121,6 +121,7 @@ export async function inviteStaff(
     where: { email: { equals: input.email } },
     depth: 0,
     limit: 1,
+    pagination: false,
     overrideAccess: true,
     req,
   })

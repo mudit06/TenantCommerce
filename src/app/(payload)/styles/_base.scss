@@ -903,7 +903,7 @@ a.te-btn {
 }
 
 // Vendor overview (sa-vendor): business details are read-only until Edit opens the form
-.collection-edit:not(.te-vendor-editing) .te-vendor-edit {
+.collection-edit:not(:has(.te-vendor-edit-toggle[aria-expanded='true'])) .te-vendor-edit {
   display: none;
 }
 

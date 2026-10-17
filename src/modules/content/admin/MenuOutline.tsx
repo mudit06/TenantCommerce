@@ -6,18 +6,25 @@ import { reduceFieldsToValues } from 'payload/shared'
 import { Pill } from '@/admin/ui'
 
 type Link = { type?: string; url?: string | null }
+type Rows<T> = T[] | number
 type Item = {
   label?: string
   link?: Link
-  columns?: { heading?: string; links?: { label?: string; link?: Link }[] }[]
+  columns?: Rows<{ heading?: string; links?: Rows<{ label?: string; link?: Link }> }>
   featuredImage?: unknown
 }
 type Menus = {
-  header?: Item[]
-  footer?: { heading?: string; links?: { label?: string }[] }[]
+  header?: Rows<Item>
+  footer?: Rows<{ heading?: string; links?: Rows<{ label?: string }> }>
   mobileSameAsHeader?: boolean
-  mobile?: { label?: string }[]
+  mobile?: Rows<{ label?: string }>
 }
+
+/**
+ * An array field's rows. While an editor adds a row, the form holds the array as its row count
+ * (a column with no links yet is `0`), not as a list (QA R2-05: "Add Column" crashed the page).
+ */
+const rows = <T,>(value: Rows<T> | null | undefined): T[] => (Array.isArray(value) ? value : [])
 
 const KIND: Record<string, string> = {
   page: 'Page',
@@ -32,7 +39,7 @@ const KIND: Record<string, string> = {
  */
 export function MenuOutline() {
   const menus = useFormFields(([fields]) => reduceFieldsToValues(fields, true) as Menus)
-  const header = menus.header ?? []
+  const header = rows(menus.header)
   return (
     <section className="te-card te-menu-outline">
       <header className="te-card__header">
@@ -44,43 +51,46 @@ export function MenuOutline() {
       <div className="te-card__body">
         {header.length ? (
           <ol className="te-menu-tree">
-            {header.map((item, index) => (
-              <li key={index}>
-                <span className="te-menu-tree__item te-menu-tree__item--top">
-                  <b>{item.label || 'Untitled'}</b>
-                  {item.columns?.length ? (
-                    <Pill tone="info">
-                      Dropdown, {item.columns.length} column{item.columns.length === 1 ? '' : 's'}
-                    </Pill>
-                  ) : null}
-                  {item.featuredImage ? <Pill tone="neutral">Featured image</Pill> : null}
-                  <span className="te-menu-tree__kind">
-                    {KIND[item.link?.type ?? ''] ?? 'Link'}
+            {header.map((item, index) => {
+              const columns = rows(item.columns)
+              return (
+                <li key={index}>
+                  <span className="te-menu-tree__item te-menu-tree__item--top">
+                    <b>{item.label || 'Untitled'}</b>
+                    {columns.length ? (
+                      <Pill tone="info">
+                        Dropdown, {columns.length} column{columns.length === 1 ? '' : 's'}
+                      </Pill>
+                    ) : null}
+                    {item.featuredImage ? <Pill tone="neutral">Featured image</Pill> : null}
+                    <span className="te-menu-tree__kind">
+                      {KIND[item.link?.type ?? ''] ?? 'Link'}
+                    </span>
                   </span>
-                </span>
-                {item.columns?.length ? (
-                  <ol>
-                    {item.columns.flatMap((column, c) => [
-                      column.heading ? (
-                        <li className="te-menu-tree__heading" key={`h${c}`}>
-                          {column.heading}
-                        </li>
-                      ) : null,
-                      ...(column.links ?? []).map((link, l) => (
-                        <li key={`${c}-${l}`}>
-                          <span className="te-menu-tree__item">
-                            {link.label || 'Untitled'}
-                            <span className="te-menu-tree__kind">
-                              {KIND[link.link?.type ?? ''] ?? 'Link'}
+                  {columns.length ? (
+                    <ol>
+                      {columns.flatMap((column, c) => [
+                        column.heading ? (
+                          <li className="te-menu-tree__heading" key={`h${c}`}>
+                            {column.heading}
+                          </li>
+                        ) : null,
+                        ...rows(column.links).map((link, l) => (
+                          <li key={`${c}-${l}`}>
+                            <span className="te-menu-tree__item">
+                              {link.label || 'Untitled'}
+                              <span className="te-menu-tree__kind">
+                                {KIND[link.link?.type ?? ''] ?? 'Link'}
+                              </span>
                             </span>
-                          </span>
-                        </li>
-                      )),
-                    ])}
-                  </ol>
-                ) : null}
-              </li>
-            ))}
+                          </li>
+                        )),
+                      ])}
+                    </ol>
+                  ) : null}
+                </li>
+              )
+            })}
           </ol>
         ) : (
           <p className="te-muted te-small">No menu items yet. Add the first one below.</p>
@@ -97,7 +107,7 @@ export function MenuOutline() {
 /** Footer columns and the phone menu at a glance, above their editors in the side column. */
 export function MenuSideSummary() {
   const menus = useFormFields(([fields]) => reduceFieldsToValues(fields, true) as Menus)
-  const footer = menus.footer ?? []
+  const footer = rows(menus.footer)
   return (
     <section className="te-card te-card--sidebar">
       <header className="te-card__header">
@@ -110,7 +120,7 @@ export function MenuSideSummary() {
               <div key={index}>
                 <b className="te-small">{column.heading || 'Untitled'}</b>
                 <div className="te-muted te-small">
-                  {(column.links ?? [])
+                  {rows(column.links)
                     .map((l) => l.label)
                     .filter(Boolean)
                     .join(', ') || '—'}
@@ -124,7 +134,7 @@ export function MenuSideSummary() {
         <p className="te-small">
           <b>Phone menu:</b>{' '}
           {menus.mobileSameAsHeader === false
-            ? `${menus.mobile?.length ?? 0} items of its own`
+            ? `${rows(menus.mobile).length} items of its own`
             : 'same as the header menu'}
         </p>
       </div>

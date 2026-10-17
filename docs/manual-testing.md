@@ -40,6 +40,10 @@ pnpm dev                                                  # keep this terminal o
       send a new one.
 - [ ] `pnpm dev` shows `Ready`. The first page you open takes 10 to 30 seconds to compile; later
       pages are fast.
+- [ ] **Pincode directory** (optional, for the city at checkout): download the All India Pincode
+      Directory CSV from data.gov.in and run `pnpm import:pincodes path/to/file.csv`. It prints
+      the pincodes read and ends `Done: … pincodes in the directory`; running it again is safe.
+      Without it, checkout fills only the state from a pincode and leaves City for the shopper.
 
 **Switching databases.** Pages keep store data in Next.js's cache under `.next/dev`. After pointing
 `DATABASE_URI` at another database (or running a seed while the app is stopped), start with
@@ -486,6 +490,9 @@ queue runs every minute).
 - [ ] After 3.6, the order's **Messages to the shopper** shows Order confirmed by email and
       WhatsApp, "Sending" then "Sent (dev log)" after a minute, and "Opted in to WhatsApp at
       checkout". The alert email address gets "New order …".
+- [ ] A message never stays on "Sending": stop the server while one is due (or find one locked
+      from an earlier run) and start it again. Within 35 minutes the server log says "Released n
+      job(s) left locked by a stopped runner" and the message moves to "Sent (dev log)".
 - [ ] Mark it packed: "Packed" waits ("Goes out at …"); ship it straight away and the packed
       message is dropped (Not sent: out of date) while "Shipped" goes out with the courier and
       tracking number. After 21:00 messages wait until 09:00, except out for delivery and

@@ -6,6 +6,7 @@ import { useState, useTransition } from 'react'
 import type { PublicCoupon } from '@/lib/data/offers'
 import { formatINR } from '@/lib/money'
 import { applyCoupon, removeCoupon } from '@/storefront/shop/actions'
+import { reach } from '@/storefront/shop/reach'
 
 import { buttonClass } from '../ui'
 
@@ -34,7 +35,7 @@ export function CouponBox({
   const apply = (value: string) =>
     start(async () => {
       setMessage(null)
-      const result = await applyCoupon(value)
+      const result = await reach(() => applyCoupon(value))
       if (!result.ok) {
         setMessage(result.message)
         return

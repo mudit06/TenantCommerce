@@ -249,6 +249,7 @@ export default async function ProductPage({ params }: Props) {
               {storeFeatures.wishlistOn ? (
                 <HeartButton
                   className="inline-flex items-center gap-1.5 rounded-card border border-line px-2.5 py-1 text-sm text-ink hover:border-ink/40"
+                  followChosen
                   label={product.title}
                   productId={String(product.id)}
                   withText

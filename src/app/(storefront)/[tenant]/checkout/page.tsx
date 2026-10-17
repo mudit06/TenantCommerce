@@ -6,7 +6,11 @@ import { quoteCheckout } from '@/modules/orders'
 import { getStoreContext } from '@/storefront/context'
 import { customerAddresses } from '@/modules/customers'
 import { isFeatureEnabled } from '@/modules/tenancy'
-import { CheckoutForm, type CheckoutAccount } from '@/storefront/kit/shop/CheckoutForm'
+import {
+  CheckoutForm,
+  type CheckoutAccount,
+  type CheckoutAddress,
+} from '@/storefront/kit/shop/CheckoutForm'
 import { Container } from '@/storefront/kit/ui'
 import { loginHref, signedInShopper } from '@/storefront/shop/account'
 import { currentCart } from '@/storefront/shop/server'
@@ -41,25 +45,36 @@ export default async function CheckoutPage({ params }: Props) {
       ctx.store.tenantId,
       String(session.customer.id),
     )
+    const toCheckout = (a: (typeof addresses)[number]): CheckoutAddress => ({
+      pincode: a.address?.pincode ?? '',
+      city: a.address?.city ?? '',
+      stateCode: a.address?.stateCode ?? '',
+      name: a.address?.name ?? '',
+      line1: a.address?.line1 ?? '',
+      line2: a.address?.line2 ?? '',
+      landmark: a.address?.landmark ?? '',
+      gstin: a.gstin ?? '',
+      legalName: a.legalName ?? '',
+    })
     const main = addresses.find((a) => a.isDefault) ?? addresses[0]
+    const usable = addresses.filter((a) => a.address)
     account = {
       email: session.customer.email,
       phone: session.customer.phone ?? '',
       name: session.customer.name ?? '',
-      savedAddresses: addresses.length,
-      address: main?.address
-        ? {
-            pincode: main.address.pincode ?? '',
-            city: main.address.city ?? '',
-            stateCode: main.address.stateCode ?? '',
-            name: main.address.name ?? '',
-            line1: main.address.line1 ?? '',
-            line2: main.address.line2 ?? '',
-            landmark: main.address.landmark ?? '',
-            gstin: main.gstin ?? '',
-            legalName: main.legalName ?? '',
+      address: main?.address ? toCheckout(main) : null,
+      addresses: [...usable.filter((a) => a === main), ...usable.filter((a) => a !== main)].map(
+        (a) => {
+          const fields = toCheckout(a)
+          return {
+            ...fields,
+            id: String(a.id),
+            label: [fields.name, fields.line1, `${fields.city} ${fields.pincode}`.trim()]
+              .filter(Boolean)
+              .join(', '),
           }
-        : null,
+        },
+      ),
     }
   }
   return (

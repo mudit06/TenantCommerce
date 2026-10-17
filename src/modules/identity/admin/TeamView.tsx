@@ -1,7 +1,7 @@
 import { DefaultTemplate } from '@payloadcms/next/templates'
 import type { AdminViewServerProps } from 'payload'
 
-import { isPlatformStaff, isSuperAdmin } from '@/access'
+import { isPlatformStaff, isSuperAdmin, workspaceOf } from '@/access'
 import { Card, Notice, Pill, Row, Rows } from '@/admin/ui'
 import { requireSignedIn } from '@/admin/session/requireSignedIn'
 import { adminUrl } from '@/admin/paths'
@@ -19,7 +19,9 @@ import { StaffTable } from './StaffTable'
 export async function TeamView({ initPageResult, params, searchParams }: AdminViewServerProps) {
   const { req, permissions, visibleEntities, locale } = initPageResult
   requireSignedIn(req.user, adminUrl.team)
-  const allowed = isPlatformStaff(req.user)
+  // Platform screens stay closed during a store session, as for the store's own staff (QA SAP-03-09)
+  const inStoreSession = isPlatformStaff(req.user) && workspaceOf(req.user) === 'store'
+  const allowed = isPlatformStaff(req.user) && !inStoreSession
   const { docs: team } = allowed
     ? await req.payload.find({
         collection: 'users',
@@ -54,7 +56,9 @@ export async function TeamView({ initPageResult, params, searchParams }: AdminVi
             </p>
           </div>
         </header>
-        {!allowed ? (
+        {inStoreSession ? (
+          <Notice tone="warning">End your store session to manage the platform team.</Notice>
+        ) : !allowed ? (
           <Notice tone="danger">This screen is for the platform team.</Notice>
         ) : (
           <div className="te-grid te-grid--2-1">

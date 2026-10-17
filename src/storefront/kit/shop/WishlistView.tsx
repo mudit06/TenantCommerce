@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from 'react'
 
 import Link from '@/storefront/kit/IntentLink'
 import { addToCart } from '@/storefront/shop/actions'
+import { reach } from '@/storefront/shop/reach'
 import { syncWishlist, wishlistView, type WishlistRow } from '@/storefront/shop/wishlistActions'
 
 import { HeartIcon } from '../icons'
@@ -50,7 +51,9 @@ export function WishlistView({ signedIn, selling }: { signedIn: boolean; selling
   const moveToCart = (row: WishlistRow) =>
     start(async () => {
       setMessage(null)
-      const result = await addToCart({ productId: row.productId, variantId: row.variantId, qty: 1 })
+      const result = await reach(() =>
+        addToCart({ productId: row.productId, variantId: row.variantId, qty: 1 }),
+      )
       if (!result.ok) {
         setMessage(result.message)
         return
@@ -140,7 +143,9 @@ export function WishlistView({ signedIn, selling }: { signedIn: boolean; selling
                 {row.title}
               </Link>
               <p className="text-xs text-ink-soft">
-                {[row.options, row.sku].filter(Boolean).join(' · ')}
+                {row.needsOptions
+                  ? 'Finish or size not chosen yet'
+                  : [row.options, row.sku].filter(Boolean).join(' · ')}
               </p>
               {row.priceMinor !== null ? (
                 <Price
@@ -163,7 +168,11 @@ export function WishlistView({ signedIn, selling }: { signedIn: boolean; selling
                 {row.problem ?? 'In stock'}
               </p>
               <div className="flex flex-wrap items-center gap-3 pt-1">
-                {selling && !row.problem && row.priceMinor !== null ? (
+                {selling && !row.problem && row.needsOptions ? (
+                  <Link className={buttonClass('dark', 'min-h-9 px-3')} href={row.href}>
+                    Choose a finish
+                  </Link>
+                ) : selling && !row.problem && row.priceMinor !== null ? (
                   <button
                     className={buttonClass('dark', 'min-h-9 px-3')}
                     disabled={pending}

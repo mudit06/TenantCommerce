@@ -55,6 +55,7 @@ import { Carts } from '@/modules/cart'
 // here, not through the cart index
 import { cartEndpoints } from '@/modules/cart/endpoints'
 import { abandonedCartsTask } from '@/modules/cart/jobs/abandoned'
+import { releaseStuckJobsTask } from '@/jobs/releaseStuckJobs'
 import { StockMovements } from '@/modules/inventory'
 import {
   IdempotencyKeys,
@@ -349,6 +350,7 @@ export default buildConfig({
       runImportTask,
       sendCampaignsTask,
       abandonedCartsTask,
+      releaseStuckJobsTask,
     ],
     // Long-running servers (local, Docker) run the queue themselves; on Vercel a cron hits
     // /api/payload-jobs/run instead (docs/15). `default` runs scheduled page publishing and

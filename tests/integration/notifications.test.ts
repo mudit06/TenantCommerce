@@ -635,3 +635,53 @@ describe('who can change order updates', () => {
     expect(result.outcome).toBe('sent')
   })
 })
+
+describe('a runner that stops mid-run', () => {
+  it('hands its locked jobs back to the queue after 30 minutes, and the message goes out', async () => {
+    const order = await placeCod(shopA)
+    const [log] = await logsOf(order.id)
+    const { docs } = await payload.find({
+      collection: 'payload-jobs',
+      where: { 'input.logId': { equals: String(log!.id) } },
+      overrideAccess: true,
+    })
+    const job = docs[0]!
+    // The runner took the job and the server stopped: locked, never tried
+    const jobs = payload.db.collections['payload-jobs']!
+    // (and due now, whatever the time of day: quiet hours would otherwise hold it back)
+    await jobs.updateOne(
+      { _id: job.id },
+      { $set: { processing: true, updatedAt: new Date(0) }, $unset: { waitUntil: 1 } },
+      { timestamps: false },
+    )
+    await payload.jobs.run({ queue: 'default', where: { id: { equals: job.id } } })
+    expect((await logsOf(order.id))[0]!.status).toBe('queued')
+
+    await payload.jobs.queue({ task: 'release-stuck-jobs', input: {}, queue: 'release-test' })
+    await payload.jobs.run({ queue: 'release-test' })
+    await payload.jobs.run({ queue: 'default', where: { id: { equals: job.id } } })
+    expect((await logsOf(order.id))[0]!.status).toBe('sent')
+  })
+
+  it('leaves a job that is still running alone', async () => {
+    const order = await placeCod(shopA)
+    const [log] = await logsOf(order.id)
+    const { docs } = await payload.find({
+      collection: 'payload-jobs',
+      where: { 'input.logId': { equals: String(log!.id) } },
+      overrideAccess: true,
+    })
+    await payload.db.collections['payload-jobs']!.updateOne(
+      { _id: docs[0]!.id },
+      { processing: true, updatedAt: new Date() },
+    )
+    await payload.jobs.queue({ task: 'release-stuck-jobs', input: {}, queue: 'release-test' })
+    await payload.jobs.run({ queue: 'release-test' })
+    const job = await payload.findByID({
+      collection: 'payload-jobs',
+      id: docs[0]!.id,
+      overrideAccess: true,
+    })
+    expect(job.processing).toBe(true)
+  })
+})
