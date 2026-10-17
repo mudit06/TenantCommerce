@@ -51,6 +51,7 @@ jobs:
           push: true
           build-args: |
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
+            SENTRY_RELEASE=${{ github.sha }}
           tags: |
             ghcr.io/${{ github.repository_owner }}/tenantcommerce:${{ github.sha }}
             ghcr.io/${{ github.repository_owner }}/tenantcommerce:latest
