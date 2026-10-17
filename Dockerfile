@@ -20,6 +20,17 @@ ENV PAYLOAD_SECRET="build-only-placeholder-secret-not-for-production"
 ENV ENCRYPTION_KEY="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
 ENV ENCRYPTION_SALT="AAAAAAAAAAAAAAAAAAAAAA=="
 
+
+
+# Sentry DSN baked into build
+ENV NEXT_PUBLIC_SENTRY_DSN="https://650aaf0372fb3c59f137954fc0bd23ea@o4512271472590848.ingest.de.sentry.io/4512271472853072"
+ENV SENTRY_DSN="https://650aaf0372fb3c59f137954fc0bd23ea@o4512271472590848.ingest.de.sentry.io/4512271472853072"
+
+# Token for uploading source maps during build
+ARG SENTRY_AUTH_TOKEN
+ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
+
+
 RUN pnpm build
 
 FROM node:22-alpine AS runner

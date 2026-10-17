@@ -31,3 +31,6 @@ test-results/
 
 # Vendor details with real business data stay out of git
 scripts/vendors/*/business.json
+
+# Sentry Config File
+.env.sentry-build-plugin
