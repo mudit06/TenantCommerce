@@ -1,4 +1,4 @@
-﻿name: Build and Publish Docker Image
+﻿﻿name: Build and Publish Docker Image
 
 on:
   push:
@@ -11,19 +11,19 @@ permissions:
   packages: write
 
 jobs:
-  # Stage 1: Setup & Dependency Check
-  prepare:
-    name: "Stage 1: Verify Dependencies"
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
+      # 1. Install pnpm first so setup-node can find it
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10.28.0
 
+      # 2. Setup Node with pnpm caching enabled check
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -32,15 +32,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-  # Stage 2: Docker Build, Sentry Release & GHCR Publish
-  docker-build-push:
-    name: "Stage 2: Build Image & Upload Sentry Release"
-    needs: prepare
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -60,7 +51,6 @@ jobs:
           push: true
           build-args: |
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
-            SENTRY_RELEASE=${{ github.sha }}
           tags: |
             ghcr.io/${{ github.repository_owner }}/tenantcommerce:${{ github.sha }}
             ghcr.io/${{ github.repository_owner }}/tenantcommerce:latest

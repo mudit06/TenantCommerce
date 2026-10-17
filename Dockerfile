@@ -20,19 +20,16 @@ ENV PAYLOAD_SECRET="build-only-placeholder-secret-not-for-production"
 ENV ENCRYPTION_KEY="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
 ENV ENCRYPTION_SALT="AAAAAAAAAAAAAAAAAAAAAA=="
 
+
+
 # Sentry DSN baked into build
 ENV NEXT_PUBLIC_SENTRY_DSN="https://650aaf0372fb3c59f137954fc0bd23ea@o4512271472590848.ingest.de.sentry.io/4512271472853072"
 ENV SENTRY_DSN="https://650aaf0372fb3c59f137954fc0bd23ea@o4512271472590848.ingest.de.sentry.io/4512271472853072"
 
-# Sentry Build Arguments & CLI Configuration
+# Token for uploading source maps during build
 ARG SENTRY_AUTH_TOKEN
 ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
-ARG SENTRY_RELEASE
-ENV SENTRY_RELEASE=$SENTRY_RELEASE
 
-# Explicitly tell Sentry where to upload the release
-ENV SENTRY_ORG="o4512271472590848"
-ENV SENTRY_PROJECT="javascript-nextjs"
 
 RUN pnpm build
 
