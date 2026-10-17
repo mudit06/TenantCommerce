@@ -23,7 +23,7 @@ jobs:
         with:
           version: 10.28.0
 
-      # 2. Setup Node with pnpm caching enabled
+      # 2. Setup Node with pnpm caching enabled check
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
