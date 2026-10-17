@@ -1,4 +1,4 @@
-﻿﻿name: Build and Publish Docker Image
+name: Build and Publish Docker Image
 
 on:
   push:
@@ -17,13 +17,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 1. Install pnpm first so setup-node can find it
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10.28.0
 
-      # 2. Setup Node with pnpm caching enabled check
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -51,6 +49,7 @@ jobs:
           push: true
           build-args: |
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
+            SENTRY_RELEASE=${{ github.sha }}
           tags: |
             ghcr.io/${{ github.repository_owner }}/tenantcommerce:${{ github.sha }}
             ghcr.io/${{ github.repository_owner }}/tenantcommerce:latest
