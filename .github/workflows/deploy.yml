@@ -11,9 +11,9 @@ permissions:
   packages: write
 
 jobs:
-  # Stage 1: Setup & Dependency Validation
-  prepare-and-test:
-    name: "Stage 1: Prepare & Verify"
+  # Stage 1: Setup & Dependency Check
+  prepare:
+    name: "Stage 1: Verify Dependencies"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -33,31 +33,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-  # Stage 2: Explicit Sentry Release Registration
-  sentry-release:
-    name: "Stage 2: Create Sentry Release"
-    needs: prepare-and-test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Create Sentry release
-        uses: getsentry/action-release@v1
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_ORG: "o4512271472590848"
-          SENTRY_PROJECT: "javascript-nextjs"
-        with:
-          version: ${{ github.sha }}
-          environment: production
-
-  # Stage 3: Docker Build and Image Publishing
+  # Stage 2: Docker Build, Sentry Release & GHCR Publish
   docker-build-push:
-    name: "Stage 3: Build & Publish Image"
-    needs: sentry-release
+    name: "Stage 2: Build Image & Upload Sentry Release"
+    needs: prepare
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
