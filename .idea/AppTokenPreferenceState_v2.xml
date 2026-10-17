@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AppTokenPreferenceState">
+    <option name="appTokenMap">
+      <map>
+        <entry key="17859e2c" value="eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlpFbHVmOHRtTWplZEY5ZWlHZDJzaC9XKy8xST0ifQ.eyJ0eXBlIjoiYXBwLXRva2VuIiwiaXNzIjoiaHR0cHM6Ly9zYXBpZW50YWlwcm9kdWN0cy5jb20iLCJqdGkiOiJRYzN5cGhVVTdjIiwiaW5kdXN0cnkiOiI0NTNkOWZhZS1mNjNjLTRlOTQtODIxZS0wNzJkNDc0MDg5NmEiLCJhcHBJZCI6IjFlMGFjN2YyLTQ2NjItNDIzZC04NjhmLWQ3OWI5OTQ1ZThjZCIsImFwcEtleSI6InNrXzc1NzM1MzIxMjRiYWYiLCJhcHBOYW1lIjoiUFNTbGluZ3Nob3QiLCJzZXJ2aWNlcyI6WyJzdGF0ZSIsImxsbSJdLCJpYXQiOjE3OTIyMjEwNjcsImV4cCI6MTc5MjIyMjg2N30.WVc1AvHs2e0ZzbIhwL9QIhjzUN2spKgfFNIxvaYtG1hUGZvcnwomNXKmrxLQv7xQcYZw73LK4kslmAAIaCQLovnS6oBN1QqQP2mls765wYMxyQrUZ4wkaiZWkuqw0JWD0qBNJLGTgP7b0Q5Hz-fT8GyZOfFvyt_fQs5sYdqB8Pby0uTC27BT1mZinUhaWD_um3SPSsRjVrVMfl0VncGioBHpzfC3SDk7ZXe6eCE9J8TLV952bjMeLJukXbNwiFu9RkVG0BkBB0FF39_AdgCk38VZQmM5a-uxpZSENf9uiPwtCtoshmFi4Z5Cbd0tw1l04ttCIcjyrIy1EElA2VzcmA" />
+      </map>
+    </option>
+    <option name="timeWhenAppTokenWasLastUpdated">
+      <map>
+        <entry key="17859e2c" value="1792221751323" />
+      </map>
+    </option>
+    <option name="appTokenExpiryDuration">
+      <map>
+        <entry key="17859e2c" value="1114000" />
+      </map>
+    </option>
+  </component>
+</project>

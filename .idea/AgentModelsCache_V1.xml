@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AgentModelsCache">
+    <option name="a" value="1792221752709" />
+    <option name="b">
+      <list>
+        <option value="claude-sonnet-4-5@20250929" />
+        <option value="gpt-5" />
+        <option value="gpt-5.3-codex" />
+        <option value="gpt-5.5" />
+        <option value="gpt-5.6-sol" />
+        <option value="gpt-5.6-terra" />
+        <option value="gpt-5.6-luna" />
+        <option value="Qwen-latest" />
+        <option value="claude-sonnet-4-6" />
+        <option value="claude-opus-4-6" />
+        <option value="claude-opus-4-7" />
+        <option value="claude-opus-4-8" />
+        <option value="claude-sonnet-5" />
+        <option value="gemini-2.5-pro" />
+        <option value="gemini-3.1-pro-preview" />
+        <option value="gemini-3.1-flash-lite" />
+      </list>
+    </option>
+  </component>
+</project>

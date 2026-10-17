@@ -19,6 +19,7 @@
     "setup:local": "node scripts/setup-local.mjs",
     "seed": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/seed.ts",
     "create-tenant": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/create-tenant.ts",
+    "migrate:r2": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/migrate-images-to-r2.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -33,6 +34,7 @@
     "qa:storefront-setup": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/qa-storefront-setup.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1152.0",
     "@fontsource-variable/plus-jakarta-sans": "^5.3.0",
     "@fontsource-variable/saira": "^5.3.0",
     "@payloadcms/db-mongodb": "3.90.2",
@@ -46,8 +48,10 @@
     "@payloadcms/ui": "3.90.2",
     "@tailwindcss/postcss": "^4.3.3",
     "cross-env": "10.1.0",
+    "dotenv": "^18.0.8",
     "graphql": "16.14.2",
     "leaflet": "1.9.4",
+    "mongodb": "^7.7.0",
     "next": "16.3.8",
     "payload": "3.90.2",
     "qrcode": "1.5.4",

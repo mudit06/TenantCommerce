@@ -1,8 +1,12 @@
 node_modules
 .next
+.github
 .git
 .env
 .env.*
+!.env.example
+*.log
+coverage
 docs
 research
 tests

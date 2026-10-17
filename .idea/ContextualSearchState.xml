@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContextualSearchState">
+    <option name="userSelection">
+      <map>
+        <entry key="Tenant-Commerce">
+          <value>
+            <UserSelection>
+              <option name="userSelection">
+                <ContextualSearchConfigurations>
+                  <option name="accounts">
+                    <map>
+                      <entry key="Select Account">
+                        <value>
+                          <Account>
+                            <option name="name" value="Select Account" />
+                          </Account>
+                        </value>
+                      </entry>
+                    </map>
+                  </option>
+                </ContextualSearchConfigurations>
+              </option>
+            </UserSelection>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

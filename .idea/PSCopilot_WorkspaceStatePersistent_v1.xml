@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PSCopilot_WorkspaceStatePersistent">
+    <option name="workspaceCategories">
+      <map>
+        <entry key="AgentChangesTracking">
+          <value>
+            <map>
+              <entry key="Tenant-Commerce" value="92b85a2a-fcdc-4f49-90e9-29b80201c6b4_Tenant-Commerce" />
+            </map>
+          </value>
+        </entry>
+        <entry key="AgentMemoryWorkspaceIdentifier">
+          <value>
+            <map>
+              <entry key="Tenant-Commerce" value="b27c2d87-2c04-4c85-9638-b33db024b84c_Tenant-Commerce" />
+            </map>
+          </value>
+        </entry>
+        <entry key="FileSummarization">
+          <value>
+            <map />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

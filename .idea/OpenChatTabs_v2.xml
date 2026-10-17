@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="OpenTabsState">
+    <option name="openTabs">
+      <list>
+        <OpenTabInfo>
+          <option name="conversationId" value="416cb92e-3769-486f-bb87-9f7990177925" />
+          <option name="openTimestamp" value="1792041479016" />
+          <option name="tabTitle" value="DEFAULT" />
+        </OpenTabInfo>
+        <OpenTabInfo>
+          <option name="conversationId" value="4b11d980-5370-41d2-a827-19457c762970" />
+          <option name="creationOrder" value="1" />
+          <option name="openTimestamp" value="1792041779093" />
+          <option name="tabTitle" value="SL - 320" />
+        </OpenTabInfo>
+        <OpenTabInfo>
+          <option name="conversationId" value="788a139c-ec6a-4ca3-8eae-2d88e41151de" />
+          <option name="creationOrder" value="2" />
+          <option name="openTimestamp" value="1792042737557" />
+          <option name="tabTitle" value="SL - 602" />
+        </OpenTabInfo>
+        <OpenTabInfo>
+          <option name="conversationId" value="2ebcb0f8-2234-4773-85ff-4c52a7bff4ad" />
+          <option name="creationOrder" value="3" />
+          <option name="openTimestamp" value="1792044066182" />
+          <option name="tabTitle" value="SL - 383" />
+        </OpenTabInfo>
+        <OpenTabInfo>
+          <option name="conversationId" value="3734c5f9-3cb5-4ff5-93e8-df984b50baab" />
+          <option name="creationOrder" value="4" />
+          <option name="openTimestamp" value="1792046621528" />
+          <option name="tabTitle" value="SL - 840" />
+        </OpenTabInfo>
+        <OpenTabInfo>
+          <option name="conversationId" value="2f267bec-d002-4a61-b717-d3aaa35d0268" />
+          <option name="creationOrder" value="5" />
+          <option name="openTimestamp" value="1792048297106" />
+          <option name="tabTitle" value="SL - 503" />
+        </OpenTabInfo>
+        <OpenTabInfo>
+          <option name="conversationId" value="49824d87-6e22-43f9-90ae-3d56def13a3f" />
+          <option name="creationOrder" value="6" />
+          <option name="openTimestamp" value="1792144741796" />
+          <option name="tabTitle" value="SL - 806" />
+        </OpenTabInfo>
+        <OpenTabInfo>
+          <option name="conversationId" value="025fdf3f-3fce-4b71-a1b2-b4dbc4bacc86" />
+          <option name="creationOrder" value="7" />
+          <option name="openTimestamp" value="1792149942533" />
+          <option name="tabTitle" value="SL - 789" />
+        </OpenTabInfo>
+        <OpenTabInfo>
+          <option name="conversationId" value="0bc06ba4-3774-47c1-a21d-c7a607beab2a" />
+          <option name="creationOrder" value="8" />
+          <option name="openTimestamp" value="1792221750238" />
+          <option name="tabTitle" value="SL - 177" />
+        </OpenTabInfo>
+      </list>
+    </option>
+    <option name="activeTabTitle" value="SL - 177" />
+  </component>
+</project>

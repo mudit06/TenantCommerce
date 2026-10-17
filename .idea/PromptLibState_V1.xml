@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PromptLibState">
+    <option name="promptLibPrompts">
+      <map>
+        <entry key="Document Selected Code" value="Document the selected code thoroughly, capturing its purpose, inputs, outputs, side effects, and key logic with clear, concise, and maintainable annotations that aid understanding and future maintenance." />
+        <entry key="Explain the selected code" value="Explain the selected code by elucidating its purpose, logic, and key components with clarity and precision, revealing both high-level intent and low-level behavior." />
+        <entry key="Find problems in the selected code" value="Identify bugs, flaws, and quality issues in the selected code with precision and actionable insight." />
+        <entry key="Refactor the selected code" value="Refactor the selected code for improved clarity, efficiency, and maintainability, preserving functionality while enhancing structure and readability." />
+        <entry key="Validate Code for Sonar or Linting Issues" value="Validate Code for Sonar or Linting Issues" />
+        <entry key="Write E2E Tests for Selected Code" value="Write end-to-end tests for the code using {testingLibraryOptions} testing library and based on the provided code if needed please utilize additional supporting libraries from {additionalLibraries} to provide end-to-end test cases for the code." />
+        <entry key="Write Unit Tests for Selected Code" value="Write unit tests for the code using {testingLibraryOptions} testing library and based on the provided code if needed please utilize additional supporting libraries from {additionalLibraries} to provide unit test cases for the code." />
+      </map>
+    </option>
+  </component>
+</project>

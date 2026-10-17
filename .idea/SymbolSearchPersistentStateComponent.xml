@@ -1,0 +1,2115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SymbolSearchPersistentStateComponent">
+    <option name="entries">
+      <map>
+        <entry key="$USER_HOME$/AppData/Local/JetBrains/IdeaIC2025.2/httpFileSystem/catalog.json">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792049288823" />
+                  <option name="hash" value="-394014255" />
+                </FileMeta>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$USER_HOME$/AppData/Local/JetBrains/IdeaIC2025.2/httpFileSystem/package3.json">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792152804791" />
+                  <option name="hash" value="499855241" />
+                </FileMeta>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/.agent/agent_skills_cache.json">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792222342656" />
+                  <option name="hash" value="149111" />
+                </FileMeta>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/.claude/launch.json">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792041491084" />
+                  <option name="hash" value="-1507574775" />
+                </FileMeta>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/.prettierrc.json">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792041491095" />
+                  <option name="hash" value="-1035274378" />
+                </FileMeta>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/.slingshot/project-cache.json">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792087769488" />
+                  <option name="hash" value="-2058076023" />
+                </FileMeta>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/.slingshot/prompts-cache.json">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792087766154" />
+                  <option name="hash" value="149111" />
+                </FileMeta>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/.slingshot/skills_cache.json">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792222342648" />
+                  <option name="hash" value="149111" />
+                </FileMeta>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/.slingshot/workflow-cache.json">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792087769108" />
+                  <option name="hash" value="-1743111193" />
+                </FileMeta>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/docs/qa/tools/cases_e2e.py">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792041491301" />
+                  <option name="hash" value="37673443" />
+                </FileMeta>
+              </option>
+              <option name="records">
+                <list>
+                  <SymbolRecordBean>
+                    <option name="name" value="tc" />
+                    <option name="kind" value="FUNCTION" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/qa/tools/cases_e2e.py" />
+                    <option name="startLine" value="65" />
+                    <option name="endLine" value="69" />
+                    <option name="endCharacter" value="58" />
+                    <option name="language" value="py" />
+                  </SymbolRecordBean>
+                </list>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/docs/qa/tools/cases_sa.py">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792041491303" />
+                  <option name="hash" value="-1497022365" />
+                </FileMeta>
+              </option>
+              <option name="records">
+                <list>
+                  <SymbolRecordBean>
+                    <option name="name" value="tc" />
+                    <option name="kind" value="FUNCTION" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/qa/tools/cases_sa.py" />
+                    <option name="startLine" value="61" />
+                    <option name="endLine" value="65" />
+                    <option name="endCharacter" value="58" />
+                    <option name="language" value="py" />
+                  </SymbolRecordBean>
+                </list>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/docs/qa/tools/cases_vc.py">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792041491308" />
+                  <option name="hash" value="1285470533" />
+                </FileMeta>
+              </option>
+              <option name="records">
+                <list>
+                  <SymbolRecordBean>
+                    <option name="name" value="tc" />
+                    <option name="kind" value="FUNCTION" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/qa/tools/cases_vc.py" />
+                    <option name="startLine" value="84" />
+                    <option name="endLine" value="88" />
+                    <option name="endCharacter" value="58" />
+                    <option name="language" value="py" />
+                  </SymbolRecordBean>
+                </list>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/docs/qa/tools/qa_model.py">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792041491310" />
+                  <option name="hash" value="1237453620" />
+                </FileMeta>
+              </option>
+              <option name="records">
+                <list>
+                  <SymbolRecordBean>
+                    <option name="name" value="Module" />
+                    <option name="kind" value="CLASS" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/qa/tools/qa_model.py" />
+                    <option name="startLine" value="19" />
+                    <option name="endLine" value="29" />
+                    <option name="endCharacter" value="74" />
+                    <option name="language" value="py" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="Case" />
+                    <option name="kind" value="CLASS" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/qa/tools/qa_model.py" />
+                    <option name="startLine" value="33" />
+                    <option name="endLine" value="47" />
+                    <option name="endCharacter" value="59" />
+                    <option name="language" value="py" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="check" />
+                    <option name="kind" value="FUNCTION" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/qa/tools/qa_model.py" />
+                    <option name="startLine" value="50" />
+                    <option name="endLine" value="60" />
+                    <option name="endCharacter" value="75" />
+                    <option name="language" value="py" />
+                  </SymbolRecordBean>
+                </list>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/docs/qa/tools/results.json">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792041491312" />
+                  <option name="hash" value="-1338710235" />
+                </FileMeta>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/docs/wireframes/js/app.js">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792041093091" />
+                  <option name="hash" value="-1725979638" />
+                </FileMeta>
+              </option>
+              <option name="records">
+                <list>
+                  <SymbolRecordBean>
+                    <option name="name" value="$" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="4" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="4" />
+                    <option name="endCharacter" value="44" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="WF" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="5" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="5" />
+                    <option name="endCharacter" value="22" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="SIZES" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="6" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="6" />
+                    <option name="endCharacter" value="64" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="FOLD" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="7" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="7" />
+                    <option name="endCharacter" value="33" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="state" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="9" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="9" />
+                    <option name="endCharacter" value="93" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="saved" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="11" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="11" />
+                    <option name="endCharacter" value="75" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="save" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="17" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="19" />
+                    <option name="endCharacter" value="3" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="bySurface" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="21" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="21" />
+                    <option name="endCharacter" value="74" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="builtFor" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="23" />
+                    <option name="startCharacter" value="6" />
+                    <option name="endLine" value="23" />
+                    <option name="endCharacter" value="21" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="buildIndex" />
+                    <option name="kind" value="FUNCTION" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="24" />
+                    <option name="startCharacter" value="2" />
+                    <option name="endLine" value="40" />
+                    <option name="endCharacter" value="3" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="groups" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="27" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="27" />
+                    <option name="endCharacter" value="28" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="tagFor" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="32" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="32" />
+                    <option name="endCharacter" value="64" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="renderNotes" />
+                    <option name="kind" value="FUNCTION" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="42" />
+                    <option name="startCharacter" value="2" />
+                    <option name="endLine" value="64" />
+                    <option name="endCharacter" value="3" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="meta" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="43" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="48" />
+                    <option name="endCharacter" value="21" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="hifi" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="49" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="49" />
+                    <option name="endCharacter" value="62" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="&lt;h2&gt;${s.title}&lt;/h2&gt;" />
+                    <option name="kind" value="PROPERTY" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="53" />
+                    <option name="startCharacter" value="14" />
+                    <option name="endLine" value="53" />
+                    <option name="endCharacter" value="19" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="fit" />
+                    <option name="kind" value="FUNCTION" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="66" />
+                    <option name="startCharacter" value="2" />
+                    <option name="endLine" value="73" />
+                    <option name="endCharacter" value="3" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="sheet" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="67" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="67" />
+                    <option name="endCharacter" value="29" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="w" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="68" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="68" />
+                    <option name="endCharacter" value="48" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="avail" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="69" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="69" />
+                    <option name="endCharacter" value="48" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="z" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="70" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="70" />
+                    <option name="endCharacter" value="55" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="render" />
+                    <option name="kind" value="FUNCTION" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="75" />
+                    <option name="startCharacter" value="2" />
+                    <option name="endLine" value="117" />
+                    <option name="endCharacter" value="3" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="s" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="76" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="76" />
+                    <option name="endCharacter" value="31" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="surf" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="77" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="77" />
+                    <option name="endCharacter" value="26" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="dev" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="91" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="91" />
+                    <option name="endCharacter" value="50" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="width" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="92" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="92" />
+                    <option name="endCharacter" value="61" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="sheet" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="93" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="93" />
+                    <option name="endCharacter" value="29" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="html" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="97" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="97" />
+                    <option name="endCharacter" value="12" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="list" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="112" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="112" />
+                    <option name="endCharacter" value="32" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="i" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="113" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="113" />
+                    <option name="endCharacter" value="29" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="toastTimer" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="119" />
+                    <option name="startCharacter" value="6" />
+                    <option name="endLine" value="119" />
+                    <option name="endCharacter" value="16" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="toast" />
+                    <option name="kind" value="FUNCTION" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="120" />
+                    <option name="startCharacter" value="2" />
+                    <option name="endLine" value="132" />
+                    <option name="endCharacter" value="3" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="t" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="121" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="121" />
+                    <option name="endCharacter" value="44" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="goTo" />
+                    <option name="kind" value="FUNCTION" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="134" />
+                    <option name="startCharacter" value="2" />
+                    <option name="endLine" value="138" />
+                    <option name="endCharacter" value="3" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="fromHash" />
+                    <option name="kind" value="FUNCTION" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="140" />
+                    <option name="startCharacter" value="2" />
+                    <option name="endLine" value="144" />
+                    <option name="endCharacter" value="3" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="id" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="141" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="141" />
+                    <option name="endCharacter" value="37" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="t" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="147" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="147" />
+                    <option name="endCharacter" value="43" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="smooth" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="161" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="161" />
+                    <option name="endCharacter" value="81" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="step" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="165" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="169" />
+                    <option name="endCharacter" value="3" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="list" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="166" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="166" />
+                    <option name="endCharacter" value="53" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="n" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/app.js" />
+                    <option name="startLine" value="167" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="167" />
+                    <option name="endCharacter" value="55" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                </list>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/docs/wireframes/js/cms.js">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792041491320" />
+                  <option name="hash" value="1253107701" />
+                </FileMeta>
+              </option>
+              <option name="records">
+                <list>
+                  <SymbolRecordBean>
+                    <option name="name" value="WF" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/cms.js" />
+                    <option name="startLine" value="4" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="4" />
+                    <option name="endCharacter" value="137" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="yes" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/cms.js" />
+                    <option name="startLine" value="5" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="5" />
+                    <option name="endCharacter" value="31" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="no" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/cms.js" />
+                    <option name="startLine" value="6" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="6" />
+                    <option name="endCharacter" value="45" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="rd" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/cms.js" />
+                    <option name="startLine" value="7" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="7" />
+                    <option name="endCharacter" value="49" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="shell" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/cms.js" />
+                    <option name="startLine" value="32" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="32" />
+                    <option name="endCharacter" value="81" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="payBanner" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/cms.js" />
+                    <option name="startLine" value="33" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="33" />
+                    <option name="endCharacter" value="292" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="thumb" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/cms.js" />
+                    <option name="startLine" value="34" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="34" />
+                    <option name="endCharacter" value="155" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="cell" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/cms.js" />
+                    <option name="startLine" value="35" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="35" />
+                    <option name="endCharacter" value="134" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="dl" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/cms.js" />
+                    <option name="startLine" value="36" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="36" />
+                    <option name="endCharacter" value="165" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="prow" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/cms.js" />
+                    <option name="startLine" value="98" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="98" />
+                    <option name="endCharacter" value="161" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="node" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/cms.js" />
+                    <option name="startLine" value="211" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="211" />
+                    <option name="endCharacter" value="358" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="C" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/cms.js" />
+                    <option name="startLine" value="245" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="245" />
+                    <option name="endCharacter" value="51" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="bar" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/cms.js" />
+                    <option name="startLine" value="488" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="488" />
+                    <option name="endCharacter" value="508" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="item" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/cms.js" />
+                    <option name="startLine" value="834" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="834" />
+                    <option name="endCharacter" value="357" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="modePill" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/cms.js" />
+                    <option name="startLine" value="952" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="952" />
+                    <option name="endCharacter" value="124" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="tpl" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/cms.js" />
+                    <option name="startLine" value="953" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="953" />
+                    <option name="endCharacter" value="195" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="chan" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/cms.js" />
+                    <option name="startLine" value="967" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="967" />
+                    <option name="endCharacter" value="237" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="steps" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/cms.js" />
+                    <option name="startLine" value="968" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="980" />
+                    <option name="endCharacter" value="7" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="secret" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/cms.js" />
+                    <option name="startLine" value="1027" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="1027" />
+                    <option name="endCharacter" value="209" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="hook" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/cms.js" />
+                    <option name="startLine" value="1028" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="1028" />
+                    <option name="endCharacter" value="215" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="sr" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/cms.js" />
+                    <option name="startLine" value="1204" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="1204" />
+                    <option name="endCharacter" value="302" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="colm" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/cms.js" />
+                    <option name="startLine" value="1205" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="1205" />
+                    <option name="endCharacter" value="226" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                </list>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/docs/wireframes/js/kit.js">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792041093106" />
+                  <option name="hash" value="1250312380" />
+                </FileMeta>
+              </option>
+              <option name="records">
+                <list>
+                  <SymbolRecordBean>
+                    <option name="name" value="WF" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="6" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="6" />
+                    <option name="endCharacter" value="76" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="go" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="11" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="11" />
+                    <option name="endCharacter" value="51" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="I" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="15" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="72" />
+                    <option name="endCharacter" value="3" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="icon" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="75" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="75" />
+                    <option name="endCharacter" value="22" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="cls" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="80" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="81" />
+                    <option name="endCharacter" value="32" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="aria" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="82" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="82" />
+                    <option name="endCharacter" value="68" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="st" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="89" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="89" />
+                    <option name="endCharacter" value="119" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="cls" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="96" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="96" />
+                    <option name="endCharacter" value="131" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="tags" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="114" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="114" />
+                    <option name="endCharacter" value="169" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="right" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="128" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="128" />
+                    <option name="endCharacter" value="60" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="head" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="129" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="129" />
+                    <option name="endCharacter" value="118" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="body" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="130" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="136" />
+                    <option name="endCharacter" value="15" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="cells" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="132" />
+                    <option name="startCharacter" value="14" />
+                    <option name="endLine" value="132" />
+                    <option name="endCharacter" value="48" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="g" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="133" />
+                    <option name="startCharacter" value="14" />
+                    <option name="endLine" value="133" />
+                    <option name="endCharacter" value="76" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="pct" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="147" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="147" />
+                    <option name="endCharacter" value="61" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="fmt" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="148" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="148" />
+                    <option name="endCharacter" value="59" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="max" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="154" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="154" />
+                    <option name="endCharacter" value="44" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="h" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="155" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="155" />
+                    <option name="endCharacter" value="24" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="bars" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="156" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="156" />
+                    <option name="endCharacter" value="195" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="ya" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="157" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="157" />
+                    <option name="endCharacter" value="45" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="nav" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="168" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="168" />
+                    <option name="endCharacter" value="36" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="active" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="169" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="169" />
+                    <option name="endCharacter" value="36" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="navHtml" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="170" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="178" />
+                    <option name="endCharacter" value="15" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="links" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="172" />
+                    <option name="startCharacter" value="14" />
+                    <option name="endLine" value="174" />
+                    <option name="endCharacter" value="19" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="inner" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="175" />
+                    <option name="startCharacter" value="14" />
+                    <option name="endLine" value="175" />
+                    <option name="endCharacter" value="63" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="crumbs" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="179" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="179" />
+                    <option name="endCharacter" value="157" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="${cfg.body}" />
+                    <option name="kind" value="PROPERTY" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="187" />
+                    <option name="startCharacter" value="16" />
+                    <option name="endLine" value="187" />
+                    <option name="endCharacter" value="20" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="ann" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="195" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="195" />
+                    <option name="endCharacter" value="200" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="hdD" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="196" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="203" />
+                    <option name="endCharacter" value="18" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="hdM" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="204" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="206" />
+                    <option name="endCharacter" value="258" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="ft" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="207" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="217" />
+                    <option name="endCharacter" value="18" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="bn" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="218" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="222" />
+                    <option name="endCharacter" value="129" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="wa" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="223" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="223" />
+                    <option name="endCharacter" value="206" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="price" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="231" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="235" />
+                    <option name="endCharacter" value="94" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="sws" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="236" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="236" />
+                    <option name="endCharacter" value="170" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="badge" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="237" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="237" />
+                    <option name="endCharacter" value="130" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="heart" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="238" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="238" />
+                    <option name="endCharacter" value="293" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="rating" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/kit.js" />
+                    <option name="startLine" value="239" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="239" />
+                    <option name="endCharacter" value="69" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                </list>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/docs/wireframes/js/storefront.js">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792041093112" />
+                  <option name="hash" value="991556501" />
+                </FileMeta>
+              </option>
+              <option name="records">
+                <list>
+                  <SymbolRecordBean>
+                    <option name="name" value="WF" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="5" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="5" />
+                    <option name="endCharacter" value="125" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="P" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="6" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="6" />
+                    <option name="endCharacter" value="23" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="go" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="7" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="7" />
+                    <option name="endCharacter" value="18" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="crumbs" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="14" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="15" />
+                    <option name="endCharacter" value="199" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="stepper" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="16" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="16" />
+                    <option name="endCharacter" value="305" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="H" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="17" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="17" />
+                    <option name="endCharacter" value="155" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="black" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="20" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="27" />
+                    <option name="endCharacter" value="3" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="filterSidebar" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="76" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="87" />
+                    <option name="endCharacter" value="11" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="bg" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="129" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="129" />
+                    <option name="endCharacter" value="254" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="groups" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="130" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="130" />
+                    <option name="endCharacter" value="143" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="panel" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="131" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="137" />
+                    <option name="endCharacter" value="213" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="results" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="152" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="158" />
+                    <option name="endCharacter" value="195" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="bg" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="162" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="162" />
+                    <option name="endCharacter" value="159" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="cartItem" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="243" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="247" />
+                    <option name="endCharacter" value="178" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="item" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="468" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="470" />
+                    <option name="endCharacter" value="188" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="journey" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="517" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="517" />
+                    <option name="endCharacter" value="358" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="track" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="554" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="554" />
+                    <option name="endCharacter" value="95" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="wa" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="555" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="568" />
+                    <option name="endCharacter" value="19" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="sms" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="569" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="575" />
+                    <option name="endCharacter" value="19" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="label" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="576" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="576" />
+                    <option name="endCharacter" value="60" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="email" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="638" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="643" />
+                    <option name="endCharacter" value="209" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="wa" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="644" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="650" />
+                    <option name="endCharacter" value="19" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="unsub" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="651" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="651" />
+                    <option name="endCharacter" value="466" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="label" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="652" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="652" />
+                    <option name="endCharacter" value="60" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="dealer" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/storefront.js" />
+                    <option name="startLine" value="745" />
+                    <option name="startCharacter" value="12" />
+                    <option name="endLine" value="745" />
+                    <option name="endCharacter" value="414" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                </list>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/docs/wireframes/js/super-admin.js">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792041093118" />
+                  <option name="hash" value="1329129677" />
+                </FileMeta>
+              </option>
+              <option name="records">
+                <list>
+                  <SymbolRecordBean>
+                    <option name="name" value="WF" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/super-admin.js" />
+                    <option name="startLine" value="4" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="4" />
+                    <option name="endCharacter" value="119" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="yes" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/super-admin.js" />
+                    <option name="startLine" value="5" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="5" />
+                    <option name="endCharacter" value="31" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="no" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/super-admin.js" />
+                    <option name="startLine" value="6" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="6" />
+                    <option name="endCharacter" value="45" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="shell" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/super-admin.js" />
+                    <option name="startLine" value="26" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="26" />
+                    <option name="endCharacter" value="80" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="vendorTabs" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/super-admin.js" />
+                    <option name="startLine" value="28" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="28" />
+                    <option name="endCharacter" value="222" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="vendorHead" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/super-admin.js" />
+                    <option name="startLine" value="29" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="36" />
+                    <option name="endCharacter" value="29" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="vendorShell" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/super-admin.js" />
+                    <option name="startLine" value="37" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="38" />
+                    <option name="endCharacter" value="153" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="dl" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/super-admin.js" />
+                    <option name="startLine" value="40" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="40" />
+                    <option name="endCharacter" value="161" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="gmv" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/super-admin.js" />
+                    <option name="startLine" value="77" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="77" />
+                    <option name="endCharacter" value="169" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="prod" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/super-admin.js" />
+                    <option name="startLine" value="129" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="132" />
+                    <option name="endCharacter" value="3" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="pct" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/super-admin.js" />
+                    <option name="startLine" value="130" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="130" />
+                    <option name="endCharacter" value="41" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="featureRow" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/super-admin.js" />
+                    <option name="startLine" value="270" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="274" />
+                    <option name="endCharacter" value="3" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="dlSmall" />
+                    <option name="kind" value="FUNCTION" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/super-admin.js" />
+                    <option name="startLine" value="366" />
+                    <option name="startCharacter" value="2" />
+                    <option name="endLine" value="368" />
+                    <option name="endCharacter" value="3" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="planCard" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/docs/wireframes/js/super-admin.js" />
+                    <option name="startLine" value="447" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="451" />
+                    <option name="endCharacter" value="104" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                </list>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/package.json">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792220964299" />
+                  <option name="hash" value="109669272" />
+                </FileMeta>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/public/sw.js">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792041491368" />
+                  <option name="hash" value="-318438014" />
+                </FileMeta>
+              </option>
+              <option name="records">
+                <list>
+                  <SymbolRecordBean>
+                    <option name="name" value="VERSION" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="6" />
+                    <option name="startCharacter" value="6" />
+                    <option name="endLine" value="6" />
+                    <option name="endCharacter" value="20" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="SHELL" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="7" />
+                    <option name="startCharacter" value="6" />
+                    <option name="endLine" value="7" />
+                    <option name="endCharacter" value="32" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="PAGES" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="8" />
+                    <option name="startCharacter" value="6" />
+                    <option name="endLine" value="8" />
+                    <option name="endCharacter" value="32" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="ASSETS" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="9" />
+                    <option name="startCharacter" value="6" />
+                    <option name="endLine" value="9" />
+                    <option name="endCharacter" value="34" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="IMAGES" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="10" />
+                    <option name="startCharacter" value="6" />
+                    <option name="endLine" value="10" />
+                    <option name="endCharacter" value="34" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="OFFLINE" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="11" />
+                    <option name="startCharacter" value="6" />
+                    <option name="endLine" value="11" />
+                    <option name="endCharacter" value="26" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="MAX_PAGES" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="12" />
+                    <option name="startCharacter" value="6" />
+                    <option name="endLine" value="12" />
+                    <option name="endCharacter" value="20" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="MAX_IMAGES" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="13" />
+                    <option name="startCharacter" value="6" />
+                    <option name="endLine" value="13" />
+                    <option name="endCharacter" value="22" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="PRIVATE" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="15" />
+                    <option name="startCharacter" value="6" />
+                    <option name="endLine" value="29" />
+                    <option name="endCharacter" value="1" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="saveShell" />
+                    <option name="kind" value="FUNCTION" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="32" />
+                    <option name="endLine" value="40" />
+                    <option name="endCharacter" value="1" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="response" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="33" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="33" />
+                    <option name="endCharacter" value="73" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="html" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="35" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="35" />
+                    <option name="endCharacter" value="44" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="files" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="37" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="37" />
+                    <option name="endCharacter" value="79" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="assets" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="38" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="38" />
+                    <option name="endCharacter" value="42" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="keep" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="47" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="47" />
+                    <option name="endCharacter" value="45" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="trim" />
+                    <option name="kind" value="FUNCTION" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="56" />
+                    <option name="endLine" value="60" />
+                    <option name="endCharacter" value="1" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="cache" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="57" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="57" />
+                    <option name="endCharacter" value="39" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="keys" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="58" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="58" />
+                    <option name="endCharacter" value="33" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="cacheFirst" />
+                    <option name="kind" value="FUNCTION" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="62" />
+                    <option name="endLine" value="73" />
+                    <option name="endCharacter" value="1" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="cached" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="64" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="64" />
+                    <option name="endCharacter" value="66" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="response" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="66" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="66" />
+                    <option name="endCharacter" value="39" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="cache" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="68" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="68" />
+                    <option name="endCharacter" value="41" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="networkFirst" />
+                    <option name="kind" value="FUNCTION" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="75" />
+                    <option name="endLine" value="100" />
+                    <option name="endCharacter" value="1" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="cache" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="76" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="76" />
+                    <option name="endCharacter" value="40" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="response" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="78" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="81" />
+                    <option name="endCharacter" value="6" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="saved" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="88" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="88" />
+                    <option name="endCharacter" value="44" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="url" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="90" />
+                    <option name="startCharacter" value="10" />
+                    <option name="endLine" value="90" />
+                    <option name="endCharacter" value="36" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="event" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="103" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="103" />
+                    <option name="endCharacter" value="27" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                  <SymbolRecordBean>
+                    <option name="name" value="url" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/public/sw.js" />
+                    <option name="startLine" value="105" />
+                    <option name="startCharacter" value="8" />
+                    <option name="endLine" value="105" />
+                    <option name="endCharacter" value="34" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                </list>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/scripts/vendors/home-orbit/business.example.json">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792041491383" />
+                  <option name="hash" value="278636212" />
+                </FileMeta>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/app/(payload)/admin/importMap.js">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792220962273" />
+                  <option name="hash" value="-928263475" />
+                </FileMeta>
+              </option>
+              <option name="records">
+                <list>
+                  <SymbolRecordBean>
+                    <option name="name" value="importMap" />
+                    <option name="kind" value="VARIABLE" />
+                    <option name="filePath" value="$PROJECT_DIR$/src/app/(payload)/admin/importMap.js" />
+                    <option name="startLine" value="106" />
+                    <option name="startCharacter" value="13" />
+                    <option name="endLine" value="210" />
+                    <option name="endCharacter" value="1" />
+                    <option name="language" value="js" />
+                  </SymbolRecordBean>
+                </list>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/app/(storefront)/[tenant]/globals.css">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792041491748" />
+                  <option name="hash" value="575062487" />
+                </FileMeta>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/tests/fixtures/new-tenant.example.json">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792041492608" />
+                  <option name="hash" value="-872001419" />
+                </FileMeta>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/tsconfig.json">
+          <value>
+            <FileEntry>
+              <option name="meta">
+                <FileMeta>
+                  <option name="timeStamp" value="1792041492712" />
+                  <option name="hash" value="-1923598626" />
+                </FileMeta>
+              </option>
+            </FileEntry>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

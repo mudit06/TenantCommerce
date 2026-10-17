@@ -1,0 +1,590 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VotesMapPersistentState">
+    <option name="votesMap">
+      <map>
+        <entry key="0002b331-2021-4cba-865c-61fbf5e27a60">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T07:11:26.493332400Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="02c14199-45c9-4f17-8617-c50c50679d53">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T10:37:28.765906400Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="1040628a-8866-4f13-96f9-b48d547f944a">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T10:41:56.722091500Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="10c9bc23-19a3-468f-8d4b-83dad133fb07">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T18:31:46.742807300Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="10e4b56e-93ef-443b-83af-067e88d4a93e">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T06:08:07.209564700Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="130b7d01-8113-4b0b-a038-69d84ee5d8ee">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T05:24:06.882310400Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="16e3151d-7bd4-4ddd-aa97-a0b825e29da2">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T08:06:57.774644500Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="1b851b6a-c182-445e-9684-9310a9221730">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:13:05.093687Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="1bfc669b-323a-4648-8956-93ea9b4423d0">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T10:26:20.048751600Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="1cd64b2c-6289-4719-abd8-8df28d01ed30">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T11:00:42.654943700Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="1d3e2351-dc48-4e73-b323-a6d3bcaf54cd">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:56:52.317164900Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="1da93258-fba9-458c-af1e-a4e7bb42403d">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T06:47:08.123711800Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="1f1a93b8-cac7-47d5-bcdb-47cd33e3cbbb">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T10:59:19.803903300Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="21af4df0-7274-439a-9645-faa3b4670c26">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:20:14.396705400Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="246adcb6-48b2-4c0f-8548-48cecdec85ac">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T18:13:23.001667900Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="27dc7169-6f77-4d2b-a370-7639825ec9ec">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T10:03:24.162407Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="2b1e2d70-813a-4527-b973-e21283f85d0b">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T06:51:29.698303200Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="2bb5aa70-fac4-462f-9c89-07d61b1e114a">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T10:56:53.268232400Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="2c38131c-a76f-4955-88c5-7bc1e08d6ce9">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T07:11:43.129374500Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="2d251039-7b67-49d9-a3c6-0c5a412c2f04">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T06:44:41.115059700Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="30b7b5fb-92b0-4e1e-9aac-fdcd822c4925">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:16:31.306897500Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="3587bc23-5429-4f78-90b1-8e01b74379d1">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:53:57.904855400Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="35df53be-7269-486e-87fc-04e088a73a4f">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:33:25.103569600Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="36048943-062a-43b2-ae57-8ea78d2bc386">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T10:20:43.621323600Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="3a7a6ffe-29b2-4b29-acf3-662010bb1a47">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T06:53:18.968972500Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="3c8069b3-4b42-4a2a-bbe9-73dec8da7953">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T10:14:51.082755Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="3f6a7619-427a-44e1-870a-156993f9ab5a">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:41:48.777397400Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="46ffd4b5-20eb-4916-b419-c0c862f6594c">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:39:36.083666800Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="48e1a252-3502-430a-9979-c196a0d85dfc">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T10:53:39.037957900Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="4a641b1f-b4e9-4623-9360-9d83b2126fca">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:21:49.355900800Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="4b4dc011-7b2e-461b-b720-a7d36cf1198e">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T10:35:39.306136400Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="4e3d7b11-0528-4265-aaab-312f8e13e62e">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T18:29:22.871210400Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="4f2dac97-1c13-446a-9f82-4d07afe8a3e1">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T18:30:21.446271300Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="4faf0654-7726-4dee-b1df-a0f0c592f10e">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:37:24.770181900Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="516d2968-9076-4d52-8dac-082f99e4110f">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:25:11.184130900Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="527198f6-9812-4e12-9f75-45865a991d2f">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T11:21:15.011873900Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="538fbc52-f122-4a56-8edc-4601b1ad8eea">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T18:33:50.481423500Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="5574e909-9551-4c34-b438-1cd160848b89">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T07:15:37.872208100Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="563c1872-bc26-43f1-afad-e3c18d6e0cd8">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:47:10.064144500Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="571f42c0-048f-49bc-ae52-4c73b24ebb3c">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:43:17.724414800Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="593751b1-a938-4daf-93cc-125811cf2e63">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T06:01:22.918489300Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="5a09d16b-1b08-40c8-9a7a-909e47745f7a">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T18:15:01.333718100Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="5a47adfe-2e19-4d1c-aa4e-b295b4085857">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:54:52.196809400Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="5bec0bae-40d3-4b5a-8d30-c6a81f1a0b68">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T07:13:11.213355200Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="5c647fc6-d710-4bfe-910a-10f51095b814">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T18:09:30.456712400Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="64e18317-1bd4-47cd-b398-b1b24dc98693">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T11:25:20.159232600Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="680da000-69b8-4189-aa78-ad83921a2449">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:22:43.033538500Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="6b85ae59-83e9-4d68-af34-01ac68f985eb">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T10:31:24.865699700Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="6f0c8714-8ea7-49d9-8ac6-5e916a723a70">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T11:20:37.900562200Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="6fc4ab2d-87d1-493f-9a68-d3c39229a928">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T07:11:05.190690100Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="7507d9b3-4df1-4e5d-b806-de3e7b64900c">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T11:15:57.262335200Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="7bdb5568-156c-4d16-bd26-7a7ad5129d11">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T18:32:45.617370900Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="7d064d77-4c01-4ff4-91ee-2dff0f15c9f2">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:30:42.367772100Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="84c86962-9278-4714-bc66-55d11b1fd80c">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:31:26.879916700Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="87ce6723-cf38-467f-89f9-a4c08b8403eb">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T08:25:24.324315200Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="8fc8fe6b-1389-44ea-a798-31aa5457e534">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T07:49:03.048450400Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="94820a13-bb67-46fb-b78a-8af7e8f49508">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T10:23:19.284529200Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="94836a97-7f3f-4713-b281-7df73dcc7d92">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T07:22:52.036481900Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="9addb524-119a-4328-b09e-d71119bb2328">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T07:10:56.371266600Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="9cb9992a-b146-4df5-81ef-99b2afc5acd2">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T06:58:27.506114500Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="9d8a5f02-3087-41f6-bfaa-43f403a6406e">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T11:18:50.195064300Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="a0c7b6dd-20cf-4329-9085-76988c137198">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T06:56:59.124112Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="a5893240-b326-45df-807f-7b12919fa9fe">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T18:31:11.585779900Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="aef75b02-9cb5-4c6d-907b-981643e1cf83">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T10:06:43.399121600Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="af083bd6-e6f6-49d9-b34e-8fb7d2e3d2ea">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T06:40:19.233989900Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="af57b34d-a672-4e46-9207-1f5dbd813358">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T10:39:41.394886900Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="b38fb0c3-0a5a-4130-a2dc-4ff5c6f02e8c">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T07:00:16.563534100Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="c1a95f25-743f-42f1-9bae-3483821241ed">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T07:31:10.461609600Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="c2cc52ee-be57-43c8-950d-5c851ef3623a">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:51:20.022079500Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="c6f98fc5-d8a4-4322-85e9-a2faf1b9da18">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T10:43:02.173347500Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="cd28e4c3-f284-41f7-b46e-797b425c8f24">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T18:16:40.746603400Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="d497ce24-b547-4bd2-860b-184aabaf0f14">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:52:43.696132400Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="d672e19f-e6b5-4312-98c3-4335b7498b80">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:35:40.929024500Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="d6e2aa55-c546-479f-9b71-6a020bf7b244">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T18:19:27.703058100Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="de75b582-51b2-422c-b229-6f112deebd8b">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T05:39:17.222691100Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="e0ff8b4d-0aaf-46c3-b153-6d80ced283b7">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:58:00.680788700Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="e1fe6ae5-2285-49fb-bdc0-6fe9f6db025b">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:59:11.944214Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="e279a13f-ed78-4060-8947-26396392f171">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:50:28.817722100Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="e3342c89-5566-4bb8-aebc-b240e1a0aba1">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:48:48.736090300Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="e71acc1a-6e95-4d7d-8768-a44ccf65873a">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:29:29.246521200Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="ef6abd23-8d2e-4ab9-bf9f-741fca4b0d32">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T10:49:57.756714500Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="f8ec9d88-a00a-49c4-a2dd-33a04cb98f2a">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-15T18:24:58.372002400Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+        <entry key="fc7191e8-5cde-4d88-bd99-98098105fb83">
+          <value>
+            <VoteCacheDTO>
+              <option name="voteTime" value="2026-10-16T09:11:55.374283300Z" />
+            </VoteCacheDTO>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
