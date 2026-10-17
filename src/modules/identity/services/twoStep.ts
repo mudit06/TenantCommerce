@@ -7,6 +7,7 @@ import { readHiddenFields, writeHiddenFields } from '@/lib/db/atomic'
 import { AppError } from '@/lib/errors'
 import { decryptSecret, encryptSecret } from '@/connectors'
 import { recordAudit } from '@/modules/audit'
+import type { User } from '@/payload-types'
 
 import { LOCK_MINUTES, MAX_LOGIN_ATTEMPTS } from '../constants'
 
@@ -51,6 +52,28 @@ const userIdOf = (req: PayloadRequest) => {
   return String(req.user.id)
 }
 
+function assertNotLocked(state: HiddenState) {
+  const lockedUntil = state.twoFactorLockedUntil ? new Date(state.twoFactorLockedUntil) : null
+  if (lockedUntil && lockedUntil > new Date()) {
+    throw new AppError(
+      'LOCKED',
+      `Too many wrong codes. Try again in ${LOCK_MINUTES} minutes, or ask our team to reset two-step sign-in.`,
+      429,
+    )
+  }
+}
+
+/** The QR code authenticator apps scan, and the same secret as a key for typing in by hand. */
+async function qrFor(secret: string, account: string) {
+  const url = otpauthUrl(secret, account, ISSUER)
+  const qrSvg = await QRCode.toString(url, { type: 'svg', margin: 1, errorCorrectionLevel: 'M' })
+  return {
+    // Shown in groups of four so it can be typed into an app that can't scan
+    setupKey: secret.match(/.{1,4}/g)?.join(' ') ?? secret,
+    qrSvg,
+  }
+}
+
 /** What the sign-in check found, saved by `signInStaff` once Payload's login has finished. */
 type TwoStepOutcome = { userId?: string; failed?: boolean; step?: number }
 
@@ -73,14 +96,7 @@ export async function checkTwoStepAtSignIn(
 
   const userId = String(user.id)
   const state = await hiddenState(req, userId)
-  const lockedUntil = state.twoFactorLockedUntil ? new Date(state.twoFactorLockedUntil) : null
-  if (lockedUntil && lockedUntil > new Date()) {
-    throw new AppError(
-      'LOCKED',
-      `Too many wrong codes. Try again in ${LOCK_MINUTES} minutes, or ask our team to reset two-step sign-in.`,
-      429,
-    )
-  }
+  assertNotLocked(state)
   const secret = unseal(state.twoFactorSecret)
   const step = secret ? verifyTotp(secret, code) : null
   // A code is never accepted twice, nor one older than the last used
@@ -152,22 +168,58 @@ export async function signInStaff(
   }
 }
 
-/** Starts setting up two-step for the signed-in person: a new secret and its QR code. */
+/**
+ * Starts setting up two-step for the signed-in person and returns the QR code. A setup already
+ * under way keeps its secret, so every browser shows the same QR and any phone that scanned it
+ * gives codes that work; a fresh secret is made only after two-step is reset or turned off.
+ */
 export async function startTwoStepSetup(req: PayloadRequest) {
   const userId = userIdOf(req)
-  const secret = newTotpSecret()
-  await writeHiddenFields(req, {
-    collection: 'users',
-    id: userId,
-    set: { twoFactorPending: encryptSecret({ secret }) },
-  })
-  const url = otpauthUrl(secret, req.user!.email ?? userId, ISSUER)
-  const qrSvg = await QRCode.toString(url, { type: 'svg', margin: 1, errorCorrectionLevel: 'M' })
-  return {
-    // Shown in groups of four so it can be typed into an app that can't scan
-    setupKey: secret.match(/.{1,4}/g)?.join(' ') ?? secret,
-    qrSvg,
+  if ((req.user as { twoFactorEnabled?: boolean | null }).twoFactorEnabled) {
+    throw new AppError('CONFLICT', 'Two-step sign-in is already on', 409)
   }
+  const state = await hiddenState(req, userId)
+  let secret = unseal(state.twoFactorPending)
+  if (!secret) {
+    secret = newTotpSecret()
+    await writeHiddenFields(req, {
+      collection: 'users',
+      id: userId,
+      set: { twoFactorPending: encryptSecret({ secret }) },
+    })
+  }
+  return qrFor(secret, req.user!.email ?? userId)
+}
+
+/**
+ * "Add another phone" (docs/05): with two-step on, a current code from a phone that already
+ * works shows the same QR again, so any number of phones give the same codes. Wrong codes count
+ * towards the same five-try lock as sign-in.
+ */
+export async function showTwoStepQr(req: PayloadRequest, code: string) {
+  const userId = userIdOf(req)
+  const state = await hiddenState(req, userId)
+  assertNotLocked(state)
+  const secret = unseal(state.twoFactorSecret)
+  if (!secret) throw new AppError('NOT_FOUND', 'Two-step sign-in is off', 404)
+  if (verifyTotp(secret, code) === null) {
+    await saveOutcome(req, { userId, failed: true })
+    throw new AppError(
+      'INVALID_CODE',
+      'That code didn’t work. Try the newest code in the app.',
+      400,
+      {
+        code: 'That code didn’t work',
+      },
+    )
+  }
+  await recordAudit(req, {
+    action: 'two_factor_changed',
+    collectionSlug: 'users',
+    docId: userId,
+    summary: 'Showed the two-step QR code to add another phone',
+  })
+  return qrFor(secret, req.user!.email ?? userId)
 }
 
 /** Confirms the setup with a code from the app; from then on every sign-in asks for one. */
@@ -253,6 +305,36 @@ export async function resetTwoStep(req: PayloadRequest, targetId: string) {
     overrideAccess: true,
     req,
   })
+  await resetAndAudit(req, target, `Reset two-step sign-in for ${target.name}`)
+}
+
+/**
+ * `pnpm reset-two-step <email>`: the same reset from the server's command line, for when no
+ * super admin can sign in (the only one lost their phone). Needs server access; audited.
+ */
+export async function resetTwoStepFromServer(req: PayloadRequest, email: string) {
+  const { docs } = await req.payload.find({
+    collection: 'users',
+    where: { email: { equals: email.trim().toLowerCase() } },
+    limit: 1,
+    // No count query beside the find: two at once on one transaction session fail
+    pagination: false,
+    depth: 0,
+    overrideAccess: true,
+    req,
+  })
+  const target = docs[0]
+  if (!target) throw new AppError('NOT_FOUND', `No account for ${email}`, 404)
+  await resetAndAudit(req, target, `Reset two-step sign-in for ${target.name} from the server`)
+  return { name: target.name, email: target.email }
+}
+
+async function resetAndAudit(
+  req: PayloadRequest,
+  target: Pick<User, 'id' | 'tenants'>,
+  summary: string,
+) {
+  const targetId = String(target.id)
   await clearTwoStep(req, targetId)
   const stores = (target.tenants ?? []).map((row) => idOf(row.tenant)).filter(Boolean) as string[]
   for (const tenant of stores.length ? stores : [null]) {
@@ -261,7 +343,7 @@ export async function resetTwoStep(req: PayloadRequest, targetId: string) {
       tenant,
       collectionSlug: 'users',
       docId: targetId,
-      summary: `Reset two-step sign-in for ${target.name}`,
+      summary,
     })
   }
 }

@@ -15,4 +15,5 @@ export {
   type StartStoreSessionInput,
   type StoreSessionResult,
 } from './services/storeSession'
+export { resetTwoStepFromServer } from './services/twoStep'
 export { INVITE_VALID_HOURS, MIN_PASSWORD_LENGTH } from './constants'

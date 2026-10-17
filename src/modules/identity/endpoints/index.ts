@@ -10,6 +10,7 @@ import { inviteInputSchema, inviteStaff, resendInvite } from '../services/invite
 import {
   confirmTwoStepSetup,
   resetTwoStep,
+  showTwoStepQr,
   signInStaff,
   startTwoStepSetup,
   turnOffTwoStep,
@@ -105,6 +106,17 @@ export const identityEndpoints: Endpoint[] = [
       const { code } = await readBody(req, codeSchema)
       await withTransaction(req, () => confirmTwoStepSetup(req, code))
       return ok({ enabled: true })
+    }),
+  },
+  {
+    // "Add another phone": a current code shows the same QR again (docs/05)
+    path: '/admin/v1/auth/two-step/qr',
+    method: 'post',
+    handler: apiHandler(async (req) => {
+      requireUser(req)
+      assertSameOrigin(req)
+      const { code } = await readBody(req, codeSchema)
+      return ok(await showTwoStepQr(req, code))
     }),
   },
   {

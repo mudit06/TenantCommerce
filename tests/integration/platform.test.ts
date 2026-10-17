@@ -9,6 +9,8 @@ import {
   confirmTwoStepSetup,
   mustSetUpTwoStep,
   resetTwoStep,
+  resetTwoStepFromServer,
+  showTwoStepQr,
   signInStaff,
   startTwoStepSetup,
   turnOffTwoStep,
@@ -559,6 +561,9 @@ describe('two-step sign-in (docs/05, sa-login)', () => {
     const setup = await startTwoStepSetup(req)
     setupKey = setup.setupKey
     expect(setup.qrSvg).toContain('<svg')
+    // Opening setup again (another browser, another phone) shows the same QR, not a new secret
+    const again = await startTwoStepSetup(await reqAs(payload, teammate))
+    expect(again.setupKey).toBe(setupKey)
     await expect(withTransaction(req, () => confirmTwoStepSetup(req, '000000'))).rejects.toThrow(
       /didn’t work/,
     )
@@ -575,6 +580,12 @@ describe('two-step sign-in (docs/05, sa-login)', () => {
     expect(read).not.toHaveProperty('twoFactorPending')
     teammate = asUser(read)
     expect(mustSetUpTwoStep(teammate)).toBe(false)
+    // Once on, setup can't be started again to swap the secret
+    await expect(startTwoStepSetup(await reqAs(payload, teammate))).rejects.toThrow(/already on/)
+    // "Add another phone": a current code shows the same QR again, a wrong one doesn't
+    const own = await reqAs(payload, teammate)
+    await expect(showTwoStepQr(own, '000000')).rejects.toThrow(/didn’t work/)
+    expect((await showTwoStepQr(own, codeFor(setupKey))).setupKey).toBe(setupKey)
   })
 
   it('asks for the code after the password, on every way in', async () => {
@@ -644,9 +655,10 @@ describe('two-step sign-in (docs/05, sa-login)', () => {
     await expect(login(ownerA.email, codeFor(setup.setupKey, 1))).rejects.toMatchObject({
       code: 'LOCKED',
     })
-    // Vendor staff may turn it off themselves, with a current code (after the lock clears)
-    const byAdmin = await reqAs(payload, admin)
-    await withTransaction(byAdmin, () => resetTwoStep(byAdmin, String(ownerA.id)))
+    // From the server's command line when no super admin can sign in: same reset, audited
+    const server = await reqAs(payload)
+    await withTransaction(server, () => resetTwoStepFromServer(server, ownerA.email))
+    await expect(login(ownerA.email)).resolves.toHaveProperty('token')
   })
 })
 

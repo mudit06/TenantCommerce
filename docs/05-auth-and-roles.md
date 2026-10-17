@@ -34,7 +34,12 @@ There are two separate auth collections with different security needs.
   Payload's own `/api/users/login` can't skip it, and a password reset drops the session it
   creates for such an account. Five wrong codes lock two-step for 15 minutes; a code is never
   accepted twice. Our team (platform roles) must set it up: until they do, the admin shows only
-  the setup screen. Vendor staff turn it on or off from their own account page (off needs a
+  the setup screen. A setup in progress keeps its secret, so every browser shows the same QR
+  (any phone that scanned it works); once two-step is on, setup can't start again until a reset.
+  To use more phones later, **Add another phone** on your own account shows the same QR again
+  after a current code (wrong codes count towards the lock; audited). Every phone shows the same
+  codes. When no super admin can sign in, `pnpm reset-two-step <email>` does the same audited
+  reset from the server. Vendor staff turn it on or off from their own account page (off needs a
   current code). Super admins reset it for a lost phone (Team and access, a vendor's Staff tab,
   or the person's page), audited as `two_factor_reset`.
 - Password policy: min 10 chars (a `beforeOperation` hook on create, update and reset, since

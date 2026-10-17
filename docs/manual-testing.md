@@ -64,13 +64,18 @@ You need an authenticator app on your phone (Google Authenticator, Microsoft Aut
       two-step sign-in**: press it, scan the QR code with the app (or type the setup key), and
       type the 6-digit code. The cover goes and the platform dashboard shows: "Good morning/
       afternoon/evening, Platform".
+- [ ] Before finishing setup, open it in a second browser too: it shows the same QR code and
+      setup key, so a phone that scanned either one gives codes that work.
 - [ ] Sign out and sign in again: after the password the page asks **Step 2 of 2, Two-step
       verification** with six boxes. Type a wrong code: "That code didn't work". Type the app's
       code (pasting all six digits into the first box works too): you are in.
 - [ ] Tick **Keep me signed in on this device** to keep the session after the browser closes
       (still 8 hours at most).
+- [ ] More phones: on your account page press **Add another phone**, type a code from a phone
+      that works, and scan the QR it shows on the new phone. Both phones show the same code.
 - [ ] Lost phone: another super admin uses **Reset two-step** on Team and access; you set it up
-      again at the next sign-in.
+      again at the next sign-in. If you are the only super admin, run
+      `pnpm reset-two-step you@example.com` on the server instead.
 
 ### 1.2 Dashboard
 

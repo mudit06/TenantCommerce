@@ -5,7 +5,29 @@ import { useState } from 'react'
 import { callApi } from '@/admin/client/api'
 import { CodeBoxes } from '@/admin/ui/CodeBoxes'
 
-type Setup = { setupKey: string; qrSvg: string }
+export type Setup = { setupKey: string; qrSvg: string }
+
+/** The QR code and setup key; every phone that scans the same one shows the same codes. */
+export function TwoStepScan({ setup }: { setup: Setup }) {
+  return (
+    <div className="te-twostep__scan">
+      <div
+        aria-label="QR code for your authenticator app"
+        className="te-twostep__qr"
+        // Our own server's SVG from the qrcode library, not user input
+        dangerouslySetInnerHTML={{ __html: setup.qrSvg }}
+        role="img"
+      />
+      <div>
+        <p className="te-small">Can’t scan? Choose “Enter a setup key” in the app and type:</p>
+        <p className="te-mono te-twostep__key">{setup.setupKey}</p>
+        <p className="te-muted te-small">
+          Time based, 6 digits. Scan it on as many phones as you like.
+        </p>
+      </div>
+    </div>
+  )
+}
 
 /**
  * Setting up two-step sign-in (docs/05): scan the QR code with an authenticator app (or type
@@ -72,20 +94,7 @@ export function TwoStepSetup({ onDone }: { onDone?: () => void }) {
 
   return (
     <div className="te-twostep">
-      <div className="te-twostep__scan">
-        <div
-          aria-label="QR code for your authenticator app"
-          className="te-twostep__qr"
-          // Our own server's SVG from the qrcode library, not user input
-          dangerouslySetInnerHTML={{ __html: setup.qrSvg }}
-          role="img"
-        />
-        <div>
-          <p className="te-small">Can’t scan? Choose “Enter a setup key” in the app and type:</p>
-          <p className="te-mono te-twostep__key">{setup.setupKey}</p>
-          <p className="te-muted te-small">Time based, 6 digits.</p>
-        </div>
-      </div>
+      <TwoStepScan setup={setup} />
       <label className="te-label" htmlFor="twostep-code">
         Code from the app
       </label>

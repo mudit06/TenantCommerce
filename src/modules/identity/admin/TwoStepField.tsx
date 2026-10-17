@@ -5,6 +5,7 @@ import { Card, Pill } from '@/admin/ui'
 import { formatDate } from '@/lib/dates'
 
 import { ResetTwoStepButton } from './ResetTwoStepButton'
+import { TwoStepAddPhone } from './TwoStepAddPhone'
 import { TwoStepOff } from './TwoStepOff'
 import { TwoStepSetup } from './TwoStepSetup'
 
@@ -39,6 +40,7 @@ export const TwoStepField: UIFieldServerComponent = async ({ id, req }) => {
         </p>
       )}
       {own && !enabled ? <TwoStepSetup /> : null}
+      {own && enabled ? <TwoStepAddPhone /> : null}
       {own && enabled && !isPlatformStaff(user) ? <TwoStepOff /> : null}
       {!own && enabled ? <ResetTwoStepButton name={user.name} userId={String(user.id)} /> : null}
     </Card>
