@@ -1,0 +1,37 @@
+name: Weekly R2 to Google Drive Backup
+
+on:
+  schedule:
+    # Runs at 02:00 UTC every Sunday
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    name: "Sync R2 to Google Drive"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Rclone
+        run: |
+          sudo -v ; curl https://rclone.org/install.sh | sudo bash
+
+      - name: Restore Rclone Configuration
+        env:
+          RCLONE_CONFIG_DATA: "W3IyXQ0KdHlwZSA9IHMzDQpwcm92aWRlciA9IENsb3VkZmxhcmUNCmFjY2Vzc19rZXlfaWQgPSBhYmRkMjE1NTg0ZTg1ZDI5YzU3ZjUyNGE2MWNhZWVkNA0Kc2VjcmV0X2FjY2Vzc19rZXkgPSA1ZGRhNjk0OWI3MjAwMGU0NTFmZjBjN2NkMzIxZWUxZTVkMjM4MjkyZmZkMjUzMmZjMWVmMzk2ZGNlMGNhZjczDQpyZWdpb24gPSBhcC1zb3V0aC0xDQpsb2NhdGlvbl9jb25zdHJhaW50ID0gYXAtc291dGgtMQ0KZW5kcG9pbnQgPSBodHRwczovL2Q1Yzc4YzBiY2U0MDFhNTU4OWExNjI3OWEwODllOTRiLnIyLmNsb3VkZmxhcmVzdG9yYWdlLmNvbQ0KYWNsID0gcHJpdmF0ZQ0KDQpbZ29vZ2xlZHJpdmVdDQp0eXBlID0gZHJpdmUNCnNjb3BlID0gZHJpdmUNCnRva2VuID0geyJhY2Nlc3NfdG9rZW4iOiJ5YTI5LmEwQVgwN0NtdFJDU2xITl9BaEZRVHpxcTZaUHFqMW9tS253MmtUOXVnNXF1WFI1MTF2SGYyVk5ENVBmU2NHd2pKbExDRHZEU1hiM1FMVzJIQTBqU05wc0ZuTDFrY21fYWRGblF1dXBhQ1NRSVFsb2lGeTVJOWhyUGFBZmVUVzVEckxWNXB0ejloaTl2LXBSOERfZFE4RUpJc1U3a1VEcmhJMllSeFlFNzBxaTNjNmNuLWNrQkxJU09aU1E4Y1RIMl9Xb05INFZ6d2FDZ1lLQVhFU0FSQVNGUUhHWDJNaTMxemJpYjlaRXlfX0hramZINEo4R0EwMjA2IiwidG9rZW5fdHlwZSI6IkJlYXJlciIsInJlZnJlc2hfdG9rZW4iOiIxLy8wZ2Nlb3hHMFJROUtNQ2dZSUFSQUFHQkFTTndGLUw5SXJCRHd3Nk1Wd3Z6N1dxeWVEdGdiUzNPQ3BiN18tMW9LWVlVaEZBV1drU09HR0FiekwxMnBGYkZITUxWZ3ZXa1hHMUhVIiwiZXhwaXJ5IjoiMjAyNi0xMC0xOFQwMDo1MDoxMS44ODg4ODk0KzA1OjMwIiwiZXhwaXJlc19pbiI6MzU5OX0NCnRlYW1fZHJpdmUgPSANCg0K"
+        run: |
+          mkdir -p ~/.config/rclone
+          echo "$RCLONE_CONFIG_DATA" | base64 -d > ~/.config/rclone/rclone.conf
+          chmod 600 ~/.config/rclone/rclone.conf
+
+      - name: Test Remote Connectivity
+        run: |
+          rclone listremotes
+
+      - name: Execute Backup Copy
+        run: |
+          rclone copy r2:tenant-commerce-images gdrive:R2-Weekly-Backups \
+            --fast-list \
+            --transfers 4 \
+            --checkers 8 \
+            --drive-chunk-size 32M \
+            -v
